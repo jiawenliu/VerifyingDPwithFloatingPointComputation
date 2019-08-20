@@ -29,7 +29,7 @@ Notation "[1-]  x" := (Uinv x)  (at level 35, right associativity) : U_scope.
 Notation "0" := U0 : U_scope.
 Notation "1" := U1 : U_scope.
 Notation "[1/]1+ n" := (Unth n) (at level 35, right associativity) : U_scope.
-Open Local Scope U_scope.
+Open Scope U_scope.
 
 (** ** Basic Properties *)
 Axiom Ueq_refl : forall x:U, x == x.
