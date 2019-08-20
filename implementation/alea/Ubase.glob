@@ -1,0 +1,399 @@
+DIGEST 68000d223d5ae152010d8f4c08058c1e
+FRandom.Ubase
+R73:78 Coq.Setoids.Setoid <> <> lib
+R96:102 Random.Prelude <> <> lib
+modtype 376:383 <> Universe
+ax 396:396 Universe U
+ax 475:477 Universe Ueq
+ax 479:481 Universe Ule
+R486:489 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R491:494 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R490:490 Random.Ubase Universe U defax
+R485:485 Random.Ubase Universe U defax
+ax 512:513 Universe U0
+ax 515:516 Universe U1
+R520:520 Random.Ubase Universe U defax
+ax 534:538 Universe Uplus
+ax 540:544 Universe Umult
+R549:552 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R554:557 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R558:558 Random.Ubase Universe U defax
+R553:553 Random.Ubase Universe U defax
+R548:548 Random.Ubase Universe U defax
+ax 571:574 Universe Uinv
+R579:582 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R583:583 Random.Ubase Universe U defax
+R578:578 Random.Ubase Universe U defax
+ax 596:599 Universe Unth
+R606:609 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R610:610 Random.Ubase Universe U defax
+R603:605 Coq.Init.Datatypes <> nat ind
+R627:631 Random.Ubase Universe Uplus defax
+not 620:620 Universe :U_scope:x_'+'_x
+R658:662 Random.Ubase Universe Umult defax
+not 651:651 Universe :U_scope:x_'*'_x
+R690:692 Random.Ubase Universe Ueq defax
+not 682:682 Universe :U_scope:x_'=='_x
+R733:735 Random.Ubase Universe Ule defax
+not 725:725 Universe :U_scope:x_'<='_x
+R771:774 Random.Ubase Universe Uinv defax
+not 757:757 Universe :U_scope:'[1-]'_x
+R842:843 Random.Ubase Universe U0 defax
+not 835:835 Universe :U_scope:'0'
+R872:873 Random.Ubase Universe U1 defax
+not 865:865 Universe :U_scope:'1'
+R910:913 Random.Ubase Universe Unth defax
+not 895:895 Universe :U_scope:'[1/]1+'_x
+ax 1018:1025 Universe Ueq_refl
+R1038:1038 Random.Ubase Universe U defax
+R1042:1045 Random.Ubase Universe :U_scope:x_'=='_x not
+R1041:1041 Random.Ubase <> x var
+R1046:1046 Random.Ubase <> x var
+ax 1055:1061 Universe Ueq_sym
+R1076:1076 Random.Ubase Universe U defax
+R1085:1088 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R1090:1093 Random.Ubase Universe :U_scope:x_'=='_x not
+R1089:1089 Random.Ubase <> y var
+R1094:1094 Random.Ubase <> x var
+R1080:1083 Random.Ubase Universe :U_scope:x_'=='_x not
+R1079:1079 Random.Ubase <> x var
+R1084:1084 Random.Ubase <> y var
+ax 1104:1112 Universe Udiff_0_1
+R1116:1116 Coq.Init.Logic <> :type_scope:'~'_x not
+R1118:1121 Random.Ubase Universe :U_scope:x_'=='_x not
+ax 1131:1134 Universe Upos
+R1147:1147 Random.Ubase Universe U defax
+R1151:1154 Random.Ubase Universe :U_scope:x_'<='_x not
+R1155:1155 Random.Ubase <> x var
+ax 1164:1167 Universe Unit
+R1180:1180 Random.Ubase Universe U defax
+R1184:1187 Random.Ubase Universe :U_scope:x_'<='_x not
+R1183:1183 Random.Ubase <> x var
+ax 1198:1206 Universe Uplus_sym
+R1221:1221 Random.Ubase Universe U defax
+R1229:1232 Random.Ubase Universe :U_scope:x_'=='_x not
+R1225:1227 Random.Ubase Universe :U_scope:x_'+'_x not
+R1224:1224 Random.Ubase <> x var
+R1228:1228 Random.Ubase <> y var
+R1234:1236 Random.Ubase Universe :U_scope:x_'+'_x not
+R1233:1233 Random.Ubase <> y var
+R1237:1237 Random.Ubase <> x var
+ax 1246:1256 Universe Uplus_assoc
+R1273:1273 Random.Ubase Universe U defax
+R1287:1290 Random.Ubase Universe :U_scope:x_'=='_x not
+R1277:1280 Random.Ubase Universe :U_scope:x_'+'_x not
+R1286:1286 Random.Ubase Universe :U_scope:x_'+'_x not
+R1276:1276 Random.Ubase <> x var
+R1282:1284 Random.Ubase Universe :U_scope:x_'+'_x not
+R1281:1281 Random.Ubase <> y var
+R1285:1285 Random.Ubase <> z var
+R1296:1298 Random.Ubase Universe :U_scope:x_'+'_x not
+R1292:1294 Random.Ubase Universe :U_scope:x_'+'_x not
+R1291:1291 Random.Ubase <> x var
+R1295:1295 Random.Ubase <> y var
+R1299:1299 Random.Ubase <> z var
+ax 1308:1322 Universe Uplus_zero_left
+R1335:1335 Random.Ubase Universe U defax
+R1343:1346 Random.Ubase Universe :U_scope:x_'=='_x not
+R1339:1341 Random.Ubase Universe :U_scope:x_'+'_x not
+R1342:1342 Random.Ubase <> x var
+R1347:1347 Random.Ubase <> x var
+ax 1357:1365 Universe Umult_sym
+R1380:1380 Random.Ubase Universe U defax
+R1388:1391 Random.Ubase Universe :U_scope:x_'=='_x not
+R1384:1386 Random.Ubase Universe :U_scope:x_'*'_x not
+R1383:1383 Random.Ubase <> x var
+R1387:1387 Random.Ubase <> y var
+R1393:1395 Random.Ubase Universe :U_scope:x_'*'_x not
+R1392:1392 Random.Ubase <> y var
+R1396:1396 Random.Ubase <> x var
+ax 1405:1415 Universe Umult_assoc
+R1432:1432 Random.Ubase Universe U defax
+R1446:1449 Random.Ubase Universe :U_scope:x_'=='_x not
+R1436:1439 Random.Ubase Universe :U_scope:x_'*'_x not
+R1445:1445 Random.Ubase Universe :U_scope:x_'*'_x not
+R1435:1435 Random.Ubase <> x var
+R1441:1443 Random.Ubase Universe :U_scope:x_'*'_x not
+R1440:1440 Random.Ubase <> y var
+R1444:1444 Random.Ubase <> z var
+R1455:1457 Random.Ubase Universe :U_scope:x_'*'_x not
+R1451:1453 Random.Ubase Universe :U_scope:x_'*'_x not
+R1450:1450 Random.Ubase <> x var
+R1454:1454 Random.Ubase <> y var
+R1458:1458 Random.Ubase <> z var
+ax 1467:1480 Universe Umult_one_left
+R1493:1493 Random.Ubase Universe U defax
+R1501:1504 Random.Ubase Universe :U_scope:x_'=='_x not
+R1497:1499 Random.Ubase Universe :U_scope:x_'*'_x not
+R1500:1500 Random.Ubase <> x var
+R1505:1505 Random.Ubase <> x var
+ax 1515:1522 Universe Uinv_one
+R1532:1535 Random.Ubase Universe :U_scope:x_'=='_x not
+R1526:1530 Random.Ubase Universe :U_scope:'[1-]'_x not
+ax 1546:1558 Universe Uinv_opp_left
+R1582:1585 Random.Ubase Universe :U_scope:x_'=='_x not
+R1578:1580 Random.Ubase Universe :U_scope:x_'+'_x not
+R1572:1576 Random.Ubase Universe :U_scope:'[1-]'_x not
+R1577:1577 Random.Ubase <> x var
+R1581:1581 Random.Ubase <> x var
+ax 1670:1683 Universe Uinv_plus_left
+R1710:1713 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R1730:1733 Random.Ubase Universe :U_scope:x_'=='_x not
+R1726:1728 Random.Ubase Universe :U_scope:x_'+'_x not
+R1714:1719 Random.Ubase Universe :U_scope:'[1-]'_x not
+R1725:1725 Random.Ubase Universe :U_scope:'[1-]'_x not
+R1721:1723 Random.Ubase Universe :U_scope:x_'+'_x not
+R1720:1720 Random.Ubase <> x var
+R1724:1724 Random.Ubase <> y var
+R1729:1729 Random.Ubase <> x var
+R1734:1738 Random.Ubase Universe :U_scope:'[1-]'_x not
+R1739:1739 Random.Ubase <> y var
+R1700:1703 Random.Ubase Universe :U_scope:x_'<='_x not
+R1699:1699 Random.Ubase <> y var
+R1704:1708 Random.Ubase Universe :U_scope:'[1-]'_x not
+R1709:1709 Random.Ubase <> x var
+ax 1854:1870 Universe Udistr_plus_right
+R1899:1902 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R1914:1917 Random.Ubase Universe :U_scope:x_'=='_x not
+R1903:1903 Random.Ubase Universe :U_scope:x_'*'_x not
+R1909:1912 Random.Ubase Universe :U_scope:x_'*'_x not
+R1905:1907 Random.Ubase Universe :U_scope:x_'+'_x not
+R1904:1904 Random.Ubase <> x var
+R1908:1908 Random.Ubase <> y var
+R1913:1913 Random.Ubase <> z var
+R1923:1925 Random.Ubase Universe :U_scope:x_'+'_x not
+R1919:1921 Random.Ubase Universe :U_scope:x_'*'_x not
+R1918:1918 Random.Ubase <> x var
+R1922:1922 Random.Ubase <> z var
+R1927:1929 Random.Ubase Universe :U_scope:x_'*'_x not
+R1926:1926 Random.Ubase <> y var
+R1930:1930 Random.Ubase <> z var
+R1889:1892 Random.Ubase Universe :U_scope:x_'<='_x not
+R1888:1888 Random.Ubase <> x var
+R1893:1897 Random.Ubase Universe :U_scope:'[1-]'_x not
+R1898:1898 Random.Ubase <> y var
+ax 2004:2019 Universe Udistr_inv_right
+R2034:2034 Random.Ubase Universe U defax
+R2050:2053 Random.Ubase Universe :U_scope:x_'=='_x not
+R2038:2043 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2049:2049 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2045:2047 Random.Ubase Universe :U_scope:x_'*'_x not
+R2044:2044 Random.Ubase <> x var
+R2048:2048 Random.Ubase <> y var
+R2066:2068 Random.Ubase Universe :U_scope:x_'+'_x not
+R2054:2054 Random.Ubase Universe :U_scope:x_'*'_x not
+R2061:2064 Random.Ubase Universe :U_scope:x_'*'_x not
+R2055:2059 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2060:2060 Random.Ubase <> x var
+R2065:2065 Random.Ubase <> y var
+R2069:2073 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2074:2074 Random.Ubase <> y var
+ax 2158:2163 Universe Ueq_le
+R2178:2178 Random.Ubase Universe U defax
+R2187:2190 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2192:2195 Random.Ubase Universe :U_scope:x_'<='_x not
+R2191:2191 Random.Ubase <> x var
+R2196:2196 Random.Ubase <> y var
+R2182:2185 Random.Ubase Universe :U_scope:x_'=='_x not
+R2181:2181 Random.Ubase <> x var
+R2186:2186 Random.Ubase <> y var
+ax 2206:2214 Universe Ule_trans
+R2231:2231 Random.Ubase Universe U defax
+R2240:2243 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2250:2253 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2255:2258 Random.Ubase Universe :U_scope:x_'<='_x not
+R2254:2254 Random.Ubase <> x var
+R2259:2259 Random.Ubase <> z var
+R2245:2248 Random.Ubase Universe :U_scope:x_'<='_x not
+R2244:2244 Random.Ubase <> y var
+R2249:2249 Random.Ubase <> z var
+R2235:2238 Random.Ubase Universe :U_scope:x_'<='_x not
+R2234:2234 Random.Ubase <> x var
+R2239:2239 Random.Ubase <> y var
+ax 2269:2279 Universe Ule_antisym
+R2294:2294 Random.Ubase Universe U defax
+R2303:2306 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2313:2316 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2318:2321 Random.Ubase Universe :U_scope:x_'=='_x not
+R2317:2317 Random.Ubase <> x var
+R2322:2322 Random.Ubase <> y var
+R2308:2311 Random.Ubase Universe :U_scope:x_'<='_x not
+R2307:2307 Random.Ubase <> y var
+R2312:2312 Random.Ubase <> x var
+R2298:2301 Random.Ubase Universe :U_scope:x_'<='_x not
+R2297:2297 Random.Ubase <> x var
+R2302:2302 Random.Ubase <> y var
+ax 2361:2369 Universe Ule_class
+R2386:2386 Random.Ubase Universe U defax
+R2389:2393 Random.Prelude <> class def
+R2397:2400 Random.Ubase Universe :U_scope:x_'<='_x not
+R2396:2396 Random.Ubase <> x var
+R2401:2401 Random.Ubase <> y var
+ax 2412:2420 Universe Ule_total
+R2437:2437 Random.Ubase Universe U defax
+R2440:2442 Random.Prelude <> orc def
+R2453:2454 Random.Ubase Universe :U_scope:x_'<='_x not
+R2452:2452 Random.Ubase <> y var
+R2455:2455 Random.Ubase <> x var
+R2446:2447 Random.Ubase Universe :U_scope:x_'<='_x not
+R2445:2445 Random.Ubase <> x var
+R2448:2448 Random.Ubase <> y var
+R2478:2486 Random.Ubase Universe Ule_total prfax
+ax 2558:2577 Universe Uplus_le_compat_left
+R2594:2594 Random.Ubase Universe U defax
+R2603:2606 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2612:2615 Random.Ubase Universe :U_scope:x_'<='_x not
+R2608:2610 Random.Ubase Universe :U_scope:x_'+'_x not
+R2607:2607 Random.Ubase <> x var
+R2611:2611 Random.Ubase <> z var
+R2617:2619 Random.Ubase Universe :U_scope:x_'+'_x not
+R2616:2616 Random.Ubase <> y var
+R2620:2620 Random.Ubase <> z var
+R2598:2601 Random.Ubase Universe :U_scope:x_'<='_x not
+R2597:2597 Random.Ubase <> x var
+R2602:2602 Random.Ubase <> y var
+ax 2630:2649 Universe Umult_le_compat_left
+R2666:2666 Random.Ubase Universe U defax
+R2675:2678 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2684:2687 Random.Ubase Universe :U_scope:x_'<='_x not
+R2680:2682 Random.Ubase Universe :U_scope:x_'*'_x not
+R2679:2679 Random.Ubase <> x var
+R2683:2683 Random.Ubase <> z var
+R2689:2691 Random.Ubase Universe :U_scope:x_'*'_x not
+R2688:2688 Random.Ubase <> y var
+R2692:2692 Random.Ubase <> z var
+R2670:2673 Random.Ubase Universe :U_scope:x_'<='_x not
+R2669:2669 Random.Ubase <> x var
+R2674:2674 Random.Ubase <> y var
+ax 2702:2715 Universe Uinv_le_compat
+R2730:2730 Random.Ubase Universe U defax
+R2739:2742 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2749:2752 Random.Ubase Universe :U_scope:x_'<='_x not
+R2743:2747 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2748:2748 Random.Ubase <> y var
+R2753:2757 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2758:2758 Random.Ubase <> x var
+R2734:2737 Random.Ubase Universe :U_scope:x_'<='_x not
+R2733:2733 Random.Ubase <> x var
+R2738:2738 Random.Ubase <> y var
+ax 2833:2852 Universe Uplus_le_simpl_right
+R2881:2884 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2899:2902 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2904:2907 Random.Ubase Universe :U_scope:x_'<='_x not
+R2903:2903 Random.Ubase <> x var
+R2908:2908 Random.Ubase <> y var
+R2890:2893 Random.Ubase Universe :U_scope:x_'<='_x not
+R2886:2888 Random.Ubase Universe :U_scope:x_'+'_x not
+R2885:2885 Random.Ubase <> x var
+R2889:2889 Random.Ubase <> z var
+R2895:2897 Random.Ubase Universe :U_scope:x_'+'_x not
+R2894:2894 Random.Ubase <> y var
+R2898:2898 Random.Ubase <> z var
+R2871:2874 Random.Ubase Universe :U_scope:x_'<='_x not
+R2870:2870 Random.Ubase <> z var
+R2875:2879 Random.Ubase Universe :U_scope:'[1-]'_x not
+R2880:2880 Random.Ubase <> x var
+ax 2918:2936 Universe Umult_le_simpl_left
+R2954:2954 Random.Ubase Universe U defax
+R2964:2967 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2982:2985 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R2987:2990 Random.Ubase Universe :U_scope:x_'<='_x not
+R2986:2986 Random.Ubase <> x var
+R2991:2991 Random.Ubase <> y var
+R2973:2976 Random.Ubase Universe :U_scope:x_'<='_x not
+R2969:2971 Random.Ubase Universe :U_scope:x_'*'_x not
+R2968:2968 Random.Ubase <> z var
+R2972:2972 Random.Ubase <> x var
+R2978:2980 Random.Ubase Universe :U_scope:x_'*'_x not
+R2977:2977 Random.Ubase <> z var
+R2981:2981 Random.Ubase <> y var
+R2957:2957 Coq.Init.Logic <> :type_scope:'~'_x not
+R2959:2962 Random.Ubase Universe :U_scope:x_'=='_x not
+R2963:2963 Random.Ubase <> z var
+ax 3071:3079 Universe Unth_prop
+R3100:3103 Random.Ubase Universe :U_scope:x_'=='_x not
+R3093:3098 Random.Ubase Universe :U_scope:'[1/]1+'_x not
+R3099:3099 Random.Ubase <> n var
+R3104:3108 Random.Ubase Universe :U_scope:'[1-]'_x not
+R3142:3142 Random.Ubase Universe :U_scope:'[1-]'_x not
+R3109:3112 Random.Prelude <> comp def
+R3141:3141 Random.Ubase <> n var
+R3132:3137 Random.Ubase Universe :U_scope:'[1/]1+'_x not
+R3138:3138 Random.Ubase <> n var
+R3114:3118 Random.Ubase Universe Uplus defax
+ax 3180:3190 Universe archimedian
+R3211:3214 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3215:3217 Random.Prelude <> exc def
+R3236:3239 Random.Ubase Universe :U_scope:x_'<='_x not
+R3229:3234 Random.Ubase Universe :U_scope:'[1/]1+'_x not
+R3235:3235 Random.Ubase <> n var
+R3240:3240 Random.Ubase <> x var
+R3204:3204 Coq.Init.Logic <> :type_scope:'~'_x not
+R3206:3209 Random.Ubase Universe :U_scope:x_'=='_x not
+R3210:3210 Random.Ubase <> x var
+ax 3330:3332 Universe lub
+R3336:3336 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3345:3349 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3350:3350 Random.Ubase Universe U defax
+R3340:3343 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3344:3344 Random.Ubase Universe U defax
+R3337:3339 Coq.Init.Datatypes <> nat ind
+ax 3360:3365 Universe le_lub
+R3384:3387 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3388:3388 Random.Ubase Universe U defax
+R3381:3383 Coq.Init.Datatypes <> nat ind
+R3394:3396 Coq.Init.Datatypes <> nat ind
+R3403:3406 Random.Ubase Universe :U_scope:x_'<='_x not
+R3400:3400 Random.Ubase <> f var
+R3402:3402 Random.Ubase <> n var
+R3407:3409 Random.Ubase Universe lub defax
+R3411:3411 Random.Ubase <> f var
+ax 3420:3425 Universe lub_le
+R3444:3447 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3448:3448 Random.Ubase Universe U defax
+R3441:3443 Coq.Init.Datatypes <> nat ind
+R3454:3454 Random.Ubase Universe U defax
+R3458:3458 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3477:3481 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3487:3490 Random.Ubase Universe :U_scope:x_'<='_x not
+R3482:3484 Random.Ubase Universe lub defax
+R3486:3486 Random.Ubase <> f var
+R3491:3491 Random.Ubase <> x var
+R3472:3475 Random.Ubase Universe :U_scope:x_'<='_x not
+R3469:3469 Random.Ubase <> f var
+R3471:3471 Random.Ubase <> n var
+R3476:3476 Random.Ubase <> x var
+ax 3565:3585 Universe lub_eq_plus_cte_right
+R3602:3603 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3604:3604 Random.Ubase Universe U defax
+R3599:3601 Coq.Init.Datatypes <> nat ind
+R3610:3610 Random.Ubase Universe U defax
+R3638:3641 Random.Ubase Universe :U_scope:x_'=='_x not
+R3614:3616 Random.Ubase Universe lub defax
+R3628:3628 Random.Ubase Universe :U_scope:x_'+'_x not
+R3632:3635 Random.Ubase Universe :U_scope:x_'+'_x not
+R3629:3629 Random.Ubase <> f var
+R3631:3631 Random.Ubase <> n var
+R3636:3636 Random.Ubase <> k var
+R3642:3642 Random.Ubase Universe :U_scope:x_'+'_x not
+R3648:3651 Random.Ubase Universe :U_scope:x_'+'_x not
+R3643:3645 Random.Ubase Universe lub defax
+R3647:3647 Random.Ubase <> f var
+R3652:3652 Random.Ubase <> k var
+ax 3662:3672 Universe lub_eq_mult
+R3686:3686 Random.Ubase Universe U defax
+R3695:3696 Coq.Init.Logic <> :type_scope:x_'->'_x not
+R3697:3697 Random.Ubase Universe U defax
+R3692:3694 Coq.Init.Datatypes <> nat ind
+R3725:3729 Random.Ubase Universe :U_scope:x_'=='_x not
+R3701:3703 Random.Ubase Universe lub defax
+R3716:3719 Random.Ubase Universe :U_scope:x_'*'_x not
+R3723:3723 Random.Ubase Universe :U_scope:x_'*'_x not
+R3715:3715 Random.Ubase <> k var
+R3720:3720 Random.Ubase <> f var
+R3722:3722 Random.Ubase <> n var
+R3731:3733 Random.Ubase Universe :U_scope:x_'*'_x not
+R3730:3730 Random.Ubase <> k var
+R3734:3736 Random.Ubase Universe lub defax
+R3738:3738 Random.Ubase <> f var
+R3746:3753 Random.Ubase Universe <> modtype
