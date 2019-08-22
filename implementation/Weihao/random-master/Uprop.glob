@@ -1,5 +1,0 @@
-DIGEST 7713d324c8ce539d61bdb553d6b4899a
-FRandom.Uprop
-R139:143 Coq.Arith.Arith <> <> lib
-R161:165 Coq.omega.Omega <> <> lib
-R183:187 Random.Ubase <> <> lib
