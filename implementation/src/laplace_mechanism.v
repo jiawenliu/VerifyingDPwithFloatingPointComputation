@@ -3,6 +3,10 @@ Require Import List. Import ListNotations.
 Require Import hmacdrbg.entropy.
 Require Import VST.floyd.functional_base.
 
+Definition Laplace_mechanism (theta: list byte) (b: list byte): list byte :=
+	b
+
+
 Definition DRBG_working_state: Type := (list byte * list byte * Z)%type. (* value * key * reseed_counter *)
 Definition DRBG_state_handle: Type := (DRBG_working_state * Z * bool)%type. (* state, security_strength, prediction_resistance_flag *)
 
@@ -13,7 +17,37 @@ Definition DRBG_instantiate_function
             (prediction_resistance_supported: bool) (entropy_stream: ENTROPY.stream)
             (requested_instantiation_security_strength: Z) (prediction_resistance_flag: bool)
             (personalization_string: list byte): ENTROPY.result DRBG_state_handle :=
-
+  if requested_instantiation_security_strength >? highest_supported_security_strength then ENTROPY.error ENTROPY.generic_error entropy_stream
+  else match prediction_resistance_flag, prediction_resistance_supported with
+         | true, false => ENTROPY.error ENTROPY.generic_error entropy_stream
+         | _, _ =>
+           if (Zlength personalization_string) >? max_personalization_string_length then ENTROPY.error ENTROPY.generic_error entropy_stream
+           else
+             let security_strength := if requested_instantiation_security_strength <=? 14 then Some 14
+                                      else if requested_instantiation_security_strength <=? 16 then Some 16
+                                      else if requested_instantiation_security_strength <=? 24 then Some 24
+                                      else if requested_instantiation_security_strength <=? 32 then Some 32
+                                      else None in
+             match security_strength with
+               | None => ENTROPY.error ENTROPY.generic_error entropy_stream
+               | Some security_strength =>
+               match get_entropy security_strength min_entropy_length max_entropy_length prediction_resistance_flag entropy_stream with
+                 | ENTROPY.error e s' => ENTROPY.error ENTROPY.catastrophic_error s'
+                 | ENTROPY.success entropy_input entropy_stream =>
+                   let nonce_result := match provided_nonce with
+                                         | Some n => ENTROPY.success n entropy_stream
+                                         | None => get_entropy (security_strength/2) (min_entropy_length/2) (max_entropy_length/2)
+                                                               prediction_resistance_flag entropy_stream
+                                       end in
+                   match nonce_result with
+                     | ENTROPY.error e s' => ENTROPY.error ENTROPY.catastrophic_error s'
+                     | ENTROPY.success nonce entropy_stream =>
+                       let initial_working_state := instantiate_algorithm entropy_input nonce personalization_string security_strength in
+                       ENTROPY.success (initial_working_state, security_strength, prediction_resistance_flag) entropy_stream
+                   end
+               end
+             end
+       end.
 
 Definition DRBG_reseed_function (reseed_algorithm: DRBG_working_state -> list byte -> list byte -> DRBG_working_state)
             (min_entropy_length max_entropy_length: Z) (max_additional_input_length: Z)

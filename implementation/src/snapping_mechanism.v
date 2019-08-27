@@ -3,6 +3,11 @@ Require Import List. Import ListNotations.
 Require Import hmacdrbg.entropy.
 Require Import VST.floyd.functional_base.
 
+Definition snapping_mechanism (theta: list byte) (b: list byte): list byte :=
+  b
+
+
+
 Definition DRBG_working_state: Type := (list byte * list byte * Z)%type. (* value * key * reseed_counter *)
 Definition DRBG_state_handle: Type := (DRBG_working_state * Z * bool)%type. (* state, security_strength, prediction_resistance_flag *)
 
