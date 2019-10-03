@@ -38,6 +38,39 @@ The snapping mechanism $\snap(\mu, a) : \distr(U) \to A \to \distr(B)$ is $(\eps
 
 \begin{proof}
 Followed directly by unfolding the $\snap$ mechanism.
+\[
+	\begin{array}{lll}
+	\pr{x \leftarrow \snap(\mu_1, a)}{x = e} 
+	& = & \pr
+			{u \leftarrow \mu_1}
+			{	\lfloor 
+				f(a) + \frac{ S \cdot \log(u)}{\epsilon} 
+				\rfloor_{\Lambda} = e
+			}\\
+	& = & \pr
+			{ u \leftarrow \mu_1}
+		   	{ u \in [
+		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
+		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
+		   	}\\
+	& \leq & \exp(\epsilon)
+			\pr
+			{ u \leftarrow \mu_2}
+		   	{ u \in \exp(-\epsilon)[
+		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
+		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
+		   	}\\
+	& = & \exp(\epsilon)
+			\pr
+			{u \leftarrow \mu_2}
+			{	\lfloor 
+				f(a') + \frac{ S \cdot \log(u)}{\epsilon} 
+				\rfloor_{\Lambda} = e
+			}\\
+	& = & \exp(\epsilon)
+			\pr{x \leftarrow \snap(\mu_2, a')}{x = e} 
+	\end{array}
+\]
 \end{proof}
 
 \begin{defn}
