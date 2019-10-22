@@ -13,7 +13,7 @@
 [$\snap(\mu, a) : \distr(U) \to A \to \distr(B)$]
 The ideal Snapping mechanism without clamp operation is defined as:
 \[
-	\snap(\mu, a) = u \leftarrow \mu; \lfloor f(a) + \frac{ S \cdot \log(u)}{\epsilon} \rfloor_{\Lambda} 
+	\snap(\mu, a) = u \xleftarrow{\$} \mu; x \leftarrow  f(a) + \frac{ S \cdot \log(u)}{\epsilon}; x \leftarrow \lfloor x \rfloor_{\Lambda}; \clamp_B (x)
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget and $S$ sampled from $ \{-1, +1\}$ with $\mathsf{Bernoulli}(0.5)$.
 \end{defn}
@@ -75,6 +75,22 @@ Followed directly by unfolding the $\snap$ mechanism.
 
 \begin{defn}
 [$(\epsilon, \delta)$ - Dilation lifting]
+Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{d(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
+\begin{enumerate}
+	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
+	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
+	\item $D_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
+\end{enumerate}
+\end{defn}
+
+It is easy to see that two sub-distributions $\mu_1$ and $\mu_2$ are related by $=^{d(\epsilon, \delta)}$ iff $D_{\epsilon}(\mu_1, \mu_2) \leq \delta$. Therefore, the $\snap$ mechanism $\distr(U) \to A \to \distr(B)$ is $(\epsilon, \delta) - $ differentially private w.r.t. and adjacency relation $\Phi$ and $\mu_1$, $\mu_2$ iff:
+\[
+	\mu_1 =^{d(\epsilon, \delta)} \mu_2
+\]
+for every two adjacent inputs $a$ and $a'$.
+
+\begin{defn}
+[$(\epsilon, \delta)$ - lifting]
 Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
@@ -83,96 +99,9 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 \end{enumerate}
 \end{defn}
 
-It is easy to see that two sub-distributions $\mu_1$ and $\mu_2$ are related by $=^{\#(\epsilon, \delta)}$ iff $D_{\epsilon}(\mu_1, \mu_2) \leq \delta$. Therefore, the $\snap$ mechanism $\distr(U) \to A \to \distr(B)$ is $(\epsilon, \delta) - $ differentially private w.r.t. and adjacency relation $\Phi$ and $\mu_1$, $\mu_2$ iff:
-\[
-	\mu_1 =^{\#(\epsilon, \delta)} \mu_2
-\]
-for every two adjacent inputs $a$ and $a'$.
-
-
-
-
-\section{Formalization - with Clamping}
-\begin{defn}
-[$\snap(\mu, a) : \distr(U) \to A \to \distr(B)$]
-The ideal Snapping mechanism is defined as:
-\[
-	\snap(\mu, a) = u \leftarrow \mu; \clamp_B (\lfloor \clamp_B(f(a)) + \frac{ S \cdot \log(u)}{\epsilon} \rfloor_{\Lambda} )
-\]
-where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget and $S$ sampled from $ \{-1, +1\}$ with $\mathsf{Bernoulli}(0.5)$.
-\end{defn}
-
-\begin{defn}
-[$\epsilon$ - dilation].
-
-Let $\epsilon \geq 0$. The $\epsilon$-dilation $D_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$is defined as:
-\[	
-	\underset{E \in U}{sup}\Big(\pr{x \leftarrow \mu_1}{x \in E} - \exp(\epsilon) \pr{x \leftarrow \mu_2}{x \in \exp(-\epsilon) \cdot E}]\Big)
-\]
-\end{defn}
-
-\begin{prop}
-[($\epsilon, \delta$)-differential privacy]
-For every pair of sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$, s.t. 
-\[
-D_{\epsilon}(\mu_1, \mu_2) \leq \delta,
-\]
-The snapping mechanism $\snap(\mu, a) : \distr(U) \to A \to \distr(B)$ is $(\epsilon, \delta)$ - differentially private w.r.t. an adjacency relation $\Phi$ for every two adjacent inputs a, a’ and $\mu_1, \mu_2$
-\end{prop}
-
-\begin{proof}
-Followed directly by unfolding the $\snap$ mechanism.
-\[
-	\begin{array}{lll}
-	\pr{x \leftarrow \snap(\mu_1, a)}{x = e} 
-	& = & \pr
-			{u \leftarrow \mu_1}
-			{	\lfloor 
-				f(a) + \frac{ S \cdot \log(u)}{\epsilon} 
-				\rfloor_{\Lambda} = e
-			}\\
-	& = & \pr
-			{ u \leftarrow \mu_1}
-		   	{ u \in [
-		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
-		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
-		   	}\\
-	& \leq & \exp(\epsilon)
-			\pr
-			{ u \leftarrow \mu_2}
-		   	{ u \in \exp(-\epsilon)[
-		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
-		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
-		   	}\\
-	& = & \exp(\epsilon)
-			\pr
-			{u \leftarrow \mu_2}
-			{	\lfloor 
-				f(a') + \frac{ S \cdot \log(u)}{\epsilon} 
-				\rfloor_{\Lambda} = e
-			}\\
-	& = & \exp(\epsilon)
-			\pr{x \leftarrow \snap(\mu_2, a')}{x = e} 
-	\end{array}
-\]
-\end{proof}
-
-\begin{defn}
-[$(\epsilon, \delta)$ - Dilation lifting]
-Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
-\begin{enumerate}
-	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
-	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
-	\item $D_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
-\end{enumerate}
-\end{defn}
-
-It is easy to see that two sub-distributions $\mu_1$ and $\mu_2$ are related by $=^{\#(\epsilon, \delta)}$ iff $D_{\epsilon}(\mu_1, \mu_2) \leq \delta$. Therefore, the $\snap$ mechanism $\distr(U) \to A \to \distr(B)$ is $(\epsilon, \delta) - $ differentially private w.r.t. and adjacency relation $\Phi$ and $\mu_1$, $\mu_2$ iff:
-\[
-	\mu_1 =^{\#(\epsilon, \delta)} \mu_2
-\]
-for every two adjacent inputs $a$ and $a'$.
-
+\begin{thm}
+if $\mu_1 \Psi^{d(\epsilon, \delta)} \mu_2$, then we can prove $\snap(\mu_1, a) \Psi^{\#(\epsilon, \delta)}\snap(\mu_2, a')$, w.r.t. an adjacent relation $\Phi$ for every $a \Phi a'$
+\end{thm}
 
 \end{document}
 
