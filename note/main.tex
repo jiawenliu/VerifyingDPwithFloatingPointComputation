@@ -8,14 +8,18 @@
 
 \maketitle
 
-\section{Formalization - without Clamping}
+\section{Formalization}
 \begin{defn}
 [$\snap(\mu, a) : \distr(U) \to A \to \distr(B)$]
-The ideal Snapping mechanism without clamp operation is defined as:
+The ideal Snapping mechanism $\snap(\mu, a)$ is defined as:
 \[
-	\snap(\mu, a) = u \xleftarrow{\$} \mu; x \leftarrow  f(a) + \frac{ S \cdot \log(u)}{\epsilon}; x \leftarrow \lfloor x \rfloor_{\Lambda}; \clamp_B (x)
+	u \xleftarrow{\$} \mu; y = \ln (u); s \xleftarrow{\$} \{-1, 1\}; y' = s * y; z = \frac{y'}{\epsilon}; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget and $S$ sampled from $ \{-1, +1\}$ with $\mathsf{Bernoulli}(0.5)$.
+\end{defn}
+
+\begin{defn}
+Let $\epsilon \leq 0$. The $\epsilon${\text -DP divergence} $\Delta_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in $ 
 \end{defn}
 
 \begin{defn}
@@ -95,13 +99,88 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
 	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
-	\item $D_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
 \end{enumerate}
 \end{defn}
 
 \begin{thm}
 if $\mu_1 \Psi^{d(\epsilon, \delta)} \mu_2$, then we can prove $\snap(\mu_1, a) \Psi^{\#(\epsilon, \delta)}\snap(\mu_2, a')$, w.r.t. an adjacent relation $\Phi$ for every $a \Phi a'$
 \end{thm}
+
+\begin{thm}
+The coupling of two $\snap$ mechanisms: $\snap(\mu_1, a_1)$, $\snap(\mu_2, a_2)$.
+\end{thm}
+
+\begin{figure}
+\begin{mathpar}
+\inferrule
+{
+}
+{
+	u_1 \xleftarrow{\$} \mu \sim_{e^{\epsilon}u_2, 0} u_1 \xleftarrow{\$} \mu : T \Rightarrow u_1 = e^{\epsilon} u_2
+}
+\\\\
+\inferrule
+{
+}
+{
+	y_1 = \ln(u_1) \sim_{\epsilon^2, 0} y_2 = \ln(u_2) : u_1 = e^{\epsilon} u_2  \Rightarrow y_1 = \epsilon + y_2
+}
+\\\\
+\inferrule
+{
+}
+{
+	s_1 \xleftarrow{\$} \mu \sim_{0, 0} s_1 \xleftarrow{\$} \mu : T \Rightarrow s_1 = s_2
+}
+\\\\
+\inferrule
+{
+}
+{
+	y'_1 = s_1 * y_1 \sim_{\epsilon^2, 0} y'_2 = s_2 * y_2 : s_1 = s_2 \land y_1 = e^{\epsilon} u_2  \Rightarrow y'_1 = \epsilon + y'_2
+}
+\\\\
+\inferrule
+{
+}
+{
+	z_1 = \frac{y'_1}{\epsilon} \sim_{\epsilon, 0} z_2 = \frac{y'_2}{\epsilon} : y'_1 = \epsilon + y'_2 \Rightarrow z_1 = z_2 + 1
+}
+\\\\
+\inferrule
+{
+}
+{
+	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : x_1 = x_2 + 1 \Rightarrow a_1 = a_2 + 1
+}
+\\\\
+\inferrule
+{
+}
+{
+	w_1 = x_1 + z_1 \sim_{0, 0} w_2 = x_2 + z_2 : x_1 + 1 = x_2 \land z_1 = z_2 + 1  \Rightarrow w_1 = w_2
+}
+\\\\
+\inferrule
+{
+}
+{
+	w'_1 = \lfloor w_1 \rfloor_{\Lambda} 
+	\sim_{0, 0} w'_2 = \lfloor w_2 \rfloor_{\Lambda} : w_1 = w_2  \Rightarrow w'_1 = w'_2
+}
+\\\\
+\inferrule
+{
+}
+{
+	r_1 = \clamp_B (w'_1) 
+	\sim_{0, 0} r_2 = \clamp_B (w'_2)
+	: w'_1 = w'_2  \Rightarrow r_1 = r_2
+}
+\end{mathpar}
+\caption{coupling of two $\snap$ mechanisms: $\snap(\mu_1, a_1)$, $\snap(\mu_2, a_2)$}
+\end{figure}
 
 \newpage
 \bibliographystyle{plain}
