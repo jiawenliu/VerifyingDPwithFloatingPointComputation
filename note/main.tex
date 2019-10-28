@@ -19,7 +19,11 @@ where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy 
 \end{defn}
 
 \begin{defn}
-Let $\epsilon \leq 0$. The $\epsilon${\text -DP divergence} $\Delta_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in $ 
+Let $\epsilon \leq 0$. The $\epsilon${\text -DP divergence} $\Delta_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$is defined as:
+\[	
+	\underset{E \in U}{sup}\Big(\pr{x \leftarrow \mu_1}{x \in E} - \exp(\epsilon) \pr{x \leftarrow \mu_2}{x \in \cdot E}]\Big)
+\]
+
 \end{defn}
 
 \begin{defn}
@@ -117,14 +121,14 @@ The coupling of two $\snap$ mechanisms: $\snap(\mu_1, a_1)$, $\snap(\mu_2, a_2)$
 {
 }
 {
-	u_1 \xleftarrow{\$} \mu \sim_{e^{\epsilon}u_2, 0} u_1 \xleftarrow{\$} \mu : T \Rightarrow u_1 = e^{\epsilon} u_2
+	u_1 \xleftarrow{\$} \mu \sim_{\epsilon, 0} u_2 \xleftarrow{\$} \mu : T \Rightarrow u_1 = e^{\epsilon} u_2
 }
 \\\\
 \inferrule
 {
 }
 {
-	y_1 = \ln(u_1) \sim_{\epsilon^2, 0} y_2 = \ln(u_2) : u_1 = e^{\epsilon} u_2  \Rightarrow y_1 = \epsilon + y_2
+	y_1 = \ln(u_1) \sim_{0, 0} y_2 = \ln(u_2) : u_1 = e^{\epsilon} u_2  \Rightarrow y_1 = \epsilon + y_2
 }
 \\\\
 \inferrule
@@ -138,14 +142,14 @@ The coupling of two $\snap$ mechanisms: $\snap(\mu_1, a_1)$, $\snap(\mu_2, a_2)$
 {
 }
 {
-	y'_1 = s_1 * y_1 \sim_{\epsilon^2, 0} y'_2 = s_2 * y_2 : s_1 = s_2 \land y_1 = e^{\epsilon} u_2  \Rightarrow y'_1 = \epsilon + y'_2
+	y'_1 = s_1 * y_1 \sim_{0, 0} y'_2 = s_2 * y_2 : s_1 = s_2 \land y_1 = e^{\epsilon} u_2  \Rightarrow y'_1 = \epsilon + y'_2
 }
 \\\\
 \inferrule
 {
 }
 {
-	z_1 = \frac{y'_1}{\epsilon} \sim_{\epsilon, 0} z_2 = \frac{y'_2}{\epsilon} : y'_1 = \epsilon + y'_2 \Rightarrow z_1 = z_2 + 1
+	z_1 = \frac{y'_1}{\epsilon} \sim_{0, 0} z_2 = \frac{y'_2}{\epsilon} : y'_1 = \epsilon + y'_2 \Rightarrow z_1 = z_2 + 1
 }
 \\\\
 \inferrule
