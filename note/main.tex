@@ -157,12 +157,12 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 \end{figure}
 
 \begin{thm}
-Let $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$ whoes pdf.s are defined:
+Let $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$ are defined:
 \[
-	\pdf_{\mu_1}(x) = \pdf_{\uniform}(x)
+	{\mu_1}(x) = \uniform(x)
 \]
 \[
-	\pdf_{\mu_2}(y) = \pdf_{\uniform}(y)
+	{\mu_2}(y) = {\uniform}(y)
 \]
 where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
 \[
@@ -178,7 +178,23 @@ Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
 \]
 \end{thm}
 \begin{proof}
-Existing $\mu_L, \mu_R \in \distr(\real \times \real)$, whose $\pdf.$s are defined:
+Existing $\mu_L, \mu_R \in \distr(\real \times \real)$:
+\[
+	{\mu_L}(x, y) = 
+	\begin{cases}
+	{\uniform}(x) & (x,y) \in \Psi \land x \in [0, 1)\\
+	0       & o.w.
+	\end{cases}
+	\\
+	{\mu_R}(x, y) = 
+	\begin{cases}
+	{\uniform}(y) & (x,y) \in \Psi \land y \in [0, 1)\\
+	0       & o.w.
+	\end{cases}.
+\]
+
+
+Their $\pdf.$ are defined:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
