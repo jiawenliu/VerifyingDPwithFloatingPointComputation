@@ -13,7 +13,7 @@
 [$\snap(\mu, a) : \distr(U) \to A \to \distr(B)$]
 The ideal Snapping mechanism $\snap(\mu, a)$ is defined as:
 \[
-	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \xleftarrow{\$} \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
+	u \xleftarrow{\$} \mu; y = \frac{\ln (|u|)}{\epsilon}; s \sign(u); z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget and $S$ sampled from $ \{-1, +1\}$ with $\mathsf{Bernoulli}(0.5)$.
 \end{defn}
@@ -105,14 +105,14 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 {
 }
 {
-	y_1 = \frac{\ln(u_1)}{\epsilon} \sim_{0, 0} y_2 = \frac{\ln(u_2)}{\epsilon} : u_1 = e^{\epsilon} u_2  \Rightarrow y_2 - 1 \leq y_1 \leq 1 + y_2
+	y_1 = \frac{\ln(|u_1|)}{\epsilon} \sim_{0, 0} y_2 = \frac{\ln(|u_2|)}{\epsilon} : e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2  \Rightarrow y_2 - 1 \leq y_1 \leq 1 + y_2
 }
 \\\\
 \inferrule
 {
 }
 {
-	s_1 \xleftarrow{\$} \mu \sim_{0, 0} s_2 \xleftarrow{\$} \mu : T \Rightarrow s_1 = s_2
+	s_1 = \sign(u_1) \sim_{0, 0} s_2 = \sign(u_2) : e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2 \Rightarrow s_1 = s_2
 }
 \\\\
 \inferrule
@@ -164,11 +164,11 @@ Let $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$ are defined:
 \[
 	{\mu_2}(y) = {\uniform}(y)
 \]
-where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
+where $\uniform$ is uniform distribution over $(-1, 1)$ whoes $\pdf.$ is defined as:
 \[
 	\pdf_{\uniform}(x) = 
 	\begin{cases}
-	1 & x \in [0, 1)\\
+	\frac{1}{2} & x \in (-1, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -182,13 +182,13 @@ Existing $\mu_L, \mu_R \in \distr(\real \times \real)$:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
-	{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
+	{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in (-1, 1)\\
 	0       & o.w.
 	\end{cases}
 	\\
 	{\mu_R}(x, y) = 
 	\begin{cases}
-	{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
+	{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in (-1, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -198,14 +198,14 @@ Their $\pdf.$ are defined:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
-	\pdf_{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
+	\pdf_{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in (-1, 1)\\
 	0       & o.w.
 	\end{cases}
 \]
 \[
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
-	\pdf_{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
+	\pdf_{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in (-1, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -213,13 +213,13 @@ Their $\pdf.$ are defined:
 	\item $\supp(\mu_L) \in \Psi \land \supp(\mu_R) \in \Psi$
 
 	\begin{itemize}
-		\item $\supp(\mu_L) \in \Psi$ 
+		\item $\supp(\mu_L) \subseteq \Psi$ 
 
 		By definition of the $\pdf$ of $\mu_L$, we have: $\pr{(x,y) \samplel \mu_L}{(x,y) \notin \Psi} = 0$.
 
 		Then we can derive $\supp(\mu_L) \in \Psi$
 
-		\item $\supp(\mu_R) \in \Psi$
+		\item $\supp(\mu_R) \subseteq \Psi$
 
 		By definition of the $\pdf$ of $\mu_R$, we have: $\pr{(x,y) \samplel \mu_R}{(x,y) \notin \Psi} = 0$.
 
@@ -239,19 +239,19 @@ Their $\pdf.$ are defined:
 		\[
 			\pdf_{\projl(\mu_L)}(x) = 
 			\begin{cases}
-			\int_{y}\pdf_{\uniform}(x) & (x,y) \in \Psi \land x \in [0, 1)\\
+			\int_{y}\pdf_{\uniform}(x) & (x,y) \in \Psi \land x \in (-1, 1)\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(x) & x \in [0, 1)\\
+			\pdf_{\uniform}(x) & x \in (-1, 1)\\
 			0       & o.w.
 			\end{cases}
 			=
 			\pdf_{\mu_1}(x)
 		\]
 
-		\item $\supp(\mu_R) \in \Psi$
+		\item $\projl(\mu_R) = \mu_2$ 
 
 		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
 
@@ -259,12 +259,12 @@ Their $\pdf.$ are defined:
 		\[
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
-			\int_{x}\pdf_{\uniform}(y) & (x,y) \in \Psi \land y \in [0, 1)\\
+			\int_{x}\pdf_{\uniform}(y) & (x,y) \in \Psi \land y \in (-1, 1)\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(y) & y \in [0, 1)\\
+			\pdf_{\uniform}(y) & y \in (-1, 1)\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -289,7 +289,7 @@ Their $\pdf.$ are defined:
 	 \end{array}
 	 \]
 	 \begin{itemize}
-	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [0, 1) \land x \cdot e^{-\epsilon} = y\}$:\\
+	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in (-1, 1) \land x \cdot e^{-\epsilon} = y\}$:\\
 		 \[
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
@@ -302,7 +302,7 @@ Their $\pdf.$ are defined:
 		 & = 0 
 		 \end{array}
 		 \]
-	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [1, e^{\epsilon}) \land x \cdot e^{-\epsilon} = y\}$:\\
+	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [1, e^{\epsilon}) \cup (-e^{\epsilon}, -1]  \land x \cdot e^{-\epsilon} = y\}$:\\
 		 \[
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
