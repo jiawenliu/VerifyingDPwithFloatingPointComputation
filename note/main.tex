@@ -174,7 +174,7 @@ where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined 
 \]
 Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
 \[
-	\Psi = \{(x,y) \in \real \times \real | x \cdot e^{-\epsilon} = y\}
+	\Psi = \{(x,y) \in \real \times \real | x \cdot e^{-\epsilon} \leq y \leq x \cdot e^{\epsilon} \}
 \]
 \end{thm}
 \begin{proof}
@@ -182,13 +182,13 @@ Existing $\mu_L, \mu_R \in \distr(\real \times \real)$:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
-	{\uniform}(x) & (x,y) \in \Psi \land x \in [0, 1)\\
+	{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
 	0       & o.w.
 	\end{cases}
 	\\
 	{\mu_R}(x, y) = 
 	\begin{cases}
-	{\uniform}(y) & (x,y) \in \Psi \land y \in [0, 1)\\
+	{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -198,14 +198,14 @@ Their $\pdf.$ are defined:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
-	\pdf_{\uniform}(x) & (x,y) \in \Psi \land x \in [0, 1)\\
+	\pdf_{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
 	0       & o.w.
 	\end{cases}
 \]
 \[
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
-	\pdf_{\uniform}(y) & (x,y) \in \Psi \land y \in [0, 1)\\
+	\pdf_{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -233,7 +233,7 @@ Their $\pdf.$ are defined:
 	\begin{itemize}
 		\item $\projl(\mu_L) = \mu_1$ 
 
-		Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
+		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
 
 		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x \in \real$:
 		\[
@@ -289,7 +289,7 @@ Their $\pdf.$ are defined:
 	 \end{array}
 	 \]
 	 \begin{itemize}
-	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [0, 1) \land (x, y) \in \Psi\}$:\\
+	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [0, 1) \land x \cdot e^{-\epsilon} = y\}$:\\
 		 \[
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
@@ -302,7 +302,7 @@ Their $\pdf.$ are defined:
 		 & = 0 
 		 \end{array}
 		 \]
-	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [1, e^{\epsilon}) \land (x, y) \in \Psi\}$:\\
+	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [1, e^{\epsilon}) \land x \cdot e^{-\epsilon} = y\}$:\\
 		 \[
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
