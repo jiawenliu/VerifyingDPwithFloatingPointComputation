@@ -98,42 +98,42 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 {
 }
 {
-	u_1 \xleftarrow{\$} \mu \sim_{\epsilon, 0} u_2 \xleftarrow{\$} \mu : T \Rightarrow u_1 = e^{\epsilon} u_2
+	u_1 \xleftarrow{\$} \mu \sim_{\epsilon, 0} u_2 \xleftarrow{\$} \mu : T \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
 }
 \\\\
 \inferrule
 {
 }
 {
-	y_1 = \frac{\ln(u_1)}{\epsilon} \sim_{0, 0} y_2 = \frac{\ln(u_2)}{\epsilon} : u_1 = e^{\epsilon} u_2  \Rightarrow y_1 = 1 + y_2
+	y_1 = \frac{\ln(u_1)}{\epsilon} \sim_{0, 0} y_2 = \frac{\ln(u_2)}{\epsilon} : u_1 = e^{\epsilon} u_2  \Rightarrow y_2 - 1 \leq y_1 \leq 1 + y_2
 }
 \\\\
 \inferrule
 {
 }
 {
-	s_1 \xleftarrow{\$} \mu \sim_{0, 0} s_1 \xleftarrow{\$} \mu : T \Rightarrow s_1 = s_2
+	s_1 \xleftarrow{\$} \mu \sim_{0, 0} s_2 \xleftarrow{\$} \mu : T \Rightarrow s_1 = s_2
 }
 \\\\
 \inferrule
 {
 }
 {
-	z_1 = s_1 * y_1 \sim_{0, 0} z_2 = s_2 * y_2 : s_1 = s_2 \land y_1 = e^{\epsilon} u_2  \Rightarrow z_1 = \epsilon + z_2
+	z_1 = s_1 * y_1 \sim_{0, 0} z_2 = s_2 * y_2 : s_1 = s_2 \land y_2 - 1 \leq y_1 \leq 1 + y_2  \Rightarrow | z_1 - z_2 | \leq 1
 }
 \\\\
 \inferrule
 {
 }
 {
-	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : x_1 = x_2 + 1 \Rightarrow a_1 = a_2 + 1
+	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : a_1 = a_2 + 1 \Rightarrow x_1 = x_2 + 1 
 }
 \\\\
 \inferrule
 {
 }
 {
-	w_1 = x_1 + z_1 \sim_{0, 0} w_2 = x_2 + z_2 : x_1 + 1 = x_2 \land z_1 = z_2 + 1  \Rightarrow w_1 = w_2
+	w_1 = x_1 + z_1 \sim_{0, 0} w_2 = x_2 + z_2 : x_1 = x_2 + 1 \land | z_1 - z_2 | \leq 1  \land -2 \leq k \leq 0   \Rightarrow w_1 + k = w_2
 }
 \\\\
 \inferrule
@@ -141,7 +141,7 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 }
 {
 	w'_1 = \lfloor w_1 \rfloor_{\Lambda} 
-	\sim_{0, 0} w'_2 = \lfloor w_2 \rfloor_{\Lambda} : w_1 = w_2  \Rightarrow w'_1 = w'_2
+	\sim_{0, 0} w'_2 = \lfloor w_2 \rfloor_{\Lambda} : w_1 + k = w_2 \land -2 \leq k \leq 0  \Rightarrow w'_1 + k = w'_2
 }
 \\\\
 \inferrule
@@ -150,7 +150,7 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 {
 	r_1 = \clamp_B (w'_1) 
 	\sim_{0, 0} r_2 = \clamp_B (w'_2)
-	: w'_1 = w'_2  \Rightarrow r_1 = r_2
+	: w'_1 + k = w'_2  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
 }
 \end{mathpar}
 \caption{Coupling Derivation of two $\snap$ mechanisms: $\snap(\mu_1, a_1)$, $\snap(\mu_2, a_2)$}
