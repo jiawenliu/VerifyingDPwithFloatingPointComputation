@@ -20,7 +20,7 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 [$\snap(a) : A \to \distr(B)$]
 The ideal Snapping mechanism $\snap(\mu, a)$ is defined as:
 \[
-	u \xleftarrow{\$} \mu; y = \frac{\ln (|u|)}{\epsilon}; s = \sign(u); z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
+	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget.
 \end{defn}
