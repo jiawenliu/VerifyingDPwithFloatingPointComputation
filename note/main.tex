@@ -10,25 +10,20 @@
 \title{Verifying Snapping Mechanism}
 
 \maketitle
+In order to verify the differential privacy proeprty of snapping mechanism, we follow the logic rules designed from \cite{barthe2016proving}.
+
+Some new rules are added into this logic in Figure \ref{logic_rule} following with correctness proof. Then we formalized the snapping mechanism and verified its differential privacy property under these logic rules.
 
 \section{Formalization}
 \begin{defn}
 [Laplce mechanism \cite{dwork2006calibrating}]
 Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distribution $\laplace(\frac{1}{\epsilon})$.
 \end{defn}
-\begin{defn}
-[$\snap(a) : A \to \distr(B)$]
-The ideal Snapping mechanism $\snap(\mu, a)$ is defined as:
-\[
-	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
-\]
-where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
-\end{defn}
 
 \begin{defn}
 Let $\epsilon \leq 0$. The $\epsilon${\text -DP divergence} $\Delta_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$ is defined as:
 \[	
-	\underset{E \in U}{sup}\Big(\pr{x \leftarrow \mu_1}{x \in E} - \exp(\epsilon) \pr{x \leftarrow \mu_2}{x \in \cdot E}]\Big)
+	\underset{E \in U}{sup}\Big(\pr{x \leftarrow \mu_1}{x \in E} - \exp(\epsilon) \pr{x \leftarrow \mu_2}{x \in  E}]\Big)
 \]
 
 \end{defn}
@@ -43,6 +38,8 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 \end{enumerate}
 \end{defn}
 
+The logic rules we are using in our work is presented in Figure \ref{logic_rule}. The correctness of rules is proved in Theorem \ref{corr_axunif} and Theorem \ref{corr_axnull}
+
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = AxUnif]
@@ -55,7 +52,7 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 	u_2 \samplel \mu 
 	: \top \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
 }
-\\\\
+\and
 \inferrule*[right = LapGen]
 {
 }
@@ -66,7 +63,7 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 	y_2 \samplel \lapmech_{\epsilon}(e_2)
 	: | k + e_1 - e_2| \leq k'  \Rightarrow  y_1 + k = y_2
 }
-\\\\
+\and
 \inferrule*[right = LapNull]
 {
 }
@@ -77,7 +74,18 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 	y_2 \samplel \lapmech_{\epsilon}(e_2)
 	: \top  \Rightarrow  y_1 - y_2 = e_1 - e_2
 }
-\\\\
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	\vdash 
+	y_1 \samplel  \mu
+	\sim_{0, 0} 
+	y_2 \samplel \mu
+	: \top  \Rightarrow  y_1 = y_2
+}
+\and
 \inferrule*[right = Comp]
 {
 p_1 \sim_{k, 0} p_2 : \Phi_1 \Rightarrow \Phi'_1
@@ -92,75 +100,13 @@ c_1 \sim_{k', 0} c_2 : \Phi'_1 \Rightarrow \Phi_2
 	: \Phi_1  \Rightarrow  \Phi_2
 }
 \end{mathpar}
-\caption{Proof Rules from \cite{barthe2016proving}}
+\caption{Logic Rules from \cite{barthe2016proving}}
+\label{logic_rule}
 \end{figure}
 
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = AxUnif]
-{
-}
-{
-	u_1 \samplel \mu \sim_{\epsilon, 0} u_2 \samplel \mu : \top \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
-}
-\\\\
-\inferrule
-{
-}
-{
-	y_1 = \frac{\ln(u_1)}{\epsilon} \sim_{0, 0} 
-	y_2 = \frac{\ln(u_2)}{\epsilon} : e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2  \Rightarrow y_2 - 1 \leq y_1 \leq 1 + y_2
-}
-\\\\
-\inferrule*[right = LapNull]
-{
-}
-{
-	s_1 \samplel \{ -1, 1\} \sim_{0, 0} s_2 \samplel \{ -1, 1\} : \top \Rightarrow s_1 = s_2
-}
-\\\\
-\inferrule
-{
-}
-{
-	z_1 = s_1 * y_1 \sim_{0, 0} z_2 = s_2 * y_2 : s_1 = s_2 \land y_2 - 1 \leq y_1 \leq 1 + y_2  \Rightarrow | z_1 - z_2 | \leq 1
-}
-\\\\
-\inferrule
-{
-}
-{
-	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : a_1 = a_2 + 1 \Rightarrow x_1 = x_2 + 1 
-}
-\\\\
-\inferrule
-{
-}
-{
-	w_1 = x_1 + z_1 \sim_{0, 0} w_2 = x_2 + z_2 : x_1 = x_2 + 1 \land | z_1 - z_2 | \leq 1  \land -2 \leq k \leq 0   \Rightarrow w_1 + k = w_2
-}
-\\\\
-\inferrule
-{
-}
-{
-	w'_1 = \lfloor w_1 \rfloor_{\Lambda} 
-	\sim_{0, 0} w'_2 = \lfloor w_2 \rfloor_{\Lambda} : w_1 + k = w_2 \land -2 \leq k \leq 0  \Rightarrow w'_1 + k = w'_2
-}
-\\\\
-\inferrule
-{
-}
-{
-	r_1 = \clamp_B (w'_1) 
-	\sim_{0, 0} r_2 = \clamp_B (w'_2)
-	: w'_1 + k = w'_2  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
-}
-\end{mathpar}
-\caption{Coupling Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
-\end{figure}
 
 \begin{thm}
+\label{corr_axunif}
 Let $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$ are defined:
 \[
 	{\mu_1}(x) = \uniform(x)
@@ -181,7 +127,18 @@ Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
 	\Psi = \{(x,y) \in \real \times \real | x \cdot e^{-\epsilon} \leq y \leq x \cdot e^{\epsilon} \}
 \]
 \end{thm}
-\begin{proof}
+
+\begin{thm}
+\label{corr_axnull}
+For any distributions $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$, $\mu_1 \Psi^{\#(0, 0)} \mu_2$, where
+\[
+	\Psi = \{(x,y) \in \real \times \real | x = y \}
+\]
+\end{thm}
+
+
+\begin{proof}[Proof of Theorem \ref{corr_axunif}]
+
 Existing $\mu_L, \mu_R \in \distr(\real \times \real)$:
 \[
 	{\mu_L}(x, y) = 
@@ -327,6 +284,95 @@ Their $\pdf.$ are defined:
 
 \end{itemize}
 \end{proof}
+
+\begin{defn}
+[$\snap(a) : A \to \distr(B)$]
+The ideal Snapping mechanism $\snap( a)$ is defined as:
+\[
+	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
+\]
+where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+\end{defn}
+
+\begin{thm}
+The $\snap$ mechanism is differentially praivate by following derivation in Figure \ref{derivation_snap}.
+\end{thm}
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = AxUnif]
+{
+}
+{
+	u_1 \samplel \mu \sim_{\epsilon, 0} u_2 \samplel \mu : \top \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	y_1 = \frac{\ln(u_1)}{\epsilon} \sim_{0, 0} 
+	y_2 = \frac{\ln(u_2)}{\epsilon} : e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2  \Rightarrow y_2 - 1 \leq y_1 \leq 1 + y_2
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	s_1 \samplel \{ -1, 1\} \sim_{0, 0} s_2 \samplel \{ -1, 1\} : \top \Rightarrow s_1 = s_2
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	z_1 = s_1 * y_1 \sim_{0, 0} z_2 = s_2 * y_2 : s_1 = s_2 \land y_2 - 1 \leq y_1 \leq 1 + y_2  \Rightarrow | z_1 - z_2 | \leq 1
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : a_1 = a_2 + 1 \Rightarrow x_1 = x_2 + 1 
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	w_1 = x_1 + z_1 \sim_{0, 0} w_2 = x_2 + z_2 : x_1 = x_2 + 1 \land | z_1 - z_2 | \leq 1  \land -2 \leq k \leq 0   \Rightarrow w_1 + k = w_2
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	w'_1 = \lfloor w_1 \rfloor_{\Lambda} 
+	\sim_{0, 0} w'_2 = \lfloor w_2 \rfloor_{\Lambda} : w_1 + k = w_2 \land -2 \leq k \leq 0  \Rightarrow w'_1 + k = w'_2
+}
+\and
+\inferrule*[right = AxNull]
+{
+}
+{
+	r_1 = \clamp_B (w'_1) 
+	\sim_{0, 0} r_2 = \clamp_B (w'_2)
+	: w'_1 + k = w'_2  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
+}
+\and
+\inferrule*[right = Comp]
+{
+\cdots
+}
+{
+	r_1 = \snap(a_1) 
+	\sim_{\epsilon, 0} r_2 = \snap(a_1) 
+	: a_1 = a_2 + 1  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
+}
+\end{mathpar}
+\caption{Coupling Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
+\label{derivation_snap}
+\end{figure}
 
 
 \begin{defn}
