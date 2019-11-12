@@ -14,7 +14,7 @@ In order to verify the differential privacy proeprty of snapping mechanism, we f
 
 Some new rules are added into this logic in Figure \ref{logic_rule} following with correctness proof. Then we formalized the snapping mechanism and verified its differential privacy property under these logic rules.
 
-\section{Formalization}
+\section{Logic Rules}
 \begin{defn}
 [Laplce mechanism \cite{dwork2006calibrating}]
 Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distribution $\laplace(\frac{1}{\epsilon})$.
@@ -285,6 +285,7 @@ Their $\pdf.$ are defined:
 \end{itemize}
 \end{proof}
 
+\section{Formalization}
 \begin{defn}
 [$\snap(a) : A \to \distr(B)$]
 The ideal Snapping mechanism $\snap( a)$ is defined as:
@@ -333,7 +334,7 @@ The $\snap$ mechanism is differentially praivate by following derivation in Figu
 {
 }
 {
-	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : a_1 = a_2 + 1 \Rightarrow x_1 = x_2 + 1 
+	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1 \Rightarrow x_1 = x_2 + 1 
 }
 \and
 \inferrule*[right = AxNull]
@@ -367,7 +368,7 @@ The $\snap$ mechanism is differentially praivate by following derivation in Figu
 {
 	r_1 = \snap(a_1) 
 	\sim_{\epsilon, 0} r_2 = \snap(a_1) 
-	: a_1 = a_2 + 1  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
+	: a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
 }
 \end{mathpar}
 \caption{Coupling Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
