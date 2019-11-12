@@ -22,7 +22,7 @@ The ideal Snapping mechanism $\snap(\mu, a)$ is defined as:
 \[
 	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \lfloor w \rfloor_{\Lambda}; r = \clamp_B (w')
 \]
-where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget.
+where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
 
 \begin{defn}
