@@ -10,11 +10,11 @@
 \title{Verifying Snapping Mechanism}
 
 \maketitle
-In order to verify the differential privacy proeprty of snapping mechanism, we follow the logic rules designed from \cite{barthe2016proving}.
+In order to verify the differential privacy proeprty of the snapping mechanism\cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving}.
 
 Some new rules are added into this logic in Figure \ref{logic_rule} following with correctness proof. Then we formalized the snapping mechanism and verified its differential privacy property under these logic rules.
 
-\section{Logic Rules}
+\section{Program Logic}
 \begin{defn}
 [Laplce mechanism \cite{dwork2006calibrating}]
 Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distribution $\laplace(\frac{1}{\epsilon})$.
@@ -285,7 +285,7 @@ Their $\pdf.$ are defined:
 \end{itemize}
 \end{proof}
 
-\section{Formalization}
+\section{Formalization in Program Logic}
 \begin{defn}
 [$\snap(a) : A \to \distr(B)$]
 The ideal Snapping mechanism $\snap( a)$ is defined as:
