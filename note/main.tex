@@ -290,7 +290,7 @@ Their $\pdf.$ are defined:
 [$\snap(a) : A \to \distr(B)$]
 The ideal Snapping mechanism $\snap( a)$ is defined as:
 \[
-	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \lfloor w \rceil_{\Lambda}; r = \clamp_B (w')
+	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
@@ -348,8 +348,8 @@ The $\snap$ mechanism is differentially praivate by following derivation in Figu
 {
 }
 {
-	w'_1 = \lfloor w_1 \rceil_{\Lambda} 
-	\sim_{0, 0} w'_2 = \lfloor w_2 \rceil_{\Lambda} : w_1 + k = w_2 \land -2 \leq k \leq 0  \Rightarrow w'_1 + k = w'_2
+	w'_1 = \round{w_1}_{\Lambda} 
+	\sim_{0, 0} w'_2 = \round{w_2}_{\Lambda} : w_1 + k = w_2 \land -2 \leq k \leq 0  \Rightarrow w'_1 + k = w'_2
 }
 \and
 \inferrule*[right = AxNull]
@@ -401,9 +401,10 @@ Followed directly by unfolding the $\snap$ mechanism.
 	\pr{x \leftarrow \snap(\mu_1, a)}{x = e} 
 	& = & \pr
 			{u \leftarrow \mu_1}
-			{	\lfloor 
+			{	\round 
+				{
 				f(a) + \frac{ S \cdot \log(u)}{\epsilon} 
-				\rceil_{\Lambda} = e
+				}_{\Lambda} = e
 			}\\
 	& = & \pr
 			{ u \leftarrow \mu_1}
@@ -421,9 +422,8 @@ Followed directly by unfolding the $\snap$ mechanism.
 	& = & \exp(\epsilon)
 			\pr
 			{u \leftarrow \mu_2}
-			{	\lfloor 
-				f(a') + \frac{ S \cdot \log(u)}{\epsilon} 
-				\rceil_{\Lambda} = e
+			{	\round 
+				{f(a') + \frac{ S \cdot \log(u)}{\epsilon}}_{\Lambda} = e
 			}\\
 	& = & \exp(\epsilon)
 			\pr{x \leftarrow \snap(\mu_2, a')}{x = e} 
@@ -446,7 +446,7 @@ Assume $x$ be the output of $\snap$ mechanism, we have following maps from the o
 %%%%%%%%%%%$$$%%%Draw Ticks on The Output Line%%%%%%%%%%%
 \draw[very thick] (0 cm,3pt) -- (0 cm,-3pt) node[anchor=north] {-B};
 \draw[very thick] (14 cm,3pt) -- (14 cm,-3pt) node[anchor=north] {B};
-\draw[very thick] (8, 3pt) -- (8, -3pt) node[anchor=north] {$\lfloor f(a) \rceil_{\Lambda}$};
+\draw[very thick] (8, 3pt) -- (8, -3pt) node[anchor=north] {$\round{f(a)}_{\Lambda}$};
 
 %%%%%%%%%%%%%%Draw Ticks on The Uniform Line%%%%%%%%%%%
 \draw[very thick] (2 ,2) -- (2 cm,1.9)
@@ -471,16 +471,16 @@ node[anchor=south]
 \draw[very thick, dashed] (8, 0) -- (6, 2) node[anchor=south]{$e^{\epsilon(t - \frac{\Lambda}{2})}$};
 \draw[very thick, dashed] (8, 0) -- (8, 2) node[anchor=south]{$e^{\epsilon(-t - \frac{\Lambda}{2})}$};
 
-\draw[very thick, dashed] (14, 0) -- (11, 2) node[anchor=south]{$e^{\epsilon(-b - \frac{\Lambda}{2})}$};
+\draw[very thick, dashed] (14, 0) -- (11, 2) node[anchor=south]{$e^{\epsilon(-b - \frac{\Lambda}{2} + f(a))}$};
 \draw[very thick, dashed] (14, 0) -- (12, 2);
 
 \end{tikzpicture}
 \\
 %
-where $b$ is the greatest value rounded by $\Lambda$ that is smaller than $B$ and $t = \lfloor f(a) \rceil_{\Lambda} - f(a)$.
+where $b$ is the greatest rounding of $\Lambda$ that is smaller than $B$ and $t = \round{f(a)}_{\Lambda} - f(a)$.
 
 
-Given the $f(a) = \lfloor f(a) \rceil_{\Lambda} = 0$, we have following maps from the output of $\snap$ mechanism to uniformly distributed $u \in (0, 1]$.\\
+Given the $f(a) = \round{f(a)}_{\Lambda} = 0$, we have following maps from the output of $\snap$ mechanism to uniformly distributed $u \in (0, 1]$.\\
 %
 \begin{tikzpicture}
 %%%%%%%%%%%%%%%%%%Draw Backgraound Grids%%%%%%%%%%%%%%%
@@ -489,7 +489,7 @@ Given the $f(a) = \lfloor f(a) \rceil_{\Lambda} = 0$, we have following maps fro
 %%%%%%%%%%%%%%Draw Uniform variable u Line%%%%%%%%%%%%%%
 \draw[thick] (2,2) -- (12, 2) node[anchor=south west] {$u$};
 %%%%%%%%%%%%%%%%%%%Draw The Output Line%%%%%%%%%%%%%%%%%%
-\draw[thick,->] (-1,0) -- (15,0) node[anchor=north west] {$\snap$};
+\draw[thick,->] (-1,0) -- (15,0) node[anchor=north west] {$x$};
 %%%%%%%%%%%$$$%%%Draw Ticks on The Output Line%%%%%%%%%%%
 \draw[very thick] (0 cm,3pt) -- (0 cm,-3pt) node[anchor=north] {-B};
 \draw[very thick] (14 cm,3pt) -- (14 cm,-3pt) node[anchor=north] {B};
@@ -517,7 +517,128 @@ Given the $f(a) = \lfloor f(a) \rceil_{\Lambda} = 0$, we have following maps fro
 
 \end{tikzpicture}
 
+Assuming that $f(a) \in [-B, B]$, otherwise we can always redefine the $f(a)$ restricting its output in this range.
+The probability of obtaining output $x$ from $\snap$ mechanism can be calculated by cases of $x$:
+\begin{itemize}
+	\item[\textbf{case}] $x = -B$
 
+	In this case, we know $s = 1$.\\
+	We have: $\round{f(a) + \frac{1}{\epsilon} \ln(u)}_{\Lambda} \leq -B $.\\
+	%
+	Since $b$ is the greatest rounding of $\Lambda$ that is smaller than $B$,
+	then $-b$ is the smallest rounding of $\Lambda$ that is greater than $-B$, we have:
+	$f(a) + \frac{1}{\epsilon} \ln(u) < -b - \frac{\Lambda}{2}$.\\
+	%
+	Then we get:
+	{\color{red}
+	$u \in 
+	\big(
+	0, e^{\epsilon (-b - \frac{\Lambda}{2} - f(a))}
+	\big)$
+	}
+
+	\item[\textbf{case}] $x \in (-B, \round{f(a)}_{\Lambda})$
+	
+	In this case, we know $s = 1$ 
+	and $x \in \big[-b, \round{f(a)}_{\Lambda} - \Lambda\big]$.\\
+	%
+	We have: $\round{f(a) + \frac{1}{\epsilon} \ln(u)}_{\Lambda} = x $.\\
+	%
+	By the rule of rounding, we get:
+	{\color{red}
+	$u \in 
+	\bigg[
+	e^{\epsilon (x - \frac{\Lambda}{2} - f(a))},
+	e^{\epsilon (x + \frac{\Lambda}{2} - f(a))}
+	\bigg)$}.\\
+	%
+	By the range of x, we get:
+	{\color{red}
+	$u \in 
+	\bigg[
+	e^{\epsilon (-b - \frac{\Lambda}{2} - f(a))},
+	e^{\epsilon (t - \frac{\Lambda}{2})}
+	\bigg)$}.
+
+
+	\item[\textbf{case}] $x = \round{f(a)}_{\Lambda}$
+
+	\begin{itemize}
+		\item[\textbf{subcase}] $s = 1$\\
+		%
+		In this case, we have: $\round{f(a) + \frac{1}{\epsilon} \ln(u)}_{\Lambda} = \round{f(a)}_{\Lambda}$.\\
+		%
+		Then we can get:
+		$u \in 
+		\big[
+		e^{\epsilon(t - \frac{\Lambda}{2})},
+		e^{\epsilon(t + \frac{\Lambda}{2})}
+		\big]$.\\
+		%
+		Since $t = \round{f(a)}_{\Lambda} - f(a)$, we know: $- \frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2}$. So we can get: $e^{\epsilon(t + \frac{\Lambda}{2})} > 1$.\\
+		%
+		Since $u \in (0, 1]$, we have:
+		{\color{red}
+		$u \in 
+		\big[
+		e^{\epsilon(t - \frac{\Lambda}{2})}, 1
+		\big]$
+		}.
+
+		\item[\textbf{subcase}] $s = -1$\\
+		%
+		By the symmetric of the range, we can get:
+		{\color{red}
+		$u \in 
+		\big[
+		e^{\epsilon(- t - \frac{\Lambda}{2})}, 1
+		\big]$
+		}.
+
+	\end{itemize}
+	
+	\item[\textbf{case}] $x \in (\round{f(a)}_{\Lambda}, B)$
+	
+	In this case, we know $s = -1$ 
+	and $x \in \big[
+	\round{f(a)}_{\Lambda} + \Lambda, b \big]$.\\
+	%
+	We have: $\round{f(a) - \frac{1}{\epsilon} \ln(u)}_{\Lambda} = x $.\\
+	%
+	By the rule of rounding, we get:
+	{\color{red}
+	$u \in 
+	\bigg(
+	e^{\epsilon (f(a) - \frac{\Lambda}{2} - x)},
+	e^{\epsilon (f(a) + \frac{\Lambda}{2} - x)}
+	\bigg]$}.\\
+	%
+	By the range of x, we get:
+	{\color{red}
+	$u \in 
+	\bigg(
+	e^{\epsilon (-b - \frac{\Lambda}{2} + f(a))},
+	e^{\epsilon (-t - \frac{\Lambda}{2})}
+	\bigg]$}.
+	
+
+	\item[\textbf{case}] $x = B$
+
+	In this case, we know $s = -1$.\\
+	%
+	We have: $\round{f(a) - \frac{1}{\epsilon} \ln(u)}_{\Lambda} \geq B $.\\
+	%
+	Since $b$ is the greatest rounding of $\Lambda$ that is smaller than $B$, we have:
+	$f(a) - \frac{1}{\epsilon} \ln(u) \geq b + \frac{\Lambda}{2}$.\\
+	%
+	Then we get:
+	{\color{red}
+	$u \in 
+	\big(
+	0, e^{\epsilon (-b - \frac{\Lambda}{2} + f(a))}
+	\big)$
+	}
+\end{itemize}
 
 \newpage
 \bibliographystyle{plain}
