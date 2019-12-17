@@ -459,7 +459,7 @@ node[anchor=south west] {0};
 
 \draw[very thick] (6 , 2.1) -- (6, 1.9);
 \draw[very thick] (7 , 2) -- (7, 1.9)
-node[anchor=south] {0};
+node[anchor=south] {1};
 \draw[very thick] (8 , 2.1) -- (8, 1.9);
 
 %%%%%%%%%%%%%%Draw Maps From Uniform to Output%%%%%%%%%%
@@ -640,6 +640,87 @@ The probability of obtaining output $x$ from $\snap$ mechanism can be calculated
 	}
 \end{itemize}
 
+\begin{thm}
+$\snap$ mechanism is $\epsilon$-differentially private.
+\end{thm}
+
+\begin{proof}[$\epsilon$-differential privacy of $\snap$ mehcnaism]
+Given two adjacent database $a$ and $a'$, where $f(a) = \round{f(a)}_{\Lambda} = 0$ and $f(a') = \round{f(a')}_{\Lambda} = 1$, the proof is developed by cases of the output of $x = \snap(a)$, $y = \snap(a')$.
+
+\begin{itemize}
+	\item[\textbf{case}] $-B$
+	\[
+	\frac{Pr[x = -B]}{Pr[y = -B]} 
+	= \frac{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2})\epsilon})}
+				{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})} \\
+	= e^{\epsilon}
+	\]
+
+
+	\item[\textbf{case}] $(-B, 0)$
+	\[
+	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+	= \frac{\frac{1}{2}(
+				e^{-\frac{\Lambda}{2}\epsilon}
+				- e^{(-b -\frac{\Lambda}{2})\epsilon})}
+				{\frac{1}{2}(
+				e^{(-\frac{\Lambda}{2} - 1)\epsilon}
+				- e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})} \\
+	= e^{\epsilon}
+	\]
+
+	{\color{red}
+	\item[\textbf{case}] $0$
+	\[
+	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+	= \frac{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+			{\frac{1}{2}(
+				e^{(\frac{\Lambda}{2} - 1)\epsilon}
+				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+	=
+	\]
+
+
+	\item[\textbf{case}] $1$
+	\[
+	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+	= \frac{\frac{1}{2}(
+				e^{(\frac{\Lambda}{2} - 1)\epsilon}
+				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+			{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+	=
+	\]
+
+	}
+
+	\item[\textbf{case}] $(1, B)$
+	\[
+	\frac{Pr[x \in (1, B)]}{Pr[y \in (1, B)]} 
+	= \frac{\frac{1}{2}(
+				e^{(-\frac{\Lambda}{2} - 1)\epsilon}
+				- e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})}
+				{\frac{1}{2}(
+				e^{-\frac{\Lambda}{2}\epsilon}
+				- e^{(-b -\frac{\Lambda}{2})\epsilon})} \\
+	= e^{-\epsilon}
+	\]
+	\item[\textbf{case}] $B$
+	\[
+	\frac{Pr[x = B]}{Pr[y = B]} 
+	= \frac{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2})\epsilon})}
+				{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2} + 1)\epsilon})} \\
+	= e^{-\epsilon}
+	\]
+
+
+
+\end{itemize}
+
+\end{proof}
 \newpage
 \bibliographystyle{plain}
 \bibliography{verifysnap.bib}
