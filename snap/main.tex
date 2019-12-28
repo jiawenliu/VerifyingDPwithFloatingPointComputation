@@ -679,7 +679,31 @@ Given two adjacent database $a$ and $a'$, where $f(a) = \round{f(a)}_{\Lambda} =
 			{\frac{1}{2}(
 				e^{(\frac{\Lambda}{2} - 1)\epsilon}
 				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
-	=
+	\leq e^{\epsilon}
+	\]
+	since we have for all $\epsilon > 0$ and fixed $\Lambda$, (by taking the differential of $g(\epsilon)$ and finding the minimum value of $g(\epsilon)$.):
+	\[
+	g(\epsilon) = (e^{\frac{\Lambda}{2}\epsilon} - 1) - (1 - e^{-\frac{\Lambda}{2}\epsilon}) \geq 0
+	\]
+	So we can get:
+	\[
+	1 - e^{-\frac{\Lambda}{2}\epsilon} < \frac{1}{2} ((e^{\frac{\Lambda}{2}\epsilon} - 1) + (1 - e^{-\frac{\Lambda}{2}\epsilon})) = \frac{1}{2} (e^{\frac{\Lambda}{2}\epsilon} - e^{-\frac{\Lambda}{2}\epsilon})
+	\]
+	Finially we can derive:
+		\[
+	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+	= \frac{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+			{\frac{1}{2}(
+				e^{(\frac{\Lambda}{2} - 1)\epsilon}
+				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+	\leq 
+	\frac{\frac{1}{2}(
+			e^{\frac{\Lambda}{2}\epsilon} 
+			- e^{-\frac{\Lambda}{2}\epsilon})}
+		 {\frac{1}{2}(
+			e^{(\frac{\Lambda}{2} - 1)\epsilon}
+			- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+	=e^{\epsilon}
 	\]
 
 
@@ -690,7 +714,7 @@ Given two adjacent database $a$ and $a'$, where $f(a) = \round{f(a)}_{\Lambda} =
 				e^{(\frac{\Lambda}{2} - 1)\epsilon}
 				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
 			{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
-	=
+	\geq e^{-\epsilon}
 	\]
 
 	}
