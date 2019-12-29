@@ -14,7 +14,7 @@ In order to verify the differential privacy proeprty of the snapping mechanism\c
 
 Some new rules are added into this logic in Figure \ref{logic_rule} following with correctness proof. Then we formalized the snapping mechanism and verified its differential privacy property under these logic rules.
 
-\section{Program Logic}
+\section{Extended Programming Logic\cite{barthe2016proving}}
 \begin{defn}
 [Laplce mechanism \cite{dwork2006calibrating}]
 Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distri bution $\laplace(\frac{1}{\epsilon})$.
@@ -100,7 +100,7 @@ c_1 \sim_{k', 0} c_2 : \Phi'_1 \Rightarrow \Phi_2
 	: \Phi_1  \Rightarrow  \Phi_2
 }
 \end{mathpar}
-\caption{Logic Rules from \cite{barthe2016proving}}
+\caption{Logic Rules Extended from \cite{barthe2016proving}}
 \label{logic_rule}
 \end{figure}
 
@@ -285,7 +285,7 @@ Their $\pdf.$ are defined:
 \end{itemize}
 \end{proof}
 
-\section{Formalization of $\snap$ Mechanism in Programming Logic}
+\section{Formalization of $\snap$ Mechanism in Probabilistic Logic}
 \begin{defn}
 [$\snap(a) : A \to \distr(B)$]
 The ideal Snapping mechanism $\snap( a)$ is defined as:
@@ -295,9 +295,12 @@ The ideal Snapping mechanism $\snap( a)$ is defined as:
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
 
-\begin{thm}
-The $\snap$ mechanism is differentially praivate by following derivation in Figure \ref{derivation_snap}.
+\begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially praivate]
 \end{thm}
+
+\begin{proof}
+The proof follows the derivation in Figure \ref{derivation_snap}.
+\end{proof}
 
 \begin{figure}
 \begin{mathpar}
@@ -376,63 +379,64 @@ The $\snap$ mechanism is differentially praivate by following derivation in Figu
 \end{figure}
 
 
-\begin{defn}
-[$\epsilon$ - dilation].
+% \begin{defn}
+% [$\epsilon$ - dilation].
 
-Let $\epsilon \geq 0$. The $\epsilon$-dilation $D_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$is defined as:
-\[	
-	\underset{E \in U}{sup}\Big(\pr{x \leftarrow \mu_1}{x \in E} - \exp(\epsilon) \pr{x \leftarrow \mu_2}{x \in \exp(-\epsilon) \cdot E}]\Big)
-\]
-\end{defn}
+% Let $\epsilon \geq 0$. The $\epsilon$-dilation $D_{\epsilon}(\mu_1, \mu_2)$ between two sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$is defined as:
+% \[	
+% 	\underset{E \in U}{sup}\Big(\pr{x \leftarrow \mu_1}{x \in E} - \exp(\epsilon) \pr{x \leftarrow \mu_2}{x \in \exp(-\epsilon) \cdot E}]\Big)
+% \]
+% \end{defn}
 
-\begin{prop}
-[($\epsilon, \delta$)-differential privacy]
-For every pair of sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$, s.t. 
-\[
-D_{\epsilon}(\mu_1, \mu_2) \leq \delta,
-\]
-The snapping mechanism $\snap(\mu, a) : \distr(U) \to A \to \distr(B)$ is $(\epsilon, \delta)$ - differentially private w.r.t. an adjacency relation $\Phi$ for every two adjacent inputs a, a’ and $\mu_1, \mu_2$
-\end{prop}
+% \begin{prop}
+% [($\epsilon, \delta$)-differential privacy]
+% For every pair of sub-distributions $\mu_1 \in \distr(U)$, $\mu_2 \in \distr(U)$, s.t. 
+% \[
+% D_{\epsilon}(\mu_1, \mu_2) \leq \delta,
+% \]
+% The snapping mechanism $\snap(\mu, a) : \distr(U) \to A \to \distr(B)$ is $(\epsilon, \delta)$ - differentially private w.r.t. an adjacency relation $\Phi$ for every two adjacent inputs a, a’ and $\mu_1, \mu_2$
+% \end{prop}
 
-\begin{proof}
-Followed directly by unfolding the $\snap$ mechanism.
-\[
-	\begin{array}{lll}
-	\pr{x \leftarrow \snap(\mu_1, a)}{x = e} 
-	& = & \pr
-			{u \leftarrow \mu_1}
-			{	\round 
-				{
-				f(a) + \frac{ S \cdot \log(u)}{\epsilon} 
-				}_{\Lambda} = e
-			}\\
-	& = & \pr
-			{ u \leftarrow \mu_1}
-		   	{ u \in [
-		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
-		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
-		   	}\\
-	& \leq & \exp(\epsilon)
-			\pr
-			{ u \leftarrow \mu_2}
-		   	{ u \in \exp(-\epsilon)[
-		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
-		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
-		   	}\\
-	& = & \exp(\epsilon)
-			\pr
-			{u \leftarrow \mu_2}
-			{	\round 
-				{f(a') + \frac{ S \cdot \log(u)}{\epsilon}}_{\Lambda} = e
-			}\\
-	& = & \exp(\epsilon)
-			\pr{x \leftarrow \snap(\mu_2, a')}{x = e} 
-	\end{array}
-\]
-\end{proof}
+% \begin{proof}
+% Followed directly by unfolding the $\snap$ mechanism.
+% \[
+% 	\begin{array}{lll}
+% 	\pr{x \leftarrow \snap(\mu_1, a)}{x = e} 
+% 	& = & \pr
+% 			{u \leftarrow \mu_1}
+% 			{	\round 
+% 				{
+% 				f(a) + \frac{ S \cdot \log(u)}{\epsilon} 
+% 				}_{\Lambda} = e
+% 			}\\
+% 	& = & \pr
+% 			{ u \leftarrow \mu_1}
+% 		   	{ u \in [
+% 		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
+% 		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
+% 		   	}\\
+% 	& \leq & \exp(\epsilon)
+% 			\pr
+% 			{ u \leftarrow \mu_2}
+% 		   	{ u \in \exp(-\epsilon)[
+% 		   		\frac{\exp((e - \frac{\Lambda}{2} - f(a)) \epsilon )}{S},
+% 		   		\frac{\exp((e + \frac{\Lambda}{2} - f(a)) \epsilon )}{S})
+% 		   	}\\
+% 	& = & \exp(\epsilon)
+% 			\pr
+% 			{u \leftarrow \mu_2}
+% 			{	\round 
+% 				{f(a') + \frac{ S \cdot \log(u)}{\epsilon}}_{\Lambda} = e
+% 			}\\
+% 	& = & \exp(\epsilon)
+% 			\pr{x \leftarrow \snap(\mu_2, a')}{x = e} 
+% 	\end{array}
+% \]
+% \end{proof}
 
 
 \section{Proof of Differential Privacy for $\snap$ Mechanism}
+
 Assume $x$ be the output of $\snap$ mechanism, we have following maps from the output of $\snap$ mechanism to uniformly distributed $u \in (0, 1]$. \\
 %
 \begin{tikzpicture}
@@ -640,8 +644,7 @@ The probability of obtaining output $x$ from $\snap$ mechanism can be calculated
 	}
 \end{itemize}
 
-\begin{thm}
-$\snap$ mechanism is $\epsilon$-differentially private.
+\begin{thm}[$\snap$ mechanism is $\epsilon$-differentially private.]
 \end{thm}
 
 \begin{proof} %[$\epsilon$-differential privacy of $\snap$ mehcnaism]
@@ -787,7 +790,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	= e^{\epsilon}
 	\]
 
-	{\color{red}
+	
 	\item[\textbf{case}] $E = \round{f(a)}_{\Lambda}$
 
 	\[
@@ -835,7 +838,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	\leq e^{\epsilon}
 	\]
 
-
+	{\color{red}
 	\item[\textbf{case}] $E = (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})$
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
@@ -879,7 +882,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	\leq e^{\epsilon}
 	\]
 
-
+	}
 
 	\item[\textbf{case}] $E = \round{f(a')}_{\Lambda}$
 	\[
@@ -928,7 +931,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	%
 	\geq e^{-\epsilon}
 	\]
-	}
+	
 	%
 	%
 	\item[\textbf{case}] $E = (\round{f(a')}_{\Lambda}, B)$
