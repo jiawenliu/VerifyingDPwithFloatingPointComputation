@@ -644,99 +644,330 @@ The probability of obtaining output $x$ from $\snap$ mechanism can be calculated
 $\snap$ mechanism is $\epsilon$-differentially private.
 \end{thm}
 
-\begin{proof}[$\epsilon$-differential privacy of $\snap$ mehcnaism]
-Given two adjacent database $a$ and $a'$, where $f(a) = \round{f(a)}_{\Lambda} = 0$ and $f(a') = \round{f(a')}_{\Lambda} = 1$, the proof is developed by cases of the output of $x = \snap(a)$, $y = \snap(a')$.
+\begin{proof} %[$\epsilon$-differential privacy of $\snap$ mehcnaism]
+Consider 
+%a specific case where two adjacent database $a$ and $a'$ and $f(a) = \round{f(a)}_{\Lambda} = 0$ and $f(a') = \round{f(a')}_{\Lambda} = 1$, the proof is developed by cases of the output of $x = \snap(a)$, $y = \snap(a')$.
+%
+% \begin{itemize}
+% 	\item[\textbf{case}] $-B$
+% 	\[
+% 	\frac{Pr[x = -B]}{Pr[y = -B]} 
+% 	= \frac{\frac{1}{2}(
+% 				e^{(-b -\frac{\Lambda}{2})\epsilon})}
+% 				{\frac{1}{2}(
+% 				e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})} \\
+% 	= e^{\epsilon}
+% 	\]
+%
+%
+% 	\item[\textbf{case}] $(-B, 0)$
+% 	\[
+% 	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+% 	= \frac{\frac{1}{2}(
+% 				e^{-\frac{\Lambda}{2}\epsilon}
+% 				- e^{(-b -\frac{\Lambda}{2})\epsilon})}
+% 				{\frac{1}{2}(
+% 				e^{(-\frac{\Lambda}{2} - 1)\epsilon}
+% 				- e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})} \\
+% 	= e^{\epsilon}
+% 	\]
+%
+% 	{\color{red}
+% 	\item[\textbf{case}] $0$
+% 	\[
+% 	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+% 	= \frac{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+% 			{\frac{1}{2}(
+% 				e^{(\frac{\Lambda}{2} - 1)\epsilon}
+% 				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+% 	\leq e^{\epsilon}
+% 	\]
+% 	since we have for all $\epsilon > 0$ and fixed $\Lambda$, (by taking the differential of $g(\epsilon)$ and finding the minimum value of $g(\epsilon)$.):
+% 	\[
+% 	g(\epsilon) = (e^{\frac{\Lambda}{2}\epsilon} - 1) - (1 - e^{-\frac{\Lambda}{2}\epsilon}) \geq 0
+% 	\]
+% 	So we can get:
+% 	\[
+% 	1 - e^{-\frac{\Lambda}{2}\epsilon} < \frac{1}{2} ((e^{\frac{\Lambda}{2}\epsilon} - 1) + (1 - e^{-\frac{\Lambda}{2}\epsilon})) = \frac{1}{2} (e^{\frac{\Lambda}{2}\epsilon} - e^{-\frac{\Lambda}{2}\epsilon})
+% 	\]
+% 	Finially we can derive:
+% 		\[
+% 	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+% 	= \frac{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+% 			{\frac{1}{2}(
+% 				e^{(\frac{\Lambda}{2} - 1)\epsilon}
+% 				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+% 	\leq 
+% 	\frac{\frac{1}{2}(
+% 			e^{\frac{\Lambda}{2}\epsilon} 
+% 			- e^{-\frac{\Lambda}{2}\epsilon})}
+% 		 {\frac{1}{2}(
+% 			e^{(\frac{\Lambda}{2} - 1)\epsilon}
+% 			- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+% 	=e^{\epsilon}
+% 	\]
+%
+%
+% 	\item[\textbf{case}] $1$
+% 	\[
+% 	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+% 	= \frac{\frac{1}{2}(
+% 				e^{(\frac{\Lambda}{2} - 1)\epsilon}
+% 				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+% 			{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+% 	\geq e^{-\epsilon}
+% 	\]
+%
+% 	}
+%
+% 	\item[\textbf{case}] $(1, B)$
+% 	\[
+% 	\frac{Pr[x \in (1, B)]}{Pr[y \in (1, B)]} 
+% 	= \frac{\frac{1}{2}(
+% 				e^{(-\frac{\Lambda}{2} - 1)\epsilon}
+% 				- e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})}
+% 				{\frac{1}{2}(
+% 				e^{-\frac{\Lambda}{2}\epsilon}
+% 				- e^{(-b -\frac{\Lambda}{2})\epsilon})} \\
+% 	= e^{-\epsilon}
+% 	\]
+% 	\item[\textbf{case}] $B$
+% 	\[
+% 	\frac{Pr[x = B]}{Pr[y = B]} 
+% 	= \frac{\frac{1}{2}(
+% 				e^{(-b -\frac{\Lambda}{2})\epsilon})}
+% 				{\frac{1}{2}(
+% 				e^{(-b -\frac{\Lambda}{2} + 1)\epsilon})} \\
+% 	= e^{-\epsilon}
+% 	\]
+%
+%
+% \end{itemize}
+%
+% Then we extended the proof to general cases where for any 
+two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$. The proof is developed by cases of the output space $E$ of $\snap$ mechainism, where $x = \snap(a)$, $y = \snap(a')$.
 
 \begin{itemize}
-	\item[\textbf{case}] $-B$
+	\item[\textbf{case}] $E = -B$
 	\[
-	\frac{Pr[x = -B]}{Pr[y = -B]} 
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{\frac{1}{2}(
-				e^{(-b -\frac{\Lambda}{2})\epsilon})}
+				e^{(-b -\frac{\Lambda}{2} - f(a))\epsilon})}
 				{\frac{1}{2}(
-				e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})} \\
+				e^{(-b -\frac{\Lambda}{2} - f(a'))\epsilon})} \\
+	= \frac{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2} - f(a))\epsilon})}
+				{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2} - f(a) - 1)\epsilon})} \\
 	= e^{\epsilon}
 	\]
 
 
-	\item[\textbf{case}] $(-B, 0)$
+	\item[\textbf{case}] $E = (-B, \round{f(a)}_{\Lambda})$
+
+	From $(\diamond)$, we have $0 \leq \round{f(a')}_{\Lambda} - \round{f(a)}_{\Lambda} \leq 1 + \Lambda$.
+	So we have $(-B, \round{f(a)}_{\Lambda}) \subset (-B, \round{f(a')}_{\Lambda})$.
+	%
 	\[
-	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{\frac{1}{2}(
-				e^{-\frac{\Lambda}{2}\epsilon}
-				- e^{(-b -\frac{\Lambda}{2})\epsilon})}
+				e^{\round{f(a)}_{\Lambda} - f(a) -\frac{\Lambda}{2}\epsilon}
+				- e^{(-b -\frac{\Lambda}{2} - f(a))\epsilon})}
 				{\frac{1}{2}(
-				e^{(-\frac{\Lambda}{2} - 1)\epsilon}
-				- e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})} \\
+				e^{(\round{f(a)}_{\Lambda} -\frac{\Lambda}{2} - f(a'))\epsilon}
+				- e^{(-b -\frac{\Lambda}{2} - f(a'))\epsilon})} \\
+	%
+	= \frac{\frac{1}{2}(
+				e^{\round{f(a)}_{\Lambda} - f(a) -\frac{\Lambda}{2}\epsilon}
+				- e^{(-b -\frac{\Lambda}{2} - f(a))\epsilon})}
+				{\frac{1}{2}(
+				e^{(\round{f(a)}_{\Lambda} -\frac{\Lambda}{2} - f(a) - 1)\epsilon}
+				- e^{(-b -\frac{\Lambda}{2} - f(a) - 1)\epsilon})} \\
+	%
 	= e^{\epsilon}
 	\]
 
 	{\color{red}
-	\item[\textbf{case}] $0$
+	\item[\textbf{case}] $E = \round{f(a)}_{\Lambda}$
+
 	\[
-	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
-	= \frac{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
+	= \frac{(1 - {\frac{1}{2}(
+				e^{(\round{f(a)}_{\Lambda} - f(a) - \frac{\Lambda}{2})\epsilon}
+				+ e^{(f(a) - \round{f(a)}_{\Lambda} -\frac{\Lambda}{2})\epsilon})}
+			}
 			{\frac{1}{2}(
-				e^{(\frac{\Lambda}{2} - 1)\epsilon}
-				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
+				e^{(\round{f(a)}_{\Lambda} - f(a') + \frac{\Lambda}{2})\epsilon}
+				- e^{(\round{f(a)}_{\Lambda} - f(a') - \frac{\Lambda}{2})\epsilon})}~(\star)
+	\]
+
+	Let $t = \round{f(a)}_{\Lambda} - f(a)$, we have $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $ and:
+	\[
+	(\star) = \frac{1 - {\frac{1}{2}(
+				e^{(t - \frac{\Lambda}{2})\epsilon}
+				+ e^{-t -\frac{\Lambda}{2})\epsilon})}
+			}
+			{\frac{1}{2}(
+				e^{(t - 1 + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon})}
+	%
+	\leq \frac{\frac{1}{2}(
+				e^{(t + \frac{\Lambda}{2})\epsilon}
+				+ e^{(-t +\frac{\Lambda}{2})\epsilon}) 
+				- \frac{1}{2}(
+				e^{(t - \frac{\Lambda}{2})\epsilon}
+				+ e^{(-t -\frac{\Lambda}{2})\epsilon})
+			}
+			{\frac{1}{2}(
+				e^{(t - 1 + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon})}
+	%
+	\leq \frac{
+				e^{(t + \frac{\Lambda}{2})\epsilon} 
+				-
+				e^{(t - \frac{\Lambda}{2})\epsilon}
+			}
+			{
+				e^{(t - 1 + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon}
+			}	
+	%
 	\leq e^{\epsilon}
 	\]
-	since we have for all $\epsilon > 0$ and fixed $\Lambda$, (by taking the differential of $g(\epsilon)$ and finding the minimum value of $g(\epsilon)$.):
+
+
+	\item[\textbf{case}] $E = (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})$
 	\[
-	g(\epsilon) = (e^{\frac{\Lambda}{2}\epsilon} - 1) - (1 - e^{-\frac{\Lambda}{2}\epsilon}) \geq 0
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
+	= \frac{
+			\frac{1}{2}(
+				e^{(f(a) - \frac{\Lambda}{2} - \round{f(a)}_{\Lambda})\epsilon}
+				- e^{(f(a) + \frac{\Lambda}{2} - \round{f(a)}_{\Lambda})\epsilon})
+			}
+			{
+			\frac{1}{2}(
+				e^{(\round{f(a')}_{\Lambda} - \frac{\Lambda}{2} - f(a'))\epsilon}
+				- e^{(\round{f(a)}_{\Lambda} + \frac{\Lambda}{2}  - f(a'))\epsilon})
+			} ~ (\star)
 	\]
-	So we can get:
+
+	Let $t = \round{f(a')}_{\Lambda} - f(a')$, we have $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $. We also have $\round{f(a')}_{\Lambda} - 1 - \Lambda \leq \round{f(a)}_{\Lambda} \leq \round{f(a')}_{\Lambda}$ by adjacency of $a$ and $a'$. So we can get:
 	\[
-	1 - e^{-\frac{\Lambda}{2}\epsilon} < \frac{1}{2} ((e^{\frac{\Lambda}{2}\epsilon} - 1) + (1 - e^{-\frac{\Lambda}{2}\epsilon})) = \frac{1}{2} (e^{\frac{\Lambda}{2}\epsilon} - e^{-\frac{\Lambda}{2}\epsilon})
+	(\star) \geq \frac{
+			\frac{1}{2}(
+				e^{(-t - \frac{\Lambda}{2} - 1)\epsilon}
+				- e^{(-t +\frac{\Lambda}{2} - 1)\epsilon})
+			}
+			{
+			\frac{1}{2}(
+				e^{(t - \frac{\Lambda}{2})\epsilon}
+				- e^{(t +\frac{\Lambda}{2})\epsilon})
+			}
+	%
+	\geq e^{-\epsilon}
+	~~~~and~~~~
+	(\star) \leq \frac{
+			\frac{1}{2}(
+				e^{(-t + \frac{\Lambda}{2})\epsilon}
+				- e^{(-t + \frac{\Lambda}{2} - 1)\epsilon})
+			}
+			{
+			\frac{1}{2}(
+				e^{(t - \frac{\Lambda}{2})\epsilon}
+				- e^{(t - \frac{\Lambda}{2} - 1)\epsilon})
+			}
+	\leq e^{\epsilon}
 	\]
-	Finially we can derive:
-		\[
-	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
-	= \frac{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+
+
+
+	\item[\textbf{case}] $E = \round{f(a')}_{\Lambda}$
+	\[
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
+	= \frac{
+			\frac{1}{2}(
+				e^{(f(a) - \round{f(a')}_{\Lambda} + \frac{\Lambda}{2})\epsilon}
+				- e^{(f(a) - \round{f(a')}_{\Lambda} - \frac{\Lambda}{2})\epsilon})
+			}
+			{1 - {\frac{1}{2}(
+				e^{(\round{f(a)}_{\Lambda} - f(a') - \frac{\Lambda}{2})\epsilon}
+				+ e^{(f(a) - \round{f(a')}_{\Lambda} -\frac{\Lambda}{2})\epsilon})}
+			}~(\star)
+	\]
+
+	Let $t = f(a') - \round{f(a')}_{\Lambda}$, we have $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $ and:
+	\[
+	(\star) = \frac{{\frac{1}{2}(
+				e^{(t + \frac{\Lambda}{2} - 1)\epsilon}
+				+ e^{t - \frac{\Lambda}{2} - 1)\epsilon})}
+			}
+			{1 - \frac{1}{2}(
+				e^{(- t + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - \frac{\Lambda}{2})\epsilon})}
+	%
+	\geq \frac{ \frac{1}{2}(
+				e^{(t - \frac{\Lambda}{2} - 1)\epsilon}
+				+ e^{(t -\frac{\Lambda}{2} - 1)\epsilon})
+			}
 			{\frac{1}{2}(
-				e^{(\frac{\Lambda}{2} - 1)\epsilon}
-				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
-	\leq 
-	\frac{\frac{1}{2}(
-			e^{\frac{\Lambda}{2}\epsilon} 
-			- e^{-\frac{\Lambda}{2}\epsilon})}
-		 {\frac{1}{2}(
-			e^{(\frac{\Lambda}{2} - 1)\epsilon}
-			- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
-	=e^{\epsilon}
-	\]
-
-
-	\item[\textbf{case}] $1$
-	\[
-	\frac{Pr[x \in (-B, 0)]}{Pr[y \in (-B, 0)]} 
-	= \frac{\frac{1}{2}(
-				e^{(\frac{\Lambda}{2} - 1)\epsilon}
-				- e^{(-\frac{\Lambda}{2} - 1)\epsilon})}
-			{(1 - e^{-\frac{\Lambda}{2}\epsilon})}
+				e^{(-t + \frac{\Lambda}{2})\epsilon}
+				+ e^{(t +\frac{\Lambda}{2})\epsilon}) 
+				- \frac{1}{2}(
+				e^{(-t + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - \frac{\Lambda}{2})\epsilon})}
+	%
+	\geq \frac{
+				e^{(t + \frac{\Lambda}{2} - 1)\epsilon}
+				-
+				e^{(t - \frac{\Lambda}{2} - 1)\epsilon}
+			}
+			{
+				e^{(t + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - \frac{\Lambda}{2})\epsilon}
+			}	
+	%
 	\geq e^{-\epsilon}
 	\]
-
 	}
+	%
+	%
+	\item[\textbf{case}] $E = (\round{f(a')}_{\Lambda}, B)$
+	%
 
-	\item[\textbf{case}] $(1, B)$
+	From $(\star)$, we have $0 \leq \round{f(a')}_{\Lambda} - \round{f(a)}_{\Lambda} \leq 1 + \Lambda$.
+	So we have $(\round{f(a')}_{\Lambda}, B) \subset (\round{f(a)}_{\Lambda}, B)$.
+	%
 	\[
-	\frac{Pr[x \in (1, B)]}{Pr[y \in (1, B)]} 
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{\frac{1}{2}(
-				e^{(-\frac{\Lambda}{2} - 1)\epsilon}
-				- e^{(-b -\frac{\Lambda}{2} - 1)\epsilon})}
+				e^{(f(a) - \frac{\Lambda}{2} - \round{f(a')}_{\Lambda})\epsilon}
+				- e^{(f(a) -b - \frac{\Lambda}{2})\epsilon})}
 				{\frac{1}{2}(
-				e^{-\frac{\Lambda}{2}\epsilon}
-				- e^{(-b -\frac{\Lambda}{2})\epsilon})} \\
+				e^{f(a') - \round{f(a')}_{\Lambda} -\frac{\Lambda}{2}\epsilon}
+				- e^{(f(a') -b -\frac{\Lambda}{2})\epsilon})} \\
+	%
+	= \frac{\frac{1}{2}(
+				e^{(f(a) - \frac{\Lambda}{2} - \round{f(a')}_{\Lambda})\epsilon}
+				- e^{(f(a) -b - \frac{\Lambda}{2})\epsilon})}
+				{\frac{1}{2}(
+				e^{f(a) + 1 - \round{f(a')}_{\Lambda} -\frac{\Lambda}{2}\epsilon}
+				- e^{(f(a) + 1 -b -\frac{\Lambda}{2})\epsilon})} \\
 	= e^{-\epsilon}
 	\]
-	\item[\textbf{case}] $B$
+	%
+	%
+	\item[\textbf{case}] $E = B$
+	%
 	\[
-	\frac{Pr[x = B]}{Pr[y = B]} 
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{\frac{1}{2}(
-				e^{(-b -\frac{\Lambda}{2})\epsilon})}
+				e^{(-b -\frac{\Lambda}{2} + f(a))\epsilon})}
 				{\frac{1}{2}(
-				e^{(-b -\frac{\Lambda}{2} + 1)\epsilon})} \\
+				e^{(-b -\frac{\Lambda}{2} + f(a'))\epsilon})} \\
+	= \frac{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2} + f(a))\epsilon})}
+				{\frac{1}{2}(
+				e^{(-b -\frac{\Lambda}{2} + f(a) + 1)\epsilon})} \\
 	= e^{-\epsilon}
 	\]
 
