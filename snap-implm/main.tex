@@ -23,35 +23,142 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 
 
 \section{Syntax}
+Following are the syntax of the system. The circled operators are rounded operation in floating point computation.
+\[\begin{array}{llll}
+\mbox{Expr.} & \expr & ::= & \econst ~|~ x ~|~ f(x) ~|~ \expr_1 \oplus \expr_2 ~|~ \expr_1 \otimes \expr_2 ~|~ \expr_1 \ominus \expr_2 ~|~ \expr_1 \oslash \expr_2 ~|~ \oln (\expr) ~|~ x \samplel \edistr \\
+%
+\mbox{Value} & \valr & ::= & \econst \\
+%
+\mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
+%
+\mbox{Error} & \err & ::= & (\expr_1, \expr_2) \\
+
+\mbox{Condition} & \condition & ::= & \etrue ~|~ \efalse ~|~ \condition_1 \land \condition_2 ~|~ \condition_1 \lor \condition_2
+
+\end{array}\]
 
 
 \begin{defn}
 [$\snap(a) : A \to \distr(B)$]
 The ideal Snapping mechanism $\snap( a)$ is defined as:
 \[
-	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+	u \xleftarrow{\$} \edistr; y = \oln (u) \oslash \epsilon; s \samplel \{-1, 1\}; z = s \otimes y; x = f(a); w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
 
 \section{Semantics}
+The big step semantics with floating point computation error are shown in Figure. \ref{fig_semantics}.
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = Comp]
+{
+	(\expr_1, \err, \condition) \bigstep (\valr_1, \err_1, \condition_1)
+	\and
+	(\expr_2, \err, \condition) \bigstep (\valr_2, \err_2, \condition_2)
+}
+{
+	(\expr_1 \oplus \expr_2, \err, \condition) \bigstep (\valr_1 + \valr_2, \err_1 \uplus \err_2 \uplus \err, \condition_1 \land \condition_2 \land \condition)
+}
+\and
+\cdots
+\end{mathpar}
+\caption{Semantics with Floating Point Error}
+\label{fig_semantics}
+\end{figure}
+
+
 
 \section{Soundness Theorems}
 
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
+Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its privacy loss is bounded by $\epsilon + 12 x \epsilon \eta + 2\eta$
 \end{thm}
 
 \begin{proof}
-The proof follows the derivation in Figure \ref{derivation_snap}.
-\end{proof}
+the proof is developed by 3 steps.
+\begin{itemize}
+	\item Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$. We first have the derivation for both the $\snap(a) = x$ and $\snap(a') = 1$ in parallel.
 
-\begin{figure}
-\begin{mathpar}
-\end{mathpar}
-\caption{Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
-\label{derivation_snap}
-\end{figure}
+	The derivations differ in value of x:
+
+	\begin{itemize}
+		\item $ x = B$
+
+		\item $ x \in (B,  \round{f(a)}_{\Lambda})$
+		The derivation of this case is shown in Figure. \ref{fig_der_snap1}
+		\begin{figure}
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				\inferrule
+				{
+					\inferrule
+					{
+						u \in \big[ 
+						\oexp^{\epsilon \otimes (x \ominus \frac{\lambda}{2} \ominus f(a))}, 
+						\oexp^{\epsilon \otimes (x \oplus \frac{\lambda}{2} \ominus f(a))} 
+						\big)
+						\sim
+						u' \in \big[ 
+						\big[ 
+						\oexp^{\epsilon \otimes (x \ominus \frac{\lambda}{2} \ominus f(a'))}, 
+						\oexp^{\epsilon \otimes (x \oplus \frac{\lambda}{2} \ominus f(a'))} 
+						\big) 
+					}
+					{
+						\cdots
+					}
+				}
+				{
+					\snap''(a) \in [ x \ominus \frac{\lambda}{2} \ominus f(a), x \oplus \frac{\lambda}{2} \ominus f(a) ) 
+					\sim_{ \_ }
+					\snap''(a') \in [ x \ominus \frac{\lambda}{2} \ominus f(a'), x \oplus \frac{\lambda}{2} \ominus f(a'))
+				}
+			}
+			{
+				\snap'(a) \in [ x \ominus \frac{\lambda}{2}, x \oplus \frac{\lambda}{2}) 
+				\sim_{ \_  } 
+				\snap'(a') \in [ x \ominus \frac{\lambda}{2}, x \oplus \frac{\lambda}{2})
+			}
+		}
+		{
+			\snap(a) = x 
+			\sim_{ \_ } \snap(a') = x
+		}
+		\end{mathpar}
+		\caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
+		\label{fig_der_snap1}
+		\end{figure}		
+
+		\item $\cdots$
+	\end{itemize}
+
+
+
+	\item Following the semantics in Figure \ref{fig_semantics}, we have following evaluation results.
+
+	\[
+	u \in \big[ (\valr_1, \err_1, \Phi_1), (\valr_2, \err_2, \Phi_2) \big) ~ \sim ~ u' \in \big[ (\valr_1', \err_1', \Phi_1'), (\valr_2', \err_2', \Phi_2') \big)
+	\]
+
+
+
+	\item given that the probability is equivalent to the length of the range, we have the actual privacy loss bounded by:
+	\[
+	\frac
+	{\valr_2 + err_2 - (\valr_1 - \err_1)}
+	{\valr_2' - err_2' - (\valr_1' + \err_1')}
+	\leq \epsilon + 12 x \epsilon \eta + 2\eta
+	\]
+
+\end{itemize}
+
+
+\end{proof}
 
 
 \newpage
