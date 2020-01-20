@@ -51,7 +51,7 @@ where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy 
 The big step semantics with floating point computation error are shown in Figure. \ref{fig_semantics}.
 \begin{figure}
 \begin{mathpar}
-\inferrule*[right = Comp]
+\inferrule*[right = plus]
 {
 	(\expr_1, \err, \condition) \bigstep (\valr_1, \err_1, \condition_1)
 	\and
@@ -73,7 +73,7 @@ The big step semantics with floating point computation error are shown in Figure
 
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
-Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its privacy loss is bounded by $\epsilon + 12 x \epsilon \eta + 2\eta$
+Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 12 x \epsilon \eta + 2\eta$
 \end{thm}
 
 \begin{proof}
@@ -104,7 +104,6 @@ the proof is developed by 3 steps.
 						\big)
 						\sim
 						u' \in \big[ 
-						\big[ 
 						\oexp^{\epsilon \otimes (x \ominus \frac{\lambda}{2} \ominus f(a'))}, 
 						\oexp^{\epsilon \otimes (x \oplus \frac{\lambda}{2} \ominus f(a'))} 
 						\big) 
