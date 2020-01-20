@@ -5,6 +5,7 @@
 \usepackage{eucal}
 \usepackage{url}
 \usepackage{tikz}
+\usepackage{amsfonts,amsmath}
 \begin{document}
 
 \title{Verifying Snapping Mechanism}
@@ -86,6 +87,18 @@ The logic rules we are using in our work is presented in Figure \ref{logic_rule}
 	: \top  \Rightarrow  y_1 = y_2
 }
 \and
+\inferrule*[right = Trans]
+{
+\empty
+}
+{
+	\vdash 
+	f(x_1)  
+	\sim_{0, 0} 
+	f(x_2)
+	: \Phi_1  \Rightarrow f(\Phi_1)
+}
+\and
 \inferrule*[right = Comp]
 {
 p_1 \sim_{k, 0} p_2 : \Phi_1 \Rightarrow \Phi'_1
@@ -99,6 +112,8 @@ c_1 \sim_{k', 0} c_2 : \Phi'_1 \Rightarrow \Phi_2
 	p_2; c_2
 	: \Phi_1  \Rightarrow  \Phi_2
 }
+\and
+f(\Phi) \equiv  \forall x.~ \Phi_1[x \mapsto f^{-1}(x)]
 \end{mathpar}
 \caption{Logic Rules Extended from \cite{barthe2016proving}}
 \label{logic_rule}
@@ -845,7 +860,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	= \frac{
 			\frac{1}{2}(
 				e^{(f(a) - \frac{\Lambda}{2} - \round{f(a)}_{\Lambda})\epsilon}
-				- e^{(f(a) + \frac{\Lambda}{2} - \round{f(a)}_{\Lambda})\epsilon})
+				- e^{(f(a) + \frac{\Lambda}{2} - \round{f(a')}_{\Lambda})\epsilon})
 			}
 			{
 			\frac{1}{2}(
