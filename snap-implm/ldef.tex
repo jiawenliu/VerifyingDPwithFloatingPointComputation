@@ -1,0 +1,195 @@
+
+\newcommand{\diam}{{\color{red}\diamond}}
+\newcommand{\dagg}{{\color{blue}\dagger}}
+\let\oldstar\star
+\renewcommand{\star}{\oldstar}
+
+\newcommand{\im}[1]{\ensuremath{#1}}
+
+\newcommand{\kw}[1]{\im{\mathtt{#1}}}
+
+
+\newcommand{\set}[1]{\im{\{{#1}\}}}
+
+\newcommand{\mmax}{\ensuremath{\mathsf{max}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Comments
+\newcommand{\omitthis}[1]{}
+
+% Misc.
+\newcommand{\etal}{\textit{et al.}}
+\newcommand{\bump}{\hspace{3.5pt}}
+
+% Text fonts
+\newcommand{\tbf}[1]{\textbf{#1}}
+%\newcommand{\trm}[1]{\textrm{#1}}
+
+% Math fonts
+\newcommand{\mbb}[1]{\mathbb{#1}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\mrm}[1]{\mathrm{#1}}
+\newcommand{\mtt}[1]{\mathtt{#1}}
+\newcommand{\mcal}[1]{\mathcal{#1}}
+\newcommand{\mfrak}[1]{\mathfrak{#1}}
+\newcommand{\msf}[1]{\mathsf{#1}}
+\newcommand{\mscr}[1]{\mathscr{#1}}
+
+% Text mode
+\newenvironment{nop}{}{}
+
+% Math mode
+\newenvironment{sdisplaymath}{
+\begin{nop}\small\begin{displaymath}}{
+\end{displaymath}\end{nop}\ignorespacesafterend}
+\newenvironment{fdisplaymath}{
+\begin{nop}\footnotesize\begin{displaymath}}{
+\end{displaymath}\end{nop}\ignorespacesafterend}
+\newenvironment{smathpar}{
+\begin{nop}\small\begin{mathpar}}{
+\end{mathpar}\end{nop}\ignorespacesafterend}
+\newenvironment{fmathpar}{
+\begin{nop}\footnotesize\begin{mathpar}}{
+\end{mathpar}\end{nop}\ignorespacesafterend}
+\newenvironment{alignS}{
+\begin{nop}\begin{align}}{
+\end{align}\end{nop}\ignorespacesafterend}
+\newenvironment{salignS}{
+\begin{nop}\small\begin{align}}{
+\end{align}\end{nop}\ignorespacesafterend}
+\newenvironment{falignS}{
+\begin{nop}\footnotesize\begin{align*}}{
+\end{align}\end{nop}\ignorespacesafterend}
+
+% Stack formatting
+\newenvironment{stackAux}[2]{%
+\setlength{\arraycolsep}{0pt}
+\begin{array}[#1]{#2}}{
+\end{array}}
+\newenvironment{stackCC}{
+\begin{stackAux}{c}{c}}{\end{stackAux}}
+\newenvironment{stackCL}{
+\begin{stackAux}{c}{l}}{\end{stackAux}}
+\newenvironment{stackTL}{
+\begin{stackAux}{t}{l}}{\end{stackAux}}
+\newenvironment{stackTR}{
+\begin{stackAux}{t}{r}}{\end{stackAux}}
+\newenvironment{stackBC}{
+\begin{stackAux}{b}{c}}{\end{stackAux}}
+\newenvironment{stackBL}{
+\begin{stackAux}{b}{l}}{\end{stackAux}}
+
+%APPENDIX
+\newcommand{\caseL}[1]{% \setcounter{equation}{0}
+
+\item \textbf{#1}\newline}
+
+%% \makeatletter
+%% \newcommand\definitionname{Lemma}
+%% \newcommand\listdefinitionname{Proofs of Lemmas and Theorems}
+%% \newcommand\listofdefinitions{%
+%%   \section*{\listdefinitionname}\@starttoc{def}}
+%% \makeatother
+
+
+
+\newtheoremstyle{athm}{\topsep}{\topsep}%
+      {\upshape}%         Body font
+      {}%         Indent amount (empty = no indent, \parindent = para indent)
+      {\bfseries}% Thm head font
+      {}%        Punctuation after thm head
+      {.8em}%     Space after thm head (\newline = linebreak)
+      {\thmname{#1}\thmnumber{ #2}\thmnote{~\,(#3)}
+% \addcontentsline{Lemma}{Lemma}
+%   {\protect\numberline{\thechapter.\thelemma}#1}
+      % \ifstrempty{#3}%
+      {\addcontentsline{def}{section}{#1~#2~#3}}%
+      % {\addcontentsline{def}{subsection}{\theathm~#3}}
+\newline}%         Thm head spec
+
+ \theoremstyle{athm}
+
+
+% \newtheoremstyle{break}
+%   {\topsep}{\topsep}%
+%   {\itshape}{}%
+%   {\bfseries}{}%
+%   {\newline}{}%
+% \theoremstyle{break}
+
+%There are some problems with llncs documentcalss, so commenting these out until i find a solution
+\newtheorem{thm}{Theorem}
+
+%\spnewtheorem{thm1}[theorem]{Theorem}{\bfseries}{\upshape}
+%\newenvironment{Theorem}[1][]{\begin{thm1}\iffirstargument[#1]\fi\quad\\}{\end{thm1}}
+
+ \newtheorem{lem}[thm]{Lemma}
+ \newtheorem{conjec}{Conjecture}
+ \newtheorem{corr}[thm]{Corollary}
+ \newtheorem{defn}{Definition}
+ \newtheorem{prop}[thm]{Proposition}
+ \newtheorem{assm}[thm]{Assumption}
+
+\newtheorem{Eg}[thm]{Example}
+\newtheorem{hypothesis}[thm]{Hypothesis}
+\newtheorem{motivation}{Motivation}
+
+% BNF symbols
+\newcommand{\bnfalt}{{\bf \,\,\mid\,\,}}
+\newcommand{\bnfdef}{{\bf ::=~}}
+
+%% Highlighting
+\newcommand{\hlm}[1]{\mbox{\hl{$#1$}}}
+
+%% Provenance modes
+\newcommand{\modifrcationProvenance}{{\bf MP}}
+\newcommand{\updateProvenance}{{\bf UP}}
+
+%Lemmas
+\newcommand{\lemref}[1]{Lemma \ref{#1}} %name and number
+\newcommand{\thmref}[1]{Theorem \ref{#1}} %name and number
+
+\renewcommand{\labelenumii}{\theenumii}
+\renewcommand{\theenumii}{\theenumi.\arabic{enumii}.}
+
+\usepackage{enumitem}
+\setenumerate{listparindent=\parindent}
+
+\newlist{enumih}{enumerate}{3}
+\setlist[enumih]{label=\alph*),before=\raggedright, topsep=1ex, parsep=0pt,  itemsep=1pt }
+
+\newlist{enumconc}{enumerate}{3}
+\setlist[enumconc]{leftmargin=0.5cm, label*= \arabic*.  , topsep=1ex, parsep=0pt,  itemsep=3pt }
+
+\newlist{enumsub}{enumerate}{3}
+\setlist[enumsub]{ leftmargin=0.7cm, label*= \textbf{subcase} \bf \arabic*: }
+
+\newlist{enumsubsub}{enumerate}{3}
+\setlist[enumsubsub]{ leftmargin=0.5cm, label*= \textbf{subsubcase} \bf \arabic*: }
+
+\newlist{mainitem}{itemize}{3}
+\setlist[mainitem]{ leftmargin=0cm , label= {\bf Case} }
+
+
+\newenvironment{subproof}[1][\proofname]{%
+  \renewcommand{\qedsymbol}{$\blacksquare$}%
+  \begin{proof}[#1]%
+}{%
+  \end{proof}%
+}
+
+
+\newenvironment{nstabbing}
+  {\setlength{\topsep}{0pt}%
+   \setlength{\partopsep}{0pt}%
+   \tabbing}
+  {\endtabbing} 
+
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End:

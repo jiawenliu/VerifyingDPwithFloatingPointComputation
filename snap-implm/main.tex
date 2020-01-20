@@ -1,0 +1,76 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\input{prelude}
+\input{ldef}
+\usepackage{eucal}
+\usepackage{url}
+\usepackage{tikz}
+\usepackage{amsfonts,amsmath}
+\begin{document}
+
+\title{Verifying Snapping Mechanism}
+
+\maketitle
+In order to verify the differential privacy proeprty of an implementation of the snapping mechanism \cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and the floating point error semantics from \cite{}.
+
+\section{Preliminary Definitions}
+\begin{defn}
+[Laplce mechanism \cite{dwork2006calibrating}]
+Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distri bution $\laplace(\frac{1}{\epsilon})$.
+\end{defn}
+
+\begin{defn}
+[$\snap(a) : A \to \distr(B)$]
+The ideal Snapping mechanism $\snap( a)$ is defined as:
+\[
+	u \xleftarrow{\$} \mu; y = \frac{\ln (u)}{\epsilon}; s \samplel \{-1, 1\}; z = s * y; x = f(a); w = x + z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+\]
+where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+\end{defn}
+
+
+\section{Syntax}
+
+
+\section{Semantics}
+
+\section{Soundness Theorems}
+
+
+\begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially praivate]
+\end{thm}
+
+\begin{proof}
+The proof follows the derivation in Figure \ref{derivation_snap}.
+\end{proof}
+
+\begin{figure}
+\begin{mathpar}
+\end{mathpar}
+\caption{Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
+\label{derivation_snap}
+\end{figure}
+
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{verifysnap.bib}
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

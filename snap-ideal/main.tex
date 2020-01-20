@@ -93,9 +93,9 @@ The logic rules we are using in our work is presented in Figure \ref{logic_rule}
 }
 {
 	\vdash 
-	f(x_1)  
+	y_1 = f(x_1)  
 	\sim_{0, 0} 
-	f(x_2)
+	y_2 = f(x_2)
 	: \Phi_1  \Rightarrow f(\Phi_1)
 }
 \and
@@ -113,7 +113,7 @@ c_1 \sim_{k', 0} c_2 : \Phi'_1 \Rightarrow \Phi_2
 	: \Phi_1  \Rightarrow  \Phi_2
 }
 \and
-f(\Phi) \equiv  \forall x.~ \Phi_1[x \mapsto f^{-1}(x)]
+f(\Phi) \equiv let ~ y = f(x) ~ in ~ \forall x.~ \Phi_1[x \mapsto f^{-1}(y)]
 \end{mathpar}
 \caption{Logic Rules Extended from \cite{barthe2016proving}}
 \label{logic_rule}
