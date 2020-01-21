@@ -146,13 +146,16 @@ the proof is developed by 3 steps.
 
 
 
-	\item given that the probability is equivalent to the length of the range, we have the actual privacy loss bounded by:
+	\item given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
 	\[
-	\frac
+	\frac{u}{u'} 
+	\leq \frac
 	{\valr_2 + err_2 - (\valr_1 - \err_1)}
 	{\valr_2' - err_2' - (\valr_1' + \err_1')}
 	\leq \epsilon + 12 x \epsilon \eta + 2\eta
 	\]
+
+	By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
 
 \end{itemize}
 
