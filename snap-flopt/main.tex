@@ -25,15 +25,25 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 \section{Syntax}
 Following are the syntax of the system. The circled operators are rounded operation in floating point computation.
 \[\begin{array}{llll}
-\mbox{Expr.} & \expr & ::= & \econst ~|~ x ~|~ f(x) ~|~ \expr_1 \oplus \expr_2 ~|~ \expr_1 \otimes \expr_2 ~|~ \expr_1 \ominus \expr_2 ~|~ \expr_1 \oslash \expr_2 ~|~ \oln (\expr) ~|~ x \samplel \edistr \\
+\mbox{Expr.} & \expr & ::= & \eflconst
+	%
+	~|~ x ~|~ f(x) ~|~ \expr_1 \oplus \expr_2 
+	%
+	~|~ \expr_1 \otimes \expr_2 ~|~ \expr_1 \ominus \expr_2 
+	%
+	~|~ \expr_1 \oslash \expr_2 ~|~ \oln (\expr) ~|~ x \samplel \edistr \\
 %
-\mbox{Value} & \valr & ::= & \econst \\
+\mbox{Value} & \valr & ::= & \eflconst ~|~  \erlconst \\
 %
 \mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
 %
 \mbox{Error} & \err & ::= & (\expr_1, \expr_2) \\
 
-\mbox{Condition} & \condition & ::= & \etrue ~|~ \efalse ~|~ \condition_1 \land \condition_2 ~|~ \condition_1 \lor \condition_2
+\mbox{Condition} & \condition & ::= & 
+	%
+	\etrue ~|~ \efalse ~|~ \condition_1 \land \condition_2 
+	%
+	~|~ \condition_1 \lor \condition_2
 
 \end{array}\]
 
@@ -63,10 +73,68 @@ The big step semantics with floating point computation error are shown in Figure
 \and
 \cdots
 \end{mathpar}
-\caption{Semantics with Floating Point Error}
+\caption{Semantics with Absolutes Floating Point Error}
 \label{fig_semantics}
 \end{figure}
 
+The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics}.
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = val]
+{
+	\eflconst = \floaten(\erlconst)
+}
+{
+	\erlconst
+	\bigstep
+	\eflconst, (c(1 + \eta), c(1 - \eta))
+}
+%
+\and
+%
+\inferrule*[right = plus]
+{
+	\expr_1 \bigstep \valr_1
+	\and
+	\expr_2 \bigstep \valr_2
+}
+{
+    \expr_1 \oplus \expr_2
+    \bigstep
+    (\valr_1 + \valr_2)(1 + \eta)
+}
+%
+\and
+%
+\inferrule*[right = times]
+{
+    \expr_1 \bigstep \valr_1
+    \and
+    \expr_2 \bigstep \valr_2
+}
+{
+    \expr_1 \otimes \expr_2
+    \bigstep
+    (\valr_1 \times \valr_2)(1 + \eta)
+}
+%
+\and
+%
+\inferrule*[right = sub]
+{
+	\expr_1 \bigstep \valr_1
+	\and
+	\expr_2 \bigstep \valr_2
+}
+{
+	\expr_1 \ominus \expr_2
+	\bigstep
+	(\valr_1 - \valr_2)(1 + \eta)
+}
+\end{mathpar}
+\caption{Semantics with Relative Floating Point Error}
+\label{fig_semantics}
+\end{figure}
 
 
 \section{Soundness Theorems}
