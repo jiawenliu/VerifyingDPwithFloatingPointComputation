@@ -8,14 +8,17 @@
 \usepackage{amsfonts,amsmath}
 \begin{document}
 
-\title{Verifying Snapping Mechanism}
+\title{Verifying Snapping Mechanism - Floating Point Implementation Version}
+\author{}
+
+\date{}
 
 \maketitle
-In order to verify the differential privacy proeprty of an implementation of the snapping mechanism \cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and the floating point error semantics from \cite{Ramananandro2016unified,Martel2006higher,Becker2018verified,Moscato2017Automatic}.
+In order to verify the differential privacy property of an implementation of the snapping mechanism \cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and the floating point error semantics from \cite{Ramananandro2016unified,Martel2006higher,Becker2018verified,Moscato2017Automatic}.
 
 \section{Preliminary Definitions}
 \begin{defn}
-[Laplce mechanism \cite{dwork2006calibrating}]
+[Laplace mechanism \cite{dwork2006calibrating}]
 Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distribution $\laplace(\frac{1}{\epsilon})$.
 \end{defn}
 
@@ -54,11 +57,11 @@ The ideal Snapping mechanism $\snap( a)$ is defined as:
 \[
 	u \xleftarrow{\$} \edistr; y = \oln (u) \oslash \epsilon; s \samplel \{-1, 1\}; z = s \otimes y; x = f(a); w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
 \]
-where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clampping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
 
 \section{Semantics}
-The big step semantics with floating point computation error are shown in Figure. \ref{fig_semantics}.
+The big step semantics with floating point computation error are shown in Figure. \ref{fig_semantics_abs}.
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = plus]
@@ -74,10 +77,10 @@ The big step semantics with floating point computation error are shown in Figure
 \cdots
 \end{mathpar}
 \caption{Semantics with Absolutes Floating Point Error}
-\label{fig_semantics}
+\label{fig_semantics_abs}
 \end{figure}
 
-The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics}.
+The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics_rel}.
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = val]
@@ -133,7 +136,7 @@ The big step semantics with relative floating point computation error are shown 
 }
 \end{mathpar}
 \caption{Semantics with Relative Floating Point Error}
-\label{fig_semantics}
+\label{fig_semantics_rel}
 \end{figure}
 
 
@@ -145,18 +148,70 @@ Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and 
 \end{thm}
 
 \begin{proof}
-the proof is developed by 3 steps.
-\begin{itemize}
-	\item Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$. We first have the derivation for both the $\snap(a) = x$ and $\snap(a') = 1$ in parallel.
 
-	The derivations differ in value of x:
-
+Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
+Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
+The proof is developed by cases of the output of $\snap(a)$ mechanism.
+	%
 	\begin{itemize}
-		\item $ x = B$
-
-		\item $ x \in (B,  \round{f(a)}_{\Lambda})$
-		The derivation of this case is shown in Figure. \ref{fig_der_snap1}
-		\begin{figure}
+		%
+		% \item[\textbf{case}] $\boldsymbol{x = -B}$
+		\caseL{$\boldsymbol{x = -B}$}
+		%
+		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$. Based on the proof of the ideal version, the derivation of this case given $\snap(a) = \snap(a') = x$ is shown as following:
+		% \begin{figure}
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				u \in \big( 
+				0, 
+				\oexp^{\epsilon \otimes 
+				(-b \ominus \frac{\Lambda}{2} \ominus f(a))} 
+				\big)
+				\sim
+				u' \in \big( 
+				0, 
+				\oexp^{\epsilon \otimes 
+				(-b \ominus \frac{\Lambda}{2} \ominus f(a'))} 
+				\big) 
+			}
+			{
+				\cdots
+			}
+		}
+		{
+			\snap(a) = x 
+			\sim \snap(a') = x
+		}
+		\end{mathpar}
+		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
+		% \label{fig_der_snap1}
+		% \end{figure}
+		%	
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		%
+		\[
+		u \in \big[ 
+		0, (\ubar{\valr}, \bar{\valr})
+		\big)
+		%
+		\sim u' \in \big[
+		0, (\ubar{\valr'}, \bar{\valr'})
+		\big),
+		\]
+		%
+		\todo{		
+		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'} and \bar{\valr'}$ have following values:
+		}
+		%
+		%
+		\caseL{$\boldsymbol{x \in (-B, \round{f(a)}_{\Lambda})}$}
+		%
+		The derivation of this case is shown as following:
+		% in Figure. \ref{fig_der_snap2}
+		% \begin{figure}
 		\begin{mathpar}
 		\inferrule
 		{
@@ -167,13 +222,13 @@ the proof is developed by 3 steps.
 					\inferrule
 					{
 						u \in \big[ 
-						\oexp^{\epsilon \otimes (x \ominus \frac{\lambda}{2} \ominus f(a))}, 
-						\oexp^{\epsilon \otimes (x \oplus \frac{\lambda}{2} \ominus f(a))} 
+						\oexp^{\epsilon \otimes (x \ominus \frac{\Lambda}{2} \ominus f(a))}, 
+						\oexp^{\epsilon \otimes (x \oplus \frac{\Lambda}{2} \ominus f(a))} 
 						\big)
 						\sim
 						u' \in \big[ 
-						\oexp^{\epsilon \otimes (x \ominus \frac{\lambda}{2} \ominus f(a'))}, 
-						\oexp^{\epsilon \otimes (x \oplus \frac{\lambda}{2} \ominus f(a'))} 
+						\oexp^{\epsilon \otimes (x \ominus \frac{\Lambda}{2} \ominus f(a'))}, 
+						\oexp^{\epsilon \otimes (x \oplus \frac{\Lambda}{2} \ominus f(a'))} 
 						\big) 
 					}
 					{
@@ -181,51 +236,105 @@ the proof is developed by 3 steps.
 					}
 				}
 				{
-					\snap''(a) \in [ x \ominus \frac{\lambda}{2} \ominus f(a), x \oplus \frac{\lambda}{2} \ominus f(a) ) 
+					\snap''(a) \in [ x \ominus \frac{\Lambda}{2} \ominus f(a), x \oplus \frac{\Lambda}{2} \ominus f(a) ) 
 					\sim_{ \_ }
-					\snap''(a') \in [ x \ominus \frac{\lambda}{2} \ominus f(a'), x \oplus \frac{\lambda}{2} \ominus f(a'))
+					\snap''(a') \in [ x \ominus \frac{\Lambda}{2} \ominus f(a'), x \oplus \frac{\Lambda}{2} \ominus f(a'))
 				}
 			}
 			{
-				\snap'(a) \in [ x \ominus \frac{\lambda}{2}, x \oplus \frac{\lambda}{2}) 
+				\snap'(a) \in [ x \ominus \frac{\Lambda}{2}, x \oplus \frac{\Lambda}{2}) 
 				\sim_{ \_  } 
-				\snap'(a') \in [ x \ominus \frac{\lambda}{2}, x \oplus \frac{\lambda}{2})
+				\snap'(a') \in [ x \ominus \frac{\Lambda}{2}, x \oplus \frac{\Lambda}{2})
 			}
 		}
 		{
 			\snap(a) = x 
-			\sim_{ \_ } \snap(a') = x
+			\sim \snap(a') = x
 		}
 		\end{mathpar}
-		\caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
-		\label{fig_der_snap1}
-		\end{figure}		
+		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
+		% \label{fig_der_snap2}
+		% \end{figure}		
+		%
+		%
 
-		\item $\cdots$
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		\[
+		u \in \big[ 
+		(\ubar{\valr_1}, \bar{\valr_1}), 
+		(\ubar{\valr_2}, \bar{\valr_2})
+		\big)
+		%
+		\sim u' \in \big[
+		(\ubar{\valr_1'}, \bar{\valr_1'}), 
+		(\ubar{\valr_2'}, \bar{\valr_2'})
+		\big),
+		\]
+		%
+		\todo{
+		%
+		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		%
+		\[
+		\begin{array}{c}
+		u \in \big[ 
+		(
+		(1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		(1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		), 
+		(
+		(1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		(1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		)
+		\big)\\ 
+		%
+		\sim u' \in \big[
+		(
+		(1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		(1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		), 
+		(
+		(1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		(1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		)
+		\big)
+		\end{array}
+		\]
+		%
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'} 
+		\leq \frac
+		{\bar{\valr_2} - \ubar{\valr_1}}
+		{\ubar{\valr_2'} - \bar{\valr_1'}}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		}
+		%
+		%
+		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
+		%
+		%
+		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
+		%
+		%
+		\caseL{$\boldsymbol{x = \round{f(a')}_{\Lambda}}$}
+		%
+		%
+		\caseL{$\boldsymbol{x \in  (\round{f(a')}_{\Lambda}, B)}$}
+		%
+		%
+		\caseL{$\boldsymbol{x = B}$}
+		%
+		%
+	%
+	%
+	%	
 	\end{itemize}
 
-
-
-	\item Following the semantics in Figure \ref{fig_semantics}, we have following evaluation results.
-
-	\[
-	u \in \big[ (\valr_1, \err_1, \Phi_1), (\valr_2, \err_2, \Phi_2) \big) ~ \sim ~ u' \in \big[ (\valr_1', \err_1', \Phi_1'), (\valr_2', \err_2', \Phi_2') \big)
-	\]
-
-
-
-	\item given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
-	\[
-	\frac{u}{u'} 
-	\leq \frac
-	{\valr_2 + err_2 - (\valr_1 - \err_1)}
-	{\valr_2' - err_2' - (\valr_1' + \err_1')}
-	\leq \epsilon + 12 x \epsilon \eta + 2\eta
-	\]
-
-	By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
-
-\end{itemize}
 
 
 \end{proof}
