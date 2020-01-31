@@ -28,7 +28,7 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 \section{Syntax}
 Following are the syntax of the system. The circled operators are rounded operation in floating point computation.
 \[\begin{array}{llll}
-\mbox{Expr.} & \expr & ::= & \eflconst
+\mbox{Expr.} & \expr & ::= & \valr ~|~ \valf
 	%
 	~|~ x ~|~ f(x) ~|~ \expr_1 \oplus \expr_2 
 	%
@@ -36,7 +36,7 @@ Following are the syntax of the system. The circled operators are rounded operat
 	%
 	~|~ \expr_1 \oslash \expr_2 ~|~ \oln (\expr) ~|~ x \samplel \edistr \\
 %
-\mbox{Value} & \valr & ::= & \eflconst ~|~  \erlconst \\
+\mbox{Value} & \valv & ::= & \valr ~|~  \valf \\
 %
 \mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
 %
@@ -66,76 +66,87 @@ The big step semantics with floating point computation error are shown in Figure
 \begin{mathpar}
 \inferrule*[right = plus]
 {
-	(\expr_1, \err, \condition) \bigstep (\valr_1, \err_1, \condition_1)
+	(\expr_1, \err, \condition) \bigstep (\valr_1, \err_1)
 	\and
-	(\expr_2, \err, \condition) \bigstep (\valr_2, \err_2, \condition_2)
+	(\expr_2, \err, \condition) \bigstep (\valr_2, \err_2)
 }
 {
-	(\expr_1 \oplus \expr_2, \err, \condition) \bigstep (\valr_1 + \valr_2, \err_1 \uplus \err_2 \uplus \err, \condition_1 \land \condition_2 \land \condition)
+	(\expr_1 \oplus \expr_2, \err, \condition) 
+	\bigstep
+	(\valr_1 + \valr_2, \err_1 \uplus \err_2 \uplus \err, \condition_1 \land \condition_2 \land \condition)
 }
 \and
 \cdots
 \end{mathpar}
-\caption{Semantics with Absolutes Floating Point Error}
+\caption{Semantics with Absolutes Floating Point Error \cite{Becker2018verified}}
 \label{fig_semantics_abs}
 \end{figure}
 
 The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics_rel}.
 \begin{figure}
 \begin{mathpar}
-\inferrule*[right = val]
+\inferrule*[right = const]
 {
-	\eflconst = \floaten(\erlconst)
+	\valf = \floaten(\valr)
 }
 {
-	\erlconst
+	\valr
 	\bigstep
-	\eflconst, (c(1 + \eta), c(1 - \eta))
+	\valf, \big( r(1 - \eta), r(1 + \eta) \big)
 }
 %
 \and
 %
 \inferrule*[right = plus]
 {
-	\expr_1 \bigstep \valr_1
+	\expr_1 \bigstep \valf_1, (\ubar{\valr_1}, \bar{\valr_1})
 	\and
-	\expr_2 \bigstep \valr_2
+	\expr_2 \bigstep \valf_2, (\ubar{\valr_2}, \bar{\valr_2})
 }
 {
     \expr_1 \oplus \expr_2
-    \bigstep
-    (\valr_1 + \valr_2)(1 + \eta)
+    \bigstep \floaten(\valf_1 + \valf_2),
+    \big(
+    (\ubar{\valr_1} + \ubar{\valr_2})(1 - \eta), 
+    (\bar{\valr_1} + \bar{\valr_2})(1 + \eta)
+    \big)
 }
 %
 \and
 %
 \inferrule*[right = times]
 {
-    \expr_1 \bigstep \valr_1
-    \and
-    \expr_2 \bigstep \valr_2
+	\expr_1 \bigstep \valf_1, (\ubar{\valr_1}, \bar{\valr_1})
+	\and
+	\expr_2 \bigstep \valf_2, (\ubar{\valr_2}, \bar{\valr_2})
 }
 {
     \expr_1 \otimes \expr_2
-    \bigstep
-    (\valr_1 \times \valr_2)(1 + \eta)
+    \bigstep \floaten(\valf_1 \times \valf_2),
+    \big(
+    (\ubar{\valr_1} \times \ubar{\valr_2})(1 - \eta), 
+    (\bar{\valr_1} \times \bar{\valr_2})(1 + \eta)
+    \big)
 }
 %
 \and
 %
 \inferrule*[right = sub]
 {
-	\expr_1 \bigstep \valr_1
+	\expr_1 \bigstep \valf_1, (\ubar{\valr_1}, \bar{\valr_1})
 	\and
-	\expr_2 \bigstep \valr_2
+	\expr_2 \bigstep \valf_2, (\ubar{\valr_2}, \bar{\valr_2})
 }
 {
-	\expr_1 \ominus \expr_2
-	\bigstep
-	(\valr_1 - \valr_2)(1 + \eta)
+    \expr_1 \ominus \expr_2
+    \bigstep \floaten(\valf_1 - \valf_2),
+    \big(
+    (\ubar{\valr_1} - \ubar{\valr_2})(1 - \eta), 
+    (\bar{\valr_1} - \bar{\valr_2})(1 + \eta)
+    \big)
 }
 \end{mathpar}
-\caption{Semantics with Relative Floating Point Error}
+\caption{Semantics with Relative Floating Point Error (By Jiawen)}
 \label{fig_semantics_rel}
 \end{figure}
 
@@ -182,8 +193,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 			}
 		}
 		{
-			\snap(a) = x 
-			\sim \snap(a') = x
+			\snap(a) = -B 
+			\sim \snap(a') = -B
 		}
 		\end{mathpar}
 		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
@@ -203,7 +214,7 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\]
 		%
 		\todo{		
-		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'} and \bar{\valr'}$ have following values:
+		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'}$ and $\bar{\valr'}$ have following values:
 		}
 		%
 		%
@@ -317,17 +328,438 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		%
 		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
 		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				u \in 
+				\big( 
+				\oexp^{\epsilon \otimes 
+				(\round{f(a)}_{\Lambda} \ominus \frac{\Lambda}{2} \ominus f(a))}, 
+				1
+				\big]
+				%
+				\lor
+				%
+				\big( 
+				\oexp^{\epsilon \otimes 
+				(f(a) \ominus \round{f(a)}_{\Lambda} \ominus \frac{\Lambda}{2})}, 
+				1
+				\big]
+				%
+				\sim
+				%
+				u' \in \big( 
+				\oexp^{\epsilon \otimes 
+				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
+				,
+				\oexp^{\epsilon \otimes 
+				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})} 
+				\big) 
+			}
+			{
+				\cdots
+			}
+		}
+		{
+			\snap(a) = x 
+			\sim \snap(a') = x
+		}
+		\end{mathpar}
+		%
+		%
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		\[
+		u \in 
+		\big( 
+		(\ubar{\valr_1}, \bar{\valr_1}), 1
+		\big] \land (s = -1)
+		\lor 
+		u \in \big( 
+		(\ubar{\valr_2}, \bar{\valr_2}), 1
+		\big)\land (s = 1)
+		%
+		\sim u' \in \big[
+		(\ubar{\valr_1'}, \bar{\valr_1'}), 
+		(\ubar{\valr_2'}, \bar{\valr_2'})
+		\big) \land (s = -1),
+		\]
+		%
+		\todo{
+		%
+		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		%
+		% \[
+		% \begin{array}{c}
+		% u \in \big[ 
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% )
+		% \big)\\ 
+		% %
+		% \sim u' \in \big[
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% )
+		% \big)
+		% \end{array}
+		% \]
+		%
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'} 
+		\leq \frac
+		{1 - \frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
+		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		}		
+		%
 		%
 		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
+		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				u \in 
+				\big( 
+				\oexp^{\epsilon \otimes 
+				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})},
+				\oexp^{\epsilon \otimes
+				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})}
+				\big]
+				%
+				\sim
+				%
+				u' \in \big( 
+				\oexp^{\epsilon \otimes 
+				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})}
+				,
+				\oexp^{\epsilon \otimes
+				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
+				\big) 
+			}
+			{
+				\cdots
+			}
+		}
+		{
+			\snap(a) = x
+			\sim \snap(a') = x
+		}
+		\end{mathpar}
+		%
+		%
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		\[
+		u \in 
+		\big( 
+		(\ubar{\valr_1}, \bar{\valr_1}),
+		(\ubar{\valr_2}, \bar{\valr_2})
+		\big] \land (s = 1)
+		%
+		\sim u' \in \big[
+		(\ubar{\valr_1'}, \bar{\valr_1'}), 
+		(\ubar{\valr_2'}, \bar{\valr_2'})
+		\big) \land (s = -1),
+		\]
+		%
+		\todo{
+		%
+		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		%
+		% \[
+		% \begin{array}{c}
+		% u \in \big[ 
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% )
+		% \big)\\ 
+		% %
+		% \sim u' \in \big[
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% )
+		% \big)
+		% \end{array}
+		% \]
+		%
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'} 
+		\leq \frac
+		{\frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
+		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		}		
 		%
 		%
 		\caseL{$\boldsymbol{x = \round{f(a')}_{\Lambda}}$}
 		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				u \in 
+				\big( 
+				\oexp^{\epsilon \otimes 
+				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})},
+				\oexp^{\epsilon \otimes
+				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})}
+				\big]
+				%
+				\sim
+				%
+				u' \in \big( 
+				\oexp^{\epsilon \otimes 
+				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})}
+				,
+				\oexp^{\epsilon \otimes
+				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
+				\big) 
+			}
+			{
+				\cdots
+			}
+		}
+		{
+			\snap(a) = x
+			\sim \snap(a') = x
+		}
+		\end{mathpar}
+		%
+		%
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		\[
+		u \in 
+		\big( 
+		(\ubar{\valr_1}, \bar{\valr_1}),
+		(\ubar{\valr_2}, \bar{\valr_2})
+		\big] \land (s = 1)
+		%
+		\sim u' \in \big[
+		(\ubar{\valr_1'}, \bar{\valr_1'}), 
+		(\ubar{\valr_2'}, \bar{\valr_2'})
+		\big) \land (s = -1),
+		\]
+		%
+		\todo{
+		%
+		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		%
+		% \[
+		% \begin{array}{c}
+		% u \in \big[ 
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% )
+		% \big)\\ 
+		% %
+		% \sim u' \in \big[
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% )
+		% \big)
+		% \end{array}
+		% \]
+		%
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'} 
+		\leq \frac
+		{\frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
+		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		}
+		%
 		%
 		\caseL{$\boldsymbol{x \in  (\round{f(a')}_{\Lambda}, B)}$}
 		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				u \in 
+				\big( 
+				\oexp^{\epsilon \otimes 
+				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})},
+				\oexp^{\epsilon \otimes
+				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})}
+				\big]
+				%
+				\sim
+				%
+				u' \in \big( 
+				\oexp^{\epsilon \otimes 
+				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})}
+				,
+				\oexp^{\epsilon \otimes
+				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
+				\big) 
+			}
+			{
+				\cdots
+			}
+		}
+		{
+			\snap(a) = x
+			\sim \snap(a') = x
+		}
+		\end{mathpar}
+		%
+		%
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		\[
+		u \in 
+		\big( 
+		(\ubar{\valr_1}, \bar{\valr_1}),
+		(\ubar{\valr_2}, \bar{\valr_2})
+		\big] \land (s = 1)
+		%
+		\sim u' \in \big[
+		(\ubar{\valr_1'}, \bar{\valr_1'}), 
+		(\ubar{\valr_2'}, \bar{\valr_2'})
+		\big) \land (s = -1),
+		\]
+		%
+		\todo{
+		%
+		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		%
+		% \[
+		% \begin{array}{c}
+		% u \in \big[ 
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
+		% )
+		% \big)\\ 
+		% %
+		% \sim u' \in \big[
+		% (
+		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% ), 
+		% (
+		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
+		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
+		% )
+		% \big)
+		% \end{array}
+		% \]
+		%
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'} 
+		\leq \frac
+		{\frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
+		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		}
+		%		
 		%
 		\caseL{$\boldsymbol{x = B}$}
+		%
+		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				u \in \big( 
+				0, 
+				\oexp^{\epsilon \otimes 
+				(-b \ominus \frac{\Lambda}{2} \ominus f(a))} 
+				\big)
+				\sim
+				u' \in \big( 
+				0, 
+				\oexp^{\epsilon \otimes 
+				(-b \ominus \frac{\Lambda}{2} \ominus f(a'))} 
+				\big) 
+			}
+			{
+				\cdots
+			}
+		}
+		{
+			\snap(a) = B 
+			\sim \snap(a') = B
+		}
+		\end{mathpar}
+		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
+		% \label{fig_der_snap1}
+		% \end{figure}
+		%	
+		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		%
+		\[
+		u \in \big[ 
+		0, (\ubar{\valr}, \bar{\valr})
+		\big)
+		%
+		\sim u' \in \big[
+		0, (\ubar{\valr'}, \bar{\valr'})
+		\big),
+		\]
+		%
+		\todo{		
+		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'}$ and $\bar{\valr'}$ have following values:
+		}
 		%
 		%
 	%
