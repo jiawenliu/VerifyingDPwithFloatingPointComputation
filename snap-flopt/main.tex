@@ -204,17 +204,29 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
 		%
 		\[
-		u \in \big[ 
+		u \in \big( 
 		0, (\ubar{\valr}, \bar{\valr})
-		\big)
+		\big) \land (s = -1)
 		%
-		\sim u' \in \big[
+		\sim u' \in \big(
 		0, (\ubar{\valr'}, \bar{\valr'})
-		\big),
+		\big) \land (s = -1)
 		\]
 		%
 		\todo{		
 		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'}$ and $\bar{\valr'}$ have following values:
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'}
+		\leq \frac
+		{\frac{1}{2}\bar{\valr}}
+		{\frac{1}{2}\ubar{\valr'}}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		%
 		}
 		%
 		%
@@ -274,12 +286,12 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		u \in \big[ 
 		(\ubar{\valr_1}, \bar{\valr_1}), 
 		(\ubar{\valr_2}, \bar{\valr_2})
-		\big)
+		\big) \land (s = -1)
 		%
 		\sim u' \in \big[
 		(\ubar{\valr_1'}, \bar{\valr_1'}), 
 		(\ubar{\valr_2'}, \bar{\valr_2'})
-		\big),
+		\big) \land (s = -1)
 		\]
 		%
 		\todo{
@@ -372,13 +384,13 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
 		\[
 		u \in 
-		\big( 
+		\big[
 		(\ubar{\valr_1}, \bar{\valr_1}), 1
 		\big] \land (s = -1)
 		\lor 
-		u \in \big( 
+		u \in \big[ 
 		(\ubar{\valr_2}, \bar{\valr_2}), 1
-		\big)\land (s = 1)
+		\big]\land (s = 1)
 		%
 		\sim u' \in \big[
 		(\ubar{\valr_1'}, \bar{\valr_1'}), 
@@ -515,7 +527,7 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
+		{\frac{1}{2}(\bar{\valr_2} - \ubar{\valr_1})}
 		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
@@ -534,20 +546,23 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 				u \in 
 				\big( 
 				\oexp^{\epsilon \otimes 
-				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})},
+				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a')}_{\Lambda})},
 				\oexp^{\epsilon \otimes
-				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})}
+				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a')}_{\Lambda})}
 				\big]
 				%
 				\sim
 				%
 				u' \in \big( 
 				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})}
-				,
-				\oexp^{\epsilon \otimes
 				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
-				\big) 
+				,
+				1 \big]
+				\lor
+				u' \in \big(
+				\oexp^{\epsilon \otimes
+				(f(a) \ominus \round{f(a')}_{\Lambda} \ominus \frac{\Lambda}{2})}
+				1, \big] 
 			}
 			{
 				\cdots
@@ -568,10 +583,10 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		(\ubar{\valr_2}, \bar{\valr_2})
 		\big] \land (s = 1)
 		%
-		\sim u' \in \big[
-		(\ubar{\valr_1'}, \bar{\valr_1'}), 
-		(\ubar{\valr_2'}, \bar{\valr_2'})
-		\big) \land (s = -1),
+		\sim u' \in 
+		\big[ (\ubar{\valr_1'}, \bar{\valr_1'}), 1 \big] \land (s = -1)
+		\lor
+		\big[ (\ubar{\valr_2'}, \bar{\valr_2'}), 1 \big] \land (s = 1),
 		\]
 		%
 		\todo{
@@ -609,8 +624,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
-		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		{\frac{1}{2}(\bar{\valr_2} - \ubar{\valr_1})}
+		{1 - \frac{1}{2}(\bar{\valr_2'} + \bar{\valr_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%
@@ -628,19 +643,19 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 				u \in 
 				\big( 
 				\oexp^{\epsilon \otimes 
-				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})},
+				(f(a) \oplus \frac{\Lambda}{2} \ominus x)},
 				\oexp^{\epsilon \otimes
-				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})}
+				(f(a) \ominus \frac{\Lambda}{2} \ominus x)}
 				\big]
 				%
 				\sim
 				%
 				u' \in \big( 
 				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})}
+				(f(a') \oplus \frac{\Lambda}{2} \ominus x)}
 				,
 				\oexp^{\epsilon \otimes
-				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
+				(f(a') \ominus \frac{\Lambda}{2} \ominus x)}
 				\big) 
 			}
 			{
@@ -662,10 +677,10 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		(\ubar{\valr_2}, \bar{\valr_2})
 		\big] \land (s = 1)
 		%
-		\sim u' \in \big[
+		\sim u' \in \big(
 		(\ubar{\valr_1'}, \bar{\valr_1'}), 
 		(\ubar{\valr_2'}, \bar{\valr_2'})
-		\big) \land (s = -1),
+		\big] \land (s = 1),
 		\]
 		%
 		\todo{
@@ -703,7 +718,7 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
+		{\frac{1}{2}(\bar{\valr_2} - \ubar{\valr_1})}
 		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
@@ -723,13 +738,13 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 				u \in \big( 
 				0, 
 				\oexp^{\epsilon \otimes 
-				(-b \ominus \frac{\Lambda}{2} \ominus f(a))} 
+				(-b \ominus \frac{\Lambda}{2} \oplus f(a))} 
 				\big)
 				\sim
 				u' \in \big( 
 				0, 
 				\oexp^{\epsilon \otimes 
-				(-b \ominus \frac{\Lambda}{2} \ominus f(a'))} 
+				(-b \ominus \frac{\Lambda}{2} \oplus f(a'))} 
 				\big) 
 			}
 			{
@@ -748,20 +763,31 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
 		%
 		\[
-		u \in \big[ 
+		u \in \big( 
 		0, (\ubar{\valr}, \bar{\valr})
 		\big)
 		%
-		\sim u' \in \big[
+		\sim u' \in \big(
 		0, (\ubar{\valr'}, \bar{\valr'})
 		\big),
 		\]
 		%
 		\todo{		
 		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'}$ and $\bar{\valr'}$ have following values:
+		%
+		%
+		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		%
+		\[
+		\frac{u}{u'}
+		\leq \frac
+		{\frac{1}{2}\bar{\valr}}
+		{\frac{1}{2}\ubar{\valr'}}
+		\leq \epsilon + 12 x \epsilon \eta + 2\eta
+		\]
+		%
+		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
 		}
-		%
-		%
 	%
 	%
 	%	
