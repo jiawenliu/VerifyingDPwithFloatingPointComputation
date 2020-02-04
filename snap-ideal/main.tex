@@ -770,6 +770,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 
 \begin{itemize}
 	\item[\textbf{case}] $E = -B$
+	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{\frac{1}{2}(
@@ -782,8 +783,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				e^{(-b -\frac{\Lambda}{2} - f(a) - 1)\epsilon})} \\
 	= e^{\epsilon}
 	\]
-
-
+	%
 	\item[\textbf{case}] $E = (-B, \round{f(a)}_{\Lambda})$
 
 	From $(\diamond)$, we have $0 \leq \round{f(a')}_{\Lambda} - \round{f(a)}_{\Lambda} \leq 1 + \Lambda$.
@@ -807,10 +807,9 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	%
 	= e^{\epsilon}
 	\]
-
-	
+%
 	\item[\textbf{case}] $E = \round{f(a)}_{\Lambda}$
-
+	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{(1 - {\frac{1}{2}(
@@ -821,7 +820,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				e^{(\round{f(a)}_{\Lambda} - f(a') + \frac{\Lambda}{2})\epsilon}
 				- e^{(\round{f(a)}_{\Lambda} - f(a') - \frac{\Lambda}{2})\epsilon})}~(\star)
 	\]
-
+	%
 	Let $t = \round{f(a)}_{\Lambda} - f(a)$, we have $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $ and:
 	\[
 	(\star) = \frac{1 - {\frac{1}{2}(
@@ -855,9 +854,10 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	%
 	\leq e^{\epsilon}
 	\]
-
-	{\color{red}
+	%
+	% {\color{red}
 	\item[\textbf{case}] $E = (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})$
+	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{
@@ -871,36 +871,74 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				- e^{(\round{f(a)}_{\Lambda} + \frac{\Lambda}{2}  - f(a'))\epsilon})
 			} ~ (\star)
 	\]
-
-	Let $t = \round{f(a')}_{\Lambda} - f(a')$, we have $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $. We also have $\round{f(a')}_{\Lambda} - 1 - \Lambda \leq \round{f(a)}_{\Lambda} \leq \round{f(a')}_{\Lambda}$ by adjacency of $a$ and $a'$. So we can get:
-	\[
-	(\star) \geq \frac{
-			\frac{1}{2}(
-				e^{(-t - \frac{\Lambda}{2} - 1)\epsilon}
-				- e^{(-t +\frac{\Lambda}{2} - 1)\epsilon})
-			}
-			{
-			\frac{1}{2}(
-				e^{(t - \frac{\Lambda}{2})\epsilon}
-				- e^{(t +\frac{\Lambda}{2})\epsilon})
-			}
 	%
-	\stackrel{?}{\geq} e^{-\epsilon}
-	~~~~and~~~~
-	(\star) \leq \frac{
+	\begin{itemize}
+	\item[\textbf{subcase}] $\Lambda \geq 1$
+	%
+
+	Because $f(a) + 1 = f(a')$, we have $E = \emptyset$, i.e.:
+	%
+	$$Pr[x \in E] = Pr[y \in E] = 0$$ 
+	%
+	\item[\textbf{subcase}] $\Lambda < 1$
+	%
+	
+	Because $f(a) + 1 = f(a')$, we have:
+	%
+	$$\round{f(a) + 1}_{\Lambda} = \round{f(a')}_{\Lambda}$$
+	%
+	Since $\Lambda$ is power of 2 and $\Lambda < 1$, so we have: $\round{1}_{\Lambda} = 1$. Then we have:
+	%
+	$$\round{f(a) + 1}_{\Lambda} = \round{f(a)}_{\Lambda} + 1 = \round{f(a')}_{\Lambda} $$.
+	%
+	Substitute $\round{f(a')}_{\Lambda}$ and $f(a')$ with $\round{f(a)}_{\Lambda}$ and $f(a)$ in $(\star)$, we can get:
+	%
+	\[
+	\frac{Pr[x \in E]}{Pr[y \in E]} 
+	= \frac{
 			\frac{1}{2}(
-				e^{(-t + \frac{\Lambda}{2})\epsilon}
-				- e^{(-t + \frac{\Lambda}{2} - 1)\epsilon})
+				e^{(f(a) - \frac{\Lambda}{2} - \round{f(a)}_{\Lambda})\epsilon}
+				- e^{(f(a) + \frac{\Lambda}{2} - \round{f(a)}_{\Lambda} - 1)\epsilon})
 			}
 			{
 			\frac{1}{2}(
-				e^{(t - \frac{\Lambda}{2})\epsilon}
-				- e^{(t - \frac{\Lambda}{2} - 1)\epsilon})
-			}
-	\stackrel{?}{\leq} e^{\epsilon}
+				e^{(\round{f(a)}_{\Lambda} + 1 - \frac{\Lambda}{2} - f(a) - 1)\epsilon}
+				- e^{(\round{f(a)}_{\Lambda} + \frac{\Lambda}{2}  - f(a) - 1)\epsilon})
+			} = 1 = e^{0} 
 	\]
+	and $e^{-\epsilon} < e^{0} < e^{\epsilon}$ given $\epsilon > 0$.
+	%
+	\end{itemize}
+	%
+	% Let $t = \round{f(a')}_{\Lambda} - f(a')$, we have $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $. We also have $\round{f(a')}_{\Lambda} - 1 - \Lambda \leq \round{f(a)}_{\Lambda} \leq \round{f(a')}_{\Lambda}$ by adjacency of $a$ and $a'$. So we can get:
+	% \[
+	% (\star) \geq \frac{
+	% 		\frac{1}{2}(
+	% 			e^{(-t - \frac{\Lambda}{2} - 1)\epsilon}
+	% 			- e^{(-t +\frac{\Lambda}{2} - 1)\epsilon})
+	% 		}
+	% 		{
+	% 		\frac{1}{2}(
+	% 			e^{(t - \frac{\Lambda}{2})\epsilon}
+	% 			- e^{(t +\frac{\Lambda}{2})\epsilon})
+	% 		}
+	% %
+	% \stackrel{?}{\geq} e^{-\epsilon}
+	% ~~~~and~~~~
+	% (\star) \leq \frac{
+	% 		\frac{1}{2}(
+	% 			e^{(-t + \frac{\Lambda}{2})\epsilon}
+	% 			- e^{(-t + \frac{\Lambda}{2} - 1)\epsilon})
+	% 		}
+	% 		{
+	% 		\frac{1}{2}(
+	% 			e^{(t - \frac{\Lambda}{2})\epsilon}
+	% 			- e^{(t - \frac{\Lambda}{2} - 1)\epsilon})
+	% 		}
+	% \stackrel{?}{\leq} e^{\epsilon}
+	% \]
 
-	}
+	% }
 
 	\item[\textbf{case}] $E = \round{f(a')}_{\Lambda}$
 	\[
@@ -952,7 +990,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	
 	%
 	%
-	\item[\textbf{case}] $E = (\round{f(a')}_{\Lambda}, B)$
+	\caseL{$E = (\round{f(a')}_{\Lambda}, B)$}
 	%
 
 	From $(\star)$, we have $0 \leq \round{f(a')}_{\Lambda} - \round{f(a)}_{\Lambda} \leq 1 + \Lambda$.
