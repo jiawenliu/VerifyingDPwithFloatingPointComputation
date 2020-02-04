@@ -769,7 +769,7 @@ Consider
 two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$. The proof is developed by cases of the output space $E$ of $\snap$ mechanism, where $x = \snap(a)$, $y = \snap(a')$.
 
 \begin{itemize}
-	\item[\textbf{case}] $E = -B$
+	\caseL{$\boldsymbol{E = -B}$}
 	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
@@ -784,7 +784,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	= e^{\epsilon}
 	\]
 	%
-	\item[\textbf{case}] $E = (-B, \round{f(a)}_{\Lambda})$
+	\caseL{$\boldsymbol{E = (-B, \round{f(a)}_{\Lambda})}$}
 
 	From $(\diamond)$, we have $0 \leq \round{f(a')}_{\Lambda} - \round{f(a)}_{\Lambda} \leq 1 + \Lambda$.
 	So we have $(-B, \round{f(a)}_{\Lambda}) \subset (-B, \round{f(a')}_{\Lambda})$.
@@ -808,7 +808,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	= e^{\epsilon}
 	\]
 %
-	\item[\textbf{case}] $E = \round{f(a)}_{\Lambda}$
+	\caseL{$\boldsymbol{E = \round{f(a)}_{\Lambda}}$}
 	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
@@ -856,7 +856,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	\]
 	%
 	% {\color{red}
-	\item[\textbf{case}] $E = (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})$
+	\caseL{$\boldsymbol{E = (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
 	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
@@ -873,14 +873,14 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	\]
 	%
 	\begin{itemize}
-	\item[\textbf{subcase}] $\Lambda \geq 1$
+	\subcaseL{$\boldsymbol{\Lambda \geq 1}$}
 	%
 
 	Because $f(a) + 1 = f(a')$, we have $E = \emptyset$, i.e.:
 	%
 	$$Pr[x \in E] = Pr[y \in E] = 0$$ 
 	%
-	\item[\textbf{subcase}] $\Lambda < 1$
+	\subcaseL{$\boldsymbol{\Lambda < 1}$}
 	%
 	
 	Because $f(a) + 1 = f(a')$, we have:
@@ -940,7 +940,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 
 	% }
 
-	\item[\textbf{case}] $E = \round{f(a')}_{\Lambda}$
+	\caseL{$\boldsymbol{E = \round{f(a')}_{\Lambda}}$}
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
 	= \frac{
@@ -990,7 +990,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	
 	%
 	%
-	\caseL{$E = (\round{f(a')}_{\Lambda}, B)$}
+	\caseL{$\boldsymbol{E = (\round{f(a')}_{\Lambda}, B)}$}
 	%
 
 	From $(\star)$, we have $0 \leq \round{f(a')}_{\Lambda} - \round{f(a)}_{\Lambda} \leq 1 + \Lambda$.
@@ -1015,7 +1015,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	\]
 	%
 	%
-	\item[\textbf{case}] $E = B$
+	\caseL{$\boldsymbol{E = B}$}
 	%
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 

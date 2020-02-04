@@ -22,6 +22,8 @@
 \usepackage{color}
 \usepackage{a4wide}
 
+\usepackage{stmaryrd}
+\SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
 
 \newcommand{\distr}{\mathsf{Distr}}
 \newcommand{\uniform}{\mathsf{unif}}
@@ -38,7 +40,43 @@
 \newcommand{\sign}{\mathsf{sign}}
 
 \newcommand{\lapmech}{\mathcal{L}}
-\newcommand{\laplace}{\mathsf{Laplce}}
+\newcommand{\laplace}{\mathsf{laplce}}
 \newcommand{\round}[1]{\lfloor #1 \rceil}
 
+
+%for syntax:
+
+\newcommand{\bernoulli}{\kw{bernoulli}}
+
+\newcommand{\expr}{e}
+\newcommand{\valf}{c}
+\newcommand{\valr}{r}
+\newcommand{\valv}{v}
+\newcommand{\term}{t}
+\newcommand{\etrue}{\kw{true}}
+\newcommand{\efalse}{\kw{false}}
+% \newcommand{\eflconst}{c}
+% \newcommand{\erlconst}{r}
+\newcommand{\precision}{\eta}
+\newcommand{\floaten}{\kw{fl}}
+
+\newcommand{\err}{err}
+\newcommand{\condition}{\Phi}
+\newcommand{\edistr}{\mu}
+
+\newcommand{\bigstep}{\Downarrow}
+
+\usepackage{stackengine} 
+
+\newcommand{\oexp}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{e}$}}}{\bigcirc}}}
+
+\newcommand{\oop[1]}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{#1}{\bigcirc}}}
+
+% \newcommand{\oexp}{\oop{\text{\footnotesize{$\mathsf{exp}$}}}}
+
+\newcommand{\oln}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{ln}$}}}{\bigcirc}}}
+
+\newcommand{\ubar}[1]{\text{\b{$#1$}}}
+% \usepackage{accents}
+% \newcommand{\ubar}[1]{\underaccent{\bar}{#1}}
 
