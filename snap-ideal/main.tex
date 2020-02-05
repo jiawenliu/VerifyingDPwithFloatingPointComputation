@@ -607,7 +607,7 @@ The probability of obtaining output $x$ from $\snap$ mechanism can be calculated
 		\big]$
 		}.
 
-		\item[\textbf{subcase}] $s = -1$\\
+		\subcaseL{$s = -1$}\\
 		%
 		By the symmetric of the range, we can get:
 		{\color{red}
@@ -904,9 +904,29 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 			\frac{1}{2}(
 				e^{(\round{f(a)}_{\Lambda} + 1 - \frac{\Lambda}{2} - f(a) - 1)\epsilon}
 				- e^{(\round{f(a)}_{\Lambda} + \frac{\Lambda}{2}  - f(a) - 1)\epsilon})
-			} = 1 = e^{0} 
+			}~(\diamond) 
 	\]
-	and $e^{-\epsilon} < e^{0} < e^{\epsilon}$ given $\epsilon > 0$.
+	Let $t = f(a) - \round{f(a)}_{\Lambda}$, we have $-\frac{\Lambda}{2} < t < \frac{\Lambda}{2}$. We also have $\lambda \leq \frac{1}{\epsilon}$, so we can get:
+	%
+	\[
+	(\diamond) = 
+	\frac{
+		\frac{1}{2}(
+			e^{(t - \round{f(a)}_{\Lambda})\epsilon}
+			- e^{(t + \frac{\Lambda}{2} - 1)\epsilon})
+		}
+		{
+		\frac{1}{2}(
+			e^{(-t - \frac{\Lambda}{2})\epsilon}
+			- e^{(-t + \frac{\Lambda}{2} - 1)\epsilon})
+		}
+	= e^{2t\epsilon} \in (e^{-1}, e^1)
+	\]
+	
+	Because $\Lambda$ is the greatest power of 2 where $\Lambda \leq \frac{1}{\epsilon}$ and $\Lambda < 1$, we have $\epsilon > 1$.
+	From this, we can conclude: $(e^{-1}, e^1) \subset (e^{-\epsilon}, e^{\epsilon})$, i.e.:
+	%
+	$$\frac{Pr[x \in E]}{Pr[y \in E]} \in (e^{-\epsilon}, e^{\epsilon}) $$.
 	%
 	\end{itemize}
 	%
@@ -937,9 +957,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	% 		}
 	% \stackrel{?}{\leq} e^{\epsilon}
 	% \]
-
 	% }
-
 	\caseL{$\boldsymbol{E = \round{f(a')}_{\Lambda}}$}
 	\[
 	\frac{Pr[x \in E]}{Pr[y \in E]} 
