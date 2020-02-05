@@ -852,7 +852,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon}
 			}	
 	%
-	\leq e^{\epsilon}
+	= e^{\epsilon}
 	\]
 	%
 	% {\color{red}
@@ -923,8 +923,8 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	= e^{2t\epsilon} \in (e^{-1}, e^1)
 	\]
 	
-	Because $\Lambda$ is the greatest power of 2 where $\Lambda \leq \frac{1}{\epsilon}$ and $\Lambda < 1$, we have $\epsilon > 1$.
-	From this, we can conclude: $(e^{-1}, e^1) \subset (e^{-\epsilon}, e^{\epsilon})$, i.e.:
+	Because $\Lambda$ is the smallest power of 2 where $\Lambda \geq \frac{1}{\epsilon}$ and $\Lambda < 1$, we have $\epsilon > 1$.
+	Then we can conclude that $(e^{-1}, e^1) \subset (e^{-\epsilon}, e^{\epsilon})$, i.e.:
 	%
 	$$\frac{Pr[x \in E]}{Pr[y \in E]} \in (e^{-\epsilon}, e^{\epsilon}) $$.
 	%
@@ -1003,7 +1003,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				- e^{(t - \frac{\Lambda}{2})\epsilon}
 			}	
 	%
-	\geq e^{-\epsilon}
+	= e^{-\epsilon}
 	\]
 	
 	%
