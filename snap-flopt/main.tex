@@ -49,7 +49,9 @@ Following are the syntax of the system. The circled operators are rounded operat
 
 \end{array}\]
 
+We use upper case for variables in real computation and lower case for variables in floating point computation.
 
+$F(\rvarx)$ denotes function $F$ evaluates to value $F(\rvarx)$ given input $\rvarx$ in real computation, and $f(\fvarx)$ denotes the same function $F$ evaluates to value $f(\fvarx)$ given the same input $\fvarx$ in floating point computation.
 
 \section{Semantics}
 
@@ -64,7 +66,7 @@ The big step semantics with relative floating point computation error are shown 
 {
 	\rval
 	\bigstep
-	\fval, \big( r(1 - \eta), r(1 + \eta) \big)
+	\fval, \big( \frac{r}{(1 + \eta)}, r(1 + \eta) \big)
 }
 %
 \and
@@ -117,7 +119,7 @@ Given $\rexpr$ and $\fexpr$ where  $\rexpr \bigstep \fexpr, \err$, when evaluati
 [$\rsnap(a) : A \to \distr(\real)$]
 Given privacy parameter $\epsilon$, the ideal Snapping mechanism $\rsnap(a)$ is defined as:
 \[
-	u \samplel \edistr; s \samplel \{-1, 1\}; y = \ln (u) \div \epsilon; z = s \times y; x = f(a); w = x + z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+	u \samplel \edistr; s \samplel \{-1, 1\}; Y = \ln (u) \div \epsilon; Z = s \times Y; X = F(a); W = X + Z; W' = \round{W}_{\Lambda}; R = \clamp_B (W')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 %
@@ -201,9 +203,28 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				{
 					\inferrule
 					{
-						f(a) + \frac{1}{\epsilon} \times \ln(R) 
+						f(a) + \frac{1}{\epsilon} \times \ln(R)
 						\bigstep
 						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
+						,
+						(
+						\frac{f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+						(1 + \eta)^2}
+						{1 + \eta},
+						%
+						(
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+						{(1 + \eta)^2}
+						)(1 + \eta)
+						)
+					}
+					{
+					\inferrule
+					{
+						\round{f(a) + \frac{1}{\epsilon} \times \ln(R)} 
+						\bigstep
+						\round{f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)}
 						,
 						(
 						\frac{f(a) + 
@@ -233,6 +254,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						{(1 + \eta)^2}
 						)(1 + \eta)
 						)
+					}	
 					}
 				}
 			}
@@ -277,7 +299,6 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\big) \land (s = -1)
 		\]
 		%
-		\todo{
 		Given $\fsnap(a) = \fsnap(a') = x$, we have following values for $\ubar{\rval}, \bar{\rval}, \ubar{\rval'}$ and $\bar{\rval'}$:
 		%
 		%
@@ -291,7 +312,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\frac{(-b - \frac{\Lambda}{2})(1 + \eta) - f(a)}
 		{(1 + \eta)^2}}
 		)
-		\Big) \land (s = -1)\\
+		\Big) \land (s = 1)\\
 		%
 		\sim u' \in \Big(
 		0, 
@@ -301,7 +322,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\frac{(-b - \frac{\Lambda}{2})(1 + \eta) - f(a')}
 		{(1 + \eta)^2}}
 		)
-		\Big) \land (s = -1)
+		\Big) \land (s = 1)
 		\end{array}
 		\]
 		%		
@@ -317,12 +338,11 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		+ f(a)((1 + \eta)^2 - \frac{1}{(1 + \eta)^2})
 		+ (1 + \eta)^2)}
 		\leq e^{\epsilon(1 + \eta)^2 2B}
-		? \leq e^{\epsilon + 12 B \epsilon \eta + 2\eta}
+		\leq e^{\epsilon + 12 B \epsilon \eta + 2\eta}
 		\]
 		%
 		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
 		%
-		}
 		%
 		%
 		\caseL{$\boldsymbol{x \in (-B, \round{f(a)}_{\Lambda})}$}
@@ -378,7 +398,21 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						)
 					}
 					{
-						\cdots
+					\rsnap'(a, R, 1)
+					\bigstep
+					\fsnap'(a, r, 1)
+					,
+					(
+					\frac{f(a) + 
+					(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+					(1 + \eta)^2}
+					{1 + \eta},
+					%
+					(
+					f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+					{(1 + \eta)^2}
+					)(1 + \eta)
+					)
 					}
 				}
 			}
@@ -449,45 +483,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
 		%
-		\begin{mathpar}
-		\inferrule
-		{
-			\inferrule
-			{
-				u \in 
-				\big( 
-				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus \frac{\Lambda}{2} \ominus f(a))}, 
-				1
-				\big]
-				%
-				\lor
-				%
-				\big( 
-				\oexp^{\epsilon \otimes 
-				(f(a) \ominus \round{f(a)}_{\Lambda} \ominus \frac{\Lambda}{2})}, 
-				1
-				\big]
-				%
-				\sim
-				%
-				u' \in \big( 
-				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
-				,
-				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})} 
-				\big) 
-			}
-			{
-				\cdots
-			}
-		}
-		{
-			\snap(a) = x 
-			\sim \snap(a') = x
-		}
-		\end{mathpar}
+
 		%
 		%
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
@@ -553,39 +549,6 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
 		%
-		\begin{mathpar}
-		\inferrule
-		{
-			\inferrule
-			{
-				u \in 
-				\big( 
-				\oexp^{\epsilon \otimes 
-				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})},
-				\oexp^{\epsilon \otimes
-				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a)}_{\Lambda})}
-				\big]
-				%
-				\sim
-				%
-				u' \in \big( 
-				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus f(a') \oplus \frac{\Lambda}{2})}
-				,
-				\oexp^{\epsilon \otimes
-				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
-				\big) 
-			}
-			{
-				\cdots
-			}
-		}
-		{
-			\snap(a) = x
-			\sim \snap(a') = x
-		}
-		\end{mathpar}
-		%
 		%
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
 		\[
@@ -647,41 +610,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\caseL{$\boldsymbol{x = \round{f(a')}_{\Lambda}}$}
 		%
-		\begin{mathpar}
-		\inferrule
-		{
-			\inferrule
-			{
-				u \in 
-				\big( 
-				\oexp^{\epsilon \otimes 
-				(f(a) \ominus \frac{\Lambda}{2} \ominus \round{f(a')}_{\Lambda})},
-				\oexp^{\epsilon \otimes
-				(f(a) \oplus \frac{\Lambda}{2} \ominus \round{f(a')}_{\Lambda})}
-				\big]
-				%
-				\sim
-				%
-				u' \in \big( 
-				\oexp^{\epsilon \otimes 
-				(\round{f(a)}_{\Lambda} \ominus f(a') \ominus \frac{\Lambda}{2})}
-				,
-				1 \big]
-				\lor
-				u' \in \big(
-				\oexp^{\epsilon \otimes
-				(f(a) \ominus \round{f(a')}_{\Lambda} \ominus \frac{\Lambda}{2})}
-				1, \big] 
-			}
-			{
-				\cdots
-			}
-		}
-		{
-			\snap(a) = x
-			\sim \snap(a') = x
-		}
-		\end{mathpar}
+
 		%
 		%
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
@@ -744,38 +673,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\caseL{$\boldsymbol{x \in  (\round{f(a')}_{\Lambda}, B)}$}
 		%
-		\begin{mathpar}
-		\inferrule
-		{
-			\inferrule
-			{
-				u \in 
-				\big( 
-				\oexp^{\epsilon \otimes 
-				(f(a) \oplus \frac{\Lambda}{2} \ominus x)},
-				\oexp^{\epsilon \otimes
-				(f(a) \ominus \frac{\Lambda}{2} \ominus x)}
-				\big]
-				%
-				\sim
-				%
-				u' \in \big( 
-				\oexp^{\epsilon \otimes 
-				(f(a') \oplus \frac{\Lambda}{2} \ominus x)}
-				,
-				\oexp^{\epsilon \otimes
-				(f(a') \ominus \frac{\Lambda}{2} \ominus x)}
-				\big) 
-			}
-			{
-				\cdots
-			}
-		}
-		{
-			\snap(a) = x
-			\sim \snap(a') = x
-		}
-		\end{mathpar}
+
 		%
 		%
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
@@ -839,32 +737,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\caseL{$\boldsymbol{x = B}$}
 		%
 		%
-		\begin{mathpar}
-		\inferrule
-		{
-			\inferrule
-			{
-				u \in \big( 
-				0, 
-				\oexp^{\epsilon \otimes 
-				(-b \ominus \frac{\Lambda}{2} \oplus f(a))} 
-				\big)
-				\sim
-				u' \in \big( 
-				0, 
-				\oexp^{\epsilon \otimes 
-				(-b \ominus \frac{\Lambda}{2} \oplus f(a'))} 
-				\big) 
-			}
-			{
-				\cdots
-			}
-		}
-		{
-			\snap(a) = B 
-			\sim \snap(a') = B
-		}
-		\end{mathpar}
+
 		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
 		% \label{fig_der_snap1}
 		% \end{figure}
