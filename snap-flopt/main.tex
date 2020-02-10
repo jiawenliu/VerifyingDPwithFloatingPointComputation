@@ -27,87 +27,60 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 \section{Syntax}
 Following are the syntax of the system. The circled operators are rounded operation in floating point computation.
 \[\begin{array}{llll}
-\mbox{Expr.} & \expr & ::= & \valr ~|~ \valf
+\mbox{Floating Point Expr.} & \fexpr & ::= & \fval
 	%
-	~|~ x ~|~ f(x) ~|~ \expr_1 \oplus \expr_2 
+	~|~ \fvarx ~|~ f(\fvarx) ~|~ \fexpr \oop \fexpr
 	%
-	~|~ \expr_1 \otimes \expr_2 ~|~ \expr_1 \ominus \expr_2 
-	%
-	~|~ \expr_1 \oslash \expr_2 ~|~ \oln (\expr) ~|~ x \samplel \edistr \\
+	~|~ \oln (\fexpr) ~|~ \fvarx \samplel \edistr \\
 %
-\mbox{Value} & \valv & ::= & \valr ~|~  \valf \\
+\mbox{Real Expr.} & \rexpr & ::= & \rval
+	%
+	~|~ \rvarx ~|~ F(\rvarx) ~|~ \rexpr * \rexpr
+	%
+	~|~ \ln (\rexpr) ~|~ \rvarx \samplel \edistr \\
+%
+\mbox{Arithmetic Operation} & * & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+%
+\mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
 %
 \mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
 %
-\mbox{Error} & \err & ::= & (\expr_1, \expr_2) \\
-
-\mbox{Condition} & \condition & ::= & 
-	%
-	\etrue ~|~ \efalse ~|~ \condition_1 \land \condition_2 
-	%
-	~|~ \condition_1 \lor \condition_2
+\mbox{Error} & \err & ::= & (\rexpr, \rexpr) \\
 
 \end{array}\]
 
 
-\begin{defn}
-[$\snap(a) : A \to \distr(B)$]
-The ideal Snapping mechanism $\snap( a)$ is defined as:
-\[
-	u \xleftarrow{\$} \edistr; y = \oln (u) \oslash \epsilon; s \samplel \{-1, 1\}; z = s \otimes y; x = f(a); w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
-\]
-where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
-\end{defn}
 
 \section{Semantics}
-The big step semantics with floating point computation error are shown in Figure. \ref{fig_semantics_abs}.
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = plus]
-{
-	(\expr_1, \err, \condition) \bigstep (\valr_1, \err_1)
-	\and
-	(\expr_2, \err, \condition) \bigstep (\valr_2, \err_2)
-}
-{
-	(\expr_1 \oplus \expr_2, \err, \condition) 
-	\bigstep
-	(\valr_1 + \valr_2, \err_1 \uplus \err_2 \uplus \err, \condition_1 \land \condition_2 \land \condition)
-}
-\and
-\cdots
-\end{mathpar}
-\caption{Semantics with Absolutes Floating Point Error \cite{Becker2018verified}}
-\label{fig_semantics_abs}
-\end{figure}
 
-The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics_rel}.
+The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics_rel}. The semantics are $\rexpr \bigstep \fexpr, \err$, which means a real world expression $\rexpr$ can be represented in floating point computation $\fexpr$ with error bound $\err$. The $\eta$ is the machine epsilon.
+
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = const]
 {
-	\valf = \floaten(\valr)
+	\fval = \floaten(\rval)
 }
 {
-	\valr
+	\rval
 	\bigstep
-	\valf, \big( r(1 - \eta), r(1 + \eta) \big)
+	\fval, \big( r(1 - \eta), r(1 + \eta) \big)
 }
 %
 \and
 %
 \inferrule*[right = plus]
 {
-	\expr_1 \bigstep \valf_1, (\ubar{\valr_1}, \bar{\valr_1})
+	\expr_1 \bigstep \fval_1, (\ubar{\rval_1}, \bar{\rval_1})
 	\and
-	\expr_2 \bigstep \valf_2, (\ubar{\valr_2}, \bar{\valr_2})
+	\expr_2 \bigstep \fval_2, (\ubar{\rval_2}, \bar{\rval_2})
 }
 {
     \expr_1 \oplus \expr_2
-    \bigstep \floaten(\valf_1 + \valf_2),
+    \bigstep \floaten(\fval_1 + \fval_2),
     \big(
-    (\ubar{\valr_1} + \ubar{\valr_2})(1 - \eta), 
-    (\bar{\valr_1} + \bar{\valr_2})(1 + \eta)
+    (\ubar{\rval_1} + \ubar{\rval_2})(1 - \eta), 
+    (\bar{\rval_1} + \bar{\rval_2})(1 + \eta)
     \big)
 }
 %
@@ -115,16 +88,16 @@ The big step semantics with relative floating point computation error are shown 
 %
 \inferrule*[right = times]
 {
-	\expr_1 \bigstep \valf_1, (\ubar{\valr_1}, \bar{\valr_1})
+	\expr_1 \bigstep \fval_1, (\ubar{\rval_1}, \bar{\rval_1})
 	\and
-	\expr_2 \bigstep \valf_2, (\ubar{\valr_2}, \bar{\valr_2})
+	\expr_2 \bigstep \fval_2, (\ubar{\rval_2}, \bar{\rval_2})
 }
 {
     \expr_1 \otimes \expr_2
-    \bigstep \floaten(\valf_1 \times \valf_2),
+    \bigstep \floaten(\fval_1 \times \fval_2),
     \big(
-    (\ubar{\valr_1} \times \ubar{\valr_2})(1 - \eta), 
-    (\bar{\valr_1} \times \bar{\valr_2})(1 + \eta)
+    (\ubar{\rval_1} \times \ubar{\rval_2})(1 - \eta), 
+    (\bar{\rval_1} \times \bar{\rval_2})(1 + \eta)
     \big)
 }
 %
@@ -132,26 +105,60 @@ The big step semantics with relative floating point computation error are shown 
 %
 \inferrule*[right = sub]
 {
-	\expr_1 \bigstep \valf_1, (\ubar{\valr_1}, \bar{\valr_1})
+	\expr_1 \bigstep \fval_1, (\ubar{\rval_1}, \bar{\rval_1})
 	\and
-	\expr_2 \bigstep \valf_2, (\ubar{\valr_2}, \bar{\valr_2})
+	\expr_2 \bigstep \fval_2, (\ubar{\rval_2}, \bar{\rval_2})
 }
 {
     \expr_1 \ominus \expr_2
-    \bigstep \floaten(\valf_1 - \valf_2),
+    \bigstep \floaten(\fval_1 - \fval_2),
     \big(
-    (\ubar{\valr_1} - \ubar{\valr_2})(1 - \eta), 
-    (\bar{\valr_1} - \bar{\valr_2})(1 + \eta)
+    (\ubar{\rval_1} - \ubar{\rval_2})(1 - \eta), 
+    (\bar{\rval_1} - \bar{\rval_2})(1 + \eta)
     \big)
 }
 \end{mathpar}
-\caption{Semantics with Relative Floating Point Error (By Jiawen)}
+\caption{Semantics with Relative Floating Point Error}
 \label{fig_semantics_rel}
 \end{figure}
 
 
-\section{Main Theorem}
+\begin{thm}[Soundness Theorem]
+Given $\rexpr$ and $\fexpr$ where  $\rexpr \bigstep \fexpr, \err$, when evaluating the $\fexpr$ in floating point computation and get the value $c$, we have $c \in \err$.
+\end{thm}
 
+
+
+
+\section{Snapping Mechanism}
+
+\begin{defn}
+[$\rsnap(a) : A \to \distr(\real)$]
+Given privacy parameter $\epsilon$, the ideal Snapping mechanism $\rsnap(a)$ is defined as:
+\[
+	u \samplel \edistr; s \samplel \{-1, 1\}; y = \ln (u) \div \epsilon; z = s \times y; x = f(a); w = x + z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+\]
+where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+%
+
+%
+Let $\rsnap'(a, u, s)$ be the same as $\fsnap(a)$ except the sample processes $u \xleftarrow{\$} \edistr; s \samplel \{-1, 1\}$ being finished with sample results $u$ and $s$.
+\end{defn}
+
+
+\begin{defn}
+[$\fsnap(a) : A \to \distr(\real)$]
+Given privacy parameter $\epsilon$, the floating point implemented Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined the same as above):
+\[
+	u_{\mathbb{F}} \xleftarrow{\$} \edistr; s_{\mathbb{F}} \samplel \{-1, 1\}; y = \oln (u) \odiv \epsilon; z = s \otimes y; x = f(a); w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+\]
+Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ except the sample processes $u \xleftarrow{\$} \edistr; s \samplel \{-1, 1\}$ being finished with sample results $u$ and $s$.
+\end{defn}
+
+
+
+
+\section{Main Theorem}
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
 Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 12 x \epsilon \eta + 2\eta$
@@ -159,61 +166,139 @@ Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and 
 
 \begin{proof}
 
-Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
+Given $\fsnap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
 Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
-The proof is developed by cases of the output of $\snap(a)$ mechanism.
+The proof is developed by cases of the output of $\fsnap(a)$ mechanism.
+%
+
+%
+Consider the $\rsnap(a)$ outputting the same result $x$, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$, $\rsnap'(a, u, s) = x$, we have $\Pr[\rsnap(a)] = R - L$. Given the $\rsnap$ is $\epsilon-$dp, we have:
+\[
+	e^{-\epsilon} \leq \frac{\Pr[\rsnap(a)]}{\Pr[\rsnap(a)]} = \frac{R - L}{R' - L'} \leq e^{\epsilon}
+\]
+%
+
+%
+Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a, u, s) = x$, we estimated the $|r - l|$ in terms of floating point relative error and $|R - L|$ through our semantics in order to verify the privacy loss of $\fsnap$.
 	%
 	\begin{itemize}
 		%
 		% \item[\textbf{case}] $\boldsymbol{x = -B}$
 		\caseL{$\boldsymbol{x = -B}$}
 		%
-		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$. Based on the proof of the ideal version, the derivation of this case given $\snap(a) = \snap(a') = x$ is shown as following:
+		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$.
+		We know $s = 1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The derivation of this case given $\fsnap'(a, R, 1) = \fsnap'(a', R, 1) = x$ is shown as following:
 		% \begin{figure}
 		\begin{mathpar}
 		\inferrule
 		{
-			\inferrule
-			{
-				u \in \big( 
-				0, 
-				\oexp^{\epsilon \otimes 
-				(-b \ominus \frac{\Lambda}{2} \ominus f(a))} 
-				\big)
-				\sim
-				u' \in \big( 
-				0, 
-				\oexp^{\epsilon \otimes 
-				(-b \ominus \frac{\Lambda}{2} \ominus f(a'))} 
-				\big) 
-			}
-			{
-				\cdots
-			}
+			R 
+			\bigstep
+			r
+			(\ubar{r}, \bar{r})
 		}
 		{
-			\snap(a) = -B 
-			\sim \snap(a') = -B
+			\inferrule
+			{
+				\ln(R) 
+				\bigstep
+				\oln(r)
+				(\ln(\ubar{r})(1 + \eta),
+				\frac{\ln(\bar{r})}{(1 + \eta)})
+			}
+			{
+				\inferrule
+				{
+					\frac{1}{\epsilon} \times \ln(R) 
+					\bigstep
+					\frac{1}{\epsilon} \otimes \oln(r)
+					,
+					((\frac{1}{\epsilon} \times \ln(\ubar{r}))(1 + \eta)^2,
+					%
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{r})}{(1 + \eta)^2})
+				}
+				{
+					\inferrule
+					{
+						f(a) + \frac{1}{\epsilon} \times \ln(R) 
+						\bigstep
+						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
+						,
+						(
+						\frac{f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+						(1 + \eta)^2}
+						{1 + \eta},
+						%
+						(
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+						{(1 + \eta)^2}
+						)(1 + \eta)
+						)
+					}
+					{
+						\rsnap'(a, R, 1)
+						\bigstep
+						\fsnap'(a, r, 1)
+						,
+						(
+						\frac{f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+						(1 + \eta)^2}
+						{1 + \eta},
+						%
+						(
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+						{(1 + \eta)^2}
+						)(1 + \eta)
+						)
+					}
+				}
+			}
 		}
 		\end{mathpar}
 		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
 		% \label{fig_der_snap1}
 		% \end{figure}
-		%	
-		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
+		%
+		In the same way, we have the derivation for $\fsnap'(a', r, 1)$:
+		\begin{mathpar}
+		\inferrule
+		{
+			\empty
+		}
+		{
+			\rsnap'(a', R, 1)
+			\bigstep
+			\fsnap'(a', r, 1)
+			,
+			(
+			\frac{f(a') + 
+			(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+			(1 + \eta)^2}
+			{1 + \eta},
+			%
+			(
+			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+			{(1 + \eta)^2}
+			)(1 + \eta)
+			)
+		}
+		\end{mathpar}
 		%
 		\[
 		u \in \big( 
-		0, (\ubar{\valr}, \bar{\valr})
+		0, (\ubar{\rval}, \bar{\rval})
 		\big) \land (s = -1)
 		%
 		\sim u' \in \big(
-		0, (\ubar{\valr'}, \bar{\valr'})
+		0, (\ubar{\rval'}, \bar{\rval'})
 		\big) \land (s = -1)
 		\]
 		%
-		\todo{		
-		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'}$ and $\bar{\valr'}$ have following values:
+		\todo{
+		Given $\fsnap(a) = \fsnap(a') = x$, we have following values for $\ubar{\rval}, \bar{\rval}, \ubar{\rval'}$ and $\bar{\rval'}$:
+		%
 		%
 		\[
 		\begin{array}{c}
@@ -244,8 +329,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'}
 		\leq \frac
-		{\frac{1}{2}\bar{\valr}}
-		{\frac{1}{2}\ubar{\valr'}}
+		{\frac{1}{2}\bar{\rval}}
+		{\frac{1}{2}\ubar{\rval'}}
 		= e^{\epsilon( 
 		(-b - \frac{\Lambda}{2})(1 + \eta - \frac{1}{1 + \eta})
 		+ f(a)((1 + \eta)^2 - \frac{1}{(1 + \eta)^2})
@@ -267,41 +352,55 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\begin{mathpar}
 		\inferrule
 		{
+			L 
+			\bigstep
+			l
+			(\ubar{l}, \bar{l})
+		}
+		{
 			\inferrule
+			{
+				\ln(L) 
+				\bigstep
+				\oln(l)
+				(\ln(\ubar{l})(1 + \eta),
+				\frac{\ln(\bar{l})}{(1 + \eta)})
+			}
 			{
 				\inferrule
 				{
+					\frac{1}{\epsilon} \times \ln(L) 
+					\bigstep
+					\frac{1}{\epsilon} \otimes \oln(l)
+					,
+					((\frac{1}{\epsilon} \times \ln(\ubar{l}))(1 + \eta)^2,
+					%
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{l})}{(1 + \eta)^2})
+				}
+				{
 					\inferrule
 					{
-						u \in \big[ 
-						\oexp^{\epsilon \otimes (x \ominus \frac{\Lambda}{2} \ominus f(a))}, 
-						\oexp^{\epsilon \otimes (x \oplus \frac{\Lambda}{2} \ominus f(a))} 
-						\big)
-						\sim
-						u' \in \big[ 
-						\oexp^{\epsilon \otimes (x \ominus \frac{\Lambda}{2} \ominus f(a'))}, 
-						\oexp^{\epsilon \otimes (x \oplus \frac{\Lambda}{2} \ominus f(a'))} 
-						\big) 
+						f(a) + \frac{1}{\epsilon} \times \ln(L) 
+						\bigstep
+						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(l)
+						,
+						(
+						\frac{f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{l}))
+						(1 + \eta)^2}
+						{1 + \eta},
+						%
+						(
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{l})}
+						{(1 + \eta)^2}
+						)(1 + \eta)
+						)
 					}
 					{
 						\cdots
 					}
 				}
-				{
-					\snap''(a) \in [ x \ominus \frac{\Lambda}{2} \ominus f(a), x \oplus \frac{\Lambda}{2} \ominus f(a) ) 
-					\sim_{ \_ }
-					\snap''(a') \in [ x \ominus \frac{\Lambda}{2} \ominus f(a'), x \oplus \frac{\Lambda}{2} \ominus f(a'))
-				}
 			}
-			{
-				\snap'(a) \in [ x \ominus \frac{\Lambda}{2}, x \oplus \frac{\Lambda}{2}) 
-				\sim_{ \_  } 
-				\snap'(a') \in [ x \ominus \frac{\Lambda}{2}, x \oplus \frac{\Lambda}{2})
-			}
-		}
-		{
-			\snap(a) = x 
-			\sim \snap(a') = x
 		}
 		\end{mathpar}
 		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
@@ -313,19 +412,19 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
 		\[
 		u \in \big[ 
-		(\ubar{\valr_1}, \bar{\valr_1}), 
-		(\ubar{\valr_2}, \bar{\valr_2})
+		(\ubar{\rval_1}, \bar{\rval_1}), 
+		(\ubar{\rval_2}, \bar{\rval_2})
 		\big) \land (s = -1)
 		%
 		\sim u' \in \big[
-		(\ubar{\valr_1'}, \bar{\valr_1'}), 
-		(\ubar{\valr_2'}, \bar{\valr_2'})
+		(\ubar{\rval_1'}, \bar{\rval_1'}), 
+		(\ubar{\rval_2'}, \bar{\rval_2'})
 		\big) \land (s = -1)
 		\]
 		%
 		\todo{
 		%
-		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
 		%
 		\[
 		\begin{array}{c}
@@ -358,8 +457,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\bar{\valr_2} - \ubar{\valr_1}}
-		{\ubar{\valr_2'} - \bar{\valr_1'}}
+		{\bar{\rval_2} - \ubar{\rval_1}}
+		{\ubar{\rval_2'} - \bar{\rval_1'}}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%
@@ -414,22 +513,22 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		u \in 
 		\big[
-		(\ubar{\valr_1}, \bar{\valr_1}), 1
+		(\ubar{\rval_1}, \bar{\rval_1}), 1
 		\big] \land (s = -1)
 		\lor 
 		u \in \big[ 
-		(\ubar{\valr_2}, \bar{\valr_2}), 1
+		(\ubar{\rval_2}, \bar{\rval_2}), 1
 		\big]\land (s = 1)
 		%
 		\sim u' \in \big[
-		(\ubar{\valr_1'}, \bar{\valr_1'}), 
-		(\ubar{\valr_2'}, \bar{\valr_2'})
+		(\ubar{\rval_1'}, \bar{\rval_1'}), 
+		(\ubar{\rval_2'}, \bar{\rval_2'})
 		\big) \land (s = -1),
 		\]
 		%
 		\todo{
 		%
-		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
 		%
 		% \[
 		% \begin{array}{c}
@@ -462,8 +561,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{1 - \frac{1}{2}(\ubar{\valr_2} + \ubar{\valr_1})}
-		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		{1 - \frac{1}{2}(\ubar{\rval_2} + \ubar{\rval_1})}
+		{\frac{1}{2}(\ubar{\rval_2'} - \bar{\rval_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%
@@ -511,19 +610,19 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		u \in 
 		\big( 
-		(\ubar{\valr_1}, \bar{\valr_1}),
-		(\ubar{\valr_2}, \bar{\valr_2})
+		(\ubar{\rval_1}, \bar{\rval_1}),
+		(\ubar{\rval_2}, \bar{\rval_2})
 		\big] \land (s = 1)
 		%
 		\sim u' \in \big[
-		(\ubar{\valr_1'}, \bar{\valr_1'}), 
-		(\ubar{\valr_2'}, \bar{\valr_2'})
+		(\ubar{\rval_1'}, \bar{\rval_1'}), 
+		(\ubar{\rval_2'}, \bar{\rval_2'})
 		\big) \land (s = -1),
 		\]
 		%
 		\todo{
 		%
-		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
 		%
 		% \[
 		% \begin{array}{c}
@@ -556,8 +655,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\frac{1}{2}(\bar{\valr_2} - \ubar{\valr_1})}
-		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		{\frac{1}{2}(\bar{\rval_2} - \ubar{\rval_1})}
+		{\frac{1}{2}(\ubar{\rval_2'} - \bar{\rval_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%
@@ -608,19 +707,19 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		u \in 
 		\big( 
-		(\ubar{\valr_1}, \bar{\valr_1}),
-		(\ubar{\valr_2}, \bar{\valr_2})
+		(\ubar{\rval_1}, \bar{\rval_1}),
+		(\ubar{\rval_2}, \bar{\rval_2})
 		\big] \land (s = 1)
 		%
 		\sim u' \in 
-		\big[ (\ubar{\valr_1'}, \bar{\valr_1'}), 1 \big] \land (s = -1)
+		\big[ (\ubar{\rval_1'}, \bar{\rval_1'}), 1 \big] \land (s = -1)
 		\lor
-		\big[ (\ubar{\valr_2'}, \bar{\valr_2'}), 1 \big] \land (s = 1),
+		\big[ (\ubar{\rval_2'}, \bar{\rval_2'}), 1 \big] \land (s = 1),
 		\]
 		%
 		\todo{
 		%
-		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
 		%
 		% \[
 		% \begin{array}{c}
@@ -653,8 +752,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\frac{1}{2}(\bar{\valr_2} - \ubar{\valr_1})}
-		{1 - \frac{1}{2}(\bar{\valr_2'} + \bar{\valr_1'})}
+		{\frac{1}{2}(\bar{\rval_2} - \ubar{\rval_1})}
+		{1 - \frac{1}{2}(\bar{\rval_2'} + \bar{\rval_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%
@@ -702,19 +801,19 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		u \in 
 		\big( 
-		(\ubar{\valr_1}, \bar{\valr_1}),
-		(\ubar{\valr_2}, \bar{\valr_2})
+		(\ubar{\rval_1}, \bar{\rval_1}),
+		(\ubar{\rval_2}, \bar{\rval_2})
 		\big] \land (s = 1)
 		%
 		\sim u' \in \big(
-		(\ubar{\valr_1'}, \bar{\valr_1'}), 
-		(\ubar{\valr_2'}, \bar{\valr_2'})
+		(\ubar{\rval_1'}, \bar{\rval_1'}), 
+		(\ubar{\rval_2'}, \bar{\rval_2'})
 		\big] \land (s = 1),
 		\]
 		%
 		\todo{
 		%
-		where $\ubar{\valr_1}, \bar{\valr_1}, \ubar{\valr_2}, \bar{\valr_2}, \ubar{\valr_1'}, \bar{\valr_1'}, \ubar{\valr_2'} and \bar{\valr_2'}$ have following values:
+		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
 		%
 		% \[
 		% \begin{array}{c}
@@ -747,8 +846,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'} 
 		\leq \frac
-		{\frac{1}{2}(\bar{\valr_2} - \ubar{\valr_1})}
-		{\frac{1}{2}(\ubar{\valr_2'} - \bar{\valr_1'})}
+		{\frac{1}{2}(\bar{\rval_2} - \ubar{\rval_1})}
+		{\frac{1}{2}(\ubar{\rval_2'} - \bar{\rval_1'})}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%
@@ -793,16 +892,16 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		%
 		\[
 		u \in \big( 
-		0, (\ubar{\valr}, \bar{\valr})
+		0, (\ubar{\rval}, \bar{\rval})
 		\big)
 		%
 		\sim u' \in \big(
-		0, (\ubar{\valr'}, \bar{\valr'})
+		0, (\ubar{\rval'}, \bar{\rval'})
 		\big),
 		\]
 		%
 		\todo{		
-		where $\ubar{\valr}, \bar{\valr}, \ubar{\valr'}$ and $\bar{\valr'}$ have following values:
+		where $\ubar{\rval}, \bar{\rval}, \ubar{\rval'}$ and $\bar{\rval'}$ have following values:
 		%
 		%
 		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
@@ -810,8 +909,8 @@ The proof is developed by cases of the output of $\snap(a)$ mechanism.
 		\[
 		\frac{u}{u'}
 		\leq \frac
-		{\frac{1}{2}\bar{\valr}}
-		{\frac{1}{2}\ubar{\valr'}}
+		{\frac{1}{2}\bar{\rval}}
+		{\frac{1}{2}\ubar{\rval'}}
 		\leq \epsilon + 12 x \epsilon \eta + 2\eta
 		\]
 		%

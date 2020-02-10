@@ -29,6 +29,10 @@
 \newcommand{\uniform}{\mathsf{unif}}
 \newcommand{\pdf}{\mathsf{pdf}}
 \newcommand{\snap}{\mathsf{Snap}}
+\newcommand{\fsnap}{\mathsf{Snap}_{\mathbb{F}}}
+\newcommand{\rsnap}{\mathsf{Snap}_{\mathbb{R}}}
+
+
 \newcommand{\pr}[2]{\underset{#1}{\mathsf{Pr}}[#2]}
 \newcommand{\projl}{\pi_1}
 \newcommand{\projr}{\pi_2}
@@ -48,10 +52,24 @@
 
 \newcommand{\bernoulli}{\kw{bernoulli}}
 
+%expression
 \newcommand{\expr}{e}
-\newcommand{\valf}{c}
-\newcommand{\valr}{r}
+\newcommand{\fexpr}{\expr_{\mathbb{F}}}
+\newcommand{\rexpr}{\expr_{\mathbb{R}}}
+
+
+%values
+\newcommand{\fval}{c}
+\newcommand{\rval}{r}
 \newcommand{\valv}{v}
+
+%variables
+\newcommand{\varx}{x}
+
+\newcommand{\fvarx}{\varx_{\mathbb{F}}}
+\newcommand{\rvarx}{\varx_{\mathbb{R}}}
+
+
 \newcommand{\term}{t}
 \newcommand{\etrue}{\kw{true}}
 \newcommand{\efalse}{\kw{false}}
@@ -70,11 +88,15 @@
 
 \newcommand{\oexp}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{e}$}}}{\bigcirc}}}
 
-\newcommand{\oop[1]}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{#1}{\bigcirc}}}
+% \newcommand{\oop[1]}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{#1}{\bigcirc}}}
 
 % \newcommand{\oexp}{\oop{\text{\footnotesize{$\mathsf{exp}$}}}}
 
 \newcommand{\oln}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{ln}$}}}{\bigcirc}}}
+
+\newcommand{\odiv}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\div$}}}{\bigcirc}}}
+
+\newcommand{\oop}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$*$}}}{\bigcirc}}}
 
 \newcommand{\ubar}[1]{\text{\b{$#1$}}}
 % \usepackage{accents}
