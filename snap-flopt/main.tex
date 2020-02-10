@@ -9,9 +9,9 @@
 \begin{document}
 
 \title{Verifying Snapping Mechanism - Floating Point Implementation Version}
-\author{}
+\author{Jiawen Liu}
 
-\date{}
+\date{\today}
 
 \maketitle
 In order to verify the differential privacy property of an implementation of the snapping mechanism \cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and the floating point error semantics from \cite{Ramananandro2016unified,Martel2006higher,Becker2018verified,Moscato2017Automatic}.
@@ -119,13 +119,13 @@ Given $\rexpr$ and $\fexpr$ where  $\rexpr \bigstep \fexpr, \err$, when evaluati
 [$\rsnap(a) : A \to \distr(\real)$]
 Given privacy parameter $\epsilon$, the ideal Snapping mechanism $\rsnap(a)$ is defined as:
 \[
-	u \samplel \edistr; s \samplel \{-1, 1\}; Y = \ln (u) \div \epsilon; Z = s \times Y; X = F(a); W = X + Z; W' = \round{W}_{\Lambda}; R = \clamp_B (W')
+	U \samplel \edistr; S \samplel \{-1, 1\}; Y = \ln (U) \div \epsilon; Z = S \times Y; X = F(a); W = X + Z; W' = \round{W}_{\Lambda}; R = \clamp_B (W')
 \]
 where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 %
 
 %
-Let $\rsnap'(a, u, s)$ be the same as $\fsnap(a)$ except the sample processes $u \xleftarrow{\$} \edistr; s \samplel \{-1, 1\}$ being finished with sample results $u$ and $s$.
+Let $\rsnap'(a, U, S)$ be the same as $\fsnap(a)$ given $U \samplel \edistr; S \samplel \{-1, 1\}$ without rounding and clamping steps.
 \end{defn}
 
 
@@ -135,7 +135,7 @@ Given privacy parameter $\epsilon$, the floating point implemented Snapping mech
 \[
 	u_{\mathbb{F}} \xleftarrow{\$} \edistr; s_{\mathbb{F}} \samplel \{-1, 1\}; y = \oln (u) \odiv \epsilon; z = s \otimes y; x = f(a); w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
 \]
-Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ except the sample processes $u \xleftarrow{\$} \edistr; s \samplel \{-1, 1\}$ being finished with sample results $u$ and $s$.
+Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping precesses given $u \samplel \edistr; s \samplel \{-1, 1\}$.
 \end{defn}
 
 
@@ -173,35 +173,35 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		We know $s = 1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The derivation of this case given $\fsnap'(a, R, 1) = \fsnap'(a', R, 1) = x$ is shown as following:
 		% \begin{figure}
 		\begin{mathpar}
-		\inferrule
+		\inferrule[ln]
 		{
 			R 
 			\bigstep
-			r
-			(\ubar{r}, \bar{r})
+			r,
+			(\ubar{R}, \bar{R})
 		}
 		{
-			\inferrule
+			\inferrule[op]
 			{
 				\ln(R) 
 				\bigstep
-				\oln(r)
-				(\ln(\ubar{r})(1 + \eta),
-				\frac{\ln(\bar{r})}{(1 + \eta)})
+				\oln(r),
+				(\ln(\ubar{R})(1 + \eta),
+				\frac{\ln(\bar{R})}{(1 + \eta)})
 			}
 			{
-				\inferrule
+				\inferrule[op]
 				{
 					\frac{1}{\epsilon} \times \ln(R) 
 					\bigstep
 					\frac{1}{\epsilon} \otimes \oln(r)
 					,
-					((\frac{1}{\epsilon} \times \ln(\ubar{r}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{r})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2})
 				}
 				{
-					\inferrule
+					\inferrule[id]
 					{
 						f(a) + \frac{1}{\epsilon} \times \ln(R)
 						\bigstep
@@ -209,31 +209,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						(
 						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
 						(1 + \eta)^2}
 						{1 + \eta},
 						%
 						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
-						{(1 + \eta)^2}
-						)(1 + \eta)
-						)
-					}
-					{
-					\inferrule
-					{
-						\round{f(a) + \frac{1}{\epsilon} \times \ln(R)} 
-						\bigstep
-						\round{f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)}
-						,
-						(
-						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{r}))
-						(1 + \eta)^2}
-						{1 + \eta},
-						%
-						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
 						)(1 + \eta)
 						)
@@ -245,16 +226,15 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						(
 						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
 						(1 + \eta)^2}
 						{1 + \eta},
 						%
 						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
 						)(1 + \eta)
-						)
-					}	
+						)	
 					}
 				}
 			}
@@ -268,7 +248,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\begin{mathpar}
 		\inferrule
 		{
-			\empty
+			\dots
 		}
 		{
 			\rsnap'(a', R, 1)
@@ -277,29 +257,20 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			,
 			(
 			\frac{f(a') + 
-			(\frac{1}{\epsilon} \times \ln(\ubar{r}))
+			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
 			(1 + \eta)^2}
 			{1 + \eta},
 			%
 			(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
+			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
 			{(1 + \eta)^2}
 			)(1 + \eta)
 			)
 		}
 		\end{mathpar}
 		%
-		\[
-		u \in \big( 
-		0, (\ubar{\rval}, \bar{\rval})
-		\big) \land (s = -1)
 		%
-		\sim u' \in \big(
-		0, (\ubar{\rval'}, \bar{\rval'})
-		\big) \land (s = -1)
-		\]
-		%
-		Given $\fsnap(a) = \fsnap(a') = x$, we have following values for $\ubar{\rval}, \bar{\rval}, \ubar{\rval'}$ and $\bar{\rval'}$:
+		Given $\fsnap(a) = \fsnap(a') = x = b$, we have following values for $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
 		%
 		%
 		\[
@@ -326,13 +297,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\end{array}
 		\]
 		%		
-		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
+		The privacy loss of $\fsnap(a)$ in this case is bounded by:
 		%
 		\[
-		\frac{u}{u'}
-		\leq \frac
-		{\frac{1}{2}\bar{\rval}}
-		{\frac{1}{2}\ubar{\rval'}}
+		\frac
+		{\frac{1}{2}(\bar{R} - 0)}
+		{\frac{1}{2}(\ubar{R'} - 0)}
 		= e^{\epsilon( 
 		(-b - \frac{\Lambda}{2})(1 + \eta - \frac{1}{1 + \eta})
 		+ f(a)((1 + \eta)^2 - \frac{1}{(1 + \eta)^2})
@@ -341,13 +311,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\leq e^{\epsilon + 12 B \epsilon \eta + 2\eta}
 		\]
 		%
-		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
 		%
 		%
 		%
 		\caseL{$\boldsymbol{x \in (-B, \round{f(a)}_{\Lambda})}$}
 		%
-		The derivation of this case is shown as following:
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
 		% in Figure. \ref{fig_der_snap2}
 		% \begin{figure}
 		\begin{mathpar}
@@ -355,17 +324,17 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{
 			L 
 			\bigstep
-			l
-			(\ubar{l}, \bar{l})
+			l,
+			(\ubar{L}, \bar{L})
 		}
 		{
 			\inferrule
 			{
 				\ln(L) 
 				\bigstep
-				\oln(l)
-				(\ln(\ubar{l})(1 + \eta),
-				\frac{\ln(\bar{l})}{(1 + \eta)})
+				\oln(l),
+				(\ln(\bar{L})(1 + \eta),
+				\frac{\ln(\ubar{L})}{(1 + \eta)})
 			}
 			{
 				\inferrule
@@ -374,9 +343,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 					\bigstep
 					\frac{1}{\epsilon} \otimes \oln(l)
 					,
-					((\frac{1}{\epsilon} \times \ln(\ubar{l}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln(\bar{L}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{l})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln(\ubar{L})}{(1 + \eta)^2})
 				}
 				{
 					\inferrule
@@ -387,98 +356,164 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						(
 						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{l}))
+						(\frac{1}{\epsilon} \times \ln(\bar{L}))
 						(1 + \eta)^2}
 						{1 + \eta},
 						%
 						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{l})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\ubar{L})}
 						{(1 + \eta)^2}
 						)(1 + \eta)
 						)
 					}
 					{
-					\rsnap'(a, R, 1)
+					\rsnap'(a, L, 1)
 					\bigstep
-					\fsnap'(a, r, 1)
+					\fsnap'(a, l, 1)
 					,
 					(
-					\frac{f(a) + 
-					(\frac{1}{\epsilon} \times \ln(\ubar{r}))
-					(1 + \eta)^2}
-					{1 + \eta},
+					\err_1,
 					%
-					(
-					f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{r})}
-					{(1 + \eta)^2}
-					)(1 + \eta)
+					\err_2
 					)
 					}
 				}
 			}
 		}
 		\end{mathpar}
-		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
-		% \label{fig_der_snap2}
-		% \end{figure}		
 		%
+		%
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
 		%
 
-		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
-		\[
-		u \in \big[ 
-		(\ubar{\rval_1}, \bar{\rval_1}), 
-		(\ubar{\rval_2}, \bar{\rval_2})
-		\big) \land (s = -1)
+		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
+		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
+		Taking the upper bound (i.e. $\err_2 = y_1$), we get:
+		$\bar{L} = e^{(y_1 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
 		%
-		\sim u' \in \big[
-		(\ubar{\rval_1'}, \bar{\rval_1'}), 
-		(\ubar{\rval_2'}, \bar{\rval_2'})
-		\big) \land (s = -1)
-		\]
 		%
-		\todo{
-		%
-		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
-		%
-		\[
-		\begin{array}{c}
-		u \in \big[ 
-		(
-		(1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		(1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		), 
-		(
-		(1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		(1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		)
-		\big)\\ 
-		%
-		\sim u' \in \big[
-		(
-		(1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		(1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		), 
-		(
-		(1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		(1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		)
-		\big)
-		\end{array}
-		\]
-		%
-		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
-		%
-		\[
-		\frac{u}{u'} 
-		\leq \frac
-		{\bar{\rval_2} - \ubar{\rval_1}}
-		{\ubar{\rval_2'} - \bar{\rval_1'}}
-		\leq \epsilon + 12 x \epsilon \eta + 2\eta
-		\]
-		%
-		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
+		\begin{mathpar}
+		\inferrule
+		{
+			\dots
 		}
+		{
+			\inferrule
+			{
+				\rsnap'(a, R, 1)
+				\bigstep
+				\fsnap'(a, r, 1)
+				,
+				(
+				\frac{f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\bar{R}))
+				(1 + \eta)^2}
+				{1 + \eta},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+				{(1 + \eta)^2}
+				)(1 + \eta)
+				)
+			}
+			{
+				\rsnap'(a, R, 1)
+				\bigstep
+				\fsnap'(a, r, 1)
+				,
+				(\err_1, \err_2)
+				%
+			}
+		}
+		\end{mathpar}
+		%
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
+		%
+
+		%
+		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
+		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
+		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
+		$\bar{R} = e^{(y_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
+		%
+
+		%
+		In the same way, we have the derivation for $\fsnap'(a', l, 1)$ and $\fsnap'(a', r, 1)$:
+		\begin{mathpar}
+		\inferrule
+		{
+			\dots
+		}
+		{
+			\rsnap'(a', L', 1)
+			\bigstep
+			\fsnap'(a', l', 1)
+			,
+			(
+			\frac{f(a') + 
+			(\frac{1}{\epsilon} \times \ln(\ubar{L'}))
+			(1 + \eta)^2}
+			{1 + \eta},
+			%
+			(
+			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{L'})}
+			{(1 + \eta)^2}
+			)(1 + \eta)
+			)
+		}
+		\end{mathpar}
+		%
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
+		%
+
+		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
+		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
+		Taking the upper bound (i.e. $\err_2 = y_1$), we get:
+		$\bar{L} = e^{(y_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
+		%
+		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\dots
+		}
+		{
+			\rsnap'(a', R', 1)
+			\bigstep
+			\fsnap'(a', r', 1)
+			,
+			(
+			\frac{f(a') + 
+			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
+			(1 + \eta)^2}
+			{1 + \eta},
+			%
+			(
+			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
+			{(1 + \eta)^2}
+			)(1 + \eta)
+			)
+		}
+		\end{mathpar}
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
+		%
+
+		%
+		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
+		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
+		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
+		$\bar{R} = e^{(y_2 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
+		%
+
+		%
+		%
+		%
+		The privacy loss is bounded by:
+		%
+		\[
+		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
+		\]
+		%
 		%
 		%
 		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
