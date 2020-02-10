@@ -69,52 +69,33 @@ The big step semantics with relative floating point computation error are shown 
 %
 \and
 %
-\inferrule*[right = plus]
+\inferrule*[right = op]
 {
-	\expr_1 \bigstep \fval_1, (\ubar{\rval_1}, \bar{\rval_1})
+	\rexpr^1 \bigstep \fexpr^1, (\ubar{\rexpr^1}, \bar{\rexpr^1})
 	\and
-	\expr_2 \bigstep \fval_2, (\ubar{\rval_2}, \bar{\rval_2})
+	\rexpr^2 \bigstep \fexpr^2, (\ubar{\rexpr^2}, \bar{\rexpr^2})
 }
 {
-    \expr_1 \oplus \expr_2
-    \bigstep \floaten(\fval_1 + \fval_2),
+    \rexpr^1 * \rexpr^2
+    \bigstep \floaten(\fexpr^1 \oop \fexpr^2),
     \big(
-    (\ubar{\rval_1} + \ubar{\rval_2})(1 - \eta), 
-    (\bar{\rval_1} + \bar{\rval_2})(1 + \eta)
+    (\frac{\ubar{\rexpr^1} * \ubar{\rexpr^2})}{(1 + \eta)}, 
+    (\bar{\rexpr^1} * \bar{\rexpr^2})(1 + \eta)
     \big)
 }
 %
 \and
 %
-\inferrule*[right = times]
+\inferrule*[right = ln]
 {
-	\expr_1 \bigstep \fval_1, (\ubar{\rval_1}, \bar{\rval_1})
-	\and
-	\expr_2 \bigstep \fval_2, (\ubar{\rval_2}, \bar{\rval_2})
+	\rexpr \bigstep \fexpr, (\ubar{\rexpr^1}, \bar{\rexpr^2})
 }
 {
-    \expr_1 \otimes \expr_2
-    \bigstep \floaten(\fval_1 \times \fval_2),
+    \ln(\rexpr)
+    \bigstep \oln(\fexpr),
     \big(
-    (\ubar{\rval_1} \times \ubar{\rval_2})(1 - \eta), 
-    (\bar{\rval_1} \times \bar{\rval_2})(1 + \eta)
-    \big)
-}
-%
-\and
-%
-\inferrule*[right = sub]
-{
-	\expr_1 \bigstep \fval_1, (\ubar{\rval_1}, \bar{\rval_1})
-	\and
-	\expr_2 \bigstep \fval_2, (\ubar{\rval_2}, \bar{\rval_2})
-}
-{
-    \expr_1 \ominus \expr_2
-    \bigstep \floaten(\fval_1 - \fval_2),
-    \big(
-    (\ubar{\rval_1} - \ubar{\rval_2})(1 - \eta), 
-    (\bar{\rval_1} - \bar{\rval_2})(1 + \eta)
+    (\frac{\oln(\ubar{\rexpr^1})}{(1 + \eta)}, 
+    (\ln(\bar{\rexpr^2}))(1 + \eta)
     \big)
 }
 \end{mathpar}
