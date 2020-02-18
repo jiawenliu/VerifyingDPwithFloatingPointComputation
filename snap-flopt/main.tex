@@ -353,6 +353,219 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\caseL{$\boldsymbol{x \in (-B, \round{f(a)}_{\Lambda})}$}
 		%
+		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 \lor \bigg( \round{f(a)}_{\Lambda} > 0 \land x \in (-B, 0] \bigg) } $}
+		%
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
+		%
+		\begin{mathpar}
+		\inferrule[ln]
+		{
+			R 
+			\bigstep
+			r,
+			(\ubar{R}, \bar{R})
+		}
+		{
+			\inferrule[op]
+			{
+				\ln(R) 
+				\bigstep
+				\oln(r),
+				(\ln(\ubar{R})(1 + \eta),
+				\frac{\ln(\bar{R})}{(1 + \eta)})
+			}
+			{
+				\inferrule[op]
+				{
+					\frac{1}{\epsilon} \times \ln(R) 
+					\bigstep
+					\frac{1}{\epsilon} \otimes \oln(r)
+					,
+					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
+					%
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2})
+				}
+				{
+					\inferrule[id]
+					{
+						f(a) + \frac{1}{\epsilon} \times \ln(R)
+						\bigstep
+						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
+						,
+						\bigg(
+						\big( f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+						(1 + \eta)^2 \big)
+						{(1 + \eta)},
+						%
+						\frac{(
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+						{(1 + \eta)^2}
+						)}
+						{(1 + \eta)}
+						\bigg)
+					}
+					{
+						\rsnap'(a, R, 1)
+						\bigstep
+						\fsnap'(a, r, 1)
+						,
+						(
+						\err_1,
+						%
+						\err_2)
+					}
+				}
+			}
+		}
+		\end{mathpar}
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.\\
+		%
+		Taking the lower bound,  we have: 
+		$\ubar{R} = e^{\epsilon 
+				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$.\\
+		%
+		Taking the upper bound, we have: 
+		$\bar{R} = e^{\epsilon 
+				\frac{(\frac{y_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
+		%
+		
+		\begin{mathpar}
+		\inferrule
+		{
+			\dots
+		}
+		{
+			\inferrule
+			{
+				\rsnap'(a, L, 1)
+				\bigstep
+				\fsnap'(a, l, 1)
+				,
+				(
+				\frac{f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\ubar{L}))
+				(1 + \eta)^2}
+				{1 + \eta},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
+				{(1 + \eta)^2}
+				)(1 + \eta)
+				)
+			}
+			{
+				\rsnap'(a, L, 1)
+				\bigstep
+				\fsnap'(a, l, 1)
+				,
+				(\err_1, \err_2)
+				%
+			}
+		}
+		\end{mathpar}
+		%
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.\\
+		%
+		%
+		Taking the lower bound , we have:
+		$\ubar{L} = e^{\epsilon 
+				\big( (y_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$.\\
+		%
+		Taking the upper bound, we have: 
+		$\bar{L} = e^{\epsilon 
+				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
+
+		In the same way, we have the bound of $l, r$ for adjacent data set $a'$:
+
+		$$\ubar{R'} = e^{\epsilon 
+				\big( (y_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)},  ~
+		\bar{R'} = e^{\epsilon 
+				\frac{(\frac{y_1}{1 + \eta} - f(a'))}{(1 + \eta)^2}}.$$
+		%
+		%
+		$$ 
+		\ubar{L'} = e^{\epsilon 
+				\big( (y_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}, ~ 
+		\bar{L'} = e^{\epsilon 
+				\frac{(\frac{y_2}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$$
+
+		Then, we have the privacy loss is bounded by:
+		\[
+		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}.		
+		\]
+		%
+		We also have:
+		\[
+		\begin{array}{ll}
+		\frac{\bar{R}}{R} 
+		& = e^{\epsilon
+		\big(\frac{y_1}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta) ^2} 
+		- y_1 + f(a) \big)}
+		 \leq e^{\epsilon
+		\big(- \frac{3 \eta}{1 +3 \eta}y_1 + 2 \eta f(a) \big)}
+		 \leq e^{\epsilon
+		\big(\frac{3 \eta}{1 +3 \eta}B + 2 \eta B \big)}
+		\leq e^{5 \epsilon B \eta}\\
+%
+		\frac{\ubar{L}}{L} 
+		& = e^{\epsilon
+		\big({y_2}{(1 + \eta)^3} - {f(a)}{(1 + \eta) ^2} 
+		- y_2 + f(a) \big)}
+		 \geq e^{\epsilon
+		\big({3 \eta}y_1 - 2 \eta f(a) \big)}
+		\geq e^{-5 \epsilon B \eta}\\
+		\end{array}
+		\]
+		%
+		Then, we can derive:
+		%
+		\[
+		\begin{array}{ll}
+		|\bar{R} - \ubar{L}| 
+		& \leq e^{5 \epsilon B \eta}R - e^{-5 \epsilon B \eta} L \\
+		& = L \big(  e^{ \Lambda\epsilon + 5 \epsilon B \eta} 
+		- e^{-5 \epsilon B \eta} \big)\\
+		& = L \big( e^{ \Lambda\epsilon} e^{5 \epsilon B \eta}
+		-e^{5 \epsilon B \eta}
+		+  e^{5 \epsilon B \eta}
+		- e^{-5 \epsilon B \eta} \big)\\
+		& = L \big( e^{ \Lambda\epsilon} e^{5 \epsilon B \eta}
+		- e^{5 \epsilon B \eta}
+		+  \frac{1}{(e^{ \Lambda\epsilon} - 1)}
+		(e^{ \Lambda\epsilon} - 1)e^{5 \epsilon B \eta}
+		- e^{-5 \epsilon B \eta} \big)\\
+		& \leq L \big( e^{ \Lambda\epsilon} e^{5 \epsilon B \eta}
+		- e^{5 \epsilon B \eta}
+		+  \frac{1}{(e - 1)}
+		(e^{ \Lambda\epsilon} - 1)e^{5 \epsilon B \eta}
+		- e^{-5 \epsilon B \eta} \big) ~( by 1 \leq \Lambda \epsilon < 2)\\ 
+		& = L  \frac{e}{(e - 1)} \big( e^{ \Lambda\epsilon} e^{5 \epsilon B \eta}
+		- e^{5 \epsilon B \eta}
+		- e^{-5 \epsilon B \eta} \big)\\
+		& < L  \frac{e}{(e - 1)} \big( e^{ \Lambda\epsilon} e^{5 \epsilon B \eta}
+		- e^{5 \epsilon B \eta} \big)\\
+		& = L (e^{ \Lambda\epsilon} -  1) e^{\ln(\frac{e}{(e - 1)}) + 5 \epsilon B \eta}\\
+		& = (R - L)e^{\ln(\frac{e}{(e - 1)}) + 5 \epsilon B \eta}
+		\end{array}
+		\]
+		In the same way, we can derive:
+		\[
+		|\ubar{R} - \bar{L}| > e^{-5 \epsilon B\eta} R - e^{5 \epsilon B\eta} L
+		> 
+		\]
+		Then we have:
+		\[
+		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
+		< .		
+		\]
+
+
+
+
+		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land x \in (0, \round{f(a)}_{\Lambda}) } $}
+		%
+
 		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
 		% in Figure. \ref{fig_der_snap2}
 		% \begin{figure}
@@ -420,7 +633,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\end{mathpar}
 		%
 		%
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
+		From soundness theorem, we have  $\err_1 \leq y_1 \leq \err_2$.
 		%
 
 		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
