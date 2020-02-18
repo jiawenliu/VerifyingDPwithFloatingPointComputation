@@ -49,7 +49,7 @@ Following are the syntax of the system. The circled operators are rounded operat
 
 \end{array}\]
 
-We use upper case for variables in real computation and lower case for variables in floating point computation.
+We use upper case for variables in real computation and lower case for variables in floating point computation. $\oop$ represents the operation in floating point machine.
 
 $F(\rvarx)$ denotes function $F$ evaluates to value $F(\rvarx)$ given input $\rvarx$ in real computation, and $f(\fvarx)$ denotes the same function $F$ evaluates to value $f(\fvarx)$ given the same input $\fvarx$ in floating point computation.
 
@@ -90,14 +90,31 @@ The big step semantics with relative floating point computation error are shown 
 %
 \inferrule*[right = ln]
 {
-	\rexpr \bigstep \fexpr, (\ubar{\rexpr^1}, \bar{\rexpr^2})
+	\rexpr \bigstep \fexpr, (\ubar{\rexpr}, \bar{\rexpr})
+	\and
+	\rexpr \geq 1
 }
 {
     \ln(\rexpr)
     \bigstep \oln(\fexpr),
     \big(
-    (\frac{\oln(\ubar{\rexpr^1})}{(1 + \eta)}, 
-    (\ln(\bar{\rexpr^2}))(1 + \eta)
+    (\frac{\oln(\ubar{\rexpr})}{(1 + \eta)}, 
+    (\ln(\bar{\rexpr}))(1 + \eta)
+    \big)
+}
+%
+\inferrule*[right = ln-op]
+{
+	\rexpr \bigstep \fexpr, (\ubar{\rexpr}, \bar{\rexpr})
+	\and
+	\rexpr < 1
+}
+{
+    \ln(\rexpr)
+    \bigstep \oln(\fexpr),
+    \big(
+    (\ln(\ubar{\rexpr}))(1 + \eta),
+    \frac{\oln(\bar{\rexpr})}{(1 + \eta)}
     \big)
 }
 \end{mathpar}
@@ -125,17 +142,21 @@ where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy 
 %
 
 %
-Let $\rsnap'(a, U, S)$ be the same as $\fsnap(a)$ given $U \samplel \edistr; S \samplel \{-1, 1\}$ without rounding and clamping steps.
+Let $\rsnap'(a, U, S)$ be the same as $\fsnap(a)$ given $U, S$ without rounding and clamping steps.
 \end{defn}
 
 
 \begin{defn}
 [$\fsnap(a) : A \to \distr(\real)$]
-Given privacy parameter $\epsilon$, the floating point implemented Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined the same as above):
+Given privacy parameter $\epsilon$, the floating point implemented
+Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined the same as above):
 \[
-	u_{\mathbb{F}} \xleftarrow{\$} \edistr; s_{\mathbb{F}} \samplel \{-1, 1\}; y = \oln (u) \odiv \epsilon; z = s \otimes y; x = f(a); w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
+	s_{\mathbb{F}} \samplel \{-1, 1\};
+	y = \oln (u) \odiv \epsilon; z = s \otimes y; x = f(a);
+	w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
 \]
-Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping precesses given $u \samplel \edistr; s \samplel \{-1, 1\}$.
+Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping precesses given $u, s$.
 \end{defn}
 
 
@@ -207,42 +228,42 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						\bigstep
 						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
 						,
-						(
-						\frac{f(a) + 
+						\bigg(
+						\big( f(a) + 
 						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-						(1 + \eta)^2}
-						{1 + \eta},
+						(1 + \eta)^2 \big)
+						{(1 + \eta)},
 						%
-						(
+						\frac{(
 						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
-						)(1 + \eta)
-						)
+						)}
+						{(1 + \eta)}
+						\bigg)
 					}
 					{
 						\rsnap'(a, R, 1)
 						\bigstep
 						\fsnap'(a, r, 1)
 						,
-						(
-						\frac{f(a) + 
+						\bigg(
+						\big( f(a) + 
 						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-						(1 + \eta)^2}
-						{1 + \eta},
+						(1 + \eta)^2 \big)
+						{(1 + \eta)},
 						%
-						(
+						\frac{(
 						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
-						)(1 + \eta)
-						)	
+						)}
+						{(1 + \eta)}
+						\bigg)
 					}
 				}
 			}
 		}
 		\end{mathpar}
-		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
-		% \label{fig_der_snap1}
-		% \end{figure}
+		% 
 		%
 		In the same way, we have the derivation for $\fsnap'(a', r, 1)$:
 		\begin{mathpar}
@@ -251,21 +272,22 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			\dots
 		}
 		{
-			\rsnap'(a', R, 1)
+			\rsnap'(a', R', 1)
 			\bigstep
 			\fsnap'(a', r, 1)
 			,
-			(
-			\frac{f(a') + 
+			\bigg(
+			\big( f(a') + 
 			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
-			(1 + \eta)^2}
-			{1 + \eta},
+			(1 + \eta)^2 \big)
+			{(1 + \eta)},
 			%
-			(
+			\frac{(
 			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
 			{(1 + \eta)^2}
-			)(1 + \eta)
-			)
+			)}
+			{(1 + \eta)}
+			\bigg)
 		}
 		\end{mathpar}
 		%
@@ -275,18 +297,18 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\[
 		\begin{array}{c}
-		\ubar{R} = e^{\epsilon (\frac{-b - \frac{\Lambda}{2}}{1 + \eta} - f(a))(1 + \eta)^2)},
+		\ubar{R} = e^{\epsilon 
+		\big( (x(1 + \eta) - f(a)) (1 + \eta)^2) \big)},
 		%
 		\bar{R} = e^{\epsilon 
-		\frac{(-b - \frac{\Lambda}{2})(1 + \eta) - f(a)}
-		{(1 + \eta)^2}}
+		\frac{(\frac{x}{1 + \eta} - f(a))}{(1 + \eta)^2}}
 		\\
 		%
-		\ubar{R'} = e^{\epsilon (\frac{-b - \frac{\Lambda}{2}}{1 + \eta} - f(a'))(1 + \eta)^2)},
+		\ubar{R'} = e^{\epsilon 
+		\big((x(1 + \eta) - f(a'))(1 + \eta)^2 \big)},
 		%
 		\bar{R'} = e^{\epsilon 
-		\frac{(-b - \frac{\Lambda}{2})(1 + \eta) - f(a')}
-		{(1 + \eta)^2}}
+		(\frac{(\frac{x}{1 + \eta} - f(a'))}{(1 + \eta)^2})}
 		\end{array}
 		\]
 		%		
@@ -300,8 +322,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		(-b - \frac{\Lambda}{2})(1 + \eta - \frac{1}{1 + \eta})
 		+ f(a)((1 + \eta)^2 - \frac{1}{(1 + \eta)^2})
 		+ (1 + \eta)^2)}
-		\leq e^{\epsilon(1 + \eta)^2 2B}
-		\leq e^{\epsilon + 12 B \epsilon \eta + 2\eta}
+		\leq e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)}
 		\]
 		%
 		%
@@ -326,8 +347,8 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				\ln(L) 
 				\bigstep
 				\oln(l),
-				(\ln(\bar{L})(1 + \eta),
-				\frac{\ln(\ubar{L})}{(1 + \eta)})
+				(\ln(\ubar{L})(1 + \eta),
+				\frac{\ln(\bar{L})}{(1 + \eta)})
 			}
 			{
 				\inferrule
@@ -336,9 +357,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 					\bigstep
 					\frac{1}{\epsilon} \otimes \oln(l)
 					,
-					((\frac{1}{\epsilon} \times \ln(\bar{L}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln(\ubar{L}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln(\ubar{L})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{L})}{(1 + \eta)^2})
 				}
 				{
 					\inferrule
@@ -349,12 +370,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						(
 						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\bar{L}))
+						(\frac{1}{\epsilon} \times \ln(\ubar{L}))
 						(1 + \eta)^2}
 						{1 + \eta},
 						%
 						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\ubar{L})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
 						{(1 + \eta)^2}
 						)(1 + \eta)
 						)
@@ -399,7 +420,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				,
 				(
 				\frac{f(a) + 
-				(\frac{1}{\epsilon} \times \ln(\bar{R}))
+				(\frac{1}{\epsilon} \times \ln(\ubar{R}))
 				(1 + \eta)^2}
 				{1 + \eta},
 				%
@@ -461,6 +482,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 
 		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
 		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
+		%
 		Taking the upper bound (i.e. $\err_2 = y_1$), we get:
 		$\bar{L} = e^{(y_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
 		%
