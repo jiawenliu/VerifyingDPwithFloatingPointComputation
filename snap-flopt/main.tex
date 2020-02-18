@@ -315,14 +315,37 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		The privacy loss of $\fsnap(a)$ in this case is bounded by:
 		%
 		\[
+		\begin{array}{ll}
 		\frac
 		{\frac{1}{2}(\bar{R} - 0)}
 		{\frac{1}{2}(\ubar{R'} - 0)}
-		= e^{\epsilon( 
-		(-b - \frac{\Lambda}{2})(1 + \eta - \frac{1}{1 + \eta})
-		+ f(a)((1 + \eta)^2 - \frac{1}{(1 + \eta)^2})
-		+ (1 + \eta)^2)}
-		\leq e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)}
+		& = e^{\epsilon
+		\bigg(
+		\frac{(\frac{x}{1 + \eta} - f(a))}{(1 + \eta)^2}
+		-
+		\big((x(1 + \eta) - f(a'))(1 + \eta)^2 \big)
+		\bigg)}\\
+		& = e^{\epsilon
+		\bigg(
+		\frac{x}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2}
+		-
+		x(1 + \eta)^3 + f(a')(1 + \eta)^2 
+		\bigg)} ~ (\star)
+		\end{array}
+		\]
+		%
+		Since $ (1 + \eta)^3 > 1 + 3\eta$,  $\frac{1}{(1 + \eta)^3} < \frac{1}{1 + 3\eta} $, $(1 + \eta)^2 < 1 + 2.1\eta$ and $\frac{1}{(1 + \eta)^2} > 1 - 2 \eta$, we have:
+		%
+		\[
+		\begin{array}{ll}
+		(\star) & < e^{\epsilon \big( 
+		-\frac{9\eta + 6}{1 + 3\eta} x
+		+ 4.1 \eta f(a)
+		+ (1 + 2.1\eta) 
+		\big)}\\
+		%
+		& < e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)}
+		\end{array}
 		\]
 		%
 		%
