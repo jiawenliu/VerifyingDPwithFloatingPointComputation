@@ -353,9 +353,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\caseL{$\boldsymbol{x \in (-B, \round{f(a)}_{\Lambda})}$}
 		%
-		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 \lor \bigg( \round{f(a)}_{\Lambda} > 0 \land x \in (-B, 0] \bigg) } $}
+		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 \lor \bigg( \round{f(a)}_{\Lambda} > 0 \land x \in (-B, 0) \bigg) } $}
 		%
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 < 0$, $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
 		%
 		\begin{mathpar}
 		\inferrule[ln]
@@ -546,27 +546,25 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		& < L  \frac{e}{(e - 1)} \big( e^{ \Lambda\epsilon} e^{5 \epsilon B \eta}
 		- e^{5 \epsilon B \eta} \big)\\
 		& = L (e^{ \Lambda\epsilon} -  1) e^{\ln(\frac{e}{(e - 1)}) + 5 \epsilon B \eta}\\
-		& = (R - L)e^{\ln(\frac{e}{(e - 1)}) + 5 \epsilon B \eta}
+		& < L (e^{ \Lambda\epsilon} -  1)e^{11 \epsilon B \eta}~ (by ~ ( \frac{1}{\epsilon} < B < 2^{42} \frac{1}{\epsilon} )) \\
+		& = (R - L)e^{11 \epsilon B \eta}
 		\end{array}
 		\]
 		In the same way, we can derive:
 		\[
 		|\ubar{R} - \bar{L}| > e^{-5 \epsilon B\eta} R - e^{5 \epsilon B\eta} L
-		> (R - L)e^{\ln(\frac{e}{(e - 1)}) - 5 \epsilon B \eta}
+		> (R - L)e^{- 12 \epsilon B \eta}
 		\]
 		Then we have:
 		\[
 		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
-		< e^{(10 \epsilon B \eta + \epsilon)}.		
+		< e^{(23 \epsilon B \eta + \epsilon)}.		
 		\]
-
-
-
-
+%
 		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land x \in (0, \round{f(a)}_{\Lambda}) } $}
 		%
 
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 > 0$, $y_2 > 0$,  $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
 		% in Figure. \ref{fig_der_snap2}
 		% \begin{figure}
 		\begin{mathpar}
@@ -783,380 +781,218 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		< \frac{|R - L|}{|R' - L'|} e^{(12B\eta\epsilon)}
 		= e^{(1 + 12B\eta)\epsilon}
 		\]		
+%
+%
+		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land x = 0 } $}
 
-		%
-		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
-		%
-
-		%
-		%
-		\todo{
-		%
-		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
-		%
-		% \[
-		% \begin{array}{c}
-		% u \in \big[ 
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% )
-		% \big)\\ 
-		% %
-		% \sim u' \in \big[
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% )
-		% \big)
-		% \end{array}
-		% \]
-		%
-		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
-		%
-		\[
-		\frac{u}{u'} 
-		\leq \frac
-		{1 - \frac{1}{2}(\ubar{\rval_2} + \ubar{\rval_1})}
-		{\frac{1}{2}(\ubar{\rval_2'} - \bar{\rval_1'})}
-		\leq \epsilon + 12 x \epsilon \eta + 2\eta
-		\]
-		%
-		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
-		}		
-		%
-		%
-		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
-		%
-		%
-		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
-		\[
-		u \in 
-		\big( 
-		(\ubar{\rval_1}, \bar{\rval_1}),
-		(\ubar{\rval_2}, \bar{\rval_2})
-		\big] \land (s = 1)
-		%
-		\sim u' \in \big[
-		(\ubar{\rval_1'}, \bar{\rval_1'}), 
-		(\ubar{\rval_2'}, \bar{\rval_2'})
-		\big) \land (s = -1),
-		\]
-		%
-		\todo{
-		%
-		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
-		%
-		% \[
-		% \begin{array}{c}
-		% u \in \big[ 
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% )
-		% \big)\\ 
-		% %
-		% \sim u' \in \big[
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% )
-		% \big)
-		% \end{array}
-		% \]
-		%
-		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
-		%
-		\[
-		\frac{u}{u'} 
-		\leq \frac
-		{\frac{1}{2}(\bar{\rval_2} - \ubar{\rval_1})}
-		{\frac{1}{2}(\ubar{\rval_2'} - \bar{\rval_1'})}
-		\leq \epsilon + 12 x \epsilon \eta + 2\eta
-		\]
-		%
-		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
-		}		
-		%
-		%
-		\caseL{$\boldsymbol{x = \round{f(a')}_{\Lambda}}$}
-		%
-
-		%
-		%
-		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
-		\[
-		u \in 
-		\big( 
-		(\ubar{\rval_1}, \bar{\rval_1}),
-		(\ubar{\rval_2}, \bar{\rval_2})
-		\big] \land (s = 1)
-		%
-		\sim u' \in 
-		\big[ (\ubar{\rval_1'}, \bar{\rval_1'}), 1 \big] \land (s = -1)
-		\lor
-		\big[ (\ubar{\rval_2'}, \bar{\rval_2'}), 1 \big] \land (s = 1),
-		\]
-		%
-		\todo{
-		%
-		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
-		%
-		% \[
-		% \begin{array}{c}
-		% u \in \big[ 
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% )
-		% \big)\\ 
-		% %
-		% \sim u' \in \big[
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% )
-		% \big)
-		% \end{array}
-		% \]
-		%
-		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
-		%
-		\[
-		\frac{u}{u'} 
-		\leq \frac
-		{\frac{1}{2}(\bar{\rval_2} - \ubar{\rval_1})}
-		{1 - \frac{1}{2}(\bar{\rval_2'} + \bar{\rval_1'})}
-		\leq \epsilon + 12 x \epsilon \eta + 2\eta
-		\]
-		%
-		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
-		}
-		%
-		%
-		\caseL{$\boldsymbol{x \in  (\round{f(a')}_{\Lambda}, B)}$}
-		%
-
-		%
-		%
-		Following the semantics in Figure \ref{fig_semantics_rel}, we have following evaluation results:
-		\[
-		u \in 
-		\big( 
-		(\ubar{\rval_1}, \bar{\rval_1}),
-		(\ubar{\rval_2}, \bar{\rval_2})
-		\big] \land (s = 1)
-		%
-		\sim u' \in \big(
-		(\ubar{\rval_1'}, \bar{\rval_1'}), 
-		(\ubar{\rval_2'}, \bar{\rval_2'})
-		\big] \land (s = 1),
-		\]
-		%
-		\todo{
-		%
-		where $\ubar{\rval_1}, \bar{\rval_1}, \ubar{\rval_2}, \bar{\rval_2}, \ubar{\rval_1'}, \bar{\rval_1'}, \ubar{\rval_2'} and \bar{\rval_2'}$ have following values:
-		%
-		% \[
-		% \begin{array}{c}
-		% u \in \big[ 
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a))(1 + \eta)^2}
-		% )
-		% \big)\\ 
-		% %
-		% \sim u' \in \big[
-		% (
-		% (1 - \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x - \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% ), 
-		% (
-		% (1 - \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 - \eta)^2},
-		% (1 + \eta) e^{\epsilon(x + \frac{\Lambda}{2} - f(a'))(1 + \eta)^2}
-		% )
-		% \big)
-		% \end{array}
-		% \]
-		%
-		Given that the probability is equivalent to the length of the range, we have the ratio between $u$ and $u'$ is bounded by:
-		%
-		\[
-		\frac{u}{u'} 
-		\leq \frac
-		{\frac{1}{2}(\bar{\rval_2} - \ubar{\rval_1})}
-		{\frac{1}{2}(\ubar{\rval_2'} - \bar{\rval_1'})}
-		\leq \epsilon + 12 x \epsilon \eta + 2\eta
-		\]
-		%
-		By the {AxUnif} rule, we have the actual privacy loss is bounded by the same value.
-		}
-		%		
-		%
-		\caseL{$\boldsymbol{x = B}$}
-		%
-		%
-		We know $s = -1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The derivation of this case given $\fsnap'(a, r, -1) = \fsnap'(a', r, -1) = x$ is shown as following:
-		% \begin{figure}
-		\begin{mathpar}
-		\inferrule[ln]
-		{
-			R 
-			\bigstep
-			r,
-			(\ubar{R}, \bar{R})
-		}
-		{
-			\inferrule[op]
-			{
-				\ln(R) 
-				\bigstep
-				\oln(r),
-				(\ln(\ubar{R})(1 + \eta),
-				\frac{\ln(\bar{R})}{(1 + \eta)})
-			}
-			{
-				\inferrule[op]
-				{
-					\frac{1}{\epsilon} \times \ln(R) 
-					\bigstep
-					\frac{1}{\epsilon} \otimes \oln(r)
-					,
-					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
-					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2})
-				}
-				{
-					\inferrule[id]
-					{
-						f(a) + \frac{1}{\epsilon} \times \ln(R)
-						\bigstep
-						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
-						,
-						(
-						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-						(1 + \eta)^2}
-						{1 + \eta},
-						%
-						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-						{(1 + \eta)^2}
-						)(1 + \eta)
-						)
-					}
-					{
-						\rsnap'(a, R, 1)
-						\bigstep
-						\fsnap'(a, r, 1)
-						,
-						(
-						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-						(1 + \eta)^2}
-						{1 + \eta},
-						%
-						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-						{(1 + \eta)^2}
-						)(1 + \eta)
-						)	
-					}
-				}
-			}
-		}
-		\end{mathpar}
-		% \caption{Derivation of two $\snap$ mechanisms: $\snap(a)$, $\snap(a')$}
-		% \label{fig_der_snap1}
-		% \end{figure}
-		%
-		In the same way, we have the derivation for $\fsnap'(a', r, 1)$:
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 > 0$,  $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. We have the derivation as:
+%
 		\begin{mathpar}
 		\inferrule
 		{
 			\dots
 		}
 		{
-			\rsnap'(a', R, 1)
-			\bigstep
-			\fsnap'(a', r, 1)
-			,
-			(
-			\frac{f(a') + 
-			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
-			(1 + \eta)^2}
-			{1 + \eta},
-			%
-			(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
-			{(1 + \eta)^2}
-			)(1 + \eta)
-			)
+			\inferrule
+			{
+				\rsnap'(a, L, 1)
+				\bigstep
+				\fsnap'(a, l, 1)
+				,
+				(
+				\frac{f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\ubar{L}))
+				(1 + \eta)^2}
+				{1 + \eta},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
+				{(1 + \eta)^2}
+				)(1 + \eta)
+				)
+			}
+			{
+				\rsnap'(a, L, 1)
+				\bigstep
+				\fsnap'(a, l, 1)
+				,
+				(\err_1, \err_2)
+				%
+			}
 		}
 		\end{mathpar}
 		%
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.\\
 		%
-		Given $\fsnap(a) = \fsnap(a') = x = b$, we have following values for $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
 		%
+		Taking the lower bound , we have:
+		$\ubar{L} = e^{\epsilon 
+				\big( (y_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$.\\
+		%
+		Taking the upper bound, we have: 
+		$\bar{L} = e^{\epsilon 
+				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
+		%
+		%
+		\begin{mathpar}
+		\inferrule
+		{
+			\dots
+		}
+		{
+			\inferrule
+			{
+				\rsnap'(a, R, 1)
+				\bigstep
+				\fsnap'(a, r, 1)
+				,
+				(
+				\frac{f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+				(1 + \eta)^2}
+				{1 + \eta},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+				{(1 + \eta)^2}
+				)(1 + \eta)
+				)
+			}
+			{
+				\rsnap'(a, R, 1)
+				\bigstep
+				\fsnap'(a, r, 1)
+				,
+				(\err_1, \err_2)
+				%
+			}
+		}
+		\end{mathpar}
+		%
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
+		%
+
+		%
+		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
+		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
+		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
+		$\bar{R} = e^{(y_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
+		%
+		Using the bound we proved before, we have the folloing bound on $|\bar{R} - \ubar{L}|$ and $|\ubar{R} - \bar{L}|$:
 		%
 		\[
-		\begin{array}{c}
-		\ubar{R} = e^{\epsilon (\frac{-b - \frac{\Lambda}{2}}{1 + \eta} - f(a))(1 + \eta)^2)},
-		%
-		\bar{R} = e^{\epsilon 
-		\frac{(-b - \frac{\Lambda}{2})(1 + \eta) - f(a)}
-		{(1 + \eta)^2}}
-		\\
-		%
-		\ubar{R'} = e^{\epsilon (\frac{-b - \frac{\Lambda}{2}}{1 + \eta} - f(a'))(1 + \eta)^2)},
-		%
-		\bar{R'} = e^{\epsilon 
-		\frac{(-b - \frac{\Lambda}{2})(1 + \eta) - f(a')}
-		{(1 + \eta)^2}}
+		\begin{array}{ll}
+		\bar{R} - \ubar{L} 
+		& < 
+		e^{(2B\eta \epsilon)}R - e^{-5B\eta \epsilon} L < 
+		(R - L) e^{6B\eta \epsilon}\\
+		\ubar{R} - \bar{L}
+		& > e^{(-3B\eta \epsilon)}R - e^{5B\eta \epsilon} L > (R - L) e^{-8B\eta \epsilon},
 		\end{array}
 		\]
-		%		
-		The privacy loss of $\fsnap(a)$ in this case is bounded by:
+
+		and privacy loss is bounded by:
 		%
 		\[
-		\frac
-		{\frac{1}{2}(\bar{R} - 0)}
-		{\frac{1}{2}(\ubar{R'} - 0)}
-		= e^{\epsilon( 
-		(-b - \frac{\Lambda}{2})(1 + \eta - \frac{1}{1 + \eta})
-		+ f(a)((1 + \eta)^2 - \frac{1}{(1 + \eta)^2})
-		+ (1 + \eta)^2)}
-		\geq e^{- \epsilon(1 + \eta)^2 2B}
-		\geq e^{-(\epsilon + 12 B \epsilon \eta)}
+		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
+		< e^{14B\eta \epsilon + \epsilon}
 		\]
+
+		%
+		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
+		%
+		%
+
+		%
+		Since $f(a) + 1 = f(a')$, we have $\round{f(a)} < \round{f(a')}$,
+		$s = 1$ for input $a'$ and $s$ can be $1$ or $-1$ for input $a$.
+		We have following subcases:
+		%
+		\subcaseL{$s = 1$ for input $a$}.
+		%
+		We have in the worst case, the error propagate in the same direction, following derivation:
+		%
+		\begin{mathpar}
+		\inferrule
+		{
+		 R
+		 \bigstep
+		 r, ( R, R )
+		}
+		{
+		 \inferrule
+		 {
+		  \ln(R)
+		  \bigstep
+		  \oln (r), 
+		  (\ln(R)(1 + \eta), \frac{\ln(R)}{1+\eta})
+		 }
+		 {
+		  \inferrule
+		  {
+		   \frac{1}{\epsilon}\ln(R)
+		   \bigstep
+		   \frac{1}{\epsilon} \otimes \oln (r), 
+		   \big(
+		   \frac{1}{\epsilon}\ln(R)(1 + \eta)^2, 
+		   \frac{1}{\epsilon}\frac{\ln(R)}{(1+\eta)^2}
+		   \big)
+		  }
+		  {
+		   \inferrule
+		   {
+		    f(a) + \frac{1}{\epsilon}\ln(R)
+			\bigstep
+			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r), 
+			\bigg(
+			(f(a) + \frac{1}{\epsilon}ln(R)(1 + \eta)^2)(1 + \eta), 
+			(f(a) + \frac{1}{\epsilon}\frac{\oln(R)}{(1+\eta)^2}) / (1 + \eta)
+			\bigg)
+		   }
+		   {
+		   \rsnap'(a, 1, R) \bigstep \fsnap'(a, 1, r), 
+		   (\err_1, \err_2)
+		   }
+		  }
+		 }
+		}
+		\end{mathpar}
+		%
+		Let $y_1 = x + \frac{\Lambda}{2}$, we have lower bound $\ubar{R}$ and upper bound $\bar{R}$ for $r$ be:
+		%
+		\[
+		\bar{R} = e^{\epsilon
+		}
+		\]
+		%
+		\subcaseL{$s = -1$ for input $a$}
+
+
+		\begin{mathpar}
+		\end{mathpar}
+
+		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
+		%
+		%
+		%
+		%
+		\caseL{$\boldsymbol{x = \round{f(a')}_{\Lambda}}$}
+		%
+		%
+		%
+		%
+		%
+		\caseL{$\boldsymbol{x \in  (\round{f(a')}_{\Lambda}, B)}$}
+		%
+
+		%
+		%		
+		%
+		\caseL{$\boldsymbol{x = B}$}
+		%
+		%
+		We know $s = -1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The derivation of this case given $\fsnap'(a, r, -1) = \fsnap'(a', r, -1) = x$ is shown as following:
+
 	%	
 	\end{itemize}
 
