@@ -871,7 +871,6 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
 		%
-
 		%
 		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
 		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
@@ -902,15 +901,19 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
 		%
 		%
-
+		This case can also be split into 3 subcases by: $\round{f(a)}_{\Lambda} < 0$, $\round{f(a)}_{\Lambda} = 0$ and $\round{f(a)}_{\Lambda} > 0$. 
 		%
-		Since $f(a) + 1 = f(a')$, we have $\round{f(a)} < \round{f(a')}$,
-		$s = 1$ for input $a'$ and $s$ can be $1$ or $-1$ for input $a$.
-		We have following subcases:
+		Without loss of generalization, we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.\\
 		%
-		\subcaseL{$s = 1$ for input $a$}.
+		From this assumption, let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 < 0$.
 		%
-		We have in the worst case, the error propagate in the same direction, following derivation:
+		Since $f(a) + 1 = f(a')$, we also have $\round{f(a)} < \round{f(a')}$.
+		So, we know $s$ can only be $1$ for input $a'$ but $s$ can be $1$ or $-1$ for input $a$.
+		%
+		\\
+		%
+		So when $s = 1$, we have following derivations for input $a$:
+		%
 		%
 		\begin{mathpar}
 		\inferrule
@@ -958,18 +961,56 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		}
 		\end{mathpar}
 		%
-		Let $y_1 = x + \frac{\Lambda}{2}$, we have lower bound $\ubar{R}$ and upper bound $\bar{R}$ for $r$ be:
 		%
-		\[
-		\bar{R} = e^{\epsilon
-		}
-		\]
+		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$. Then we can get following bounds for $r$:\\
 		%
-		\subcaseL{$s = -1$ for input $a$}
+		%
+		$\ubar{R} = e^{\epsilon 
+				\big( (y_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R} = e^{\epsilon 
+				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
+		%
+		\\
+		%
+		Since $y_2 = \round{f(a)} + \frac{\Lambda}{2}$, we have $e^{\epsilon 
+				\big( (y_2 - f(a))) \big)} > 1$, so actually we know $R = r = 1$.
+		%
+		% 
+		\\
+		%
+		We can also derive the bound for $l$ in the same way as:\\
+		$\ubar{L} = e^{\epsilon 
+				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{L} = e^{\epsilon 
+				\frac{(\frac{y_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
+		%
+
+		% 
+		When $s = -1$, we can derive following bounds in the same way for $l$ and $r$:\\
+		%
+		$\ubar{L'} = e^{\epsilon 
+				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$.
+		%
+		$\bar{L'} = e^{\epsilon 
+				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.\\
+		%
+		% 
+		$\ubar{R'} = e^{\epsilon 
+				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R'} = e^{\epsilon 
+				\frac{(f(a) - \frac{y_1}{1 + \eta})}{(1 + \eta)^2}}$.\\
+		%
+		Since $y_1 = \round{f(a)} - \frac{\Lambda}{2}$, 
+		%
+		we have $e^{\epsilon \big( (f(a) - y_1)) \big)} > 1$, so actually we know $R' = r' = 1$.
 
 
-		\begin{mathpar}
-		\end{mathpar}
+
+		% \begin{mathpar}
+		% \end{mathpar}
 
 		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
 		%

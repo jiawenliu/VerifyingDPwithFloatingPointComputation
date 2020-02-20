@@ -831,18 +831,14 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				e^{(t - 1 + \frac{\Lambda}{2})\epsilon}
 				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon})}
 	%
-	\leq \frac{\frac{1}{2}(
-				e^{(t + \frac{\Lambda}{2})\epsilon}
-				+ e^{(-t +\frac{\Lambda}{2})\epsilon}) 
-				- \frac{1}{2}(
+	= \frac{2 - (
 				e^{(t - \frac{\Lambda}{2})\epsilon}
-				+ e^{(-t -\frac{\Lambda}{2})\epsilon})
+				+ e^{(-t -\frac{\Lambda}{2})\epsilon} )
 			}
-			{\frac{1}{2}(
-				e^{(t - 1 + \frac{\Lambda}{2})\epsilon}
-				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon})}
+			{e^{(t - 1 + \frac{\Lambda}{2})\epsilon}
+				- e^{(t - 1 - \frac{\Lambda}{2})\epsilon}}
 	%
-	\leq \frac{
+	< \frac{
 				e^{(t + \frac{\Lambda}{2})\epsilon} 
 				-
 				e^{(t - \frac{\Lambda}{2})\epsilon}
@@ -853,6 +849,13 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 			}	
 	%
 	= e^{\epsilon}
+	\]
+	%
+	The inequality holds because given $1 \leq \Lambda \epsilon < 2$
+	and $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $, we have:
+	%
+	\[
+	2 - e^{(-t -\frac{\Lambda}{2})\epsilon} < e^{(t + \frac{\Lambda}{2})\epsilon}
 	\]
 	%
 	% {\color{red}
@@ -968,7 +971,7 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 			}
 			{1 - {\frac{1}{2}(
 				e^{(\round{f(a)}_{\Lambda} - f(a') - \frac{\Lambda}{2})\epsilon}
-				+ e^{(f(a) - \round{f(a')}_{\Lambda} -\frac{\Lambda}{2})\epsilon})}
+				+ e^{(f(a') - \round{f(a')}_{\Lambda} -\frac{\Lambda}{2})\epsilon})}
 			}~(\star)
 	\]
 
@@ -979,21 +982,18 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 				+ e^{t - \frac{\Lambda}{2} - 1)\epsilon})}
 			}
 			{1 - \frac{1}{2}(
-				e^{(- t + \frac{\Lambda}{2})\epsilon}
-				- e^{(t - \frac{\Lambda}{2})\epsilon})}
+				e^{(- t - \frac{\Lambda}{2})\epsilon}
+				+ e^{(t - \frac{\Lambda}{2})\epsilon})}
 	%
-	\geq \frac{ \frac{1}{2}(
-				e^{(t - \frac{\Lambda}{2} - 1)\epsilon}
+	= \frac{ (
+				e^{(t + \frac{\Lambda}{2} - 1)\epsilon}
 				+ e^{(t -\frac{\Lambda}{2} - 1)\epsilon})
 			}
-			{\frac{1}{2}(
-				e^{(-t + \frac{\Lambda}{2})\epsilon}
-				+ e^{(t +\frac{\Lambda}{2})\epsilon}) 
-				- \frac{1}{2}(
-				e^{(-t + \frac{\Lambda}{2})\epsilon}
-				- e^{(t - \frac{\Lambda}{2})\epsilon})}
+			{2 - (
+				e^{(-t - \frac{\Lambda}{2})\epsilon}
+				+ e^{(t - \frac{\Lambda}{2})\epsilon})}
 	%
-	\geq \frac{
+	> \frac{
 				e^{(t + \frac{\Lambda}{2} - 1)\epsilon}
 				-
 				e^{(t - \frac{\Lambda}{2} - 1)\epsilon}
@@ -1005,7 +1005,13 @@ two arbitrary adjacent database $a$ and $a'$, we have $|f(a) - f(a')| \leq 1$. W
 	%
 	= e^{-\epsilon}
 	\]
-	
+	%
+	The inequality holds because given $1 \leq \Lambda \epsilon < 2$
+	and $-\frac{\Lambda}{2} \leq t \leq \frac{\Lambda}{2} $, we have:
+	%
+	\[
+	2 - e^{(-t -\frac{\Lambda}{2})\epsilon} < e^{(t + \frac{\Lambda}{2})\epsilon}
+	\]	
 	%
 	%
 	\caseL{$\boldsymbol{E = (\round{f(a')}_{\Lambda}, B)}$}
