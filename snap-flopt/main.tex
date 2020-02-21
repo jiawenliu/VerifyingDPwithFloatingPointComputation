@@ -1225,35 +1225,35 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		We have following bounds on their ratios:
 		%
 		\[
-		\frac{\ubar{R_+}}{R_+} = e^{\epsilon 
+		\frac{\ubar{R_+'}}{R_+'} = e^{\epsilon 
 		\big(
 		(1 + \eta)^3 y_2 - (1 + \eta)^2f(a) - y_2 + f(a)
 		\big)}
 		> e^{-3\epsilon B \eta},
-		\frac{\bar{R_+}}{R_+} = e^{\epsilon 
+		\frac{\bar{R_+'}}{R_+'} = e^{\epsilon 
 		\big(
 		frac{y_2}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2} - y_2 + f(a)
 		\big)}
 		< e^{3\epsilon B \eta},
 		\]
 		%
-		The same bound for $L_+$ by substituting $y_2$ with $y_1$, and similar bound for $L', R'$.
+		The same bound for $L_+'$ by substituting $y_2$ with $y_1$, and similar bound for $L, R$.
 		%
 		\[
-		\frac{\ubar{R'}}{R} = e^{\epsilon 
+		\frac{\ubar{R}}{R} = e^{\epsilon 
 		\big(
 		(1 + \eta)^2f(a) - (1 + \eta)^3 y_2 - f(a) + y_2
 		\big)}
 		> e^{-2\epsilon B \eta},
 		%
-		\frac{\bar{R'}}{R'} = e^{\epsilon 
+		\frac{\bar{R}}{R} = e^{\epsilon 
 		\big(
 		\frac{f(a)}{(1 + \eta)^2} - frac{y_2}{(1 + \eta)^3} - f(a) + y_2
 		\big)}
 		< e^{2\epsilon B \eta},
 		\]
 		%
-		Using the bound on their ratios, we can get following bounds on $|\bar{R_+} - \ubar{L_+}|$ and $|\ubar{R'} - \bar{L'}|$:
+		Using the bound on their ratios, we can get following bounds on $|\bar{R_-'} - \ubar{L_-'}|$ and $|\ubar{R} - \bar{L}|$:
 		%
 		\[
 		|\bar{R_-'} - \ubar{L_-'}| < e^{3\epsilon B \eta} R - e^{-3\epsilon B \eta}L < (R_-' - L_-') e^{7\epsilon B \eta},
@@ -1277,27 +1277,216 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		This case can also be split into 3 subcases symmetric with the case where $\boldsymbol{x \in  (-B, \round{f(a)}_{\Lambda})}$:
 		%
+		%
+		%
 		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land x \in  (0, B)}$}
 		%
-		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1, y_2 > 0$. The bounds derived for $l, r$ in this case are as follows:
+		%
+		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x + \frac{\Lambda}{2}$, we have $y_1, y_2 > 0$. The bounds derived for $l, r$ and $l', r'$ under input $a$ and $a'$ in this case are as follows:
+		%
+		\\
+		For input $a'$:
+		%
+		\\
+		% 
+		$\ubar{R'} = e^{\epsilon 
+				\big( (f(a') - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R'} = e^{\epsilon 
+				\frac{(f(a') - y_2(1 + \eta))}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		%
+		$\ubar{L'} = e^{\epsilon 
+				\big( (f(a') - \frac{y_1}{1 + \eta})) (1 + \eta)^2) \big)}$,
+		%
+		$\bar{L'} = e^{\epsilon 
+				\frac{(f(a') - y_1(1 + \eta)}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		For input $a$:
+		%
+		\\
+		%
+		$\ubar{R} = e^{\epsilon 
+				\big( (f(a) - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R} = e^{\epsilon 
+				\frac{(f(a) - y_2(1 + \eta))}{(1 + \eta)^2}}$.  
+		% 
+		\\
+		%
+		$\ubar{L} = e^{\epsilon 
+				\big( (f(a) - \frac{y_1}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{L} = e^{\epsilon 
+				\frac{f(a) - y_1(1 + \eta)}{(1 + \eta)^2}}$.
+		%
+		%
+		The bounds on their ratio are as follows:
 		%
 		\[
+		\frac{\ubar{R}}{R} > e^{-3B\eta \epsilon}, 
+		~ \frac{\bar{R}}{R} < e^{3B\eta \epsilon}
+		\]
+		%
+		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		%
+		\[
+		|\ubar{R} - \bar{L}| > e^{-7 B\eta \epsilon}|R - L|, 
+		~ |\bar{R'} - \ubar{L'}| < e^{7 B\eta \epsilon}|R' - L'|
+		\]
+		%
+		So we have the privacy loss is bounded by:
+		%
+		\[
+		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
+		> \frac{e^{-7 B\eta \epsilon}|R - L|}{e^{7 B\eta \epsilon}|R' - L'|}
+		= e^{-14B \eta \epsilon - \epsilon}
 		\]
 		%
 		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land x \in  (\round{f(a')}_{\Lambda}, 0)}$}
 		%		
 		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1, y_2 < 0$. The bounds derived for $l, r$ in this case are as follows:
 		%
+		\\
+		For input $a'$:
+		%
+		\\
+		% 
+		$\ubar{R'} = e^{\epsilon 
+				\big( (f(a') - y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R'} = e^{\epsilon 
+				\frac{(f(a') - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		%
+		$\ubar{L'} = e^{\epsilon 
+				\big( (f(a') - y_1(1 + \eta) ) (1 + \eta)^2) \big)}$,
+		%
+		$\bar{L'} = e^{\epsilon 
+				\frac{(f(a') - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		For input $a$:
+		%
+		\\
+		%
+		$\ubar{R} = e^{\epsilon 
+				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R} = e^{\epsilon 
+				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.  
+		% 
+		\\
+		%
+		$\ubar{L} = e^{\epsilon 
+				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{L} = e^{\epsilon 
+				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		The bounds on their ratio are as follows:
+		%
 		\[
+		\frac{\ubar{R}}{R} > e^{-5B\eta \epsilon}, 
+		~ \frac{\bar{R}}{R} < e^{5B\eta \epsilon}
 		\]
+		%
+		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		%
+		\[
+		|\ubar{R} - \bar{L}| > e^{-12 B\eta \epsilon}|R - L|, 
+		~ |\bar{R'} - \ubar{L'}| < e^{11 B\eta \epsilon}|R' - L'|
+		\]
+		%
+		So we have the privacy loss is bounded by:
+		%
+		\[
+		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
+		> \frac{e^{-12 B\eta \epsilon}|R - L|}{e^{11 B\eta \epsilon}|R' - L'|}
+		= e^{-23B \eta \epsilon - \epsilon}
+		\]
+		%
 		%
 		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land x = 0}$}
 		%
 		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1 < 0$ and $y_2 > 0$. The bounds derived for $l, r$ in this case are as follows:
 		%
+		\\
+		For input $a'$:
+		%
+		\\
+		% 
+		$\ubar{R'} = e^{\epsilon 
+				\big( (f(a') - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R'} = e^{\epsilon 
+				\frac{(f(a') - y_2(1 + \eta))}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		%
+		$\ubar{L'} = e^{\epsilon 
+				\big( (f(a') - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{L'} = e^{\epsilon 
+				\frac{f(a') - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		For input $a$:
+		%
+		\\
+		%
+		$\ubar{R} = e^{\epsilon 
+				\big( (f(a) - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R} = e^{\epsilon 
+				\frac{(f(a) - y_2(1 + \eta))}{(1 + \eta)^2}}$.  
+		% 
+		\\
+		%
+		$\ubar{L} = e^{\epsilon 
+				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{L} = e^{\epsilon 
+				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		The bounds on their ratio are as follows:
+		%
 		\[
+		\frac{\ubar{R}}{R} > e^{-3B\eta \epsilon}, 
+		~ \frac{\bar{R}}{R} < e^{3B\eta \epsilon}
+		\frac{\ubar{L}}{L} > e^{-5B\eta \epsilon}, 
+		~ \frac{\bar{L}}{L} < e^{5B\eta \epsilon}
 		\]
 		%
+		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		%
+		\[
+		|\ubar{R} - \bar{L}| > e^{-8 B\eta \epsilon}|R - L|, 
+		~ |\bar{R'} - \ubar{L'}| < e^{8 B\eta \epsilon}|R' - L'|
+		\]
+		%
+		So we have the privacy loss is bounded by:
+		%
+		\[
+		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
+		> \frac{e^{-8 B\eta \epsilon}|R - L|}{e^{8 B\eta \epsilon}|R' - L'|}
+		= e^{-16B \eta \epsilon - \epsilon}
+		\]
+		%
+		%		%
 		\caseL{$\boldsymbol{x = B}$}
 		%
 		%
