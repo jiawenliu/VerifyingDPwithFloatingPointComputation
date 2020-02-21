@@ -1098,53 +1098,53 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		From this assumption, let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 < 0$.
 		%
-		Since $f(a) + 1 = f(a')$, we also have $\round{f(a)} < \round{f(a')}$.
+		Since $f(a) + 1 = f(a')$, we also have $\round{f(a)} < \round{f(a')} <0$.
 		So, we know $s$ can only be $-1$ for input $a$ but $s$ can be $1$ or $-1$ for input $a'$.
 		%
 		\\
 		%
-		For input $a$, when $s = 1$, we have following derivations:
+		For input $a'$, when $s = 1$, we have following derivations:
 		%
 		%
 		\begin{mathpar}
 		\inferrule
 		{
-		 R
+		 R_+'
 		 \bigstep
-		 r, ( R, R )
+		 r_+, ( R_+', R_+' )
 		}
 		{
 		 \inferrule
 		 {
-		  \ln(R)
+		  \ln(R_+')
 		  \bigstep
-		  \oln (r), 
-		  (\ln(R)(1 + \eta), \frac{\ln(R)}{1+\eta})
+		  \oln (r_+), 
+		  (\ln(R_+')(1 + \eta), \frac{\ln(R_+')}{1+\eta})
 		 }
 		 {
 		  \inferrule
 		  {
 		   \frac{1}{\epsilon}\ln(R)
 		   \bigstep
-		   \frac{1}{\epsilon} \otimes \oln (r), 
+		   \frac{1}{\epsilon} \otimes \oln (r_+), 
 		   \big(
-		   \frac{1}{\epsilon}\ln(R)(1 + \eta)^2, 
-		   \frac{1}{\epsilon}\frac{\ln(R)}{(1+\eta)^2}
+		   \frac{1}{\epsilon}\ln(R_+')(1 + \eta)^2, 
+		   \frac{1}{\epsilon}\frac{\ln(R_+')}{(1+\eta)^2}
 		   \big)
 		  }
 		  {
 		   \inferrule
 		   {
-		    f(a) + \frac{1}{\epsilon}\ln(R)
+		    f(a) + \frac{1}{\epsilon}\ln(R_+')
 			\bigstep
-			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r), 
+			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r_+), 
 			\bigg(
-			(f(a) + \frac{1}{\epsilon}\ln(R)(1 + \eta)^2)(1 + \eta), 
-			(f(a) + \frac{1}{\epsilon}\frac{\ln(R)}{(1+\eta)^2}) / (1 + \eta)
+			(f(a) + \frac{1}{\epsilon}\ln(R_+')(1 + \eta)^2)(1 + \eta), 
+			(f(a) + \frac{1}{\epsilon}\frac{\ln(R_+')}{(1+\eta)^2}) / (1 + \eta)
 			\bigg)
 		   }
 		   {
-		   \rsnap'(a, 1, R) \bigstep \fsnap'(a, 1, r), 
+		   \rsnap'(a, 1, R_+') \bigstep \fsnap'(a, 1, r_+), 
 		   (\err_1, \err_2)
 		   }
 		  }
@@ -1156,67 +1156,68 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$. Then we can get following bounds for $r$:\\
 		%
 		%
-		$\ubar{R_+} = e^{\epsilon 
-				\big( (y_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, 
+		$\ubar{R_+'} = e^{\epsilon 
+				\big( (y_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{R_+} = e^{\epsilon 
-				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
+		$\bar{R_+'} = e^{\epsilon 
+				\frac{(\frac{y_2}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$.  
 		%
 		\\
 		%
-		Since $y_2 = \round{f(a)} + \frac{\Lambda}{2}$, we have $e^{\epsilon 
-				\big( (y_2 - f(a))) \big)} > 1$, so actually we know $R = r = 1$.
+		Since $y_2 = \round{f(a)} + \frac{\Lambda}{2}$, we have 
+		$e^{\epsilon 
+				\big( (y_2 - f(a))) \big)} > 1$, so actually we know $R_+' = r_+' = 1$.
 		%
 		% 
 		\\
 		%
 		We can also derive the bound for $l$ in the same way as:\\
-		$\ubar{L_+} = e^{\epsilon 
-				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, 
+		$\ubar{L_+'} = e^{\epsilon 
+				\big( (y_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{L_+} = e^{\epsilon 
-				\frac{(\frac{y_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
+		$\bar{L_+'} = e^{\epsilon 
+				\frac{(\frac{y_1}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$.
 		%
 
 		% 
 		When $s = -1$, we can derive following bounds in the same way for $l$ and $r$:\\
 		%
-		$\ubar{L_-} = e^{\epsilon 
-				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$,
+		$\ubar{L_-'} = e^{\epsilon 
+				\big( (f(a') - y_2(1 + \eta)) (1 + \eta)^2) \big)}$,
 		%
-		$\bar{L_-} = e^{\epsilon 
-				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.\\
+		$\bar{L_-'} = e^{\epsilon 
+				\frac{(f(a') - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.\\
 		%
 		% 
-		$\ubar{R_-} = e^{\epsilon 
+		$\ubar{R_-'} = e^{\epsilon 
+				\big( (f(a') - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R_-'} = e^{\epsilon 
+				\frac{(f(a') - \frac{y_1}{1 + \eta})}{(1 + \eta)^2}}$.\\
+		%
+		Since $y_1 = \round{f(a')} - \frac{\Lambda}{2}$, 
+		%
+		we have $e^{\epsilon \big( (f(a') - y_1)) \big)} > 1$, so actually we know $R_-' = r_-' = 1$.
+		%
+		\\
+		%
+		For input $a$, we have only one case where $s = -1$, the following bound can be derived:
+		%
+		\\
+		%
+		$\ubar{R} = e^{\epsilon 
+				\big( f(a) - (y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R} = e^{\epsilon 
+				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.  
+		% 
+		\\
+		%
+		$\ubar{L} = e^{\epsilon 
 				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{R_-} = e^{\epsilon 
-				\frac{(f(a) - \frac{y_1}{1 + \eta})}{(1 + \eta)^2}}$.\\
-		%
-		Since $y_1 = \round{f(a)} - \frac{\Lambda}{2}$, 
-		%
-		we have $e^{\epsilon \big( (f(a) - y_1)) \big)} > 1$, so actually we know $R' = r' = 1$.
-		%
-		\\
-		%
-		For input $a'$, we have only one case where $s = 1$, the following bound can be derived:
-		%
-		\\
-		%
-		$\ubar{R'} = e^{\epsilon 
-				\big( (y_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{R'} = e^{\epsilon 
-				\frac{(\frac{y_2}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$.  
-		% 
-		\\
-		%
-		$\ubar{L'} = e^{\epsilon 
-				\big( (y_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{L'} = e^{\epsilon 
-				\frac{(\frac{y_1}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$.
+		$\bar{L} = e^{\epsilon 
+				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
 
 		% \begin{mathpar}
 		% \end{mathpar}
@@ -1255,18 +1256,18 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		Using the bound on their ratios, we can get following bounds on $|\bar{R_+} - \ubar{L_+}|$ and $|\ubar{R'} - \bar{L'}|$:
 		%
 		\[
-		|\bar{R_+} - \ubar{L_+}| < e^{3\epsilon B \eta} R - e^{-3\epsilon B \eta}L < (R - L) e^{7\epsilon B \eta},
+		|\bar{R_-'} - \ubar{L_-'}| < e^{3\epsilon B \eta} R - e^{-3\epsilon B \eta}L < (R_-' - L_-') e^{7\epsilon B \eta},
 		%
-		|\ubar{R'} - \bar{L'}| > e^{-2\epsilon B \eta} R - e^{2\epsilon B \eta}L > (R' - L') e^{-5\epsilon B \eta}
+		|\ubar{R} - \bar{L}| > e^{-2\epsilon B \eta} R - e^{2\epsilon B \eta}L > (R - L) e^{-5\epsilon B \eta}
 		\]
 		%
 		Then we have the following bounds on privacy loss:
 		%
 		\[
-		\frac{\ubar{R'} - \bar{L'}}{2 - (\ubar{L_+} + \ubar{L_-})}
-		> \frac{\ubar{R'} - \bar{L'}}{\bar{R_+} - \ubar{L_+}}
-		> \frac{e^{-5\epsilon B \eta} (R' - L')}
-		{e^{7\epsilon B \eta}(R_+ - L_+)}
+		\frac{\ubar{R} - \bar{L}}{2 - (\ubar{L_+'} + \ubar{L_-'})}
+		> \frac{\ubar{R} - \bar{L}}{\bar{R_-'} - \ubar{L_-'}}
+		> \frac{e^{-5\epsilon B \eta} (R - L)}
+		{e^{7\epsilon B \eta}(R_-' - L_-')}
 		= e^{-12\epsilon B \eta - \epsilon}
 		\]
 		%
@@ -1278,17 +1279,89 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land x \in  (0, B)}$}
 		%
-		let $y_1$
+		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1, y_2 > 0$. The bounds derived for $l, r$ in this case are as follows:
+		%
+		\[
+		\]
 		%
 		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land x \in  (\round{f(a')}_{\Lambda}, 0)}$}
 		%		
+		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1, y_2 < 0$. The bounds derived for $l, r$ in this case are as follows:
+		%
+		\[
+		\]
+		%
 		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land x = 0}$}
+		%
+		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1 < 0$ and $y_2 > 0$. The bounds derived for $l, r$ in this case are as follows:
+		%
+		\[
+		\]
 		%
 		\caseL{$\boldsymbol{x = B}$}
 		%
 		%
-		We know $s = -1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The derivation of this case given $\fsnap'(a, r, -1) = \fsnap'(a', r, -1) = x$ is shown as following:
-
+		We know $s = -1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The bounds derived for $r, r'$ are as following:
+		\[
+		\begin{array}{c}
+		\ubar{R} = e^{\epsilon 
+		\big( (f(a) -  \frac{x}{1 + \eta}) (1 + \eta)^2) \big)},
+		%
+		\bar{R} = e^{\epsilon 
+		\frac{(f(a) - x(1 + \eta))}{(1 + \eta)^2}}
+		\\
+		%
+		\ubar{R'} = e^{\epsilon 
+		\big( (f(a') -  \frac{x}{1 + \eta}) (1 + \eta)^2) \big)},
+		%
+		\bar{R'} = e^{\epsilon 
+		\frac{(f(a') - x(1 + \eta))}{(1 + \eta)^2}}
+		\end{array}
+		\]
+		%		
+		The privacy loss of $\fsnap(a)$ in this case is bounded by:
+		%
+		\[
+		\begin{array}{ll}
+		\frac
+		{\frac{1}{2}(\ubar{R} - 0)}
+		{\frac{1}{2}(\bar{R'} - 0)}
+		& = e^{\epsilon
+		\bigg(
+		\big( (f(a) -  \frac{x}{1 + \eta}) (1 + \eta)^2) \big)
+		-
+		\frac{(f(a') - x(1 + \eta))}{(1 + \eta)^2}
+		\bigg)}\\
+		& = e^{\epsilon
+		\bigg(
+		f(a)(1 + \eta)^2 - x(1 + \eta) 
+		- \frac{f(a)}{(1 + \eta)^2} + \frac{x}{(1 + \eta)}   
+		\bigg)} ~ (\star)
+		\end{array}
+		\]
+		%
+		Since $ 1 + 2.1\eta > (1 + \eta)^2 > 1 + 2\eta$ and $\frac{1}{(1 + \eta)^2} > 1 - 2 \eta$, we have:
+		%
+		\[
+		\begin{array}{ll}
+		(\star) & > e^{\epsilon \big(
+		(1 + 2\eta) f(a) - \frac{\eta(\eta + 2)}{1 + \eta} x
+		- \frac{1}{1 + 2\eta}(f(a) + 1)
+		\big)}\\
+		%
+		& = e^{\epsilon\big(
+		\frac{4\eta(\eta + 1)}{1 + 2\eta} f(a) 
+		- \frac{\eta(\eta + 2)}{1 + \eta} x
+		- \frac{1}{1 + 2\eta}		
+		\big)}\\
+		%
+		& > e^{\epsilon\big( -B \eta
+		\frac{4(\eta + 1)}{1 + 2\eta} + \frac{(\eta + 2)}{1 + \eta} x - 1	
+		\big)}\\
+%
+		& > e^{\epsilon(-6 \eta B - 1)}
+		\end{array}
+		\]
 	%	
 	\end{itemize}
 
