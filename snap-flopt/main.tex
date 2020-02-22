@@ -1078,11 +1078,81 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{e^{-5\epsilon B \eta} (R' - L')}
 		= e^{12\epsilon B \eta + \epsilon}
 		\]
-
-
-
+		%
+		%
+		%
 		\caseL{$\boldsymbol{x \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$}
 		%
+		Since the output set $(\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})$ is empty when $\Lambda \geq 1$, so we consider the situation where $\Lambda < 1$.
+		%
+		There are two subcases in this case : $x >0 and x < 0$. Without loss of generalization, we consider the worst case where error propagate in the same direction, i.e., $\round{f(a')}_{\Lambda}) < 0$. The bounds derived for $l, r$ and $l', r'$ under input $a$ and $a'$ are as follows:
+		%
+		\\
+		%
+		For input $a$:
+		%
+		\\
+		%
+		$\ubar{R} = e^{\epsilon 
+				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R} = e^{\epsilon 
+				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.  
+		% 
+		\\
+		%
+		$\ubar{L} = e^{\epsilon 
+				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{L} = e^{\epsilon 
+				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		%
+		\\
+		For input $a'$:
+		%
+		\\
+		% 
+		$\ubar{R'} = e^{\epsilon 
+				\big( (y_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
+		%
+		$\bar{R'} = e^{\epsilon 
+				\frac{ \frac{y_2}{1 + \eta} - f(a') }{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		%
+		$\ubar{L'} = e^{\epsilon 
+				\big( (y_1(1 + \eta) - f(a') ) (1 + \eta)^2) \big)}$,
+		%
+		$\bar{L'} = e^{\epsilon 
+				\frac{\frac{y_1}{1 + \eta} - f(a') }{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		The bounds on their ratio are as follows:
+		%
+		\[
+		\frac{\ubar{R}}{R} > e^{-5B\eta \epsilon}, 
+		~ \frac{\bar{R}}{R} < e^{5B\eta \epsilon};
+		~~~~
+		\frac{\ubar{R'}}{R'} > e^{-5B\eta \epsilon}, 
+		~ \frac{\bar{R'}}{R'} < e^{5B\eta \epsilon}.
+		\]
+		%
+		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		%
+		\[
+		|\ubar{R} - \bar{L}| > e^{-12 B\eta \epsilon}|R - L|, 
+		~ |\bar{R'} - \ubar{L'}| < e^{11 B\eta \epsilon}|R' - L'|
+		\]
+		%
+		So we have the privacy loss is bounded by:
+		%
+		\[
+		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
+		> \frac{e^{-12 B\eta \epsilon}|R - L|}{e^{11 B\eta \epsilon}|R' - L'|}
+		= e^{-23B \eta \epsilon - \epsilon}
+		\]
 		%
 		%
 		%
@@ -1486,7 +1556,8 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		= e^{-16B \eta \epsilon - \epsilon}
 		\]
 		%
-		%		%
+		%
+		%
 		\caseL{$\boldsymbol{x = B}$}
 		%
 		%
