@@ -25,110 +25,568 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 %
 %
 \section{Syntax}
-Following are the syntax of the system. The circled operators are rounded operation in floating point computation.
+Following are the syntax of our system:
+%
 \[\begin{array}{llll}
-\mbox{Floating Point Expr.} & \fexpr & ::= & \fval
+\mbox{Programs} & \prog & ::= & 
 	%
-	~|~ \fvarx ~|~ f(\fvarx) ~|~ \fexpr \oop \fexpr
+     \varx = \expr ~|~ \varx \samplel \edistr
 	%
-	~|~ \oln (\fexpr) ~|~ \fvarx \samplel \edistr \\
+	~|~ \prog ; \prog \\
+
+\mbox{Real Expr.} & \rexpr & ::= & \rvarx ~|~ \rval
+	%
+	~|~ F(\data) ~|~ \rexpr \bop \rexpr
+	%
+	~|~ \uop (\rexpr) \\
 %
-\mbox{Real Expr.} & \rexpr & ::= & \rval
+\mbox{Floating Point Expr.} & \fexpr & ::= & \fvarx ~|~ \fval
 	%
-	~|~ \rvarx ~|~ F(\rvarx) ~|~ \rexpr * \rexpr
+	~|~ f(\data) ~|~ \fexpr \obop \fexpr
 	%
-	~|~ \ln (\rexpr) ~|~ \rvarx \samplel \edistr \\
+	~|~ \ouop (\fexpr) \\
 %
-\mbox{Arithmetic Operation} & * & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+%
+\mbox{Unary Operation} & \uop & ::= & \ln ~|~ - ~|~ \round{\cdot} 
+	%
+	~|~ \clamp_B(\cdot) \\
 %
 \mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
 %
 \mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
 %
 \mbox{Error} & \err & ::= & (\rexpr, \rexpr) \\
+%
+\mbox{Transaction Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\expr, \err)] \\
+%
+\mbox{Evaluation Env.} & \evlenv & ::= & \cdot ~|~ \evlenv[x \mapsto \valv] \\
 
-\end{array}\]
+\end{array}
+\]
 
-We use upper case for variables in real computation and lower case for variables in floating point computation. $\oop$ represents the operation in floating point machine.
+$\obop$ and $\ouop$ represent the binary and unary operations in floating point computation.
+%
+$F(\data)$ and $f(\data)$ denotes primitive query $F$ evaluates to value $F(\data)$ and $f(\data)$ given input database $\data$ in real computation and floating point computation separately. We assume the query to be primitive, where the computation of the query results introduce no floating point error. We also assume the sample process, negation, rounding ($\round{}$) and clamping ($\clamp_B()$) are perfect, i.e., introducing no error in floating point computation.
 
-$F(\rvarx)$ denotes function $F$ evaluates to value $F(\rvarx)$ given input $\rvarx$ in real computation, and $f(\fvarx)$ denotes the same function $F$ evaluates to value $f(\fvarx)$ given the same input $\fvarx$ in floating point computation.
 
 \section{Semantics}
 
-The big step semantics with relative floating point computation error are shown in Figure. \ref{fig_semantics_rel}. The semantics are $\rexpr \bigstep \fexpr, \err$, which means a real world expression $\rexpr$ can be represented in floating point computation $\fexpr$ with error bound $\err$. The $\eta$ is the machine epsilon.
+The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp}. The semantics are $\rexpr \bigstep \fexpr, \err$, which means a real expression $\rexpr$ can be transited in floating point computation expression $\fexpr$ with error bound $\err$, $\eta$ is the machine epsilon.
 
 \begin{figure}
 \begin{mathpar}
-\inferrule*[right = const]
+\inferrule*[right = val]
 {
 	\fval = \floaten(\rval)
+	\and
+	\fval \geq 0
 }
 {
 	\rval
-	\bigstep
+	\trsto
 	\fval, \big( \frac{r}{(1 + \eta)}, r(1 + \eta) \big)
 }
 %
 \and
 %
-\inferrule*[right = op]
+\inferrule*[right = val-neg]
 {
-	\rexpr^1 \bigstep \fexpr^1, (\ubar{\rexpr^1}, \bar{\rexpr^1})
+	\fval = \floaten(\rval)
 	\and
-	\rexpr^2 \bigstep \fexpr^2, (\ubar{\rexpr^2}, \bar{\rexpr^2})
+	\fval < 0
 }
 {
-    \rexpr^1 * \rexpr^2
-    \bigstep \floaten(\fexpr^1 \oop \fexpr^2),
-    \big(
-    (\frac{\ubar{\rexpr^1} * \ubar{\rexpr^2})}{(1 + \eta)}, 
-    (\bar{\rexpr^1} * \bar{\rexpr^2})(1 + \eta)
-    \big)
+	\rval
+	\trsto
+	\fval, \big( r(1 + \eta), \frac{r}{(1 + \eta)} \big)
 }
 %
 \and
 %
-\inferrule*[right = ln]
+\inferrule*[right = val-eq]
 {
-	\rexpr \bigstep \fexpr, (\ubar{\rexpr}, \bar{\rexpr})
+	\fval = \floaten(\rval)
 	\and
-	\rexpr \geq 1
+	\fval = \rval
 }
 {
-    \ln(\rexpr)
-    \bigstep \oln(\fexpr),
+	\rval
+	\trsto
+	\fval, ( r, r )
+}
+%
+\and
+%
+\inferrule*[right = bop]
+{
+	\rexpr^1 \trsto \fexpr^1, (\ubar{\rexpr^1}, \bar{\rexpr^1})
+	\and
+	\rexpr^2 \trsto \fexpr^2, (\ubar{\rexpr^2}, \bar{\rexpr^2})
+	\and
+	\rexpr^1 * \rexpr^2 \geq 0
+}
+{
+    \rexpr^1 * \rexpr^2
+    \trsto \fexpr^1 \obop \fexpr^2,
     \big(
-    (\frac{\oln(\ubar{\rexpr})}{(1 + \eta)}, 
-    (\ln(\bar{\rexpr}))(1 + \eta)
+    \frac{\ubar{\rexpr^1} * \ubar{\rexpr^2}}{(1 + \eta)}, 
+    (\bar{\rexpr^1} * \bar{\rexpr^2})(1 + \eta)
     \big)
 }
 %
-\inferrule*[right = ln-op]
+\inferrule*[right = bop-neg]
 {
-	\rexpr \bigstep \fexpr, (\ubar{\rexpr}, \bar{\rexpr})
+	\rexpr^1 \trsto \fexpr^1, (\ubar{\rexpr^1}, \bar{\rexpr^1})
 	\and
-	\rexpr < 1
+	\rexpr^2 \trsto \fexpr^2, (\ubar{\rexpr^2}, \bar{\rexpr^2})
+	\and
+	\rexpr^1 * \rexpr^2 < 0
 }
 {
-    \ln(\rexpr)
-    \bigstep \oln(\fexpr),
+    \rexpr^1 * \rexpr^2
+    \trsto \fexpr^1 \obop \fexpr^2,
     \big(
-    (\ln(\ubar{\rexpr}))(1 + \eta),
-    \frac{\oln(\bar{\rexpr})}{(1 + \eta)}
+    (\bar{\rexpr^1} * \bar{\rexpr^2})(1 + \eta),
+    \frac{\ubar{\rexpr^1} * \ubar{\rexpr^2}}{(1 + \eta)}
+    \big)
+}%
+\and
+%
+\inferrule*[right = uop]
+{
+	\rexpr \trsto \fexpr, (\ubar{\rexpr}, \bar{\rexpr})
+	\and
+	\uop (\rexpr) \geq 0
+}
+{
+    \uop(\rexpr)
+    \trsto \ouop(\fexpr),
+    \big(
+    \frac{\uop(\ubar{\rexpr})}{(1 + \eta)}, 
+    (\uop(\bar{\rexpr}))(1 + \eta)
+    \big)
+}
+%
+\inferrule*[right = uop-neg]
+{
+	\rexpr \trsto \fexpr, (\ubar{\rexpr}, \bar{\rexpr})
+	\and
+	\uop (\rexpr) < 0
+}
+{
+    \uop(\rexpr)
+    \trsto \ouop(\fexpr),
+    \big(
+    (\uop(\ubar{\rexpr}))(1 + \eta),
+    \frac{\uop(\bar{\rexpr})}{(1 + \eta)}
     \big)
 }
 \end{mathpar}
-\caption{Semantics with Relative Floating Point Error}
-\label{fig_semantics_rel}
+\caption{Semantics of Transition for Expressions with Relative Floating Point Error}
+\label{fig_trans_semantics_exp}
+\end{figure}
+
+% \begin{figure}
+% \begin{mathpar}
+% \inferrule*[right = asg]
+% {
+% 	\env, \rexpr \bigstep \fexpr, \err 
+% }
+% {
+% 	\env, \varx = \rexpr
+% 	\bigstep
+% 	\env[\varx \mapsto (\fexpr, \err )]
+% }
+% %
+% \inferrule*[right = asg]
+% {
+% 	\env, \rexpr \bigstep \fexpr, \err 
+% }
+% {
+% 	\env, \varx = \rexpr
+% 	\bigstep
+% 	\env[\varx \mapsto (\fexpr, \err )]
+% }
+% \end{mathpar}
+% \caption{Semantics of Transition with Relative Floating Point Error Propagation for Programs}
+% \label{fig_semantics_prog}
+% \end{figure}
+
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = fval]
+{
+	\empty
+}
+{
+	\fval
+	\bigstep
+	\fval
+}
+%
+\and
+%
+\inferrule*[right = fbop]
+{
+	\fexpr^1 \bigstep \fval^1
+	\and
+	\fexpr^2 \bigstep \fval^2
+	\and
+	\fval^1 \obop \fval^2 = \fval
+}
+{
+    \fexpr^1 \obop \fexpr^2 \bigstep \fval
+}
+%
+\and
+%
+\inferrule*[right = fuop]
+{
+	\fexpr \bigstep \fval',
+	\and
+	\ouop (\fval') = \fval
+}
+{
+    \ouop(\fexpr) \bigstep \fval
+}
+%
+\and
+%
+%
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\rval
+	\bigstep
+	\rval
+}
+%
+\and
+%
+\inferrule*[right = rbop]
+{
+	\rexpr^1 \bigstep \rval^1
+	\and
+	\rexpr^2 \bigstep \rval^2
+	\and
+	\rval^1 \bop \rval^2 = \rval
+}
+{
+    \rexpr^1 \bop \rexpr^2 \bigstep \rval
+}
+%
+\and
+%
+\inferrule*[right = ruop]
+{
+	\rexpr \bigstep \rval',
+	\and
+	\uop (\rval') = \rval
+}
+{
+    \uop(\rexpr) \bigstep \rval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation for Floating Point and Real Expressions}
+\label{fig_real_semantics_exp}
 \end{figure}
 
 
 \begin{thm}[Soundness Theorem]
-Given $\rexpr$ and $\fexpr$ where  $\rexpr \bigstep \fexpr, \err$, when evaluating the $\fexpr$ in floating point computation and get the value $c$, we have $c \in \err$.
+Given $\rexpr$ and $\fexpr$ where the transition 
+$\rexpr \bigstep \fexpr, (\rexpr^1, \rexpr^2)$ holds, 
+if $\fexpr$ evaluates to $c$ in floating point computation and 
+$\rexpr$, $\rexpr^1$ and $\rexpr^2$ evaluates to $r$, $r^1$ and $r^2$ in real computation, then: 
+\[
+r^1 \leq c \leq r^2 
+% ~~ \land ~~ 
+% \frac{r^1}{r^2} \leq \frac{c}{r} \leq \frac{r^2}{r^1}.
+\]
 \end{thm}
+\begin{proof}
+Induction on $\rexpr$, we have following cases:
+
+\end{proof}
+
+\newpage
+\section{Semantics For Programs}
+
+The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp} for programs. The semantics are $\trsenv, \rprog \bigstep \fprog, \trsenv$, which means a real programs $\rprog$ can be transited in floating point computation program $\fprog$ with error bound for all variables in $\trsenv$, $\eta$ is the machine epsilon.
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = var]
+{
+	\trsenv(\rvarx) = ( \ubar{\rexpr}, \bar{\rexpr} )
+}
+{
+	\trsenv, \rvarx
+	\trsto
+	( \ubar{\rexpr}, \bar{\rexpr} )
+}
+%
+\and
+%
+\inferrule*[right = var-non]
+{
+	\rvarx \notin dom(\trsenv)
+}
+{
+	\trsenv, \rvarx
+	\trsto
+	( \rvarx, \rvarx )
+}
+%
+\and
+%
+\inferrule*[right = val]
+{
+	\rval \geq 0
+}
+{
+	\trsenv, \rval
+	\trsto
+	\big( \frac{r}{(1 + \eta)}, r(1 + \eta) \big)
+}
+%
+\and
+%
+\inferrule*[right = val-neg]
+{
+	\fval = \floaten(\rval)
+	\and
+	\rval < 0
+}
+{
+	\trsenv, \rval
+	\trsto
+	\big( r(1 + \eta), \frac{r}{(1 + \eta)} \big)
+}
+%
+\and
+%
+\inferrule*[right = val-eq]
+{
+	\rval = \floaten(\rval)
+}
+{
+	\trsenv, \rval
+	\trsto
+	( \rval, \rval )
+}
+%
+\and
+%
+\inferrule*[right = bop]
+{
+	\trsenv, \rexpr^1 \trsto (\ubar{\rexpr^1}, \bar{\rexpr^1})
+	\and
+	\trsenv, \rexpr^2 \trsto (\ubar{\rexpr^2}, \bar{\rexpr^2})
+	\and
+	\rexpr^1 * \rexpr^2 \geq 0
+}
+{
+    \trsenv, \rexpr^1 * \rexpr^2
+    \trsto
+    \big(
+    \frac{\ubar{\rexpr^1} * \ubar{\rexpr^2}}{(1 + \eta)}, 
+    (\bar{\rexpr^1} * \bar{\rexpr^2})(1 + \eta)
+    \big)
+}
+%
+\inferrule*[right = bop-neg]
+{
+	\trsenv, \rexpr^1 \trsto (\ubar{\rexpr^1}, \bar{\rexpr^1})
+	\and
+	\trsenv, \rexpr^2 \trsto (\ubar{\rexpr^2}, \bar{\rexpr^2})
+	\and
+	\rexpr^1 * \rexpr^2 < 0
+}
+{
+    \trsenv, \rexpr^1 * \rexpr^2
+    \trsto
+    \big(
+    (\bar{\rexpr^1} * \bar{\rexpr^2})(1 + \eta),
+    \frac{\ubar{\rexpr^1} * \ubar{\rexpr^2}}{(1 + \eta)}
+    \big)
+}%
+\and
+%
+\inferrule*[right = uop]
+{
+	\trsenv, \rexpr \trsto (\ubar{\rexpr}, \bar{\rexpr})
+	\and
+	\uop (\rexpr) \geq 0
+}
+{
+    \trsenv, \uop(\rexpr)
+    \trsto
+    \big(
+    \frac{\uop(\ubar{\rexpr})}{(1 + \eta)}, 
+    (\uop(\bar{\rexpr}))(1 + \eta)
+    \big)
+}
+%
+\inferrule*[right = uop-neg]
+{
+	\trsenv, \rexpr \trsto (\ubar{\rexpr}, \bar{\rexpr})
+	\and
+	\uop (\rexpr) < 0
+}
+{
+    \trsenv, \uop(\rexpr)
+    \trsto 
+    \big(
+    (\uop(\ubar{\rexpr}))(1 + \eta),
+    \frac{\uop(\bar{\rexpr})}{(1 + \eta)}
+    \big)
+}
+\end{mathpar}
+\caption{Semantics of Transition for Expressions with Relative Floating Point Error}
+\label{fig_trans_semantics_exp}
+\end{figure}
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = asg]
+{
+	\trsenv, \rexpr \trsto \err 
+}
+{
+	\trsenv, \rvarx = \rexpr
+	\trsto
+	\trsenv[\rvarx \mapsto \err]
+}
+%
+\inferrule*[right = consq]
+{
+	\trsenv, \prog_1  \trsto \trsenv_1
+	\and
+	\trsenv_2, \prog_2  \trsto \trsenv_2
+}
+{
+	\trsenv, \prog_1; \prog_2
+	\bigstep
+	\trsenv_2
+}
+%
+\inferrule*[right = sample]
+{
+	\empty
+}
+{
+	\trsenv, \varx \samplel \edistr
+	\bigstep
+	\trsenv[\varx \mapsto \samplel \edistr]
+}
+\end{mathpar}
+\caption{Semantics of Transition with Relative Floating Point Error Propagation for Programs}
+\label{fig_semantics_prog}
+\end{figure}
 
 
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = fval]
+{
+	\empty
+}
+{
+	\fval
+	\bigstep
+	\fval
+}
+%
+\and
+%
+\inferrule*[right = fbop]
+{
+	\fexpr^1 \bigstep \fval^1
+	\and
+	\fexpr^2 \bigstep \fval^2
+	\and
+	\fval^1 \obop \fval^2 = \fval
+}
+{
+    \fexpr^1 \obop \fexpr^2 \bigstep \fval
+}
+%
+\and
+%
+\inferrule*[right = fuop]
+{
+	\fexpr \bigstep \fval',
+	\and
+	\ouop (\fval') = \fval
+}
+{
+    \ouop(\fexpr) \bigstep \fval
+}
+%
+\and
+%
+%
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\rval
+	\bigstep
+	\rval
+}
+%
+\and
+%
+\inferrule*[right = rbop]
+{
+	\rexpr^1 \bigstep \rval^1
+	\and
+	\rexpr^2 \bigstep \rval^2
+	\and
+	\rval^1 \bop \rval^2 = \rval
+}
+{
+    \rexpr^1 \bop \rexpr^2 \bigstep \rval
+}
+%
+\and
+%
+\inferrule*[right = ruop]
+{
+	\rexpr \bigstep \rval',
+	\and
+	\uop (\rval') = \rval
+}
+{
+    \uop(\rexpr) \bigstep \rval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation for Floating Point and Real Expressions}
+\label{fig_real_semantics_exp}
+\end{figure}
 
+
+\begin{thm}[Soundness Theorem]
+For any $\prog$, if the transition 
+$\cdot, \prog \trsto \trsenv$ holds, 
+then $\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\expr, (\ubar{\rexpr}, \bar{\rexpr})) $, we have
+if $\expr$ evaluates to $c$ in floating point computation and 
+$\ubar{\rexpr}$ and $\bar{\rexpr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, then: 
+\[
+\ubar{r} \leq c \leq \bar{r}
+% ~~ \land ~~ 
+% \frac{r^1}{r^2} \leq \frac{c}{r} \leq \frac{r^2}{r^1}.
+\]
+\end{thm}
+\begin{proof}
+Induction on $\rexpr$, we have following cases:
+
+\end{proof}
 
 \section{Snapping Mechanism}
 
@@ -136,9 +594,12 @@ Given $\rexpr$ and $\fexpr$ where  $\rexpr \bigstep \fexpr, \err$, when evaluati
 [$\rsnap(a) : A \to \distr(\real)$]
 Given privacy parameter $\epsilon$, the ideal Snapping mechanism $\rsnap(a)$ is defined as:
 \[
-	U \samplel \edistr; S \samplel \{-1, 1\}; Y = \ln (U) \div \epsilon; Z = S \times Y; X = F(a); W = X + Z; W' = \round{W}_{\Lambda}; R = \clamp_B (W')
+	U \samplel \edistr; S \samplel \{-1, 1\};
+	z = \clamp_B \big(
+	\round{F(a) + S \times \ln (U) \div \epsilon}_{\Lambda}
+	\big)
 \]
-where $f$ is the query function over input $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+where $F$ is a primitive query function over input database $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 %
 
 %
@@ -153,10 +614,11 @@ Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined t
 \[
 	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
 	s_{\mathbb{F}} \samplel \{-1, 1\};
-	y = \oln (u) \odiv \epsilon; z = s \otimes y; x = f(a);
-	w = x \oplus z; w' = \round{w}_{\Lambda}; r = \clamp_B (w')
+	z = \clamp_B \big(
+	\round{f(a) \oplus s \otimes \oln (u) \odiv \epsilon}_{\Lambda}
+	\big)
 \]
-Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping precesses given $u, s$.
+Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping steps given $u, s$.
 \end{defn}
 
 
@@ -196,10 +658,16 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\begin{mathpar}
 		\inferrule[ln]
 		{
-			R 
-			\bigstep
-			r,
-			(\ubar{R}, \bar{R})
+			\inferrule*[right = val-eq]
+			{
+				\empty
+			}
+			{
+				R 
+				\bigstep
+				r,
+				({R}, {R})
+			}
 		}
 		{
 			\inferrule[op]
@@ -207,8 +675,8 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				\ln(R) 
 				\bigstep
 				\oln(r),
-				(\ln(\ubar{R})(1 + \eta),
-				\frac{\ln(\bar{R})}{(1 + \eta)})
+				(\ln({R})(1 + \eta),
+				\frac{\ln({R})}{(1 + \eta)})
 			}
 			{
 				\inferrule[op]
@@ -217,9 +685,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 					\bigstep
 					\frac{1}{\epsilon} \otimes \oln(r)
 					,
-					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln({R}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln({R})}{(1 + \eta)^2})
 				}
 				{
 					\inferrule[id]
@@ -230,12 +698,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						\bigg(
 						\big( f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+						(\frac{1}{\epsilon} \times \ln({R}))
 						(1 + \eta)^2 \big)
 						{(1 + \eta)},
 						%
 						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln({R})}
 						{(1 + \eta)^2}
 						)}
 						{(1 + \eta)}
@@ -248,12 +716,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						\bigg(
 						\big( f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+						(\frac{1}{\epsilon} \times \ln({R}))
 						(1 + \eta)^2 \big)
 						{(1 + \eta)},
 						%
 						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln({R})}
 						{(1 + \eta)^2}
 						)}
 						{(1 + \eta)}
@@ -278,12 +746,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			,
 			\bigg(
 			\big( f(a') + 
-			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
+			(\frac{1}{\epsilon} \times \ln({R'}))
 			(1 + \eta)^2 \big)
 			{(1 + \eta)},
 			%
 			\frac{(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
+			f(a') + \frac{\frac{1}{\epsilon} \times \ln({R'})}
 			{(1 + \eta)^2}
 			)}
 			{(1 + \eta)}
@@ -292,7 +760,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\end{mathpar}
 		%
 		%
-		Given $\fsnap(a) = \fsnap(a') = x = -b$, we have following values for $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
+		Given $\fsnap(a) = \fsnap(a') = x = -b$, we have the lower and upper bounds for $R$ and $R'$, which are $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
 		%
 		%
 		\[
@@ -360,10 +828,16 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\begin{mathpar}
 		\inferrule[ln]
 		{
-			R 
-			\bigstep
-			r,
-			(\ubar{R}, \bar{R})
+			\inferrule*[right = val-eq]
+			{
+				\empty
+			}
+			{
+				R 
+				\bigstep
+				r,
+				({R}, {R})
+			}
 		}
 		{
 			\inferrule[op]
@@ -371,8 +845,8 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				\ln(R) 
 				\bigstep
 				\oln(r),
-				(\ln(\ubar{R})(1 + \eta),
-				\frac{\ln(\bar{R})}{(1 + \eta)})
+				(\ln({R})(1 + \eta),
+				\frac{\ln({R})}{(1 + \eta)})
 			}
 			{
 				\inferrule[op]
@@ -381,9 +855,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 					\bigstep
 					\frac{1}{\epsilon} \otimes \oln(r)
 					,
-					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln({R}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln({R})}{(1 + \eta)^2})
 				}
 				{
 					\inferrule[id]
@@ -394,12 +868,12 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						,
 						\bigg(
 						\big( f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+						(\frac{1}{\epsilon} \times \ln({R}))
 						(1 + \eta)^2 \big)
 						{(1 + \eta)},
 						%
 						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln({R})}
 						{(1 + \eta)^2}
 						)}
 						{(1 + \eta)}
@@ -411,15 +885,15 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						\fsnap'(a, r, 1)
 						,
 						(
-						\err_1,
+						\rexpr^1,
 						%
-						\err_2)
+						\rexpr^2)
 					}
 				}
 			}
 		}
 		\end{mathpar}
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.\\
+		From soundness theorem, we have  $\rexpr^1 \leq y_2 \leq \rexpr^2$, where we can get $\ubar{R} \leq r \leq \bar{R}$.\\
 		%
 		Taking the lower bound,  we have: 
 		$\ubar{R} = e^{\epsilon 

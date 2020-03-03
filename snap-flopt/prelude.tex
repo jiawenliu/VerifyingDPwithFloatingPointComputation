@@ -50,18 +50,27 @@
 
 %for syntax:
 
-\newcommand{\bernoulli}{\kw{bernoulli}}
+%for programs:
+\newcommand{\prog}{p}
+\newcommand{\fprog}{p_{\mathbb{F}}}
+\newcommand{\rprog}{p_{\mathbb{R}}}
+\newcommand{\ret}{\mathsf{return}}
+
+
 
 %expression
 \newcommand{\expr}{e}
 \newcommand{\fexpr}{\expr_{\mathbb{F}}}
 \newcommand{\rexpr}{\expr_{\mathbb{R}}}
 
+%for smaples:
+\newcommand{\bernoulli}{\kw{bernoulli}}
 
 %values
 \newcommand{\fval}{c}
 \newcommand{\rval}{r}
 \newcommand{\valv}{v}
+\newcommand{\data}{D}
 
 %variables
 \newcommand{\varx}{x}
@@ -83,22 +92,33 @@
 \newcommand{\edistr}{\mu}
 
 \newcommand{\bigstep}{\Downarrow}
+\newcommand{\trsto}{\Rightarrow}
+
+
+%for environments
+\newcommand{\trsenv}{\Theta}
+
+\newcommand{\evlenv}{\Gamma}
+
+
 
 \usepackage{stackengine} 
 
+% For Operations
+%binary operations
+\newcommand{\bop}{*}
+\newcommand{\obop}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\bop$}}}{\bigcirc}}}
+
 \newcommand{\oexp}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{e}$}}}{\bigcirc}}}
-
-% \newcommand{\oop[1]}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{#1}{\bigcirc}}}
-
-% \newcommand{\oexp}{\oop{\text{\footnotesize{$\mathsf{exp}$}}}}
 
 \newcommand{\oln}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{ln}$}}}{\bigcirc}}}
 
 \newcommand{\odiv}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\div$}}}{\bigcirc}}}
-
-\newcommand{\oop}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$*$}}}{\bigcirc}}}
-
 \newcommand{\ubar}[1]{\text{\b{$#1$}}}
-% \usepackage{accents}
-% \newcommand{\ubar}[1]{\underaccent{\bar}{#1}}
+
+%unary operations
+\newcommand{\uop}{\circ}
+\newcommand{\ouop}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\uop$}}}{\bigcirc}}}
+
+
 
