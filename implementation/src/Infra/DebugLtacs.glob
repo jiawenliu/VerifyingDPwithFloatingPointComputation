@@ -1,0 +1,21 @@
+DIGEST 0c2c834b5f2f1b59daf03f264c7329f3
+FSnapv.Infra.DebugLtacs
+R15:31 Snapv.Infra.Ltacs <> <> lib
+R49:66 Snapv.Infra.NatSet <> <> lib
+R84:103 Snapv.IntervalArithQ <> <> lib
+R175:178 Coq.Init.Datatypes <> Some constr
+R189:192 Coq.Init.Datatypes <> None constr
+R175:178 Coq.Init.Datatypes <> Some constr
+R189:192 Coq.Init.Datatypes <> None constr
+R343:347 Snapv.Infra.NatSet <> :::x_'mem'_x not
+R343:347 Snapv.Infra.NatSet <> :::x_'mem'_x not
+R370:374 Snapv.Infra.NatSet <> :::x_'mem'_x not
+R441:454 Snapv.IntervalArithQ <> isSupersetIntv def
+R441:454 Snapv.IntervalArithQ <> isSupersetIntv def
+R540:553 Snapv.IntervalArithQ <> isSupersetIntv def
+R616:618 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R592:605 Snapv.IntervalArithQ <> isSupersetIntv def
+R729:731 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R732:735 Coq.Init.Datatypes <> true constr
+R729:731 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R732:735 Coq.Init.Datatypes <> true constr

@@ -1,0 +1,16 @@
+-R . Snapv
+
+./Expressions.v
+./AffineForm.v
+./OrderedExpressions.v
+./IntervalArithQ.v
+./Infra/RealSimps.v
+./Infra/Ltacs.v
+./Infra/ExpressionAbbrevs.v
+./Infra/NatSet.v
+./Infra/Results.v
+./Infra/DebugLtacs.v
+./Infra/Abbrevs.v
+./Infra/RealRationalProps.v
+./Infra/MachineType.v
+./Infra/RationalSimps.v

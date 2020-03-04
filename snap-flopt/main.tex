@@ -56,6 +56,8 @@ Following are the syntax of our system:
 
 The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp}. The semantics are $\expr \trsto (\err)$, which means a real expression $\expr$ can be transited in floating point computation with error bound $\err$, $\eta$ is the machine epsilon.
 
+We assume the SAMPLE and F(D) semantics for floating point and real computation are the same. $\edistr \bigstep_{\$} \valv$ represents $\valv$ is sampled from the distribution $\edistr$.
+
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = val]
@@ -99,7 +101,7 @@ The transition semantics with relative floating point computation error are show
 	\empty
 }
 {
-	\trsenv, f(D)
+	f(D)
 	\trsto
 	( f(D), f(D) )
 }
@@ -111,7 +113,7 @@ The transition semantics with relative floating point computation error are show
 	\empty
 }
 {
-	\trsenv, \samplel \edistr
+	\samplel \edistr
 	\trsto
 	( \samplel \edistr, \samplel \edistr )
 }
@@ -267,6 +269,26 @@ The transition semantics with relative floating point computation error are show
 }
 {
     \uop(\expr) \bigstep \rval
+}
+%
+\and
+%
+\inferrule*[right = sample]
+{
+	\edistr \bigstep_{\$} \rval
+}
+{
+	\samplel \edistr \bigstep \fval
+}
+%
+\and
+%
+\inferrule*[right = f(d)]
+{
+	f(D) = \rval
+}
+{
+	f(D) \bigstep \fval
 }
 \end{mathpar}
 \caption{Semantics of Evaluation in Real Computation}
@@ -615,11 +637,12 @@ Induction on $\expr$, we have following cases:
 
 \end{proof}
 
+\newpage
 \section{Snapping Mechanism}
 
 \begin{defn}
 [$\rsnap(a) : A \to \distr(\real)$]
-Given privacy parameter $\epsilon$, the ideal Snapping mechanism $\rsnap(a)$ is defined as:
+Given privacy parameter $\epsilon$, the Snapping mechanism $\rsnap(a)$ is defined as:
 \[
 	U \samplel \edistr; S \samplel \{-1, 1\};
 	z = \clamp_B \big(
@@ -650,7 +673,7 @@ Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping 
 
 
 
-
+\newpage
 \section{Main Theorem}
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]

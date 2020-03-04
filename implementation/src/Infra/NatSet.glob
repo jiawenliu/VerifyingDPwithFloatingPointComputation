@@ -1,0 +1,234 @@
+DIGEST 6b6beb4147fc30b66a099ea5a3fd5774
+FSnapv.Infra.NatSet
+R15:29 Coq.MSets.MSets <> <> lib
+R31:48 Coq.Arith.PeanoNat <> <> lib
+mod 210:212 <> OWL
+def 228:228 OWL t
+R233:235 Coq.Init.Datatypes <> nat ind
+def 251:252 OWL eq
+R258:259 Coq.Init.Logic <> eq ind
+R261:261 Snapv.Infra.NatSet OWL t def
+def 277:284 OWL eq_equiv
+R287:297 Coq.Classes.RelationClasses <> Equivalence class
+R299:300 Snapv.Infra.NatSet OWL eq def
+R305:318 Coq.Classes.RelationClasses <> eq_equivalence inst
+def 334:335 OWL lt
+R340:341 Coq.Init.Peano <> lt def
+def 357:367 OWL lt_strorder
+R371:381 Coq.Classes.RelationClasses <> StrictOrder class
+R383:384 Snapv.Infra.NatSet OWL lt def
+R389:403 Coq.Arith.PeanoNat Nat lt_strorder inst
+inst 417:425 OWL lt_compat
+R429:434 Coq.Classes.Morphisms <> Proper class
+R456:457 Snapv.Infra.NatSet OWL lt def
+R439:443 Coq.Classes.Morphisms ProperNotations ::signature_scope:x_'==>'_x not
+R437:438 Snapv.Infra.NatSet OWL eq def
+R446:450 Coq.Classes.Morphisms ProperNotations ::signature_scope:x_'==>'_x not
+R444:445 Snapv.Infra.NatSet OWL eq def
+R451:453 Coq.Init.Logic <> iff def
+R484:485 Snapv.Infra.NatSet OWL eq def
+def 522:528 OWL compare
+R533:543 Coq.Arith.PeanoNat Nat compare def
+prf 553:564 OWL compare_spec
+R580:587 Coq.Init.Datatypes <> CompSpec def
+R600:606 Snapv.Infra.NatSet OWL compare def
+R610:610 Snapv.Infra.NatSet <> y var
+R608:608 Snapv.Infra.NatSet <> x var
+R597:597 Snapv.Infra.NatSet <> y var
+R595:595 Snapv.Infra.NatSet <> x var
+R592:593 Snapv.Infra.NatSet OWL lt def
+R589:590 Snapv.Infra.NatSet OWL eq def
+R640:646 Snapv.Infra.NatSet OWL compare def
+R640:646 Snapv.Infra.NatSet OWL compare def
+R679:704 Coq.Arith.Compare_dec <> nat_compare_eq thm
+R679:704 Coq.Arith.Compare_dec <> nat_compare_eq thm
+R719:747 Coq.Arith.Compare_dec <> nat_compare_Lt_lt thm
+R719:747 Coq.Arith.Compare_dec <> nat_compare_Lt_lt thm
+R762:790 Coq.Arith.Compare_dec <> nat_compare_Gt_gt thm
+R762:790 Coq.Arith.Compare_dec <> nat_compare_Gt_gt thm
+def 810:815 OWL eq_dec
+R820:839 Coq.Arith.Peano_dec <> eq_nat_dec syndef
+def 853:862 OWL eq_leibniz
+R871:872 Snapv.Infra.NatSet OWL eq def
+R876:876 Snapv.Infra.NatSet <> b var
+R874:874 Snapv.Infra.NatSet <> a var
+R882:882 Snapv.Infra.NatSet <> H var
+R889:891 Snapv.Infra.NatSet OWL <> mod
+R912:926 Coq.MSets.MSetList MakeWithLeibniz <> modtype
+R928:930 Snapv.Infra.NatSet OWL <> modtype
+mod 902:907 <> NatSet
+R956:968 Coq.MSets.MSetProperties WPropertiesOn <> modtype
+R970:972 Snapv.Infra.NatSet OWL <> modtype
+R974:979 Snapv.Infra.NatSet NatSet <> modtype
+mod 941:951 <> NatSetProps
+R1008:1019 Snapv.Infra.NatSet <> union def
+not 992:992 <> :::x_'∪'_x
+R1092:1107 Snapv.Infra.NatSet <> singleton def
+not 1074:1074 <> :::'{{'_x_'}}'
+R1169:1179 Snapv.Infra.NatSet <> diff def
+not 1154:1154 <> :::x_'--'_x
+R1250:1259 Snapv.Infra.NatSet <> mem def
+not 1234:1234 <> :::x_'mem'_x
+R1324:1332 Snapv.Infra.NatSet <> In def
+not 1308:1308 <> :::x_'∈'_x
+prf 1380:1393 <> not_in_not_mem
+R1436:1443 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R1444:1445 Coq.Init.Logic <> ::type_scope:'~'_x not
+R1446:1454 Snapv.Infra.NatSet <> In def
+R1458:1458 Snapv.Infra.NatSet <> S var
+R1456:1456 Snapv.Infra.NatSet <> n var
+R1428:1430 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1414:1423 Snapv.Infra.NatSet <> mem def
+R1427:1427 Snapv.Infra.NatSet <> S var
+R1425:1425 Snapv.Infra.NatSet <> n var
+R1431:1435 Coq.Init.Datatypes <> false constr
+R1521:1535 Snapv.Infra.NatSet <> mem_spec thm
+R1521:1535 Snapv.Infra.NatSet <> mem_spec thm
+R1521:1535 Snapv.Infra.NatSet <> mem_spec thm
+prf 1601:1615 <> add_spec_strong
+R1638:1638 Coq.Init.Logic <> ::type_scope:x_'<->'_x not
+R1661:1666 Coq.Init.Logic <> ::type_scope:x_'<->'_x not
+R1640:1645 Snapv.Infra.NatSet <> :::x_'∈'_x not
+R1660:1660 Snapv.Infra.NatSet <> :::x_'∈'_x not
+R1639:1639 Snapv.Infra.NatSet <> x var
+R1646:1655 Snapv.Infra.NatSet <> add def
+R1659:1659 Snapv.Infra.NatSet <> S var
+R1657:1657 Snapv.Infra.NatSet <> y var
+R1672:1676 Coq.Init.Logic <> ::type_scope:x_'\/'_x not
+R1701:1701 Coq.Init.Logic <> ::type_scope:x_'\/'_x not
+R1668:1670 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1667:1667 Snapv.Infra.NatSet <> x var
+R1671:1671 Snapv.Infra.NatSet <> y var
+R1677:1677 Coq.Init.Logic <> ::type_scope:x_'/\'_x not
+R1687:1692 Coq.Init.Logic <> ::type_scope:x_'/\'_x not
+R1700:1700 Coq.Init.Logic <> ::type_scope:x_'/\'_x not
+R1678:1680 Coq.Init.Logic <> ::type_scope:'~'_x not
+R1686:1686 Coq.Init.Logic <> ::type_scope:'~'_x not
+R1682:1684 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R1681:1681 Snapv.Infra.NatSet <> x var
+R1685:1685 Snapv.Infra.NatSet <> y var
+R1694:1698 Snapv.Infra.NatSet <> :::x_'∈'_x not
+R1693:1693 Snapv.Infra.NatSet <> x var
+R1699:1699 Snapv.Infra.NatSet <> S var
+R1749:1763 Snapv.Infra.NatSet <> add_spec thm
+R1749:1763 Snapv.Infra.NatSet <> add_spec thm
+R1749:1763 Snapv.Infra.NatSet <> add_spec thm
+R1791:1797 Coq.Arith.PeanoNat Nat eqb def
+R1791:1797 Coq.Arith.PeanoNat Nat eqb def
+R1841:1850 Coq.Arith.PeanoNat Nat eqb_eq thm
+R1841:1850 Coq.Arith.PeanoNat Nat eqb_eq thm
+R1933:1944 Coq.Arith.PeanoNat Nat eqb_refl thm
+R1933:1944 Coq.Arith.PeanoNat Nat eqb_refl thm
+R1933:1944 Coq.Arith.PeanoNat Nat eqb_refl thm
+R2041:2052 Coq.Arith.PeanoNat Nat eqb_refl thm
+R2041:2052 Coq.Arith.PeanoNat Nat eqb_refl thm
+R2041:2052 Coq.Arith.PeanoNat Nat eqb_refl thm
+R2092:2106 Snapv.Infra.NatSet <> add_spec thm
+R2092:2106 Snapv.Infra.NatSet <> add_spec thm
+R2092:2106 Snapv.Infra.NatSet <> add_spec thm
+prf 2178:2204 <> subset_diff_to_subset_union
+R2245:2250 Coq.Init.Logic <> ::type_scope:x_'->'_x not
+R2251:2263 Snapv.Infra.NatSet <> Subset def
+R2269:2280 Snapv.Infra.NatSet <> union def
+R2285:2286 Snapv.Infra.NatSet <> s3 var
+R2282:2283 Snapv.Infra.NatSet <> s2 var
+R2265:2266 Snapv.Infra.NatSet <> s1 var
+R2218:2230 Snapv.Infra.NatSet <> Subset def
+R2243:2244 Snapv.Infra.NatSet <> s2 var
+R2235:2238 Snapv.Infra.NatSet <> :::x_'--'_x not
+R2233:2234 Snapv.Infra.NatSet <> s1 var
+R2239:2240 Snapv.Infra.NatSet <> s3 var
+R2383:2392 Snapv.Infra.NatSet <> mem def
+R2383:2392 Snapv.Infra.NatSet <> mem def
+R2423:2437 Snapv.Infra.NatSet <> mem_spec thm
+R2423:2437 Snapv.Infra.NatSet <> mem_spec thm
+R2423:2437 Snapv.Infra.NatSet <> mem_spec thm
+R2460:2476 Snapv.Infra.NatSet <> union_spec thm
+R2460:2476 Snapv.Infra.NatSet <> union_spec thm
+R2460:2476 Snapv.Infra.NatSet <> union_spec thm
+R2504:2517 Snapv.Infra.NatSet <> not_in_not_mem thm
+R2504:2517 Snapv.Infra.NatSet <> not_in_not_mem thm
+R2540:2556 Snapv.Infra.NatSet <> union_spec thm
+R2540:2556 Snapv.Infra.NatSet <> union_spec thm
+R2540:2556 Snapv.Infra.NatSet <> union_spec thm
+R2595:2618 Snapv.Infra.NatSet <> diff_3 thm
+R2595:2618 Snapv.Infra.NatSet <> diff_3 thm
+R2700:2702 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R2685:2694 Snapv.Infra.NatSet <> mem def
+R2703:2706 Coq.Init.Datatypes <> true constr
+R2700:2702 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R2685:2694 Snapv.Infra.NatSet <> mem def
+R2703:2706 Coq.Init.Datatypes <> true constr
+R2771:2773 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R2756:2765 Snapv.Infra.NatSet <> mem def
+R2774:2778 Coq.Init.Datatypes <> false constr
+R2771:2773 Coq.Init.Logic <> ::type_scope:x_'='_x not
+R2756:2765 Snapv.Infra.NatSet <> mem def
+R2774:2778 Coq.Init.Datatypes <> false constr
+R2833:2842 Snapv.Infra.NatSet <> mem def
+R2833:2842 Snapv.Infra.NatSet <> mem def
+R2862:2876 Snapv.Infra.NatSet <> mem_spec thm
+R2795:2808 Snapv.Infra.NatSet <> not_in_not_mem thm
+R2726:2740 Snapv.Infra.NatSet <> mem_spec thm
+R2939:2947 Snapv.Infra.NatSet <> In def
+R2939:2947 Snapv.Infra.NatSet <> In def
+R2959:2967 Snapv.Infra.NatSet <> In def
+R2973:2984 Snapv.Infra.NatSet <> union def
+R2959:2967 Snapv.Infra.NatSet <> In def
+R2973:2984 Snapv.Infra.NatSet <> union def
+R3011:3027 Snapv.Infra.NatSet <> union_spec thm
+R3099:3107 Snapv.Infra.NatSet <> In def
+R3113:3123 Snapv.Infra.NatSet <> diff def
+R3099:3107 Snapv.Infra.NatSet <> In def
+R3113:3123 Snapv.Infra.NatSet <> diff def
+R3193:3205 Snapv.Infra.NatSet <> Subset def
+R3193:3205 Snapv.Infra.NatSet <> Subset def
+R3218:3226 Snapv.Infra.NatSet <> In def
+R3218:3226 Snapv.Infra.NatSet <> In def
+R3256:3264 Snapv.Infra.NatSet <> In def
+R3270:3285 Snapv.Infra.NatSet <> singleton def
+R3256:3264 Snapv.Infra.NatSet <> In def
+R3270:3285 Snapv.Infra.NatSet <> singleton def
+R3350:3358 Snapv.Infra.NatSet <> In def
+R3363:3374 Snapv.Infra.NatSet <> empty def
+R3350:3358 Snapv.Infra.NatSet <> In def
+R3363:3374 Snapv.Infra.NatSet <> empty def
+R3407:3415 Snapv.Infra.NatSet <> In def
+R3421:3432 Snapv.Infra.NatSet <> union def
+R3407:3415 Snapv.Infra.NatSet <> In def
+R3421:3432 Snapv.Infra.NatSet <> union def
+R3493:3501 Snapv.Infra.NatSet <> In def
+R3507:3516 Snapv.Infra.NatSet <> add def
+R3493:3501 Snapv.Infra.NatSet <> In def
+R3507:3516 Snapv.Infra.NatSet <> add def
+R3582:3590 Snapv.Infra.NatSet <> In def
+R3596:3607 Snapv.Infra.NatSet <> union def
+R3582:3590 Snapv.Infra.NatSet <> In def
+R3596:3607 Snapv.Infra.NatSet <> union def
+R3667:3675 Snapv.Infra.NatSet <> In def
+R3681:3691 Snapv.Infra.NatSet <> diff def
+R3667:3675 Snapv.Infra.NatSet <> In def
+R3681:3691 Snapv.Infra.NatSet <> diff def
+R3748:3756 Snapv.Infra.NatSet <> In def
+R3762:3777 Snapv.Infra.NatSet <> singleton def
+R3748:3756 Snapv.Infra.NatSet <> In def
+R3762:3777 Snapv.Infra.NatSet <> singleton def
+R3836:3844 Snapv.Infra.NatSet <> In def
+R3850:3862 Snapv.Infra.NatSet <> remove def
+R3836:3844 Snapv.Infra.NatSet <> In def
+R3850:3862 Snapv.Infra.NatSet <> remove def
+R3921:3929 Snapv.Infra.NatSet <> In def
+R3935:3944 Snapv.Infra.NatSet <> add def
+R3921:3929 Snapv.Infra.NatSet <> In def
+R3935:3944 Snapv.Infra.NatSet <> add def
+R4000:4012 Snapv.Infra.NatSet <> Subset def
+R4000:4012 Snapv.Infra.NatSet <> Subset def
+R3966:3980 Snapv.Infra.NatSet <> add_spec thm
+R3884:3901 Snapv.Infra.NatSet <> remove_spec thm
+R3796:3816 Snapv.Infra.NatSet <> singleton_spec thm
+R3713:3728 Snapv.Infra.NatSet <> diff_spec thm
+R3631:3647 Snapv.Infra.NatSet <> union_spec thm
+R3543:3557 Snapv.Infra.NatSet <> add_spec_strong thm
+R3461:3477 Snapv.Infra.NatSet <> union_spec thm
+R3306:3334 Snapv.Infra.NatSet <> singleton_1 thm
+R3150:3165 Snapv.Infra.NatSet <> diff_spec thm
