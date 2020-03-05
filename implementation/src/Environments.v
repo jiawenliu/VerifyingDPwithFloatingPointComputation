@@ -6,7 +6,7 @@ between environments.
 From Coq
      Require Import Reals.Reals micromega.Psatz QArith.Qreals.
 
-From Flover
+From Snapv
      Require Import Infra.ExpressionAbbrevs Infra.RationalSimps.
 
 (**
@@ -31,7 +31,7 @@ Inductive approxEnv : env -> (expr R -> option mType) -> analysisResult -> NatSe
 |approxUpdBound E1 E2 Gamma A v1 v2 x fVars dVars m iv err:
    approxEnv E1 Gamma A fVars dVars E2 ->
    Gamma (Var R x) = Some m ->
-   FloverMap.find (Var Q x) A = Some (iv, err) ->
+   SnapvMap.find (Var Q x) A = Some (iv, err) ->
    (Rabs (v1 - v2) <= Q2R err)%R ->
    NatSet.mem x (NatSet.union fVars dVars) = false ->
    approxEnv (updEnv x v1 E1)
@@ -118,7 +118,7 @@ Section RelationProperties.
     E2 x = Some v2 ->
     NatSet.In x dVars ->
     Gamma (Var R x) = Some m ->
-    FloverMap.find (Var Q x) A = Some (iv, e) ->
+    SnapvMap.find (Var Q x) A = Some (iv, e) ->
     (Rabs (v - v2) <= Q2R e)%R.
   Proof.
     induction approxEnvs;

@@ -275,7 +275,7 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 %
 \inferrule*[right = sample]
 {
-	\edistr \bigstep_{\$} \rval
+	 \fval \leftarrow \edistr^{\diamond}
 }
 {
 	\samplel \edistr \bigstep \fval
@@ -285,7 +285,7 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 %
 \inferrule*[right = f(d)]
 {
-	f(D) = \rval
+	f(D) = \fval
 }
 {
 	f(D) \bigstep \fval
@@ -613,6 +613,26 @@ The transition semantics with relative floating point computation error are show
 }
 {
     \uop(\expr) \bigstep \rval
+}
+%
+\and
+%
+\inferrule*[right = sample]
+{
+	 \fval \leftarrow \edistr^{\diamond}
+}
+{
+	\varx \samplel \edistr \bigstep \fval
+}
+%
+\and
+%
+\inferrule*[right = f(d)]
+{
+	f(D) = \fval
+}
+{
+	f(D) \bigstep \fval
 }
 \end{mathpar}
 \caption{Semantics of Evaluation in Real Computation}

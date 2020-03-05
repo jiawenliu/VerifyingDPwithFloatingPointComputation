@@ -10,17 +10,17 @@ From Coq
      Require Import QArith.QArith QArith.Qminmax QArith.Qabs QArith.Qreals
      micromega.Psatz Reals.Reals.
 
-From Snapv
+From Flover
      Require Import Infra.Abbrevs Infra.RationalSimps Infra.RealRationalProps
      Infra.RealSimps Infra.Ltacs Environments ErrorAnalysis ErrorBounds
      IntervalValidation RealRangeValidator TypeValidator.
 
 (** Error bound validator **)
 Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
-         (typeMap:SnapvMap.t mType) (* derived types for e *)
-         (A:analysisResult) (* encoded result of Snapv *)
+         (typeMap:FloverMap.t mType) (* derived types for e *)
+         (A:analysisResult) (* encoded result of Flover *)
          (dVars:NatSet.t) (* let-bound variables encountered previously *):=
-  match SnapvMap.find e A, SnapvMap.find e typeMap with
+  match FloverMap.find e A, FloverMap.find e typeMap with
   | Some (intv, err), Some m =>
     if (Qleb 0 err) (* encoding soundness: errors are positive *)
     then
@@ -34,7 +34,7 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
       |Unop Neg e1 =>
        if (validErrorbound e1 typeMap A dVars)
        then
-         match SnapvMap.find e1 A with
+         match FloverMap.find e1 A with
          | Some (iv_e1, err1) => Qeq_bool err err1
          | None => false
          end
@@ -44,7 +44,7 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
        if ((validErrorbound e1 typeMap A dVars)
              && (validErrorbound e2 typeMap A dVars))
        then
-         match SnapvMap.find e1 A, SnapvMap.find e2 A with
+         match FloverMap.find e1 A, FloverMap.find e2 A with
          | Some (ive1, err1), Some (ive2, err2) =>
            let errIve1 := widenIntv ive1 err1 in
            let errIve2 := widenIntv ive2 err2 in
@@ -82,7 +82,7 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
               && (validErrorbound e2 typeMap A dVars)
               && (validErrorbound e3 typeMap A dVars))
         then
-          match SnapvMap.find e1 A, SnapvMap.find e2 A, SnapvMap.find e3 A with
+          match FloverMap.find e1 A, FloverMap.find e2 A, FloverMap.find e3 A with
           | Some (ive1, err1), Some (ive2, err2), Some (ive3, err3) =>
             let errIve1 := widenIntv ive1 err1 in
             let errIve2 := widenIntv ive2 err2 in
@@ -100,7 +100,7 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
       |Downcast m1 e1 =>
        if validErrorbound e1 typeMap A dVars
        then
-         match SnapvMap.find e1 A with
+         match FloverMap.find e1 A with
          | Some (ive1, err1) =>
           let errIve1 := widenIntv ive1 err1 in
           let mAbs := maxAbs errIve1 in
@@ -114,11 +114,11 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
         if (validErrorbound e1 typeMap A dVars)
              && validErrorbound e2 typeMap A (NatSet.add x dVars)
         then
-          match SnapvMap.find e1 A, SnapvMap.find (Var Q x) A with
+          match FloverMap.find e1 A, FloverMap.find (Var Q x) A with
           | Some (iv_e, err_e), Some (iv_x, err_x) =>
             if (Qeq_bool err_e err_x)
                  then
-                   match SnapvMap.find e2 A with
+                   match FloverMap.find e2 A with
                    | Some (iv_e2, err_e2) => Qeq_bool err_e2 err
                    | _ => false
                    end
@@ -136,12 +136,12 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
 (** Error bound command validator **)
 Fixpoint validErrorboundCmd (f:cmd Q) (* analyzed cmd with let's *)
          typeMap (* inferred types *)
-         (A:analysisResult) (* Snapv's encoded result *)
+         (A:analysisResult) (* Flover's encoded result *)
          (dVars:NatSet.t) (* defined variables *)
          : bool :=
   match f with
   |Let m x e g =>
-   match SnapvMap.find e A, SnapvMap.find (Var Q x) A with
+   match FloverMap.find e A, FloverMap.find (Var Q x) A with
      | Some (iv_e, err_e), Some (iv_x, err_x) =>
        if ((validErrorbound e typeMap A dVars) && (Qeq_bool err_e err_x))
        then validErrorboundCmd g typeMap A (NatSet.add x dVars)

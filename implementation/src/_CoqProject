@@ -1,5 +1,8 @@
 -R . Snapv
 
+./Environments.v
+./ExpressionSemantics.v
+./ErrorBounds.v
 ./Expressions.v
 ./AffineForm.v
 ./OrderedExpressions.v

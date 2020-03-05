@@ -287,7 +287,7 @@ Proof.
   - inversion ev1; inversion ev2; subst; try congruence.
     + rewrite (IHf E v0 v3); [ auto | |];
         destruct m, m0; cbn in *; congruence.
-    + cbn in *. Flover_compute; rewrite (IHf E v0 v3); [auto | | ];
+    + cbn in *. Snapv_compute; rewrite (IHf E v0 v3); [auto | | ];
                   destruct m, m0; cbn in *; congruence.
   - inversion ev1; inversion ev2; subst.
     assert (m0 = REAL) by (eapply toRTMap_eval_REAL; eauto).
