@@ -24,297 +24,8 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 %
 %
 %
-\section{Syntax - V1}
-Following are the syntax of our system:
-%
-\[\begin{array}{llll}
-\mbox{Arithmetic Expr.} & \expr & ::= & \varx 
-	~|~ \rval ~|~ \fval
-	%
-	~|~ F(\data) ~|~ \expr \bop \expr
-	%
-	~|~ \uop (\expr) ~|~ \samplel \edistr \\
-%
-\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
-%
-\mbox{Unary Operation} & \uop & ::= & \ln ~|~ - ~|~ \round{\cdot} 
-	%
-	~|~ \clamp_B(\cdot) \\
-%
-\mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
-%
-\mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
-%
-\mbox{Error} & \err & ::= & (\expr, \expr) \\
-%
-\end{array}
-\]
 
-
-\newpage
-\section{Semantics - V1}
-
-The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp}. The semantics are $\expr \trsto (\err)$, which means a real expression $\expr$ can be transited in floating point computation with error bound $\err$, $\eta$ is the machine epsilon.
-
-We assume the SAMPLE and F(D) semantics for floating point and real computation are the same. $\edistr \bigstep_{\$} \valv$ represents $\valv$ is sampled from the distribution $\edistr$.
-
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = val]
-{
-	\rval \geq 0
-}
-{
-	\rval
-	\trsto
-	\big( \frac{\rval}{(1 + \eta)}, \rval(1 + \eta) \big)
-}
-%
-\and
-%
-\inferrule*[right = val-neg]
-{
-	\rval < 0
-}
-{
-	\rval
-	\trsto
-	\big( \rval(1 + \eta), \frac{\rval}{(1 + \eta)} \big)
-}
-%
-\and
-%
-\inferrule*[right = val-eq]
-{
-	\rval = \floaten(\rval)
-}
-{
-	\rval
-	\trsto
-	( \rval, \rval )
-}
-%
-\and
-%
-\inferrule*[right = f(d)]
-{
-	\empty
-}
-{
-	f(D)
-	\trsto
-	( f(D), f(D) )
-}
-%
-\and
-%
-\inferrule*[right = sample]
-{
-	\empty
-}
-{
-	\samplel \edistr
-	\trsto
-	( \samplel \edistr, \samplel \edistr )
-}
-%
-\and
-%
-\inferrule*[right = bop]
-{
-	\expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1})
-	\and
-	\expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2})
-	\and
-	\expr^1 * \expr^2 \geq 0
-}
-{
-    \expr^1 * \expr^2
-    \trsto 
-    \big(
-    \frac{\ubar{\expr^1} * \ubar{\expr^2}}{(1 + \eta)}, 
-    (\bar{\expr^1} * \bar{\expr^2})(1 + \eta)
-    \big)
-}
-%
-\inferrule*[right = bop-neg]
-{
-	\expr^1 \trsto  (\ubar{\expr^1}, \bar{\expr^1})
-	\and
-	\expr^2 \trsto  (\ubar{\expr^2}, \bar{\expr^2})
-	\and
-	\expr^1 * \expr^2 < 0
-}
-{
-    \expr^1 * \expr^2
-    \trsto 
-    \big(
-    (\bar{\expr^1} * \bar{\expr^2})(1 + \eta),
-    \frac{\ubar{\expr^1} * \ubar{\expr^2}}{(1 + \eta)}
-    \big)
-}%
-\and
-%
-\inferrule*[right = uop]
-{
-	\expr \trsto (\ubar{\expr}, \bar{\expr})
-	\and
-	\uop (\expr) \geq 0
-}
-{
-    \uop(\expr)
-    \trsto 
-    \big(
-    \frac{\uop(\ubar{\expr})}{(1 + \eta)}, 
-    (\uop(\bar{\expr}))(1 + \eta)
-    \big)
-}
-%
-\inferrule*[right = uop-neg]
-{
-	\expr \trsto  (\ubar{\expr}, \bar{\expr})
-	\and
-	\uop (\expr) < 0
-}
-{
-    \uop(\expr)
-    \trsto 
-    \big(
-    (\uop(\ubar{\expr}))(1 + \eta),
-    \frac{\uop(\bar{\expr})}{(1 + \eta)}
-    \big)
-}
-\end{mathpar}
-\caption{Semantics of Transition for Expressions with Relative Floating Point Error}
-\label{fig_trans_semantics_exp}
-\end{figure}
-
-
-
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = fval]
-{
-	\floaten(\rval) = \fval
-}
-{
-	\rval
-	\bigstep
-	\fval
-}
-%
-\and
-%
-\inferrule*[right = fbop]
-{
-	\expr^1 \bigstep \fval^1
-	\and
-	\expr^2 \bigstep \fval^2
-	\and
-	\floaten(\fval^1 \bop \fval^2) = \fval
-}
-{
-    \expr^1 \bop \expr^2 \bigstep \fval
-}
-%
-\and
-%
-\inferrule*[right = fuop]
-{
-	\expr \bigstep \fval',
-	\and
-	\floaten(\uop (\fval')) = \fval
-}
-{
-    \uop(\expr) \bigstep \fval
-}
-\end{mathpar}
-\caption{Semantics of Evaluation in Floating Point Computation}
-\label{fig_real_semantics_exp}
-\end{figure}
-
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = rval]
-{
-	\empty
-}
-{
-	\rval
-	\bigstep
-	\rval
-}
-%
-\and
-%
-\inferrule*[right = rbop]
-{
-	\expr^1 \bigstep \rval^1
-	\and
-	\expr^2 \bigstep \rval^2
-	\and
-	\rval^1 \bop \rval^2 = \rval
-}
-{
-    \expr^1 \bop \expr^2 \bigstep \rval
-}
-%
-\and
-%
-\inferrule*[right = ruop]
-{
-	\expr \bigstep \rval',
-	\and
-	\uop (\rval') = \rval
-}
-{
-    \uop(\expr) \bigstep \rval
-}
-%
-\and
-%
-\inferrule*[right = sample]
-{
-	 \fval \leftarrow \edistr^{\diamond}
-}
-{
-	\samplel \edistr \bigstep \fval
-}
-%
-\and
-%
-\inferrule*[right = f(d)]
-{
-	f(D) = \fval
-}
-{
-	f(D) \bigstep \fval
-}
-\end{mathpar}
-\caption{Semantics of Evaluation in Real Computation}
-\label{fig_real_semantics_exp}
-\end{figure}
-
-
-\begin{thm}[Soundness Theorem]
-Given $\expr$ where the transition 
-$\expr \trsto (\ubar{\expr}, \bar{\expr})$ holds, 
-then if $\expr$ evaluates to $c$ in floating point computation and 
-$\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, we have: 
-\[
-\ubar{r} \leq c \leq \bar{r}
-% ~~ \land ~~ 
-% \frac{r^1}{r^2} \leq \frac{c}{r} \leq \frac{r^2}{r^1}.
-\]
-\end{thm}
-% \begin{proof}
-% Induction on $\expr$, we have following cases:
-
-% \end{proof}
-
-
-\newpage
-\section{Syntax - V2 (with Programs)}
+\section{Syntax - IMP}
 \[\begin{array}{llll}
 \mbox{Programs} & \prog & ::= & 
 	%
@@ -344,8 +55,7 @@ $\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real c
 \end{array}
 \]
 
-\newpage
-\section{Semantics - V2 (with Programs)}
+\section{Semantics - IMP}
 
 The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp} for programs. The semantics are $\trsenv, \prog \trsto \trsenv'$, which means a real computation programs $\prog$ with environment $\trsenv$ can be transited in floating point computation with error bound for all variables in $\trsenv'$, $\eta$ is the machine epsilon.
 
@@ -503,10 +213,12 @@ The transition semantics with relative floating point computation error are show
 	\trsenv, \expr \trsto (\expr, \err )
 }
 {
-	\trsenv, \rvarx = \expr
+	\trsenv, \varx = \expr
 	\trsto
-	\trsenv[\rvarx \mapsto (\expr, \err ) x]
+	\trsenv[\varx \mapsto (\expr, \err )]
 }
+%
+~
 %
 \inferrule*[right = consq]
 {
@@ -520,14 +232,16 @@ The transition semantics with relative floating point computation error are show
 	\trsenv_2
 }
 %
+~
+%
 \inferrule*[right = sample]
 {
-	\empty
+	 \fval \leftarrow \edistr^{\diamond}
 }
 {
 	\trsenv, \varx \samplel \edistr
 	\bigstep
-	\trsenv[\varx \mapsto \samplel \edistr]
+	\trsenv[\varx \mapsto (\fval, (\fval, \fval))]
 }
 \end{mathpar}
 \caption{Semantics of Transition with Relative Floating Point Error Propagation for Programs}
@@ -537,12 +251,24 @@ The transition semantics with relative floating point computation error are show
 
 \begin{figure}
 \begin{mathpar}
-\inferrule*[right = fval]
+\inferrule*[right = rval]
 {
 	\floaten(\rval) = \fval
 }
 {
 	\rval
+	\bigstep
+	\fval
+}
+%
+\and
+%
+\inferrule*[right = fval]
+{
+	\empty
+}
+{
+	\fval
 	\bigstep
 	\fval
 }
@@ -591,6 +317,18 @@ The transition semantics with relative floating point computation error are show
 %
 \and
 %
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\fval
+	\bigstep
+	\fval
+}
+%
+\and
+%
 \inferrule*[right = rbop]
 {
 	\expr^1 \bigstep \rval^1
@@ -617,16 +355,6 @@ The transition semantics with relative floating point computation error are show
 %
 \and
 %
-\inferrule*[right = sample]
-{
-	 \fval \leftarrow \edistr^{\diamond}
-}
-{
-	\varx \samplel \edistr \bigstep \fval
-}
-%
-\and
-%
 \inferrule*[right = f(d)]
 {
 	f(D) = \fval
@@ -641,9 +369,10 @@ The transition semantics with relative floating point computation error are show
 
 
 \begin{thm}[Soundness Theorem]
+
 For any $\prog$, if the transition 
-$\cdot, \prog \trsto \trsenv$ holds, 
-then $\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\expr, (\ubar{\expr}, \bar{\expr})) $, we have
+$\trsenv, \prog \trsto \trsenv'$ holds and $\trsenv$ is a safe transaction environment, 
+then $\forall x \in dom(\trsenv')$ s.t. $\trsenv'(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$, we have
 if $\expr$ evaluates to $c$ in floating point computation and 
 $\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, then: 
 \[
@@ -665,8 +394,9 @@ Induction on $\expr$, we have following cases:
 Given privacy parameter $\epsilon$, the Snapping mechanism $\rsnap(a)$ is defined as:
 \[
 	U \samplel \edistr; S \samplel \{-1, 1\};
+	y = f(a) + S \times \ln (U) \div \epsilon;
 	z = \clamp_B \big(
-	\round{F(a) + S \times \ln (U) \div \epsilon}_{\Lambda}
+	\round{y}_{\Lambda}
 	\big)
 \]
 where $F$ is a primitive query function over input database $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
@@ -677,19 +407,19 @@ Let $\rsnap'(a, U, S)$ be the same as $\fsnap(a)$ given $U, S$ without rounding 
 \end{defn}
 
 
-\begin{defn}
-[$\fsnap(a) : A \to \distr(\real)$]
-Given privacy parameter $\epsilon$, the floating point implemented
-Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined the same as above):
-\[
-	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
-	s_{\mathbb{F}} \samplel \{-1, 1\};
-	z = \clamp_B \big(
-	\round{f(a) \oplus s \otimes \oln (u) \odiv \epsilon}_{\Lambda}
-	\big)
-\]
-Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping steps given $u, s$.
-\end{defn}
+% \begin{defn}
+% [$\fsnap(a) : A \to \distr(\real)$]
+% Given privacy parameter $\epsilon$, the floating point implemented
+% Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined the same as above):
+% \[
+% 	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
+% 	s_{\mathbb{F}} \samplel \{-1, 1\};
+% 	z = \clamp_B \big(
+% 	\round{f(a) \oplus s \otimes \oln (u) \odiv \epsilon}_{\Lambda}
+% 	\big)
+% \]
+% Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping steps given $u, s$.
+% \end{defn}
 
 
 
@@ -697,7 +427,7 @@ Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping 
 \section{Main Theorem}
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
-Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 12 x \epsilon \eta + 2\eta$
+Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 23 B \epsilon \eta$
 \end{thm}
 
 \begin{proof}
@@ -2173,6 +1903,294 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 
 \end{proof}
 
+\section{Syntax - V1}
+Following are the syntax of our system:
+%
+\[\begin{array}{llll}
+\mbox{Expr.} & \expr & ::= & \varx 
+	~|~ \rval ~|~ \fval
+	%
+	~|~ F(\data) ~|~ \expr \bop \expr
+	%
+	~|~ \uop (\expr) ~|~ \elet ~ \varx \samplel \edistr ~ \ein ~ \expr
+	~|~ \elet ~ \varx = \expr_1 ~ \ein ~ \expr_2 \\
+%
+\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+%
+\mbox{Unary Operation} & \uop & ::= & \ln ~|~ - ~|~ \round{\cdot} 
+	%
+	~|~ \clamp_B(\cdot) \\
+%
+\mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
+%
+\mbox{Distribution} & \edistr & ::= & \uniform ~|~ \bernoulli \\ 
+%
+\mbox{Error} & \err & ::= & (\expr, \expr)
+%
+\end{array}
+\]
+
+
+\newpage
+\section{Semantics - V1}
+
+The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp}. The semantics are $\expr \trsto (\err)$, which means a real expression $\expr$ can be transited in floating point computation with error bound $\err$, $\eta$ is the machine epsilon.
+
+We assume the SAMPLE and F(D) semantics for floating point and real computation are the same. $\edistr \bigstep_{\$} \valv$ represents $\valv$ is sampled from the distribution $\edistr$.
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = val]
+{
+	\rval \geq 0
+}
+{
+	\rval
+	\trsto
+	\big( \frac{\rval}{(1 + \eta)}, \rval(1 + \eta) \big)
+}
+%
+\and
+%
+\inferrule*[right = val-neg]
+{
+	\rval < 0
+}
+{
+	\rval
+	\trsto
+	\big( \rval(1 + \eta), \frac{\rval}{(1 + \eta)} \big)
+}
+%
+\and
+%
+\inferrule*[right = val-eq]
+{
+	\rval = \floaten(\rval)
+}
+{
+	\rval
+	\trsto
+	( \rval, \rval )
+}
+%
+\and
+%
+\inferrule*[right = f(d)]
+{
+	\empty
+}
+{
+	f(D)
+	\trsto
+	( f(D), f(D) )
+}
+%
+\and
+%
+\inferrule*[right = sample]
+{
+	\empty
+}
+{
+	\samplel \edistr
+	\trsto
+	( \samplel \edistr, \samplel \edistr )
+}
+%
+\and
+%
+\inferrule*[right = bop]
+{
+	\expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1})
+	\and
+	\expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2})
+	\and
+	\expr^1 * \expr^2 \geq 0
+}
+{
+    \expr^1 * \expr^2
+    \trsto 
+    \big(
+    \frac{\ubar{\expr^1} * \ubar{\expr^2}}{(1 + \eta)}, 
+    (\bar{\expr^1} * \bar{\expr^2})(1 + \eta)
+    \big)
+}
+%
+\inferrule*[right = bop-neg]
+{
+	\expr^1 \trsto  (\ubar{\expr^1}, \bar{\expr^1})
+	\and
+	\expr^2 \trsto  (\ubar{\expr^2}, \bar{\expr^2})
+	\and
+	\expr^1 * \expr^2 < 0
+}
+{
+    \expr^1 * \expr^2
+    \trsto 
+    \big(
+    (\bar{\expr^1} * \bar{\expr^2})(1 + \eta),
+    \frac{\ubar{\expr^1} * \ubar{\expr^2}}{(1 + \eta)}
+    \big)
+}%
+\and
+%
+\inferrule*[right = uop]
+{
+	\expr \trsto (\ubar{\expr}, \bar{\expr})
+	\and
+	\uop (\expr) \geq 0
+}
+{
+    \uop(\expr)
+    \trsto 
+    \big(
+    \frac{\uop(\ubar{\expr})}{(1 + \eta)}, 
+    (\uop(\bar{\expr}))(1 + \eta)
+    \big)
+}
+%
+\inferrule*[right = uop-neg]
+{
+	\expr \trsto  (\ubar{\expr}, \bar{\expr})
+	\and
+	\uop (\expr) < 0
+}
+{
+    \uop(\expr)
+    \trsto 
+    \big(
+    (\uop(\ubar{\expr}))(1 + \eta),
+    \frac{\uop(\bar{\expr})}{(1 + \eta)}
+    \big)
+}
+\end{mathpar}
+\caption{Semantics of Transition for Expressions with Relative Floating Point Error}
+\label{fig_trans_semantics_exp}
+\end{figure}
+
+
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = fval]
+{
+	\floaten(\rval) = \fval
+}
+{
+	\rval
+	\bigstep
+	\fval
+}
+%
+\and
+%
+\inferrule*[right = fbop]
+{
+	\expr^1 \bigstep \fval^1
+	\and
+	\expr^2 \bigstep \fval^2
+	\and
+	\floaten(\fval^1 \bop \fval^2) = \fval
+}
+{
+    \expr^1 \bop \expr^2 \bigstep \fval
+}
+%
+\and
+%
+\inferrule*[right = fuop]
+{
+	\expr \bigstep \fval',
+	\and
+	\floaten(\uop (\fval')) = \fval
+}
+{
+    \uop(\expr) \bigstep \fval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation in Floating Point Computation}
+\label{fig_real_semantics_exp}
+\end{figure}
+
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\rval
+	\bigstep
+	\rval
+}
+%
+\and
+%
+\inferrule*[right = rbop]
+{
+	\expr^1 \bigstep \rval^1
+	\and
+	\expr^2 \bigstep \rval^2
+	\and
+	\rval^1 \bop \rval^2 = \rval
+}
+{
+    \expr^1 \bop \expr^2 \bigstep \rval
+}
+%
+\and
+%
+\inferrule*[right = ruop]
+{
+	\expr \bigstep \rval',
+	\and
+	\uop (\rval') = \rval
+}
+{
+    \uop(\expr) \bigstep \rval
+}
+%
+\and
+%
+\inferrule*[right = sample]
+{
+	 \fval \leftarrow \edistr^{\diamond}
+}
+{
+	\samplel \edistr \bigstep \fval
+}
+%
+\and
+%
+\inferrule*[right = f(d)]
+{
+	f(D) = \fval
+}
+{
+	f(D) \bigstep \fval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation in Real Computation}
+\label{fig_real_semantics_exp}
+\end{figure}
+
+
+\begin{thm}[Soundness Theorem]
+Given $\expr$ where the transition 
+$\expr \trsto (\ubar{\expr}, \bar{\expr})$ holds, 
+then if $\expr$ evaluates to $c$ in floating point computation and 
+$\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, we have: 
+\[
+\ubar{r} \leq c \leq \bar{r}
+% ~~ \land ~~ 
+% \frac{r^1}{r^2} \leq \frac{c}{r} \leq \frac{r^2}{r^1}.
+\]
+\end{thm}
+% \begin{proof}
+% Induction on $\expr$, we have following cases:
+
+% \end{proof}
 
 \newpage
 \bibliographystyle{plain}
