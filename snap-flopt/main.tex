@@ -367,7 +367,7 @@ The transition semantics with relative floating point computation error are show
 \label{fig_real_semantics_exp}
 \end{figure}
 
-
+\clearpage
 \begin{thm}[Soundness Theorem]
 
 For any $\prog$, if the transition 
@@ -382,7 +382,12 @@ $\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real c
 \]
 \end{thm}
 \begin{proof}
-Induction on $\expr$, we have following cases:
+Induction on $\prog$, we have following cases:
+\begin{itemize}
+	\caseL{$\prog_1; \prog_2$}
+	\caseL{$\varx = \expr$}
+	\caseL{$\varx \samplel \edistr$}
+\end{itemize}
 
 \end{proof}
 
