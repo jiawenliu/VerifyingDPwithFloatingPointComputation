@@ -93,7 +93,9 @@ The transition semantics with relative floating point computation error are show
 {
 	\trsenv, \rval
 	\trsto
-	\big( \frac{r}{(1 + \eta)}, r(1 + \eta) \big)
+	\big(\rval, 
+	(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta)) 
+	\big)
 }
 %
 \and
@@ -107,7 +109,7 @@ The transition semantics with relative floating point computation error are show
 {
 	\trsenv, \rval
 	\trsto
-	\big( r(1 + \eta), \frac{r}{(1 + \eta)} \big)
+	\big(\rval, (\rval(1 + \eta), \frac{\rval}{(1 + \eta)}) \big)
 }
 %
 \and
@@ -119,7 +121,7 @@ The transition semantics with relative floating point computation error are show
 {
 	\trsenv, \rval
 	\trsto
-	( \rval, \rval )
+	(\rval, (\rval, \rval) )
 }
 %
 \and
@@ -138,16 +140,16 @@ The transition semantics with relative floating point computation error are show
 %
 \inferrule*[right = bop]
 {
-	\trsenv, \expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1})
-	\and
-	\trsenv, \expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2})
-	\and
+	\trsenv, \expr^1 \trsto (\expr, (\ubar{\expr^1}, \bar{\expr^1}))
+	~~~~
+	\trsenv, \expr^2 \trsto (\expr, (\ubar{\expr^2}, \bar{\expr^2}))
+	~~~~
 	\bar{\expr}, \ubar{\expr} = 
 	\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
 	\bar{\expr^1} * \ubar{\expr^2}, 
 	\ubar{\expr^1} * \bar{\expr^2}, 
 	\bar{\expr^1} * \bar{\expr^2})
-	\and
+	~~~~
 	\expr^1 * \expr^2 \geq 0
 }
 {
@@ -164,16 +166,16 @@ The transition semantics with relative floating point computation error are show
 %
 \inferrule*[right = bop-neg]
 {
-	\trsenv, \expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1})
-	\and
-	\trsenv, \expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2})
-	\and
+	\trsenv, \expr^1 \trsto (\expr, (\ubar{\expr^1}, \bar{\expr^1}))
+	~~~~
+	\trsenv, \expr^2 \trsto (\expr, (\ubar{\expr^2}, \bar{\expr^2}))
+	~~~~
 	\bar{\expr}, \ubar{\expr} = 
 	\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
 	\bar{\expr^1} * \ubar{\expr^2}, 
 	\ubar{\expr^1} * \bar{\expr^2}, 
 	\bar{\expr^1} * \bar{\expr^2})
-	\and
+	~~~~
 	\expr^1 * \expr^2 < 0
 }
 {
@@ -188,34 +190,37 @@ The transition semantics with relative floating point computation error are show
 %
 \inferrule*[right = uop]
 {
-	\trsenv, \expr \trsto (\ubar{\expr}, \bar{\expr})
+	\trsenv, \expr \trsto (\expr, (\ubar{\expr}, \bar{\expr}))
 	\and
 	\uop (\expr) \geq 0
 }
 {
     \trsenv, \uop(\expr)
     \trsto
-    \big(\uop(\expr),
+    \Big(\uop(\expr),
+    \big(
     \frac{\uop(\ubar{\expr})}{(1 + \eta)}, 
     (\uop(\bar{\expr}))(1 + \eta)
     \big)
+    \Big)
 }
 %
 ~~
 %
 \inferrule*[right = uop-neg]
 {
-	\trsenv, \expr \trsto (\ubar{\expr}, \bar{\expr})
+	\trsenv, \expr \trsto (\expr, (\ubar{\expr}, \bar{\expr}))
 	\and
 	\uop (\expr) < 0
 }
 {
     \trsenv, \uop(\expr)
     \trsto 
-    \big(\uop(\expr),
-    (\uop(\ubar{\expr}))(1 + \eta),
+    \Big(\uop(\expr),
+    \big(\uop(\ubar{\expr})(1 + \eta),
     \frac{\uop(\bar{\expr})}{(1 + \eta)}
     \big)
+    \Big)
 }
 \end{mathpar}
 \caption{Semantics of Transition for Expressions with Relative Floating Point Error}
@@ -386,17 +391,21 @@ The transition semantics with relative floating point computation error are show
 \clearpage
 \begin{thm}[Soundness Theorem]
 
-For any $\prog$, if the transition 
-$\trsenv, \prog \trsto \trsenv'$ holds and $\trsenv$ is a safe transaction environment, 
-then $\forall x \in dom(\trsenv')$ s.t. $\trsenv'(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$, we have
-if $\expr$ evaluates to $c$ in floating point computation and 
-$\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, then: 
+For any $\prog$, if there exists a transition 
+$\trsenv, \prog \trsto \trsenv'$ and $\trsenv$ is a bounded transaction environment 
+(i.e., $\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$,
+if $\expr \fbigstep c$, 
+$\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, then 
+$\ubar{r} \leq c \leq \bar{r}$) , 
+%
+then $\forall x \in dom(\trsenv')$ s.t. $\trsenv'(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$,
+if $\expr \fbigstep c$, 
+$\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, then: 
 \[
 \ubar{r} \leq c \leq \bar{r}
-% ~~ \land ~~ 
-% \frac{r^1}{r^2} \leq \frac{c}{r} \leq \frac{r^2}{r^1}.
 \]
 \end{thm}
+%
 \begin{proof}
 Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a safe environment $(\star)$.
 \begin{itemize}
@@ -410,17 +419,17 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	}
 	{
 	\trsenv, \prog_1; \prog_2
-	\bigstep
+	\trsto
 	\trsenv_2
 	}
 	\]
 	}
-	We need to show $\trsenv_2$ is a safe environment.\\
+	We need to show $\trsenv_2$ is a bounded environment.\\
 	%
-	Since we know $\trsenv$ is a safe environment by assumption $(\star)$, by induction hypothesis, we have:
+	Since we know $\trsenv$ is a bounded environment by assumption $(\star)$, by induction hypothesis, we have:
 	%
 	\\
-	$\trsenv_1$ and $\trsenv_2$ are all safe environment. This case is proved.
+	$\trsenv_1$ and $\trsenv_2$ are all bounded environment. This case is proved.
 
 	\caseL{\[
 	\inferrule*[right = sample]
@@ -429,7 +438,7 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	}
 	{
 		\trsenv, \varx \samplel \edistr
-		\bigstep
+		\trsto
 		\trsenv[\varx \mapsto (\fval, (\fval, \fval))]
 	}
 	\]}
@@ -577,9 +586,11 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	\[
 	\inferrule*[right = bop]
 		{
-			\trsenv, \expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1}) ~ (\diamond)
+			\trsenv, \expr^1 \trsto 
+			(\expr, (\ubar{\expr^1}, \bar{\expr^1})) ~ (\diamond)
 			\and
-			\trsenv, \expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2}) ~ (\triangle)
+			\trsenv, \expr^2 \trsto 
+			(\expr, (\ubar{\expr^2}, \bar{\expr^2})) ~ (\triangle)
 			\\
 		\bar{\expr}, \ubar{\expr} = 
 		\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
@@ -657,9 +668,11 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	\[
 	\inferrule*[right = bop-neg]
 		{
-			\trsenv, \expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1})
+			\trsenv, \expr^1 \trsto 
+			(\expr, (\ubar{\expr^1}, \bar{\expr^1}))
 			\and
-			\trsenv, \expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2})
+			\trsenv, \expr^2 \trsto 
+			(\expr, (\ubar{\expr^2}, \bar{\expr^2}))
 			\\
 		\bar{\expr}, \ubar{\expr} = 
 		\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
