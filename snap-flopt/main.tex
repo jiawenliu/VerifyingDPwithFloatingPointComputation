@@ -919,7 +919,7 @@ Let $\snap''(a)$ be the same as $\snap(a)$ given $U, S$, i.e., $\snap''(a):
 \section{Main Theorem}
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
-Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 23 B \epsilon \eta$
+Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 23 B \epsilon \eta$.
 \end{thm}
 
 \begin{proof}
@@ -927,11 +927,14 @@ Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and 
 %
 Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
 Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
-The proof is developed by cases of the output of $\snap(a)$ mechanism.
 %
 
 %
-Consider the $\snap(a)$ outputting the same result $x$ under floating point and real computaion, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$ s.t. $[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$, we have $\Pr[\snap(a) = \varx] = R - L$. Sice the $\snap(a)$ is $\epsilon-$DP, we have:
+Consider the $\snap(a)$ outputting the same result $x$ under floating point and real computaion, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$ s.t.:
+%
+$$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx].$$
+%
+We have $\Pr[\snap(a) = \varx] = R - L$. Sice the $\snap(a)$ is $\epsilon-$DP, we can get:
 \[
 	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]} = \frac{R - L}{R' - L'} \leq e^{\epsilon}
 \]
@@ -942,7 +945,17 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$ s.t.:
 %
 $$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx].$$
 %
-We estimate the worst case $|r - l|$ in terms of floating point relative error and $|R - L|$ through our semantics in order to verify the privacy loss of $\snap$.
+To show the privacy loss of $\snap$ mechanism in floating point computation is bounded by $\epsilon + 23 B \epsilon \eta$, it’s sufficent to show:
+$|r - l|$ is bounded $f(|{R} - {L}|)$ and $g(|{R} - {L}|)$ s.t.:
+%
+\[
+	-(\epsilon + 23 B \epsilon \eta)
+	\leq \ln( \frac{f(|{R} - {L}|)}{g(|{R} - {L}|)} )
+	\leq \epsilon + 23 B \epsilon \eta.
+\]
+
+%
+Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 	%
 	\begin{itemize}
 		%
@@ -953,20 +966,23 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 		\\
 		%
-		Let $L$ and $R$ be the range where $\forall u \in (L, R)$,  $[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$ and
+		Let $L$ and $R$ be the range where $\forall u \in (L, R)$ and $s = 1$, s.t.
 		$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$.
 		%
 		\\
 		%
-		So we know $s = 1$, $L = 0$, 
-		$[U \mapsto R, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto -b']$
-		and
-		$[U \mapsto R, S \mapsto 1], \snap'(a) \rbigstep [y \mapsto -b']$.
+		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
+		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
 		%
 		\\
 		%
-		We need to estimate the worst case range of $R$ in this case.
-		The derivation of this case given $\trsenv = [U \mapsto (R, (R, R)), S \mapsto (1, (1, 1))]$ is shown as following:
+		So we know $s = 1$, $l = L = 0$, $\ubar{R} < r < \bar{R}$ s.t.:
+		$$[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto -b']
+		\land
+		[U \mapsto R, S \mapsto 1], \snap'(a) \rbigstep [y \mapsto -b'].$$
+		%
+		%
+		The derivation of this case given $\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
 		% \begin{figure}
 		\begin{mathpar}
 		\inferrule[uop]
@@ -1124,7 +1140,7 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		\[
 		\begin{array}{ll}
 		(\star) & < e^{\epsilon \big( 
-		-\frac{9\eta + 6}{1 + 3\eta} x
+		\frac{9\eta + 6}{1 + 3\eta} b'
 		+ 4.1 \eta f(a)
 		+ (1 + 2.1\eta) 
 		\big)}\\
@@ -1140,7 +1156,28 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 \lor \bigg( \round{f(a)}_{\Lambda} > 0 \land x \in (-B, 0) \bigg) } $}
 		%
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 < 0$, $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 < 0$.
+		%
+		\\
+		%
+		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
+		$[U \mapsto u, S \mapsto 1],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
+		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		%
+		$$[U \mapsto l, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_1]
+		\land
+		[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_2].$$
+
+		The transition from $R$ to $r$ given the transition environment 
+		$\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
 		%
 		\begin{mathpar}
 		\inferrule[ln]
@@ -1150,50 +1187,49 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 				\empty
 			}
 			{
-				R 
+				\trsenv, R 
 				\trsto
-				(R,
-				({R}, {R}))
+				(R, (\ubar{R}, \bar{R})
 			}
 		}
 		{
 			\inferrule[op]
 			{
-				\ln(R) 
+				\trsenv, \ln(U) 
 				\trsto
 				(\ln(R) ,
-				(\ln({R})(1 + \eta),
-				\frac{\ln({R})}{(1 + \eta)}))
+				(\ln(\ubar{R})(1 + \eta),
+				\frac{\ln(\bar{R})}{(1 + \eta)}))
 			}
 			{
 				\inferrule[op]
 				{
-					\frac{1}{\epsilon} \times \ln(R) 
+					\trsenv, \frac{1}{\epsilon} \times \ln(U) 
 					\trsto
 					\big(
 					\frac{1}{\epsilon} \times \ln(R)
 					,
-					((\frac{1}{\epsilon} \times \ln({R}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln({R})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2})
 					\big)
 				}
 				{
 					\inferrule[id]
 					{
-						f(a) + \frac{1}{\epsilon} \times \ln(R)
+					\trsenv,f(a) + \frac{1}{\epsilon} \times \ln(U)
 						\trsto
 						\Big(
 						f(a) + \frac{1}{\epsilon} \times \ln(R)
 						,
 						\bigg(
 						\big( f(a) + 
-						(\frac{1}{\epsilon} \times \ln({R}))
+						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
 						(1 + \eta)^2 \big)
 						{(1 + \eta)},
 						%
 						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln({R})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
 						)}
 						{(1 + \eta)}
@@ -1201,63 +1237,56 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 						\Big)
 					}
 					{
-						\snap'(a)
+						\trsenv, \snap'(a)
 						\trsto
-						(\snap'(a)
-						,
-						(
-						\expr^1,
+						\trsenv
+						[y \mapsto 
+						(f(a) + \frac{1}{\epsilon} \times \ln(R),
+						(\expr^1,
 						%
-						\expr^2))
+						\expr^2))]
 					}
 				}
 			}
 		}
 		\end{mathpar}
-		From soundness theorem, we have  $\expr^1 \leq y_2 \leq \expr^2$, where we can get $\ubar{R} \leq r \leq \bar{R}$.\\
+		From soundness theorem, we have  $\expr^1 \leq y_2 \leq \expr^2$, where we can get:
 		%
-		Taking the lower bound,  we have: 
+		\\ 
 		$\ubar{R} = e^{\epsilon 
-				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$.\\
+				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$ and
 		%
-		Taking the upper bound, we have: 
 		$\bar{R} = e^{\epsilon 
 				\frac{(\frac{y_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
 		%
-		
+		The transition from $L$ to $l$ given the transition environment 
+		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
+		%
 		\begin{mathpar}
 		\inferrule
 		{
-			\dots
+		\dots
 		}
 		{
-			\inferrule
-			{
-				\snap'(a)
-				\trsto
-				(\snap'(a)
-				,
-				\big(
-				\frac{f(a) + 
-				(\frac{1}{\epsilon} \times \ln(\ubar{L}))
-				(1 + \eta)^2}
-				{1 + \eta},
-				%
-				(
-				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
-				{(1 + \eta)^2}
-				)(1 + \eta)
-				)
-				\big)
-			}
-			{
-				\snap'(a)
-				\trsto
-				(\snap'(a)
-				,
-				(\err_1, \err_2))
-				%
-			}
+		 \trsenv, \snap'(a)
+		 \trsto
+		 \trsenv[
+		 z \mapsto(
+		 f(a) + (\frac{1}{\epsilon} \times \ln(\ubar{L})
+		 ,
+		 \big(
+		 \frac{f(a) + 
+		 (\frac{1}{\epsilon} \times \ln(\ubar{L}))
+		 (1 + \eta)^2}
+		 {1 + \eta},
+		 %
+		 (
+		 f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{ L})}
+		 {(1 + \eta)^2}
+		 )(1 + \eta)
+		 )
+		 \big)
+		 ]
 		}
 		\end{mathpar}
 		%
@@ -1360,13 +1389,34 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land x \in (0, \round{f(a)}_{\Lambda}) } $}
 		%
 
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 > 0$, $y_2 > 0$,  $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. The derivations of estimating $l$ and $r$ are shown as following:
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 > 0$, $y_2 > 0$.
+		%
+		\\
+		%
+		Let $S = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L, R)$:
+		$[U \mapsto u, S \mapsto 1],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
+		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		We know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		%
+		$$[U \mapsto l, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_1]
+		\land
+		[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_2].$$
+
+		The transition from $L$ to $l$ given the transition environment 
+		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
 		% in Figure. \ref{fig_der_snap2}
 		% \begin{figure}
 		\begin{mathpar}
 		\inferrule
 		{
-			L 
+			\trsenv, U 
 			\trsto
 			(
 			L,
@@ -1376,7 +1426,7 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		{
 			\inferrule
 			{
-				\ln(L) 
+				\trsenv, \ln(U) 
 				\trsto
 				(\ln(L),
 				(\ln(\ubar{L})(1 + \eta),
@@ -1385,7 +1435,7 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 			{
 				\inferrule
 				{
-					\frac{1}{\epsilon} \times \ln(L) 
+					\trsenv, \frac{1}{\epsilon} \times \ln(U) 
 					\trsto
 				\big(
 				\frac{1}{\epsilon} \times \ln(L) 
@@ -1398,10 +1448,10 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 				{
 					\inferrule
 					{
-						f(a) + \frac{1}{\epsilon} \times \ln(L) 
+						\trsenv, f(a) + \frac{1}{\epsilon} \times \ln(U) 
 						\trsto
 						\big(
-						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(l)
+						f(a) + \frac{1}{\epsilon} \times \ln(l)
 						,
 						(
 						\frac{f(a) + 
@@ -1417,9 +1467,11 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 						\big)
 					}
 					{
-					\snap'(a)
+					\trsenv, \snap'(a)
 					\trsto
-					(\snap'(a)
+					\trsenv[
+					y \mapsto 
+					(f(a) + \frac{1}{\epsilon} \times \ln(L)
 					,
 					(
 					\err_1,
@@ -1433,53 +1485,47 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		\end{mathpar}
 		%
 		%
-		From soundness theorem, we have  $\err_1 \leq y_1 \leq \err_2$.
+		From soundness theorem, we have  $\err_1 \leq y_1 \leq \err_2$, then we can get:
 		%
-
-		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
-		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
-		Taking the upper bound (i.e. $\err_2 = y_1$), we get:
+		\\
+		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$ and
 		$\bar{L} = e^{(y_1 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
 		%
 		%
+		The transition from $R$ to $r$ given the transition environment 
+		$\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
+%
+%
 		\begin{mathpar}
 		\inferrule
 		{
 			\dots
 		}
 		{
-			\inferrule
-			{
-				\snap'(a)
-				\trsto
-				\snap'(a)
-				,
-				(
-				\frac{f(a) + 
-				(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-				(1 + \eta)^2}
-				{1 + \eta},
-				%
-				(
-				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-				{(1 + \eta)^2}
-				)(1 + \eta)
-				)
-			}
-			{
-				\snap'(a)
-				\trsto
-				\snap'(a)
-				,
-				(\err_1, \err_2)
-				%
-			}
+   		\trsenv, \snap'(a)
+   		\trsto
+   		\trsenv[y \mapsto 
+   		\big(
+   		f(a) + \frac{1}{\epsilon} \times \ln(R)
+   		,
+   		(
+   		\frac{f(a) + 
+   		(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+   		(1 + \eta)^2}
+   		{1 + \eta},
+   		%
+   		(
+   		f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+   		{(1 + \eta)^2}
+   		)(1 + \eta)
+   		)\big)
+   		]
 		}
 		\end{mathpar}
 		%
 		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
 		%
-
+\\
 		%
 		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
 		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
@@ -1488,16 +1534,19 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 
 		%
-		In the same way, we have the derivation for $\snap'(a', l, 1)$ and $\snap'(a', r, 1)$:
+		For the adjacent input $a$, we first have the same setting as input $a$ for $R'$ and $L'$.
+		Then the transition from $L'$ to $l'$ given the transition environment 
+		$\trsenv = [U \mapsto (L', (\ubar{L'}, \bar{L'})), S \mapsto (1, (1, 1))]$ is shown as following:
 		\begin{mathpar}
 		\inferrule
 		{
 			\dots
 		}
 		{
-			\snap'(a', L', 1)
+			\trsenv, \snap'(a')
 			\trsto
-			\snap'(a', l', 1)
+			\trsenv[ y \mapsto
+			\big(f(a) + \frac{1}{\epsilon} \times \ln(L')
 			,
 			(
 			\frac{f(a') + 
@@ -1509,7 +1558,8 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{L'})}
 			{(1 + \eta)^2}
 			)(1 + \eta)
-			)
+			)\big)
+			]
 		}
 		\end{mathpar}
 		%
@@ -1517,21 +1567,24 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 
 		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
-		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
+		$\ubar{L'} = e^{(y_1 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
 		%
 		Taking the upper bound (i.e. $\err_2 = y_1$), we get:
-		$\bar{L} = e^{(y_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
+		$\bar{L'} = e^{(y_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
 		%
 		%
+		The transition from $R'$ to $r'$ given the transition environment 
+		$\trsenv = [U \mapsto (R', (\ubar{R'}, \bar{R'})), S \mapsto (1, (1, 1))]$ is shown as following:
 		\begin{mathpar}
 		\inferrule
 		{
 			\dots
 		}
 		{
-			\snap'(a', R', 1)
+			\trsenv, \snap'(a')
 			\trsto
-			\snap'(a', r', 1)
+			\trsenv[y \mapsto
+			\big(f(a) + \frac{1}{\epsilon} \times \ln(R') 
 			,
 			(
 			\frac{f(a') + 
@@ -1543,7 +1596,8 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
 			{(1 + \eta)^2}
 			)(1 + \eta)
-			)
+			) \big)
+			]
 		}
 		\end{mathpar}
 		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
@@ -1551,21 +1605,21 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 
 		%
 		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
-		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
+		$\ubar{R'} = e^{(y_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
 		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
-		$\bar{R} = e^{(y_2 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
+		$\bar{R'} = e^{(y_2 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
 		%
-
+		\\
 		%
 		%
 		%
-		The privacy loss is bounded by:
+		We have the privacy loss is bounded by:
 		%
 		\[
 		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
 		\]
 		%
-
+\\
 		%
 		Since the following bound can be proved by using $1 - 2\eta < (1 + \eta)^2 < 1 + 2.1\eta, y_1 > -B, y_2 > -B $ and simple approximation:
 		\[
@@ -1587,40 +1641,54 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 %
 		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land x = 0 } $}
 
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 > 0$,  $S = s = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$ in this case. We have the derivation as:
-%
+		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 > 0$.
+		\\
+		%
+		Let $S = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L, R)$:
+		$[U \mapsto u, S \mapsto 1],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
+		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		We know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		%
+		$$[U \mapsto l, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_1]
+		\land
+		[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		%
+		The transition from $L$ to $l$ given the transition environment 
+		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
+		%
+		%
 		\begin{mathpar}
 		\inferrule
 		{
-			\dots
+		\dots
 		}
 		{
-			\inferrule
-			{
-				\snap'(a)
-				\trsto
-				\snap'(a)
-				,
-				(
-				\frac{f(a) + 
-				(\frac{1}{\epsilon} \times \ln(\ubar{L}))
-				(1 + \eta)^2}
-				{1 + \eta},
-				%
-				(
-				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
-				{(1 + \eta)^2}
-				)(1 + \eta)
-				)
-			}
-			{
-				\snap'(a)
-				\trsto
-				\snap'(a)
-				,
-				(\err_1, \err_2)
-				%
-			}
+		\trsenv, \snap'(a)
+		\trsto
+		\trsenv[y \mapsto
+		\big(
+		f(a) + 
+		\frac{1}{\epsilon} \times \ln(\ubar{L})
+		,
+		(
+		\frac{f(a) + 
+		(\frac{1}{\epsilon} \times \ln(\ubar{L}))
+		(1 + \eta)^2}
+		{1 + \eta},
+		%
+		(
+		f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
+		{(1 + \eta)^2}
+		)(1 + \eta)
+		) \big)
+		]
 		}
 		\end{mathpar}
 		%
@@ -1636,40 +1704,35 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
 		%
 		%
+		The transition from $R$ to $r$ given the transition environment 
+		$\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
 		\begin{mathpar}
 		\inferrule
 		{
-			\dots
+		 \dots
 		}
 		{
-			\inferrule
-			{
-				\snap'(a)
-				\trsto
-				\snap'(a)
-				,
-				(
-				\frac{f(a) + 
-				(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-				(1 + \eta)^2}
-				{1 + \eta},
-				%
-				(
-				f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-				{(1 + \eta)^2}
-				)(1 + \eta)
-				)
-			}
-			{
-				\snap'(a)
-				\trsto
-				(\snap'(a)
-				,
-				(\err_1, \err_2))
-				%
-			}
+		\trsenv, \snap'(a)
+		\trsto
+		\trsenv[y \mapsto
+		\big(
+		f(a) + 
+		\frac{1}{\epsilon} \times \ln(\ubar{R})
+		,
+		(
+		\frac{f(a) + 
+		(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+		(1 + \eta)^2}
+		{1 + \eta},
+		%
+		(
+		f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
+		{(1 + \eta)^2}
+		)(1 + \eta)
+		) \big)
+		]
 		}
-		\end{mathpar}
+	   \end{mathpar}
 		%
 		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
 		%
@@ -1707,56 +1770,82 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 		Without loss of generalization, we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.\\
 		%
-		From this assumption, let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 < 0$.
+		From this assumption, let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x + \frac{\Lambda}{2}$, we know $y_1 < 0$, $y_2 < 0$.
 		%
 		Since $f(a) + 1 = f(a')$, we also have $\round{f(a)} < \round{f(a')}$.
 		So, we know $s$ can only be $1$ for input $a'$ but $s$ can be $1$ or $-1$ for input $a$.
 		%
 		\\
 		%
-		For input $a$, when $s = 1$, we have following derivations:
 		%
+		For input $a$,
+		let $S = s$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L, R)$:
+		$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $S = s$, s.t.
+		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		We know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		%
+		$$[U \mapsto l, S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_1]
+		\land
+		[U \mapsto r, S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		%
+		Induction on $s$, we have when $s = 1$:
+		%
+		\\
+		%
+		The transition from $R$ to $r$ given the transition environment 
+		$\trsenv = [U \mapsto (R_{+}, (\ubar{R_{+}}, \bar{R_{+}})), S \mapsto (1, (1, 1))]$ is shown as following:
 		%
 		\begin{mathpar}
 		\inferrule
 		{
-		 R
+		 \trsenv, U
 		 \trsto
-		 r, ( R, R )
+		 R_{+}, ( \ubar{R_{+}}, \bar{R_{+}} )
 		}
 		{
 		 \inferrule
 		 {
-		  \ln(R)
+		  \trsenv, \ln(U)
 		  \trsto
-		  \oln (r), 
-		  (\ln(R)(1 + \eta), \frac{\ln(R)}{1+\eta})
+		  \big(\ln (R_{+}), 
+		  (\ln(\ubar{R_{+}})(1 + \eta), \frac{\ln(\bar{R_{+}})}{1+\eta})
+		  \big)
 		 }
 		 {
 		  \inferrule
 		  {
-		   \frac{1}{\epsilon}\ln(R)
+		  \trsenv,  \frac{1}{\epsilon}\ln(U)
 		   \trsto
-		   \frac{1}{\epsilon} \otimes \oln (r), 
+		   \bigg(\frac{1}{\epsilon} \times \ln (R_{+}), 
 		   \big(
-		   \frac{1}{\epsilon}\ln(R)(1 + \eta)^2, 
-		   \frac{1}{\epsilon}\frac{\ln(R)}{(1+\eta)^2}
-		   \big)
+		   \frac{1}{\epsilon}\ln(\ubar{R_{+}})(1 + \eta)^2, 
+		   \frac{1}{\epsilon}\frac{\ln(\bar{R_{+}})}{(1+\eta)^2}
+		   \big) \bigg)
 		  }
 		  {
 		   \inferrule
 		   {
-		    f(a) + \frac{1}{\epsilon}\ln(R)
+		    \trsenv, f(a) + \frac{1}{\epsilon}\ln(U)
 			\trsto
-			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r), 
-			\bigg(
-			(f(a) + \frac{1}{\epsilon}\ln(R)(1 + \eta)^2)(1 + \eta), 
-			(f(a) + \frac{1}{\epsilon}\frac{\ln(R)}{(1+\eta)^2}) / (1 + \eta)
+			\bigg(f(a) + \frac{1}{\epsilon} \times \ln (R_{+}), 
+			\big(
+			(f(a) + \frac{1}{\epsilon}\ln(\ubar{R_{+}})(1 + \eta)^2)(1 + \eta), 
+			(f(a) + \frac{1}{\epsilon}\frac{\ln(\bar{R_{+}})}{(1+\eta)^2}) / (1 + \eta) \big)
 			\bigg)
 		   }
 		   {
-		   \snap'(a) \trsto \snap'(a), 
-		   (\err_1, \err_2)
+		   \trsenv, \snap'(a) \trsto 
+		   \trsenv[y \mapsto
+		   (f(a) + \frac{1}{\epsilon} \times \ln (R_{+}), 
+		   (\err_1, \err_2))
+		   ]
 		   }
 		  }
 		 }
@@ -1887,7 +1976,9 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 		Since the output set $(\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})$ is empty when $\Lambda \geq 1$, so we consider the situation where $\Lambda < 1$.
 		%
-		There are two subcases in this case : $x >0 and x < 0$. Without loss of generalization, we consider the worst case where error propagate in the same direction, i.e., $\round{f(a')}_{\Lambda}) < 0$. The bounds derived for $l, r$ and $l', r'$ under input $a$ and $a'$ are as follows:
+		There are two subcases in this case : $x >0$ and $x < 0$.
+		%
+		Without loss of generalization, we consider the worst case where error propagate in the same direction, i.e., $\round{f(a')}_{\Lambda}) < 0$. The bounds derived for $l, r$ and $l', r'$ under input $a$ and $a'$ are as follows:
 		%
 		\\
 		%
@@ -1975,30 +2066,53 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		%
 		\\
 		%
-		For input $a'$, when $s = 1$, we have following derivations:
+		For input $a'$, 
+		Let $S = s$, $L' = e^{\epsilon(y_1 - f(a'))}$ and $R' = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L', R')$:
+		$[U \mapsto u, S \mapsto s],\snap''(a') \rbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		Let $l'$ and $r'$ be the range where $\forall u \in (l', r')$ and $S = s$, s.t.
+		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		We know: $\ubar{L'} < l' < \bar{L'}$, $\ubar{R'} < r < \bar{R'}$ s.t.:
+		%
+		$$[U \mapsto l', S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_1]
+		\land
+		[U \mapsto r', S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		%
+		Induction on s, we have:
+		When $s = 1$.
+		%
+		\\
+		%
+		The transition from $R'$ to $r'$ given the transition environment 
+		$\trsenv = [U \mapsto (R'_{+}, (\ubar{R'_{+}}, \bar{R'_{+}})), S \mapsto (1, (1, 1))]$ is shown as following:
 		%
 		%
 		\begin{mathpar}
 		\inferrule
 		{
-		 R_+'
+		 \trsenv, U
 		 \trsto
-		 r_+, ( R_+', R_+' )
+		 R_+, ( R_+', R_+' )
 		}
 		{
 		 \inferrule
 		 {
-		  \ln(R_+')
+		  \trsenv, \ln(U)
 		  \trsto
-		  \oln (r_+), 
-		  (\ln(R_+')(1 + \eta), \frac{\ln(R_+')}{1+\eta})
+		  \big(\ln (R_+), 
+		  (\ln(R_+')(1 + \eta), \frac{\ln(R_+')}{1+\eta}) \big)
 		 }
 		 {
 		  \inferrule
 		  {
-		   \frac{1}{\epsilon}\ln(R)
+		   \trsenv, \frac{1}{\epsilon}\ln(U)
 		   \trsto
-		   \frac{1}{\epsilon} \otimes \oln (r_+), 
+		   \frac{1}{\epsilon} \times \ln (R_+), 
 		   \big(
 		   \frac{1}{\epsilon}\ln(R_+')(1 + \eta)^2, 
 		   \frac{1}{\epsilon}\frac{\ln(R_+')}{(1+\eta)^2}
@@ -2007,18 +2121,20 @@ We estimate the worst case $|r - l|$ in terms of floating point relative error a
 		  {
 		   \inferrule
 		   {
-		    f(a) + \frac{1}{\epsilon}\ln(R_+')
+		    \trsenv, f(a) + \frac{1}{\epsilon}\ln(U)
 			\trsto
-			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r_+), 
 			\bigg(
+			f(a) + \frac{1}{\epsilon} \times \ln (R_+), 
+			\big(
 			(f(a) + \frac{1}{\epsilon}\ln(R_+')(1 + \eta)^2)(1 + \eta), 
 			(f(a) + \frac{1}{\epsilon}\frac{\ln(R_+')}{(1+\eta)^2}) / (1 + \eta)
-			\bigg)
+			\big) \bigg)
 		   }
 		   {
-		   \snap'(a) \trsto 
-		   (\snap'(a), 
-		   (\err_1, \err_2))
+		   \trsenv, \snap'(a) \trsto 
+		   \trsenv[y \mapsto 
+		   (f(a) + \frac{1}{\epsilon} \times \ln (R_+), 
+		   	(\err_1, \err_2))]
 		   }
 		  }
 		 }
