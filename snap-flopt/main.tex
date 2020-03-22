@@ -57,7 +57,7 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 
 \section{Semantics - IMP}
 
-The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp} for programs. The semantics are $\trsenv, \prog \trsto \trsenv'$, which means a real computation programs $\prog$ with environment $\trsenv$ can be transited in floating point computation with error bound for all variables in $\trsenv'$, $\eta$ is the machine epsilon.
+The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_imp_trans_semantics_exp} for programs. The semantics are $\trsenv, \prog \trsto \trsenv'$, which means a real computation programs $\prog$ with environment $\trsenv$ can be transited in floating point computation with error bound for all variables in $\trsenv'$, $\eta$ is the machine epsilon.
 
 \begin{figure}
 \begin{mathpar}
@@ -224,7 +224,7 @@ The transition semantics with relative floating point computation error are show
 }
 \end{mathpar}
 \caption{Semantics of Transition for Expressions with Relative Floating Point Error}
-\label{fig_trans_semantics_exp}
+\label{fig_imp_trans_semantics_exp}
 \end{figure}
 
 \begin{figure}
@@ -321,7 +321,7 @@ The transition semantics with relative floating point computation error are show
 }
 \end{mathpar}
 \caption{Semantics of Evaluation in Floating Point Computation}
-\label{fig_real_semantics_exp}
+\label{fig_imp_real_semantics_exp}
 \end{figure}
 
 \begin{figure}
@@ -877,8 +877,8 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 \section{Snapping Mechanism}
 
 \begin{defn}
-[$\rsnap(a) : A \to \distr(\real)$]
-Given privacy parameter $\epsilon$, the Snapping mechanism $\rsnap(a)$ is defined as:
+[$\snap(a) : A \to \distr(\real)$]
+Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined as:
 \[
 	U \samplel \edistr; S \samplel \{-1, 1\};
 	y = f(a) + S \times \ln (U) \div \epsilon;
@@ -888,16 +888,21 @@ Given privacy parameter $\epsilon$, the Snapping mechanism $\rsnap(a)$ is define
 \]
 where $F$ is a primitive query function over input database $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 %
-
+\\
 %
-Let $\rsnap'(a, U, S)$ be the same as $\fsnap(a)$ given $U, S$ without rounding and clamping steps.
+Let $\snap'(a)$ be the same as $\snap(a)$ given $U, S$ without rounding and clamping steps, i.e., $\snap'(a): y = f(a) + S \times \ln (U) \div \epsilon$.
+%
+\\
+%
+Let $\snap''(a)$ be the same as $\snap(a)$ given $U, S$, i.e., $\snap''(a): 
+\snap'(a); z = \clamp_B \big( \round{y}_{\Lambda} \big)$.
 \end{defn}
 
 
 % \begin{defn}
-% [$\fsnap(a) : A \to \distr(\real)$]
+% [$\snap(a) : A \to \distr(\real)$]
 % Given privacy parameter $\epsilon$, the floating point implemented
-% Snapping mechanism $\fsnap(a)$ is defined as (where all parameters are defined the same as above):
+% Snapping mechanism $\snap(a)$ is defined as (where all parameters are defined the same as above):
 % \[
 % 	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
 % 	s_{\mathbb{F}} \samplel \{-1, 1\};
@@ -905,7 +910,7 @@ Let $\rsnap'(a, U, S)$ be the same as $\fsnap(a)$ given $U, S$ without rounding 
 % 	\round{f(a) \oplus s \otimes \oln (u) \odiv \epsilon}_{\Lambda}
 % 	\big)
 % \]
-% Let $\fsnap'(a, u, s)$ be the same as $\fsnap(a)$ without rounding and clamping steps given $u, s$.
+% Let $\snap'(a)$ be the same as $\snap(a)$ without rounding and clamping steps given $u, s$.
 % \end{defn}
 
 
@@ -918,156 +923,181 @@ Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and 
 \end{thm}
 
 \begin{proof}
-
-Given $\fsnap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
+%
+%
+Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
 Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
-The proof is developed by cases of the output of $\fsnap(a)$ mechanism.
+The proof is developed by cases of the output of $\snap(a)$ mechanism.
 %
 
 %
-Consider the $\rsnap(a)$ outputting the same result $x$, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$, $\rsnap'(a, u, s) = x$, we have $\Pr[\rsnap(a)] = R - L$. Given the $\rsnap$ is $\epsilon-$dp, we have:
+Consider the $\snap(a)$ outputting the same result $x$ under floating point and real computaion, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$ s.t. $[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$, we have $\Pr[\snap(a) = \varx] = R - L$. Sice the $\snap(a)$ is $\epsilon-$DP, we have:
 \[
-	e^{-\epsilon} \leq \frac{\Pr[\rsnap(a)]}{\Pr[\rsnap(a)]} = \frac{R - L}{R' - L'} \leq e^{\epsilon}
+	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]} = \frac{R - L}{R' - L'} \leq e^{\epsilon}
 \]
 %
-
+\\
 %
-Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a, u, s) = x$, we estimated the $|r - l|$ in terms of floating point relative error and $|R - L|$ through our semantics in order to verify the privacy loss of $\fsnap$.
+Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$ s.t.: 
+%
+$$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx].$$
+%
+We estimate the worst case $|r - l|$ in terms of floating point relative error and $|R - L|$ through our semantics in order to verify the privacy loss of $\snap$.
 	%
 	\begin{itemize}
 		%
 		% \item[\textbf{case}] $\boldsymbol{x = -B}$
 		\caseL{$\boldsymbol{x = -B}$}
 		%
-		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$.
-		We know $s = 1$, $L = l = 0$ and $R = -b$, so we only need to estimate the right side range $r$ in this case. The derivation of this case given $\fsnap'(a, R, 1) = \fsnap'(a', R, 1) = x$ is shown as following:
+		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b - \Lambda / 2$.
+		%
+		\\
+		%
+		Let $L$ and $R$ be the range where $\forall u \in (L, R)$,  $[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$ and
+		$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		%
+		\\
+		%
+		So we know $s = 1$, $L = 0$, 
+		$[U \mapsto R, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto -b']$
+		and
+		$[U \mapsto R, S \mapsto 1], \snap'(a) \rbigstep [y \mapsto -b']$.
+		%
+		\\
+		%
+		We need to estimate the worst case range of $R$ in this case.
+		The derivation of this case given $\trsenv = [U \mapsto (R, (R, R)), S \mapsto (1, (1, 1))]$ is shown as following:
 		% \begin{figure}
 		\begin{mathpar}
-		\inferrule[ln]
+		\inferrule[uop]
 		{
 			\inferrule*[right = val-eq]
 			{
 				\empty
 			}
 			{
-				R 
-				\bigstep
-				r,
-				({R}, {R})
+				\trsenv, U 
+				\trsto
+				(R,
+				(\ubar{R}, \bar{R}))
 			}
 		}
 		{
-			\inferrule[op]
+			\inferrule[bop]
 			{
-				\ln(R) 
-				\bigstep
-				\oln(r),
-				(\ln({R})(1 + \eta),
-				\frac{\ln({R})}{(1 + \eta)})
+				\trsenv,
+				\ln(U) 
+				\trsto
+				(\ln(R), \ln(\ubar{R})(1 + \eta),
+				\frac{\ln(\bar{R})}{(1 + \eta)})
 			}
 			{
-				\inferrule[op]
+				\inferrule[bop]
 				{
-					\frac{1}{\epsilon} \times \ln(R) 
-					\bigstep
-					\frac{1}{\epsilon} \otimes \oln(r)
-					,
-					((\frac{1}{\epsilon} \times \ln({R}))(1 + \eta)^2,
+					\trsenv,
+					\frac{1}{\epsilon} \times \ln(U) 
+					\trsto
+					(\frac{1}{\epsilon} \times \ln(R),
+					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln({R})}{(1 + \eta)^2})
+					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2}))
 				}
 				{
 					\inferrule[id]
 					{
-						f(a) + \frac{1}{\epsilon} \times \ln(R)
-						\bigstep
-						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
-						,
+						\trsenv,
+						f(a) + \frac{1}{\epsilon} \times \ln(U)
+						\trsto
 						\bigg(
-						\big( f(a) + 
-						(\frac{1}{\epsilon} \times \ln({R}))
-						(1 + \eta)^2 \big)
+						f(a) + \frac{1}{\epsilon} \times \ln(R),
+						\big( (f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+						(1 + \eta)^2)
 						{(1 + \eta)},
 						%
 						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln({R})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
 						)}
 						{(1 + \eta)}
+						 \big)
 						\bigg)
 					}
 					{
-						\rsnap'(a, R, 1)
-						\bigstep
-						\fsnap'(a, r, 1)
-						,
-						\bigg(
-						\big( f(a) + 
-						(\frac{1}{\epsilon} \times \ln({R}))
-						(1 + \eta)^2 \big)
+						\trsenv,\snap'(a)
+						\trsto
+						\trsenv[y \mapsto \bigg(
+						f(a) + \frac{1}{\epsilon} \times \ln(R),
+						\big( (f(a) + 
+						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
+						(1 + \eta)^2)
 						{(1 + \eta)},
 						%
 						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln({R})}
+						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
 						{(1 + \eta)^2}
 						)}
-						{(1 + \eta)}
+						{(1 + \eta)} \big)
 						\bigg)
+						]
 					}
 				}
 			}
 		}
 		\end{mathpar}
+		%
+		%
 		% 
 		%
-		In the same way, we have the derivation for $\fsnap'(a', r, 1)$:
+		In the same way, we have the derivation for $\snap'(a')$:
 		\begin{mathpar}
 		\inferrule
 		{
 			\dots
 		}
 		{
-			\rsnap'(a', R', 1)
-			\bigstep
-			\fsnap'(a', r, 1)
-			,
-			\bigg(
-			\big( f(a') + 
-			(\frac{1}{\epsilon} \times \ln({R'}))
-			(1 + \eta)^2 \big)
+			\trsenv, \snap'(a'); \snap''
+			\trsto
+			\trsenv[
+			y \mapsto 
+			\bigg(\snap'(a'),
+			\big( (f(a') + 
+			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
+			(1 + \eta)^2)
 			{(1 + \eta)},
 			%
 			\frac{(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln({R'})}
+			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
 			{(1 + \eta)^2}
 			)}
-			{(1 + \eta)}
+			{(1 + \eta)} \big)
 			\bigg)
+			]
 		}
 		\end{mathpar}
 		%
 		%
-		Given $\fsnap(a) = \fsnap(a') = x = -b$, we have the lower and upper bounds for $R$ and $R'$, which are $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
+		Given $\snap(a') \fbigstep -b'$, $\snap(a) \fbigstep -b'$, we have the worst case lower and upper bounds for $R$ and $R'$, which are $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
 		%
 		%
 		\[
 		\begin{array}{c}
 		\ubar{R} = e^{\epsilon 
-		\big( (x(1 + \eta) - f(a)) (1 + \eta)^2) \big)},
+		\big( (-b'(1 + \eta) - f(a)) (1 + \eta)^2) \big)},
 		%
 		\bar{R} = e^{\epsilon 
-		\frac{(\frac{x}{1 + \eta} - f(a))}{(1 + \eta)^2}}
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}}
 		\\
 		%
 		\ubar{R'} = e^{\epsilon 
-		\big((x(1 + \eta) - f(a'))(1 + \eta)^2 \big)},
+		\big((-b'(1 + \eta) - f(a'))(1 + \eta)^2 \big)},
 		%
 		\bar{R'} = e^{\epsilon 
-		(\frac{(\frac{x}{1 + \eta} - f(a'))}{(1 + \eta)^2})}
+		(\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2})}
 		\end{array}
 		\]
 		%		
-		The privacy loss of $\fsnap(a)$ in this case is bounded by:
+		The privacy loss of $\snap(a)$ in this case is bounded by:
 		%
 		\[
 		\begin{array}{ll}
@@ -1076,13 +1106,13 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{\frac{1}{2}(\ubar{R'} - 0)}
 		& = e^{\epsilon
 		\bigg(
-		\frac{(\frac{x}{1 + \eta} - f(a))}{(1 + \eta)^2}
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}
 		-
-		\big((x(1 + \eta) - f(a'))(1 + \eta)^2 \big)
+		\big((-b'(1 + \eta) - f(a'))(1 + \eta)^2 \big)
 		\bigg)}\\
 		& = e^{\epsilon
 		\bigg(
-		\frac{x}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2}
+		\frac{-b'}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2}
 		-
 		x(1 + \eta)^3 + f(a')(1 + \eta)^2 
 		\bigg)} ~ (\star)
@@ -1121,37 +1151,40 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			}
 			{
 				R 
-				\bigstep
-				r,
-				({R}, {R})
+				\trsto
+				(R,
+				({R}, {R}))
 			}
 		}
 		{
 			\inferrule[op]
 			{
 				\ln(R) 
-				\bigstep
-				\oln(r),
+				\trsto
+				(\ln(R) ,
 				(\ln({R})(1 + \eta),
-				\frac{\ln({R})}{(1 + \eta)})
+				\frac{\ln({R})}{(1 + \eta)}))
 			}
 			{
 				\inferrule[op]
 				{
 					\frac{1}{\epsilon} \times \ln(R) 
-					\bigstep
-					\frac{1}{\epsilon} \otimes \oln(r)
+					\trsto
+					\big(
+					\frac{1}{\epsilon} \times \ln(R)
 					,
 					((\frac{1}{\epsilon} \times \ln({R}))(1 + \eta)^2,
 					%
 					\frac{\frac{1}{\epsilon} \times \ln({R})}{(1 + \eta)^2})
+					\big)
 				}
 				{
 					\inferrule[id]
 					{
 						f(a) + \frac{1}{\epsilon} \times \ln(R)
-						\bigstep
-						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(r)
+						\trsto
+						\Big(
+						f(a) + \frac{1}{\epsilon} \times \ln(R)
 						,
 						\bigg(
 						\big( f(a) + 
@@ -1165,16 +1198,17 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						)}
 						{(1 + \eta)}
 						\bigg)
+						\Big)
 					}
 					{
-						\rsnap'(a, R, 1)
-						\bigstep
-						\fsnap'(a, r, 1)
+						\snap'(a)
+						\trsto
+						(\snap'(a)
 						,
 						(
 						\expr^1,
 						%
-						\expr^2)
+						\expr^2))
 					}
 				}
 			}
@@ -1199,11 +1233,11 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{
 			\inferrule
 			{
-				\rsnap'(a, L, 1)
-				\bigstep
-				\fsnap'(a, l, 1)
+				\snap'(a)
+				\trsto
+				(\snap'(a)
 				,
-				(
+				\big(
 				\frac{f(a) + 
 				(\frac{1}{\epsilon} \times \ln(\ubar{L}))
 				(1 + \eta)^2}
@@ -1214,13 +1248,14 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				{(1 + \eta)^2}
 				)(1 + \eta)
 				)
+				\big)
 			}
 			{
-				\rsnap'(a, L, 1)
-				\bigstep
-				\fsnap'(a, l, 1)
+				\snap'(a)
+				\trsto
+				(\snap'(a)
 				,
-				(\err_1, \err_2)
+				(\err_1, \err_2))
 				%
 			}
 		}
@@ -1332,35 +1367,40 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\inferrule
 		{
 			L 
-			\bigstep
-			l,
+			\trsto
+			(
+			L,
 			(\ubar{L}, \bar{L})
+			)
 		}
 		{
 			\inferrule
 			{
 				\ln(L) 
-				\bigstep
-				\oln(l),
+				\trsto
+				(\ln(L),
 				(\ln(\ubar{L})(1 + \eta),
-				\frac{\ln(\bar{L})}{(1 + \eta)})
+				\frac{\ln(\bar{L})}{(1 + \eta)}))
 			}
 			{
 				\inferrule
 				{
 					\frac{1}{\epsilon} \times \ln(L) 
-					\bigstep
-					\frac{1}{\epsilon} \otimes \oln(l)
+					\trsto
+				\big(
+				\frac{1}{\epsilon} \times \ln(L) 
 					,
 					((\frac{1}{\epsilon} \times \ln(\ubar{L}))(1 + \eta)^2,
 					%
 					\frac{\frac{1}{\epsilon} \times \ln(\bar{L})}{(1 + \eta)^2})
+					\big)
 				}
 				{
 					\inferrule
 					{
 						f(a) + \frac{1}{\epsilon} \times \ln(L) 
-						\bigstep
+						\trsto
+						\big(
 						f(a) \oplus \frac{1}{\epsilon} \otimes \oln(l)
 						,
 						(
@@ -1374,17 +1414,18 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 						{(1 + \eta)^2}
 						)(1 + \eta)
 						)
+						\big)
 					}
 					{
-					\rsnap'(a, L, 1)
-					\bigstep
-					\fsnap'(a, l, 1)
+					\snap'(a)
+					\trsto
+					(\snap'(a)
 					,
 					(
 					\err_1,
 					%
 					\err_2
-					)
+					))
 					}
 				}
 			}
@@ -1409,9 +1450,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{
 			\inferrule
 			{
-				\rsnap'(a, R, 1)
-				\bigstep
-				\fsnap'(a, r, 1)
+				\snap'(a)
+				\trsto
+				\snap'(a)
 				,
 				(
 				\frac{f(a) + 
@@ -1426,9 +1467,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				)
 			}
 			{
-				\rsnap'(a, R, 1)
-				\bigstep
-				\fsnap'(a, r, 1)
+				\snap'(a)
+				\trsto
+				\snap'(a)
 				,
 				(\err_1, \err_2)
 				%
@@ -1447,16 +1488,16 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		%
 
 		%
-		In the same way, we have the derivation for $\fsnap'(a', l, 1)$ and $\fsnap'(a', r, 1)$:
+		In the same way, we have the derivation for $\snap'(a', l, 1)$ and $\snap'(a', r, 1)$:
 		\begin{mathpar}
 		\inferrule
 		{
 			\dots
 		}
 		{
-			\rsnap'(a', L', 1)
-			\bigstep
-			\fsnap'(a', l', 1)
+			\snap'(a', L', 1)
+			\trsto
+			\snap'(a', l', 1)
 			,
 			(
 			\frac{f(a') + 
@@ -1488,9 +1529,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			\dots
 		}
 		{
-			\rsnap'(a', R', 1)
-			\bigstep
-			\fsnap'(a', r', 1)
+			\snap'(a', R', 1)
+			\trsto
+			\snap'(a', r', 1)
 			,
 			(
 			\frac{f(a') + 
@@ -1532,7 +1573,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\ubar{R'} - \bar{L'} > (R'  - L') e^{-7B\eta \epsilon}
 		\]
 
-		We also have the $\rsnap(a)$ is $\epsilon$-dp:
+		We also have the $\snap(a)$ is $\epsilon$-dp:
 		\[
 		\frac{|R - L|}{|R' - L'|} = e^{\epsilon}
 		\]
@@ -1556,9 +1597,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{
 			\inferrule
 			{
-				\rsnap'(a, L, 1)
-				\bigstep
-				\fsnap'(a, l, 1)
+				\snap'(a)
+				\trsto
+				\snap'(a)
 				,
 				(
 				\frac{f(a) + 
@@ -1573,9 +1614,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				)
 			}
 			{
-				\rsnap'(a, L, 1)
-				\bigstep
-				\fsnap'(a, l, 1)
+				\snap'(a)
+				\trsto
+				\snap'(a)
 				,
 				(\err_1, \err_2)
 				%
@@ -1603,9 +1644,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		{
 			\inferrule
 			{
-				\rsnap'(a, R, 1)
-				\bigstep
-				\fsnap'(a, r, 1)
+				\snap'(a)
+				\trsto
+				\snap'(a)
 				,
 				(
 				\frac{f(a) + 
@@ -1620,11 +1661,11 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 				)
 			}
 			{
-				\rsnap'(a, R, 1)
-				\bigstep
-				\fsnap'(a, r, 1)
+				\snap'(a)
+				\trsto
+				(\snap'(a)
 				,
-				(\err_1, \err_2)
+				(\err_1, \err_2))
 				%
 			}
 		}
@@ -1680,14 +1721,14 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\inferrule
 		{
 		 R
-		 \bigstep
+		 \trsto
 		 r, ( R, R )
 		}
 		{
 		 \inferrule
 		 {
 		  \ln(R)
-		  \bigstep
+		  \trsto
 		  \oln (r), 
 		  (\ln(R)(1 + \eta), \frac{\ln(R)}{1+\eta})
 		 }
@@ -1695,7 +1736,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		  \inferrule
 		  {
 		   \frac{1}{\epsilon}\ln(R)
-		   \bigstep
+		   \trsto
 		   \frac{1}{\epsilon} \otimes \oln (r), 
 		   \big(
 		   \frac{1}{\epsilon}\ln(R)(1 + \eta)^2, 
@@ -1706,7 +1747,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		   \inferrule
 		   {
 		    f(a) + \frac{1}{\epsilon}\ln(R)
-			\bigstep
+			\trsto
 			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r), 
 			\bigg(
 			(f(a) + \frac{1}{\epsilon}\ln(R)(1 + \eta)^2)(1 + \eta), 
@@ -1714,7 +1755,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			\bigg)
 		   }
 		   {
-		   \rsnap'(a, 1, R) \bigstep \fsnap'(a, 1, r), 
+		   \snap'(a) \trsto \snap'(a), 
 		   (\err_1, \err_2)
 		   }
 		  }
@@ -1941,14 +1982,14 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\inferrule
 		{
 		 R_+'
-		 \bigstep
+		 \trsto
 		 r_+, ( R_+', R_+' )
 		}
 		{
 		 \inferrule
 		 {
 		  \ln(R_+')
-		  \bigstep
+		  \trsto
 		  \oln (r_+), 
 		  (\ln(R_+')(1 + \eta), \frac{\ln(R_+')}{1+\eta})
 		 }
@@ -1956,7 +1997,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		  \inferrule
 		  {
 		   \frac{1}{\epsilon}\ln(R)
-		   \bigstep
+		   \trsto
 		   \frac{1}{\epsilon} \otimes \oln (r_+), 
 		   \big(
 		   \frac{1}{\epsilon}\ln(R_+')(1 + \eta)^2, 
@@ -1967,7 +2008,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		   \inferrule
 		   {
 		    f(a) + \frac{1}{\epsilon}\ln(R_+')
-			\bigstep
+			\trsto
 			f(a) \oplus \frac{1}{\epsilon} \otimes \oln (r_+), 
 			\bigg(
 			(f(a) + \frac{1}{\epsilon}\ln(R_+')(1 + \eta)^2)(1 + \eta), 
@@ -1975,8 +2016,9 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 			\bigg)
 		   }
 		   {
-		   \rsnap'(a, 1, R_+') \bigstep \fsnap'(a, 1, r_+), 
-		   (\err_1, \err_2)
+		   \snap'(a) \trsto 
+		   (\snap'(a), 
+		   (\err_1, \err_2))
 		   }
 		  }
 		 }
@@ -2340,7 +2382,7 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 		\end{array}
 		\]
 		%		
-		The privacy loss of $\fsnap(a)$ in this case is bounded by:
+		The privacy loss of $\snap(a)$ in this case is bounded by:
 		%
 		\[
 		\begin{array}{ll}
@@ -2390,7 +2432,8 @@ Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$, $\fsnap'(a,
 
 \end{proof}
 
-\section{Syntax - V1}
+\newpage
+\section{Syntax - Functional}
 Following are the syntax of our system:
 %
 \[\begin{array}{llll}
@@ -2419,9 +2462,9 @@ Following are the syntax of our system:
 
 
 \newpage
-\section{Semantics - V1}
+\section{Semantics - Functional}
 
-The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_trans_semantics_exp}. The semantics are $\expr \trsto (\err)$, which means a real expression $\expr$ can be transited in floating point computation with error bound $\err$, $\eta$ is the machine epsilon.
+The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_func_trans_semantics_exp}. The semantics are $\expr \trsto (\err)$, which means a real expression $\expr$ can be transited in floating point computation with error bound $\err$, $\eta$ is the machine epsilon.
 
 We assume the SAMPLE and F(D) semantics for floating point and real computation are the same. $\edistr \bigstep_{\$} \valv$ represents $\valv$ is sampled from the distribution $\edistr$.
 
@@ -2553,7 +2596,7 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 }
 \end{mathpar}
 \caption{Semantics of Transition for Expressions with Relative Floating Point Error}
-\label{fig_trans_semantics_exp}
+\label{fig_func_trans_semantics_exp}
 \end{figure}
 
 
@@ -2597,7 +2640,7 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 }
 \end{mathpar}
 \caption{Semantics of Evaluation in Floating Point Computation}
-\label{fig_real_semantics_exp}
+\label{fig_fl_semantics_exp}
 \end{figure}
 
 \begin{figure}
@@ -2659,7 +2702,7 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 }
 \end{mathpar}
 \caption{Semantics of Evaluation in Real Computation}
-\label{fig_real_semantics_exp}
+\label{fig_func_real_semantics_exp}
 \end{figure}
 
 
