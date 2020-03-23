@@ -51,11 +51,12 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 %
 \mbox{Error} & \err & ::= & (\expr, \expr) \\
 %
-\mbox{Transaction Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\expr, \err)] \\
+\mbox{Transaction Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\expr, \err)] 
+%\\
 % %
-% \mbox{Floating Point Evaluation Env.} & \evlenvf & ::= & \cdot ~|~ \evlenvf[x \mapsto \fval] \\
+% \mbox{Floating Point Evaluation Env.} & \fevlenv & ::= & \cdot ~|~ \fevlenv[x \mapsto \fval] \\
 % %
-% \mbox{Real Evaluation Env.} & \evlenv & ::= & \cdot ~|~ \evlenv [x \mapsto \rval]
+% \mbox{Real Evaluation Env.} & \revlenv & ::= & \cdot ~|~ \revlenv [x \mapsto \rval]
 \end{array}
 \]
 
@@ -894,12 +895,13 @@ where $F$ is a primitive query function over input database $a \in A$, $\epsilon
 %
 \\
 %
-Let $\snap'(a)$ be the same as $\snap(a)$ given $U, S$ without rounding and clamping steps, i.e., $\snap'(a): y = f(a) + S \times \ln (U) \div \epsilon$.
+Given $U = u, S = s$, let $\expr_{\snap'} = f(a) + s \times \ln (u) \div \epsilon$,
+$\expr_{\snap''} = \clamp_B \big( \round{\expr_{\snap'} }_{\Lambda} \big)$
 %
 \\
 %
-Let $\snap''(a)$ be the same as $\snap(a)$ given $U, S$, i.e., $\snap''(a): 
-\snap'(a); z = \clamp_B \big( \round{y}_{\Lambda} \big)$.
+Let $\snap'(a)$ be the same as $\snap(a)$ given $U = u, S = s$ without rounding and clamping steps, i.e., $\snap'(a): y = \expr_{\snap'}$,
+and $\snap''(a): z = \expr_{\snap''}$.
 \end{defn}
 
 
@@ -936,7 +938,7 @@ Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
 %
 Consider the $\snap(a)$ outputting the same result $x$ under floating point and real computaion, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$ s.t.:
 %
-$$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx].$$
+$$\expr_{\snap''} \rbigstep \varx.$$
 %
 We have $\Pr[\snap(a) = \varx] = R - L$. Sice the $\snap(a)$ is $\epsilon-$DP, we can get:
 \[
@@ -945,9 +947,9 @@ We have $\Pr[\snap(a) = \varx] = R - L$. Sice the $\snap(a)$ is $\epsilon-$DP, w
 %
 \\
 %
-Let $(l, r)$ be the range where $\forall u \in (l, r)$ and some $s$ s.t.: 
+Let $(l, r)$ be the range where $\forall u \in (l, r)$ and the same $s$ s.t.: 
 %
-$$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx].$$
+$$\expr_{\snap''} \fbigstep \varx.$$
 %
 To show the privacy loss of $\snap$ mechanism in floating point computation is bounded by $\epsilon + 23 B \epsilon \eta$, it’s sufficent to show:
 $|r - l|$ is bounded $f(|{R} - {L}|)$ and $g(|{R} - {L}|)$ s.t.:
@@ -971,19 +973,19 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\\
 		%
 		Let $L$ and $R$ be the range where $\forall u \in (L, R)$ and $s = 1$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \rbigstep \varx$.
 		%
 		\\
 		%
 		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
 		So we know $s = 1$, $l = L = 0$, $\ubar{R} < r < \bar{R}$ s.t.:
-		$$[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto -b']
+		$$f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep -b'
 		\land
-		[U \mapsto R, S \mapsto 1], \snap'(a) \rbigstep [y \mapsto -b'].$$
+		f(a) + \frac{1}{\epsilon} \times \ln(R) \rbigstep -b'.$$
 		%
 		%
 		The derivation of this case given $\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
@@ -1165,21 +1167,21 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\\
 		%
 		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
-		$[U \mapsto u, S \mapsto 1],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \rbigstep \varx$.
 		%
 		\\
 		%
 		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
 		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
 		%
-		$$[U \mapsto l, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_1]
+		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
 		\land
-		[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_2].$$
-
+		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
+		%
 		The transition from $R$ to $r$ given the transition environment 
 		$\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
 		%
@@ -1397,21 +1399,22 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		Let $S = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L, R)$:
-		$[U \mapsto u, S \mapsto 1],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
+		$\expr_{\snap''} \rbigstep \varx$.
 		%
 		\\
 		%
 		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
-		We know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
 		%
-		$$[U \mapsto l, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_1]
+		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
 		\land
-		[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
+		%
 
 		The transition from $L$ to $l$ given the transition environment 
 		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
@@ -1606,7 +1609,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\end{mathpar}
 		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
 		%
-
+\\
 		%
 		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
 		$\ubar{R'} = e^{(y_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
@@ -1648,22 +1651,23 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 > 0$.
 		\\
 		%
-		Let $S = 1$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L, R)$:
-		$[U \mapsto u, S \mapsto 1],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
+		$\expr_{\snap''} \rbigstep \varx$.
 		%
 		\\
 		%
 		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
-		We know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
 		%
-		$$[U \mapsto l, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_1]
+		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
 		\land
-		[U \mapsto r, S \mapsto 1], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
 		%
+	%
 		The transition from $L$ to $l$ given the transition environment 
 		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
 		%
@@ -1783,21 +1787,22 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		%
 		For input $a$,
-		let $S = s$, $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L, R)$:
-		$[U \mapsto u, S \mapsto s],\snap''(a) \rbigstep [z \mapsto \varx]$.
+		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
+		$\expr_{\snap''} \rbigstep \varx$.
 		%
 		\\
 		%
-		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $S = s$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
+		$\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
-		We know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
 		%
-		$$[U \mapsto l, S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_1]
+		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
 		\land
-		[U \mapsto r, S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
+		%
 		%
 		Induction on $s$, we have when $s = 1$:
 		%
@@ -2072,20 +2077,20 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		For input $a'$, 
 		Let $S = s$, $L' = e^{\epsilon(y_1 - f(a'))}$ and $R' = e^{\epsilon(y_2 - f(a))}$, we have $\forall u \in (L', R')$:
-		$[U \mapsto u, S \mapsto s],\snap''(a') \rbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \rbigstep \varx$.
 		%
 		\\
 		%
 		Let $l'$ and $r'$ be the range where $\forall u \in (l', r')$ and $S = s$, s.t.
-		$[U \mapsto u, S \mapsto s],\snap''(a) \fbigstep [z \mapsto \varx]$.
+		$\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
 		We know: $\ubar{L'} < l' < \bar{L'}$, $\ubar{R'} < r < \bar{R'}$ s.t.:
 		%
-		$$[U \mapsto l', S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_1]
+		$$f(a) + \frac{1}{\epsilon} \times \ln (l) \fbigstep y_1
 		\land
-		[U \mapsto r', S \mapsto s], \snap'(a) \fbigstep [y \mapsto y_2].$$
+		f(a) + \frac{1}{\epsilon} \times \ln (r) \fbigstep y_2.$$
 		%
 		Induction on s, we have:
 		When $s = 1$.
