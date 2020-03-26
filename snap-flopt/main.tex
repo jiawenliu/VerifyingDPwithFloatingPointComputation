@@ -14,7 +14,12 @@
 \date{\today}
 
 \maketitle
-In order to verify the differential privacy property of an implementation of the snapping mechanism \cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and the floating point error semantics from \cite{Ramananandro2016unified,Martel2006higher,Becker2018verified,Moscato2017Automatic}.
+In order to verify an implementation of the snapping mechanism
+\cite{mironov2012significance} differentially private, we will extend
+the logic proposed in~\cite{barthe2016proving} and we will take
+inspiration from the floating
+point error semantics from
+\cite{Ramananandro2016unified,Martel2006higher,Becker2018verified,Moscato2017Automatic}.
 
 \section{Preliminary Definitions}
 \begin{defn}
@@ -59,11 +64,60 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 % \mbox{Real Evaluation Env.} & \revlenv & ::= & \cdot ~|~ \revlenv [x \mapsto \rval]
 \end{array}
 \]
-
+\mg{Jiawen, please write down a description of the grammar, otherwise
+  it is difficult ot imagine the different components. Especially for expressions.}
 \section{Semantics - IMP}
 
-The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_imp_trans_semantics_exp} for programs. The semantics are $\trsenv, \prog \trsto \trsenv'$, which means a real computation programs $\prog$ with environment $\trsenv$ can be transited in floating point computation with error bound for all variables in $\trsenv'$, $\eta$ is the machine epsilon.
+The rules of the transition semantics for expressions with relative
+floating point computation error are shown in
+Figure~\ref{fig_semantics_prog}.\mg{I changed the reference because it
+was pointing to the rules for expressions} These rules prove judgment
+of the form $\trsenv, \prog \trsto \trsenv'$, which can be read as:
+the
+programs $\prog$ with environment $\trsenv$ results in the environment
+$\trsenv'$  which contains error bound for all variables \mg{the
+  previous sentence reads funny.}. in
+$\trsenv'$. In all the rules, $\eta$ is the machine epsilon.
 
+\mg{I have some questions about the rules: 
+  \begin{itemize}
+  \item I find confusing the form of judgments for the evaluation of
+    expressions. The form is $\Theta, e\Rightarrow (e',
+    (e_l,e_u))$. One thing I find confusing is why do we want to have
+    e' on the right-hand side of the arrow. As far as I can tell, the
+    only rule that changes the expression is the rule for variables,
+    which performs the substitution you have in the environment. At
+    this point, wouldn't it better to just remove e' and perform the
+    substitution when needed? Perhaps it is just a matter of style but
+    it seems that it could be clearer. Also, if we want to stick with
+    the current formulation, I suspect that there is a series of
+    typos (see below).  
+\item why do you need the condition $c=fl(r)$ in the rule VAL-NEG?
+I imagine that you need a condition which tell us when to apply the
+rule VAL or the rule VAL-NEG or the rule VAL-EQ. At the moment r=fl(r)
+and r is positive you can apply VAL and VAL-EQ, if it is negative you
+can apply VAL-NEG and VAL-EQ, Is this what you want?
+\item what is $f(D)$ and why the rule return it as both upper and
+  lower bound?
+\item the notation max,min in rules BOP and BOP-NEG is confusing. What
+  does this express? I don't understand if the * is a meta-operation
+  here or it is the language level operation. If it is the
+  meta-operation, then I can imagine that you can compute the min and
+  the max. If it is the language level operation, what does it mean
+  taking the min or max of an expression? I see the same problem with
+  the rules for the unary operations. 
+\item what is $e$ in the first premise of the BOP rule? I suspect that
+  you actually mean $e^1_1$, that is another possible expression that
+  is the result of evaluating $e^1$. The second premise has the same
+  problem. Also the right-hand side of the conclusion has the same
+  problem. The same problem is also in rule BOP-NEG and in rules UOP
+  and UOP-NEG.
+\item I am concerned by the rule SAMPLE. Are you sure you want to give
+  a sample based semantics? Why this is better than giving a
+  distribution based semantics like the one we are using in class for
+  pWhile? Also, why there is no error here?
+  \end{itemize}
+}
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = var]
@@ -250,7 +304,7 @@ The transition semantics with relative floating point computation error are show
 {
 	\trsenv, \prog_1  \trsto \trsenv_1
 	\and
-	\trsenv_2, \prog_2  \trsto \trsenv_2
+	\trsenv_1, \prog_2  \trsto \trsenv_2
 }
 {
 	\trsenv, \prog_1; \prog_2
@@ -394,11 +448,15 @@ The transition semantics with relative floating point computation error are show
 \end{figure}
 
 \clearpage
+\mg{I suggest to split the theorem proof by adding a lemma that states
+what you want about expressions. This will be used in the case of
+assignment in the theorem.}
 \begin{thm}[Soundness Theorem]
 
 For any $\prog$, if there exists a transition 
 $\trsenv, \prog \trsto \trsenv'$ and $\trsenv$ is a bounded transaction environment 
-(i.e., $\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$,
+(\mg{reminding in this way the definition is weird, also this
+  definition is not given anywhere. You need to give it somewhere.}i.e., $\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$,
 if $\expr \fbigstep c$, 
 $\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, then 
 $\ubar{r} \leq c \leq \bar{r}$) , 
