@@ -40,7 +40,7 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 
 \mbox{Expr.} & \expr & ::= & \rval ~|~  \fval
 	%
-	~|~ \varx ~|~ f(\data) ~|~ \expr \bop \expr
+	~|~ \varx  ~|~ \expr \bop \expr
 	%
 	~|~ \uop (\expr) \\
 %
@@ -54,9 +54,9 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 %
 \mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
 %
-\mbox{Error} & \err & ::= & (\expr, \expr) \\
+\mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
-\mbox{Transaction Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\expr, \err)] 
+\mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] 
 %\\
 % %
 % \mbox{Floating Point Evaluation Env.} & \fevlenv & ::= & \cdot ~|~ \fevlenv[x \mapsto \fval] \\
@@ -64,20 +64,23 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 % \mbox{Real Evaluation Env.} & \revlenv & ::= & \cdot ~|~ \revlenv [x \mapsto \rval]
 \end{array}
 \]
+
 \mg{Jiawen, please write down a description of the grammar, otherwise
   it is difficult ot imagine the different components. Especially for expressions.}
 \section{Semantics - IMP}
 
-The rules of the transition semantics for expressions with relative
+The semantics for expressions with relative
 floating point computation error are shown in
 Figure~\ref{fig_semantics_prog}.\mg{I changed the reference because it
-was pointing to the rules for expressions} These rules prove judgment
-of the form $\trsenv, \prog \trsto \trsenv'$, which can be read as:
-the
-programs $\prog$ with environment $\trsenv$ results in the environment
-$\trsenv'$  which contains error bound for all variables \mg{the
-  previous sentence reads funny.}. in
-$\trsenv'$. In all the rules, $\eta$ is the machine epsilon.
+was pointing to the rules for expressions} 
+% These rules prove judgment
+% of the form $\trsenv, \prog \trsto \trsenv'$, which can be read as:
+% the
+% programs $\prog$ with environment $\trsenv$ results in the environment
+% $\trsenv'$  which contains error bound for all variables \mg{the
+%   previous sentence reads funny.}. in
+% $\trsenv'$. 
+In all the rules, $\eta$ is the machine epsilon.
 
 \mg{I have some questions about the rules: 
   \begin{itemize}
@@ -123,12 +126,12 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 \inferrule*[right = var]
 {
 	\trsenv(\varx) 
-	= (\expr, ( \ubar{\expr}, \bar{\expr} ))
+	= (\fval, ( \ubar{\rval}, \bar{\rval} ))
 }
 {
 	\trsenv, \varx
 	\trsto
-	(\expr, ( \ubar{\expr}, \bar{\expr} ))
+	(\fval, ( \ubar{\rval}, \bar{\rval} ))
 }
 % %
 % \and
@@ -147,12 +150,16 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 %
 \inferrule*[right = val]
 {
+	\fval = \floaten(\rval)
+	~~
+	\fval \neq \rval
+	\and
 	\rval \geq 0
 }
 {
 	\trsenv, \rval
 	\trsto
-	\big(\rval, 
+	\big(\fval, 
 	(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta)) 
 	\big)
 }
@@ -161,123 +168,221 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 %
 \inferrule*[right = val-neg]
 {
-	\fval = \floaten(\rval)
+	\fval = \floaten(\rval) 
+	~~
+	\fval \neq \rval
 	\and
 	\rval < 0
 }
 {
 	\trsenv, \rval
 	\trsto
-	\big(\rval, (\rval(1 + \eta), \frac{\rval}{(1 + \eta)}) \big)
+	\big(\fval, (\rval(1 + \eta), \frac{\rval}{(1 + \eta)}) \big)
 }
 %
 \and
 %
 \inferrule*[right = val-eq]
 {
-	\rval = \floaten(\rval)
+	\fval = \floaten(\rval)
+	~~~~
+	\fval = \rval
 }
 {
 	\trsenv, \rval
 	\trsto
-	(\rval, (\rval, \rval) )
+	(\fval, (\rval, \rval) )
 }
 %
 \and
 %
-\inferrule*[right = f(d)]
+\inferrule*[right = bop-pp]
 {
-	\empty
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	~~~~
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	~~~~
+	\fval_1 \geq 0
+	~~~~
+	\fval_2 \geq 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
 }
 {
-	\trsenv, f(D)
-	\trsto
-	(f(D), ( f(D), f(D) ))
-}
-%
-\and
-%
-\inferrule*[right = bop]
-{
-	\trsenv, \expr^1 \trsto (\expr, (\ubar{\expr^1}, \bar{\expr^1}))
-	~~~~
-	\trsenv, \expr^2 \trsto (\expr, (\ubar{\expr^2}, \bar{\expr^2}))
-	~~~~
-	\bar{\expr}, \ubar{\expr} = 
-	\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
-	\bar{\expr^1} * \ubar{\expr^2}, 
-	\ubar{\expr^1} * \bar{\expr^2}, 
-	\bar{\expr^1} * \bar{\expr^2})
-	~~~~
-	\expr^1 * \expr^2 \geq 0
-}
-{
-    \trsenv, \expr^1 * \expr^2
+    \trsenv, \expr_1 * \expr_2
     \trsto
     \big(
-    \expr^1 * \expr^2,
-    (\frac{\bar{\expr}}{(1 + \eta)}, 
-        (\ubar{\expr})(1 + \eta))
+    \fval,
+    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
     \big)
 }
 %
 \and
 %
-\inferrule*[right = bop-neg]
+\inferrule*[right = bop-nn]
 {
-	\trsenv, \expr^1 \trsto (\expr, (\ubar{\expr^1}, \bar{\expr^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr^2 \trsto (\expr, (\ubar{\expr^2}, \bar{\expr^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\bar{\expr}, \ubar{\expr} = 
-	\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
-	\bar{\expr^1} * \ubar{\expr^2}, 
-	\ubar{\expr^1} * \bar{\expr^2}, 
-	\bar{\expr^1} * \bar{\expr^2})
+	\fval_1 < 0
 	~~~~
-	\expr^1 * \expr^2 < 0
+	\fval_2 < 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
 }
 {
-    \trsenv, \expr^1 * \expr^2
+    \trsenv, \expr_1 * \expr_2
     \trsto
-    \big(\expr^1 * \expr^2,
-    (\bar{\expr})(1 + \eta),
-    \frac{\ubar{\expr}}{(1 + \eta)}
+    \big(
+    \fval,
+    (\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}, 
+        (\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta))
     \big)
-}%
+}
+%
 \and
 %
-\inferrule*[right = uop]
+\inferrule*[right = bop-pn]
 {
-	\trsenv, \expr \trsto (\expr, (\ubar{\expr}, \bar{\expr}))
-	\and
-	\uop (\expr) \geq 0
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	~~~~
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	~~~~
+	\fval_1 \geq 0
+	~~~~
+	\fval_2 < 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
+}
+{
+    \trsenv, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval,
+    ((\bar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+    \frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-np]
+{
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	~~~~
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	~~~~
+	\fval_1 < 0
+	~~~~
+	\fval_2 \geq 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
+}
+{
+    \trsenv, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval,
+    ((\ubar{\rval_1} * \bar{\rval_2})(1 + \eta),
+    \frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)})
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-p]
+{
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	~~~~
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	\fval \geq 0
+	~~~~
+	* \in \{+, - \}
+}
+{
+    \trsenv, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval,
+    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-n]
+{
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	~~~~
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	\fval < 0
+	~~~~
+	* \in \{+, - \}
+}
+{
+    \trsenv, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval,
+    ((\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+        \frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = uop-p]
+{
+	\trsenv, \expr \trsto (\fval', (\ubar{\rval}, \bar{\rval}))
+	~~~~
+	\fval = \floaten(\uop (\fval')) 
+	~~~~
+	\fval \geq 0
 }
 {
     \trsenv, \uop(\expr)
     \trsto
-    \Big(\uop(\expr),
+    \Big(\fval,
     \big(
-    \frac{\uop(\ubar{\expr})}{(1 + \eta)}, 
-    (\uop(\bar{\expr}))(1 + \eta)
+    \frac{\uop(\ubar{\rval})}{(1 + \eta)}, 
+    (\uop(\bar{\rval}))(1 + \eta)
     \big)
     \Big)
 }
 %
-~~
+~~~~
 %
-\inferrule*[right = uop-neg]
+\inferrule*[right = uop-n]
 {
-	\trsenv, \expr \trsto (\expr, (\ubar{\expr}, \bar{\expr}))
-	\and
-	\uop (\expr) < 0
+	\trsenv, \expr \trsto (\fval', (\ubar{\rval}, \bar{\rval}))
+	~~~~
+	\fval = \floaten(\uop (\fval')) 
+	~~~~
+	\fval < 0
 }
 {
     \trsenv, \uop(\expr)
     \trsto 
-    \Big(\uop(\expr),
-    \big(\uop(\ubar{\expr})(1 + \eta),
-    \frac{\uop(\bar{\expr})}{(1 + \eta)}
+    \Big(\fval,
+    \big(\uop(\ubar{\rval})(1 + \eta),
+    \frac{\uop(\bar{\rval})}{(1 + \eta)}
     \big)
     \Big)
 }
@@ -285,17 +390,19 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 \caption{Semantics of Transition for Expressions with Relative Floating Point Error}
 \label{fig_imp_trans_semantics_exp}
 \end{figure}
-
+%
+%
+%
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = asg]
 {
-	\trsenv, \expr \trsto (\expr, \err )
+	\trsenv, \expr \trsto (\fval, \err )
 }
 {
 	\trsenv, \varx = \expr
 	\trsto
-	\trsenv[\varx \mapsto (\expr, \err )]
+	\trsenv[\varx \mapsto (\fval, \err )]
 }
 %
 ~~
@@ -317,11 +424,13 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 \inferrule*[right = sample]
 {
 	 \fval \leftarrow \edistr^{\diamond}
+	 \and
+	 \rval_1 \leq \fval \leq \rval_2
 }
 {
 	\trsenv, \varx \samplel \edistr
 	\trsto
-	\trsenv[\varx \mapsto (\fval, (\fval, \fval))]
+	\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]
 }
 \end{mathpar}
 \caption{Semantics of Transition with Relative Floating Point Error Propagation for Programs}
@@ -329,148 +438,163 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 \end{figure}
 
 
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = rval]
-{
-	\floaten(\rval) = \fval
-}
-{
-	\rval
-	\fbigstep
-	\fval
-}
-%
-~~
-%
-\inferrule*[right = fval]
-{
-	\empty
-}
-{
-	\fval
-	\fbigstep
-	\fval
-}
-%
-~~
-%
-\inferrule*[right = fbop]
-{
-	\expr^1 \fbigstep \fval^1
-	~~~
-	\expr^2 \fbigstep \fval^2
-	~~~
-	\floaten(\fval^1 \bop \fval^2) = \fval
-}
-{
-    \expr^1 \bop \expr^2 \fbigstep \fval
-}
-%
-~~
-%
-\inferrule*[right = fuop]
-{
-	\expr \fbigstep \fval',
-	~~~
-	\floaten(\uop (\fval')) = \fval
-}
-{
-    \uop(\expr) \fbigstep \fval
-}
-\end{mathpar}
-\caption{Semantics of Evaluation in Floating Point Computation}
-\label{fig_imp_real_semantics_exp}
-\end{figure}
+% \begin{figure}
+% \begin{mathpar}
+% \inferrule*[right = rval]
+% {
+% 	\floaten(\rval) = \fval
+% }
+% {
+% 	\rval
+% 	\fbigstep
+% 	\fval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = fval]
+% {
+% 	\empty
+% }
+% {
+% 	\fval
+% 	\fbigstep
+% 	\fval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = fbop]
+% {
+% 	\expr^1 \fbigstep \fval^1
+% 	~~~
+% 	\expr^2 \fbigstep \fval^2
+% 	~~~
+% 	\floaten(\fval^1 \bop \fval^2) = \fval
+% }
+% {
+%     \expr^1 \bop \expr^2 \fbigstep \fval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = fuop]
+% {
+% 	\expr \fbigstep \fval',
+% 	~~~
+% 	\floaten(\uop (\fval')) = \fval
+% }
+% {
+%     \uop(\expr) \fbigstep \fval
+% }
+% \end{mathpar}
+% \caption{Semantics of Evaluation in Floating Point Computation}
+% \label{fig_imp_real_semantics_exp}
+% \end{figure}
 
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = rval]
-{
-	\empty
-}
-{
-	\rval
-	\rbigstep
-	\rval
-}
-%
-~~
-%
-\inferrule*[right = rval]
-{
-	\empty
-}
-{
-	\fval
-	\rbigstep
-	\fval
-}
-%
-~~
-%
-\inferrule*[right = rbop]
-{
-	\expr^1 \rbigstep \rval^1
-	~~~
-	\expr^2 \rbigstep \rval^2
-	~~~
-	\rval^1 \bop \rval^2 = \rval
-}
-{
-    \expr^1 \bop \expr^2 \rbigstep \rval
-}
-%
-~~
-%
-\inferrule*[right = ruop]
-{
-	\expr \rbigstep \rval',
-	~~~
-	\uop (\rval') = \rval
-}
-{
-    \uop(\expr) \rbigstep \rval
-}
-%
-~~
-%
-\inferrule*[right = f(d)]
-{
-	f(D) = \fval
-}
-{
-	f(D) \bigstep \fval
-}
-\end{mathpar}
-\caption{Semantics of Evaluation in Real Computation}
-\label{fig_real_semantics_exp}
-\end{figure}
+% \begin{figure}
+% \begin{mathpar}
+% \inferrule*[right = rval]
+% {
+% 	\empty
+% }
+% {
+% 	\rval
+% 	\rbigstep
+% 	\rval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = rval]
+% {
+% 	\empty
+% }
+% {
+% 	\fval
+% 	\rbigstep
+% 	\fval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = rbop]
+% {
+% 	\expr^1 \rbigstep \rval^1
+% 	~~~
+% 	\expr^2 \rbigstep \rval^2
+% 	~~~
+% 	\rval^1 \bop \rval^2 = \rval
+% }
+% {
+%     \expr^1 \bop \expr^2 \rbigstep \rval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = ruop]
+% {
+% 	\expr \rbigstep \rval',
+% 	~~~
+% 	\uop (\rval') = \rval
+% }
+% {
+%     \uop(\expr) \rbigstep \rval
+% }
+% %
+% ~~
+% %
+% \inferrule*[right = f(d)]
+% {
+% 	f(D) = \fval
+% }
+% {
+% 	f(D) \bigstep \fval
+% }
+% \end{mathpar}
+% \caption{Semantics of Evaluation in Real Computation}
+% \label{fig_real_semantics_exp}
+% \end{figure}
 
 \clearpage
 \mg{I suggest to split the theorem proof by adding a lemma that states
 what you want about expressions. This will be used in the case of
 assignment in the theorem.}
-\begin{thm}[Soundness Theorem]
-
-For any $\prog$, if there exists a transition 
-$\trsenv, \prog \trsto \trsenv'$ and $\trsenv$ is a bounded transaction environment 
-(\mg{reminding in this way the definition is weird, also this
-  definition is not given anywhere. You need to give it somewhere.}i.e., $\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$,
-if $\expr \fbigstep c$, 
-$\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, then 
-$\ubar{r} \leq c \leq \bar{r}$) , 
+\begin{defn}[Bounded Environment]
+An environment $\trsenv$ is bounded if and only if that:
+$\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\fval, (\ubar{\rval}, \bar{\rval}))$,
+ then 
+$\ubar{\rval} \leq \fval \leq \bar{\rval}$) 
+\end{defn}
 %
-then $\forall x \in dom(\trsenv')$ s.t. $\trsenv'(x) =(\expr, (\ubar{\expr}, \bar{\expr}))$,
-if $\expr \fbigstep c$, 
-$\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, then: 
-\[
-\ubar{r} \leq c \leq \bar{r}
-\]
+%
+\begin{thm}[Expression Soundness]
+\label{thm:expsound}
+For any $\expr$, if there exists a transition 
+$\trsenv, \expr \trsto (\fval, (\ubar{\rval}, \bar{\rval}))$ 
+and $\trsenv$ is a bounded transaction environment
+%
+then:
+%
+$$\ubar{\rval} \leq \fval \leq \bar{\rval}.$$
+%
 \end{thm}
 %
-\begin{proof}
-Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a safe environment $(\star)$.
+%
+%
+\begin{thm}[Program Soundness]
+\label{thm:progsound}
+For any $\prog$, if there exists a transition 
+$\trsenv, \prog \trsto \trsenv'$ and $\trsenv$ is a bounded transaction environment 
+then 
+$\trsenv'$ is also a bounded environment.
+\end{thm}
+%
+\begin{proof} of \textbf{Theorem \ref{thm:progsound}}.
+%
+\\
+%
+Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a bounded environment $(\star)$.
 \begin{itemize}
 	\caseL{
 	\[
@@ -493,88 +617,94 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	%
 	\\
 	$\trsenv_1$ and $\trsenv_2$ are all bounded environment. This case is proved.
-
+%
 	\caseL{\[
 	\inferrule*[right = sample]
 	{
 		 \fval \leftarrow \edistr^{\diamond}
+		 \and
+	 	\rval_1 \leq \fval \leq \rval_2 ~ (\square)
 	}
 	{
 		\trsenv, \varx \samplel \edistr
 		\trsto
-		\trsenv[\varx \mapsto (\fval, (\fval, \fval))]
+		\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]
 	}
 	\]}
-	We need to show $\trsenv[\varx \mapsto (\fval, (\fval, \fval))]$ is a safe environment.\\
+	We need to show $\trsenv[\varx \mapsto (\fval, (\fval, \fval))]$ is a bounded environment.\\
 	%
-	Since we know $\trsenv$ is a safe environment by assumption $(\star)$.
-	It is trivial that $\fval \leq \fval \leq \fval$.
-	We can know $\trsenv[\varx \mapsto (\fval, (\fval, \fval))]$ is also a safe environment.
-
+	Since we know $\trsenv$ is a bounded environment and $\rval_1 \leq \fval \leq \rval_2$ by assumption $(\star)$ and $(\square)$ .
+	%
+	\\
+	%
+	So we know $\trsenv[\varx \mapsto (\fval, (\fval, \fval))]$ is also a bounded environment.
+%
 	\caseL{\[
 	\inferrule*[right = asg]
 	{
-		\trsenv, \expr \trsto (\expr, \err )
+		\trsenv, \expr \trsto (\fval, (\ubar{\rval}, \bar{\rval}) )
 	}
 	{
 		\trsenv, \varx = \expr
 		\trsto
-		\trsenv[\varx \mapsto (\expr, \err )]
+		\trsenv[\varx \mapsto (\fval, (\ubar{\rval}, \bar{\rval}) )]
 	}
 	\]}
-	We need to show: $\trsenv[\varx \mapsto (\expr, \err )]$ is a safe environment.\\
+	We need to show: $\trsenv[\varx \mapsto (\expr, \err )]$ is a bounded environment.\\
 	%
-	By assumption $(\star)$ we know: $\trsenv$ is already a safe environment. We still need to show:\\
+	By assumption $(\star)$ we know: $\trsenv$ is already a bounded environment. It is sufficient to show:\\
 	%
-	Let $\err = (\ubar{\expr}, \bar{\expr})$, 
-	$\expr \fbigstep c $, $\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, 
-	$\ubar{r} \leq c \leq \bar{r}$.\\
+	$\ubar{\rval} \leq \fval \leq \bar{\rval}$.\\
 	%
-	Induction on transition of $\expr$, we have:
+	This is proved by the \textbf{Theorem \ref{thm:expsound}} (expression soundness).
+\end{itemize}
+\end{proof}
+%
+%
+\begin{proof} of \textbf{Theorem \ref{thm:expsound}}.
+%
+\\
+%
+Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is a bounded environment $(\star)$.
+%
 	\begin{itemize}
 %
-	\subcaseL{
+	\caseL{
 	\[\inferrule*[right = var]
 		{
 			\trsenv(\varx) 
-			= (\expr, ( \ubar{\expr}, \bar{\expr} ))
+			= (\fval, ( \ubar{\rval}, \bar{\rval} ))
 		}
 		{
 			\trsenv, \varx
 			\trsto
-			(\expr, ( \ubar{\expr}, \bar{\expr} ))
+			(\fval, ( \ubar{\rval}, \bar{\rval} ))
 		}\]
 		}
-	By the assumption, we have $\forall \varx \in dom(\trsenv)$ s.t. $\trsenv(x) = (\expr, (\ubar{\expr}, \bar{\expr}))$, $\expr \fbigstep c $, $\ubar{\expr} \rbigstep \ubar{r}$ and $\bar{\expr} \rbigstep \bar{r}$, 
-	$\ubar{r} \leq c \leq \bar{r}$.
+	By the assumption, we have $\forall \varx \in dom(\trsenv)$ s.t. $\trsenv(\varx) = (\fval, (\ubar{\rval}, \bar{\rval}))$, 
+	$\ubar{\rval} \leq \fval \leq \bar{\rval}$.
 	This case is proved.
 	%
 	%
-	\subcaseL{
+	\caseL{
 	\[\inferrule*[right = val]
 		{
+			\fval = \floaten(\rval)
+			\and
+			\fval \neq \rval
+			\and
 			\rval \geq 0
 		}
 		{
 			\trsenv, \rval
 			\trsto
-			\big(\rval, \frac{\rval}{(1 + \eta)}, \rval(1 + \eta) \big)
+			\big(\fval, 
+			(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta)) 
+			\big)
 		}
 		\]
 	}
 	%
-	By evaluation rule of floating point computation for $r$, we have:
-	\[
-	\inferrule*[right = rval]
-		{
-			\floaten(\rval ) = \fval
-		}
-		{
-			\rval
-			\fbigstep
-			\fval
-		}
-	\]
 	By the definition of floating point rounding error and $\rval \geq 0$, we have:
 	%
 	$\frac{\rval}{(1 + \eta)}
@@ -582,241 +712,419 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	\rval(1 + \eta)$
 	%
 	%
-	\subcaseL{\[
+	\caseL{\[
 	\inferrule*[right = val-neg]
-		{
-			\fval = \floaten(\rval)
-			\and
-			\rval < 0
-		}
-		{
-			\trsenv, \rval
-			\trsto
-			\big(\rval, \rval(1 + \eta), \frac{\rval}{(1 + \eta)} \big)
-		}
+	{
+		\fval = \floaten(\rval) 
+		\and
+		\fval \neq \rval
+		\and
+		\rval < 0
+	}
+	{
+		\trsenv, \rval
+		\trsto
+		\big(\fval, (\rval(1 + \eta), \frac{\rval}{(1 + \eta)}) \big)
+	}
 	\]}
 	%
-	By evaluation rule of floating point computation for $\rval$, we have:
-	\[
-	\inferrule*[right = rval]
-		{
-			\floaten(\rval ) = \fval
-		}
-		{
-			\rval
-			\fbigstep
-			\fval
-		}
-	\]
 	By the definition of floating point rounding error and $\rval < 0$, we have:
 	%
 	$\rval(1 + \eta)
 	\leq \fval \leq
 	\frac{\rval}{(1 + \eta)}$
 	%
-	\subcaseL{
-	\[
-	\inferrule*[right = val-eq]
+	\caseL{\[
+		\inferrule*[right = val-eq]
 		{
-			\rval = \floaten(\rval)
+			\fval = \floaten(\rval)
+			~~~~
+			\fval = \rval
 		}
 		{
 			\trsenv, \rval
 			\trsto
-			(\rval, \rval, \rval )
+			(\fval, (\rval, \rval) )
 		}
-	\]
+	\]}
+	%
+	It is trivial that $\rval \leq \fval = \floaten(\rval) = \rval \leq \rval$
+	%
+	\caseL{\[
+	\inferrule*[right = bop-pp]
+	{
+		\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1})) ~ (\diamond)
+		~~~
+		\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2})) ~ (\triangle)
+		~~~
+		\fval_1 \geq 0
+		~~~
+		\fval_2 \geq 0
+		~~~
+		\fval = \floaten(\fval_1 * \fval_2)
+		~~~
+		* \in \{\times, \div \}
 	}
-	%
-	Given $\rval \fbigstep \fval$, it is trivial to show $\rval \leq \fval = \floaten(\rval) = \rval \leq \rval$
-	%
-	\subcaseL{
-	\[\inferrule*[right = f(d)]
-		{
-			\empty
-		}
-		{
-			\trsenv, f(D)
-			\trsto
-			(f(D), ( f(D), f(D) ))
-		}%
-		\]
+	{
+	    \trsenv, \expr_1 * \expr_2
+	    \trsto
+	    \big(
+	    \fval,
+	    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+	    (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+	    \big)
 	}
-	Given $f(D) \bigstep \fval$ in both floating point and real computation, it is trivial to show $\fval \leq \fval \leq \fval$
+	\]}
 	%
-	%
-	\subcaseL{
-	\[
-	\inferrule*[right = bop]
-		{
-			\trsenv, \expr^1 \trsto 
-			(\expr, (\ubar{\expr^1}, \bar{\expr^1})) ~ (\diamond)
-			\and
-			\trsenv, \expr^2 \trsto 
-			(\expr, (\ubar{\expr^2}, \bar{\expr^2})) ~ (\triangle)
-			\\
-		\bar{\expr}, \ubar{\expr} = 
-		\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
-		\bar{\expr^1} * \ubar{\expr^2}, 
-		\ubar{\expr^1} * \bar{\expr^2}, 
-		\bar{\expr^1} * \bar{\expr^2})
-			\and
-			\expr^1 * \expr^2 \geq 0 ~ (\square)
-		}
-		{
-		    \trsenv, \expr^1 * \expr^2
-		    \trsto
-		    \big(
-		    \expr^1 * \expr^2,
-		    (\frac{\ubar{\expr}}{(1 + \eta)}, 
-		        (\bar{\expr})(1 + \eta))
-		    \big)
-		}
-	\]
-	}
-	%
-	We need to show: for $\expr^1 * \expr^2 \fbigstep \fval$, 
-	$\frac{\ubar{\expr}}{(1 + \eta)} \rbigstep \ubar{\rval}$ 
-	and $(\bar{\expr})(1 + \eta) \rbigstep \bar{\rval}$, the $\ubar{\rval} \leq \fval \leq \bar{\rval}$ holds.\\
+	It is needed to show $\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}
+	\leq \fval \leq 
+	(\bar{\rval_1} * \bar{\rval_2})(1 + \eta)$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) for $\expr^1 \fbigstep \fval_1$, 
-	$\ubar{\expr^1} \rbigstep \ubar{\rval_1}$ 
-	and $\bar{\expr^1} \rbigstep \bar{\rval_1}$,
-	the $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds.\\
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
 	%
-	(2) for $\expr^2 \fbigstep \fval_2$, 
-	$\ubar{\expr^2} \rbigstep \ubar{\rval_2}$ 
-	and $\bar{\expr^2} \rbigstep \bar{\rval_2}$,
-	the $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
 	%
 	Let $\bar{\rval'} = 
-	\min(\bar{\rval_2} \bop \bar{\rval_1}, 
-	\ubar{\rval_2} \bop \bar{\rval_1},
-	\bar{\rval_2} \bop \ubar{\rval_1},
-	\ubar{\rval_2} \bop \ubar{\rval_1})$ and 
+	\bar{\rval_1} * \bar{\rval_2}$ and 
 	%
-	$\ubar{\rval'} = 
-	\max(\bar{\rval_2} \bop \bar{\rval_1}, 
-	\ubar{\rval_2} \bop \bar{\rval_1},
-	\bar{\rval_2} \bop \ubar{\rval_1},
-	\ubar{\rval_2} \bop \ubar{\rval_1})
-	$\\
+	$\ubar{\rval'} = \ubar{\rval_1} * \ubar{\rval_2}$.
 	%
-	By (1) and (2), we have:
-	$\ubar{\rval'}
+	\\
+	%
+	By (1), (2) and hypothesis: $\fval_1 \geq 0$, $\fval_2 \geq 0$ and $* \in \{\times, \div\}$, we have:
+	%
+	$\fval \geq 0
+	\land
+	\ubar{\rval'}
 	\leq \fval_2 \bop \fval_1
 	\leq \bar{\rval'}$.\\
 	%
-	By hypothesis $(\square)$ and relative error of floating point rounding, we have:\\
+	Then by relative error of floating point rounding, we have:\\
 	%
 	$\frac{\ubar{\rval'}}{1 + \eta}
-	\leq \floaten(\fval_2 \bop \fval_1)
-	\leq (\bar{\rval'})(1 + \eta)$.\\
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq (\bar{\rval'})(1 + \eta)$.
 	%
-	By evaluation rule FBOP and RBOP, we have:\\
-	%
-	$\expr^1 * \expr^2 \fbigstep \floaten(\fval_2 \bop \fval_1)$, 
-	%
-	$\frac{\ubar{\expr}}{(1 + \eta)} 
-	\rbigstep \frac{\ubar{\rval'}}{1 + \eta}$ 
-	%
-	and $(\bar{\expr})(1 + \eta) \rbigstep (\bar{\rval'})(1 + \eta)$.\\
 	%
 	This case is proved.
 	%
-	\subcaseL
-	{
-	\[
-	\inferrule*[right = bop-neg]
+	\caseL{\[
+		\inferrule*[right = bop-nn]
 		{
-			\trsenv, \expr^1 \trsto 
-			(\expr, (\ubar{\expr^1}, \bar{\expr^1}))
-			\and
-			\trsenv, \expr^2 \trsto 
-			(\expr, (\ubar{\expr^2}, \bar{\expr^2}))
-			\\
-		\bar{\expr}, \ubar{\expr} = 
-		\max, \min(\ubar{\expr^1} * \ubar{\expr^2}, 
-		\bar{\expr^1} * \ubar{\expr^2}, 
-		\ubar{\expr^1} * \bar{\expr^2}, 
-		\bar{\expr^1} * \bar{\expr^2})
-			\and
-			\expr^1 * \expr^2 < 0
+			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			~~~~
+			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			~~~~
+			\fval_1 < 0
+			~~~~
+			\fval_2 < 0
+			~~~~
+			\fval = \floaten(\fval_1 * \fval_2)
+			~~~~
+			* \in \{\times, \div \}
 		}
 		{
-		    \trsenv, \expr^1 * \expr^2
+		    \trsenv, \expr_1 * \expr_2
 		    \trsto
-		    \big(\expr^1 * \expr^2,
-		    (\bar{\expr})(1 + \eta),
-		    \frac{\ubar{\expr}}{(1 + \eta)}
+		    \big(
+		    \fval,
+		    (\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}, 
+		        (\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta))
 		    \big)
 		}
-	\]
-	}
+	\]}
 	%
 	%
-	We need to show: for $\expr^1 * \expr^2 \fbigstep \fval$, 
-	$(\ubar{\expr})(1 + \eta) \rbigstep \ubar{\rval}$
-	%
-	and $\frac{\bar{\expr}}{(1 + \eta)} \rbigstep \bar{\rval}$, the $\ubar{\rval} \leq \fval \leq \bar{\rval}$ holds.\\
+	It is needed to show 
+	$\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}
+	\leq \fval \leq 
+	(\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta)$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) for $\expr^1 \fbigstep \fval_1$, 
-	$\ubar{\expr^1} \rbigstep \ubar{\rval_1}$ 
-	and $\bar{\expr^1} \rbigstep \bar{\rval_1}$,
-	the $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds.\\
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
 	%
-	(2) for $\expr^2 \fbigstep \fval_2$, 
-	$\ubar{\expr^2} \rbigstep \ubar{\rval_2}$ 
-	and $\bar{\expr^2} \rbigstep \bar{\rval_2}$,
-	the $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
 	%
 	Let $\bar{\rval'} = 
-	\min(\bar{\rval_2} \bop \bar{\rval_1}, 
-	\ubar{\rval_2} \bop \bar{\rval_1},
-	\bar{\rval_2} \bop \ubar{\rval_1},
-	\ubar{\rval_2} \bop \ubar{\rval_1})$ and 
+	\ubar{\rval_1} * \ubar{\rval_2}$ and 
 	%
-	$\ubar{\rval'} = 
-	\max(\bar{\rval_2} \bop \bar{\rval_1}, 
-	\ubar{\rval_2} \bop \bar{\rval_1},
-	\bar{\rval_2} \bop \ubar{\rval_1},
-	\ubar{\rval_2} \bop \ubar{\rval_1})
-	$\\
+	$\ubar{\rval'} = \bar{\rval_1} * \bar{\rval_2}$.
 	%
-	By (1) and (2), we have:
+	\\
+	%
+	By (1), (2) and hypothesis: $\fval_1 < 0$, $\fval_2 < 0$ and $* \in \{\times, \div\}$, we have:
+	%
+	$\fval \geq 0
+	\land
+	\ubar{\rval'}
+	\leq \fval_2 \bop \fval_1
+	\leq \bar{\rval'}$.\\
+	%
+	Then by relative error of floating point rounding, we have:\\
+	%
+	$\frac{\ubar{\rval'}}{1 + \eta}
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq (\bar{\rval'})(1 + \eta)$.
+	%
+	%
+	This case is proved.
+	%
+	%
+	\caseL{\[
+	\inferrule*[right = bop-pn]
+		{
+			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			~~~~
+			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			~~~~
+			\fval_1 \geq 0
+			~~~~
+			\fval_2 < 0
+			~~~~
+			\fval = \floaten(\fval_1 * \fval_2)
+			~~~~
+			* \in \{\times, \div \}
+		}
+		{
+		    \trsenv, \expr_1 * \expr_2
+		    \trsto
+		    \big(
+		    \fval,
+		    ((\bar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+		    \frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+		    \big)
+		}
+	\]}
+	%
+	%
+	It is needed to show 
+	$(\bar{\rval_1} * \ubar{\rval_2})(1 + \eta)
+	\leq \fval \leq 
+	\frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}$.\\
+	%
+	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
+	%
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	%
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	%
+	Let $\bar{\rval'} = 
+	\ubar{\rval_1} * \bar{\rval_2}$
+	and 
+	%
+	$\ubar{\rval'} = \bar{\rval_1} * \ubar{\rval_2}$.
+	%
+	\\
+	%
+	By (1), (2) and hypothesis: $\fval_1 \geq 0$, $\fval_2 < 0$ and $ * \in \{\times, \div\}$, we have:
+	%
+	$\fval < 0
+	\land
+	\ubar{\rval'}
+	\leq \fval_2 \bop \fval_1
+	\leq \bar{\rval'}$.\\
+	%
+	Then by relative error of floating point rounding, we have:\\
+	%
+	$\ubar{\rval'}(1 + \eta)
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \frac{\bar{\rval'}}{1 + \eta}$.
+	%
+	%
+	This case is proved.
+	%
+	%
+	\caseL{\[
+	\inferrule*[right = bop-np]
+		{
+			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			~~~~
+			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			~~~~
+			\fval_1 < 0
+			~~~~
+			\fval_2 \geq 0
+			~~~~
+			\fval = \floaten(\fval_1 * \fval_2)
+			~~~~
+			* \in \{\times, \div \}
+		}
+		{
+		    \trsenv, \expr_1 * \expr_2
+		    \trsto
+		    \big(
+		    \fval,
+		    ((\ubar{\rval_1} * \bar{\rval_2})(1 + \eta),
+		    \frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)})
+		    \big)
+		}
+	\]}
+    % 
+ 	%
+ 	It is needed to show 
+	$(\ubar{\rval_1} * \bar{\rval_2})(1 + \eta)
+	\leq \fval \leq 
+	\frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}$.\\
+	%
+	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
+	%
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	%
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	%
+	Let 
+	$\bar{\rval'} = \bar{\rval_1} * \ubar{\rval_2}$
+	and 
+	%
+	$\ubar{\rval'} = \ubar{\rval_1} * \bar{\rval_2}$.
+	%
+	\\
+	%
+	By (1), (2) and hypothesis: $\fval_1 < 0$, $\fval_2 \geq 0$ and $ * \in \{\times, \div\}$, we have:
+	%
+	$\fval < 0
+	\land
+	\ubar{\rval'}
+	\leq \fval_2 \bop \fval_1
+	\leq \bar{\rval'}$.\\
+	%
+	Then by relative error of floating point rounding, we have:\\
+	%
+	$\ubar{\rval'}(1 + \eta)
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \frac{\bar{\rval'}}{1 + \eta}$.
+	%
+	%
+	This case is proved.
+    %
+    %
+    %
+    \caseL{\[
+	\inferrule*[right = bop-p]
+	{
+		\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+		~~~~
+		\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+		~~~~
+		\fval = \floaten(\fval_1 * \fval_2)
+		~~~~
+		\fval \geq 0
+		~~~~
+		* \in \{+, - \}
+	}
+	{
+	    \trsenv, \expr_1 * \expr_2
+	    \trsto
+	    \big(
+	    \fval,
+	    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+	    (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+	    \big)
+	}
+    \]}
+    %
+    %
+ 	It is needed to show 
+	$\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}
+	\leq \fval \leq 
+	(\bar{\rval_1} * \bar{\rval_2})(1 + \eta)$.\\
+	%
+	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
+	%
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	%
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	%
+	Let 
+	$\bar{\rval'} = \bar{\rval_1} * \bar{\rval_2}$
+	and 
+	%
+	$\ubar{\rval'} = \ubar{\rval_1} * \ubar{\rval_2}$.
+	%
+	By (1), (2) and hypothesis: $ * \in \{+, -\}$, we have:
+	%
 	$\ubar{\rval'}
 	\leq \fval_2 \bop \fval_1
 	\leq \bar{\rval'}$.\\
 	%
-	By hypothesis $(\square)$ and relative error of floating point rounding, we have:\\
+	Then by hypothesis: $\fval \geq 0$ and relative error of floating point rounding, we have:\\
 	%
-	$\ubar{\rval'}(1 + \eta)
-	\leq \floaten(\fval_2 \bop \fval_1)
-	\leq \frac{\bar{\rval'}}{1 + \eta}$.\\
-	%
-	By evaluation rule FBOP and RBOP, we have:\\
-	%
-	$\expr^1 * \expr^2 \fbigstep \floaten(\fval_2 \bop \fval_1)$, 
-	%
-	$\ubar{\expr}(1 + \eta) \rbigstep \ubar{\rval'}(1 + \eta)$
-	%
-	and $\frac{\bar{\expr}}{(1 + \eta)} 
-	\rbigstep \frac{\bar{\rval'}}{1 + \eta}$ .\\
+	$\frac{\ubar{\rval'}}{1 + \eta}
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \bar{\rval'}(1 + \eta)$.
 	%
 	This case is proved.
 	%
-    %         	%
-	\subcaseL
+	%
+	%
+    \caseL{\[
+    \inferrule*[right = bop-n]
+		{
+			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			~~~~
+			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			~~~~
+			\fval = \floaten(\fval_1 * \fval_2)
+			~~~~
+			\fval < 0
+			~~~~
+			* \in \{+, - \}
+		}
+		{
+		    \trsenv, \expr_1 * \expr_2
+		    \trsto
+		    \big(
+		    \fval,
+		    ((\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+		    \frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+		    \big)
+		}
+    \]}
+    %
+    %
+ 	It is needed to show 
+	$(\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta)
+	\leq \fval \leq 
+	\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}$.\\
+	%
+	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
+	%
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	%
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	%
+	Let 
+	$\bar{\rval'} = \ubar{\rval_1} * \ubar{\rval_2}$
+	and 
+	%
+	$\ubar{\rval'} = \bar{\rval_1} * \bar{\rval_2}$.
+	%
+	By (1), (2) and hypothesis: $ * \in \{+, -\}$, we have:
+	%
+	$\ubar{\rval'}
+	\leq \fval_2 \bop \fval_1
+	\leq \bar{\rval'}$.\\
+	%
+	Then by hypothesis: $\fval \geq 0$ and relative error of floating point rounding, we have:\\
+	%
+	$\ubar{\rval'}(1 + \eta)
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \frac{\bar{\rval'}}{1 + \eta}$.
+	%
+	This case is proved.
+	%
+	%
+    %
+	\caseL
 	{
 	\[
-	\inferrule*[right = uop]
+	\inferrule*[right = uop-p]
 		{
 			\trsenv, \expr 
-			\trsto (\expr, \ubar{\expr}, \bar{\expr})
+			\trsto (\expr, \ubar{\rval}, \bar{\rval})
 			~(\diamond)
 			\and
 			\uop (\expr) \geq 0
@@ -826,8 +1134,8 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 		    \trsenv, \uop(\expr)
 		    \trsto
 		    \big(\uop(\expr),
-		    \frac{\uop(\ubar{\expr})}{(1 + \eta)}, 
-		    (\uop(\bar{\expr}))(1 + \eta)
+		    \frac{\uop(\ubar{\rval})}{(1 + \eta)}, 
+		    (\uop(\bar{\rval}))(1 + \eta)
 		    \big)
 		}
 	\]
@@ -836,15 +1144,15 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	We need to show: 
 	%
 	for $\uop(\expr) \fbigstep \fval$, 
-	$\frac{\uop(\ubar{\expr})}{(1 + \eta)} \rbigstep \ubar{\rval}$ 
-	and $\uop(\bar{\expr})(1 + \eta) \rbigstep \bar{\rval}$,
+	$\frac{\uop(\ubar{\rval})}{(1 + \eta)} \rbigstep \ubar{\rval}$ 
+	and $\uop(\bar{\rval})(1 + \eta) \rbigstep \bar{\rval}$,
 	the $\ubar{\rval} \leq \fval \leq \bar{\rval}$ holds.\\
 	%
 	By induction hypothesis on $(\diamond)$, we have:\\
 	%
 	(1) for $\expr \fbigstep \fval'$, 
-	$\ubar{\expr} \rbigstep \ubar{\rval'}$ 
-	and $\bar{\expr} \rbigstep \bar{\rval'}$,
+	$\ubar{\rval} \rbigstep \ubar{\rval'}$ 
+	and $\bar{\rval} \rbigstep \bar{\rval'}$,
 	the $\ubar{\rval'} \leq \fval \leq \bar{\rval'}$ holds.\\
 	%
 	%
@@ -863,10 +1171,10 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	%
 	$\uop(\fval') \fbigstep \floaten(\uop(\fval'))$, 
 	%
-	$\frac{\uop(\ubar{\expr})}{1 + \eta} 
+	$\frac{\uop(\ubar{\rval})}{1 + \eta} 
 	\rbigstep \frac{\uop(\ubar{\rval'})}{1 + \eta}$ 
 	%
-	and $\uop(\bar{\expr})(1 + \eta) 
+	and $\uop(\bar{\rval})(1 + \eta) 
 	\rbigstep \uop(\bar{\rval'})(1 + \eta)$.\\
 	%
 	This case is proved.
@@ -876,7 +1184,7 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	\[
 	\inferrule*[right = uop-neg]
 		{
-			\trsenv, \expr \trsto (\expr, \ubar{\expr}, \bar{\expr})
+			\trsenv, \expr \trsto (\expr, \ubar{\rval}, \bar{\rval})
 			\and
 			\uop (\expr) < 0
 		}
@@ -884,8 +1192,8 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 		    \trsenv, \uop(\expr)
 		    \trsto 
 		    \big(\uop(\expr),
-		    (\uop(\ubar{\expr}))(1 + \eta),
-		    \frac{\uop(\bar{\expr})}{(1 + \eta)}
+		    (\uop(\ubar{\rval}))(1 + \eta),
+		    \frac{\uop(\bar{\rval})}{(1 + \eta)}
 		    \big)
 		}
 	\]
@@ -894,15 +1202,15 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	We need to show: 
 	%
 	for $\uop(\expr) \fbigstep \fval$, 
-	$\uop(\ubar{\expr})(1 + \eta) \rbigstep \ubar{\rval}$
-	and $\frac{\uop(\bar{\expr})}{(1 + \eta)} \rbigstep \bar{\rval}$,
+	$\uop(\ubar{\rval})(1 + \eta) \rbigstep \ubar{\rval}$
+	and $\frac{\uop(\bar{\rval})}{(1 + \eta)} \rbigstep \bar{\rval}$,
 	the $\ubar{\rval} \leq \fval \leq \bar{\rval}$ holds.\\
 	%
 	By induction hypothesis on $(\diamond)$, we have:\\
 	%
 	(1) for $\expr \fbigstep \fval'$, 
-	$\ubar{\expr} \rbigstep \ubar{\rval'}$ 
-	and $\bar{\expr} \rbigstep \bar{\rval'}$,
+	$\ubar{\rval} \rbigstep \ubar{\rval'}$ 
+	and $\bar{\rval} \rbigstep \bar{\rval'}$,
 	the $\ubar{\rval'} \leq \fval \leq \bar{\rval'}$ holds.\\
 	%
 	%
@@ -921,16 +1229,14 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a s
 	%
 	$\uop(\fval') \fbigstep \floaten(\uop(\fval'))$, 
 	%
-	$\uop(\ubar{\expr})(1 + \eta) 
+	$\uop(\ubar{\rval})(1 + \eta) 
 	\rbigstep \uop(\ubar{\rval'})(1 + \eta)$
 	%
-	and $\frac{\uop(\bar{\expr})}{1 + \eta} 
+	and $\frac{\uop(\bar{\rval})}{1 + \eta} 
 	\rbigstep \frac{\uop(\bar{\rval'})}{1 + \eta}$ .\\
 	%
 	Let $\fval = \floaten(\uop(\fval'))$,
 	$\ubar{\rval} = \uop(\ubar{\rval'})(1 + \eta)$ and $\bar{\rval} = \frac{\uop(\bar{\rval'})}{1 + \eta}$, this case is proved.
-	%
-	\end{itemize}
 	%
 \end{itemize}
 %
@@ -954,7 +1260,7 @@ where $F$ is a primitive query function over input database $a \in A$, $\epsilon
 \\
 %
 Given $U = u, S = s$, let $\expr_{\snap'} = f(a) + s \times \ln (u) \div \epsilon$,
-$\expr_{\snap''} = \clamp_B \big( \round{\expr_{\snap'} }_{\Lambda} \big)$
+$\expr_{\snap''} = \clamp_B \big( \round{\rval_{\snap'} }_{\Lambda} \big)$
 %
 \\
 %
@@ -998,9 +1304,10 @@ Consider the $\snap(a)$ outputting the same result $x$ under floating point and 
 %
 $$\expr_{\snap''} \rbigstep \varx.$$
 %
-We have $\Pr[\snap(a) = \varx] = R - L$. Sice the $\snap(a)$ is $\epsilon-$DP, we can get:
+We have $\Pr[\snap(a) = \varx] = R - L$. Since the ideal $\snap(a)$ is $\epsilon-$DP, we can get:
 \[
-	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]} = \frac{R - L}{R' - L'} \leq e^{\epsilon}
+	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]}
+	= \frac{R - L}{R' - L'} \leq e^{\epsilon}
 \]
 %
 \\
@@ -2715,9 +3022,9 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 %
 \inferrule*[right = bop]
 {
-	\expr^1 \trsto (\ubar{\expr^1}, \bar{\expr^1})
+	\expr^1 \trsto (\ubar{\rval^1}, \bar{\rval^1})
 	\and
-	\expr^2 \trsto (\ubar{\expr^2}, \bar{\expr^2})
+	\expr^2 \trsto (\ubar{\rval^2}, \bar{\rval^2})
 	\and
 	\expr^1 * \expr^2 \geq 0
 }
@@ -2725,16 +3032,16 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
     \expr^1 * \expr^2
     \trsto 
     \big(
-    \frac{\ubar{\expr^1} * \ubar{\expr^2}}{(1 + \eta)}, 
-    (\bar{\expr^1} * \bar{\expr^2})(1 + \eta)
+    \frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
+    (\bar{\rval^1} * \bar{\rval^2})(1 + \eta)
     \big)
 }
 %
 \inferrule*[right = bop-neg]
 {
-	\expr^1 \trsto  (\ubar{\expr^1}, \bar{\expr^1})
+	\expr^1 \trsto  (\ubar{\rval^1}, \bar{\rval^1})
 	\and
-	\expr^2 \trsto  (\ubar{\expr^2}, \bar{\expr^2})
+	\expr^2 \trsto  (\ubar{\rval^2}, \bar{\rval^2})
 	\and
 	\expr^1 * \expr^2 < 0
 }
@@ -2742,15 +3049,15 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
     \expr^1 * \expr^2
     \trsto 
     \big(
-    (\bar{\expr^1} * \bar{\expr^2})(1 + \eta),
-    \frac{\ubar{\expr^1} * \ubar{\expr^2}}{(1 + \eta)}
+    (\bar{\rval^1} * \bar{\rval^2})(1 + \eta),
+    \frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}
     \big)
 }%
 \and
 %
 \inferrule*[right = uop]
 {
-	\expr \trsto (\ubar{\expr}, \bar{\expr})
+	\expr \trsto (\ubar{\rval}, \bar{\rval})
 	\and
 	\uop (\expr) \geq 0
 }
@@ -2758,14 +3065,14 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
     \uop(\expr)
     \trsto 
     \big(
-    \frac{\uop(\ubar{\expr})}{(1 + \eta)}, 
-    (\uop(\bar{\expr}))(1 + \eta)
+    \frac{\uop(\ubar{\rval})}{(1 + \eta)}, 
+    (\uop(\bar{\rval}))(1 + \eta)
     \big)
 }
 %
 \inferrule*[right = uop-neg]
 {
-	\expr \trsto  (\ubar{\expr}, \bar{\expr})
+	\expr \trsto  (\ubar{\rval}, \bar{\rval})
 	\and
 	\uop (\expr) < 0
 }
@@ -2773,8 +3080,8 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
     \uop(\expr)
     \trsto 
     \big(
-    (\uop(\ubar{\expr}))(1 + \eta),
-    \frac{\uop(\bar{\expr})}{(1 + \eta)}
+    (\uop(\ubar{\rval}))(1 + \eta),
+    \frac{\uop(\bar{\rval})}{(1 + \eta)}
     \big)
 }
 \end{mathpar}
@@ -2891,9 +3198,9 @@ We assume the SAMPLE and F(D) semantics for floating point and real computation 
 
 \begin{thm}[Soundness Theorem]
 Given $\expr$ where the transition 
-$\expr \trsto (\ubar{\expr}, \bar{\expr})$ holds, 
+$\expr \trsto (\ubar{\rval}, \bar{\rval})$ holds, 
 then if $\expr$ evaluates to $c$ in floating point computation and 
-$\ubar{\expr}$ and $\bar{\expr}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, we have: 
+$\ubar{\rval}$ and $\bar{\rval}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, we have: 
 \[
 \ubar{r} \leq c \leq \bar{r}
 % ~~ \land ~~ 
