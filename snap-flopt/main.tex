@@ -52,23 +52,26 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 %
 \mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
 %
-\mbox{Distribution} & \edistr & ::= & \laplace ~|~ \uniform ~|~ \bernoulli \\ 
+\mbox{Distribution} & \edistr & ::= & \uniform(0, 1) 
+%
+	~|~ \uniform\{-1, 1\}\\ 
 %
 \mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
 \mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] 
 %\\
-% %
-% \mbox{Floating Point Evaluation Env.} & \fevlenv & ::= & \cdot ~|~ \fevlenv[x \mapsto \fval] \\
-% %
-% \mbox{Real Evaluation Env.} & \revlenv & ::= & \cdot ~|~ \revlenv [x \mapsto \rval]
 \end{array}
 \]
 
 \mg{Jiawen, please write down a description of the grammar, otherwise
   it is difficult ot imagine the different components. Especially for expressions.}
-\section{Semantics - IMP}
 
+We consider a simple imperative language $\prog$ with assignments, random sampling and sequencing, and simple arithmetic expressions $\expr$ with real number $\rval$, floating point number $\fval$, variable $\varx$, binary operations and unary operations. The errors $\err$ are represented by a pair of real number. The environment maps variable to a floating point number and an error.
+%
+%
+%
+\section{Semantics - IMP}
+%
 The semantics for expressions with relative
 floating point computation error are shown in
 Figure~\ref{fig_semantics_prog}.\mg{I changed the reference because it
@@ -121,6 +124,8 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
   pWhile? Also, why there is no error here?
   \end{itemize}
 }
+%
+%
 \begin{figure}
 \begin{mathpar}
 \inferrule*[right = var]
@@ -424,13 +429,13 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 \inferrule*[right = sample]
 {
 	 \fval \leftarrow \edistr^{\diamond}
-	 \and
-	 \rval_1 \leq \fval \leq \rval_2
+	 % \and
+	 % \rval_1 \leq \fval \leq \rval_2
 }
 {
 	\trsenv, \varx \samplel \edistr
 	\trsto
-	\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]
+	\trsenv[\varx \mapsto (\fval, (\fval, \fval))]
 }
 \end{mathpar}
 \caption{Semantics of Transition with Relative Floating Point Error Propagation for Programs}
@@ -438,123 +443,113 @@ can apply VAL-NEG and VAL-EQ, Is this what you want?
 \end{figure}
 
 
-% \begin{figure}
-% \begin{mathpar}
-% \inferrule*[right = rval]
-% {
-% 	\floaten(\rval) = \fval
-% }
-% {
-% 	\rval
-% 	\fbigstep
-% 	\fval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = fval]
-% {
-% 	\empty
-% }
-% {
-% 	\fval
-% 	\fbigstep
-% 	\fval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = fbop]
-% {
-% 	\expr^1 \fbigstep \fval^1
-% 	~~~
-% 	\expr^2 \fbigstep \fval^2
-% 	~~~
-% 	\floaten(\fval^1 \bop \fval^2) = \fval
-% }
-% {
-%     \expr^1 \bop \expr^2 \fbigstep \fval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = fuop]
-% {
-% 	\expr \fbigstep \fval',
-% 	~~~
-% 	\floaten(\uop (\fval')) = \fval
-% }
-% {
-%     \uop(\expr) \fbigstep \fval
-% }
-% \end{mathpar}
-% \caption{Semantics of Evaluation in Floating Point Computation}
-% \label{fig_imp_real_semantics_exp}
-% \end{figure}
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = rval]
+{
+	\floaten(\rval) = \fval
+}
+{
+	\rval
+	\fbigstep
+	\fval
+}
+%
+~~
+%
+\inferrule*[right = fval]
+{
+	\empty
+}
+{
+	\fval
+	\fbigstep
+	\fval
+}
+%
+~~
+%
+\inferrule*[right = fbop]
+{
+	\expr^1 \fbigstep \fval^1
+	~~~
+	\expr^2 \fbigstep \fval^2
+	~~~
+	\floaten(\fval^1 \bop \fval^2) = \fval
+}
+{
+    \expr^1 \bop \expr^2 \fbigstep \fval
+}
+%
+~~
+%
+\inferrule*[right = fuop]
+{
+	\expr \fbigstep \fval',
+	~~~
+	\floaten(\uop (\fval')) = \fval
+}
+{
+    \uop(\expr) \fbigstep \fval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation in Floating Point Computation}
+\label{fig_imp_real_semantics_exp}
+\end{figure}
 
-% \begin{figure}
-% \begin{mathpar}
-% \inferrule*[right = rval]
-% {
-% 	\empty
-% }
-% {
-% 	\rval
-% 	\rbigstep
-% 	\rval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = rval]
-% {
-% 	\empty
-% }
-% {
-% 	\fval
-% 	\rbigstep
-% 	\fval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = rbop]
-% {
-% 	\expr^1 \rbigstep \rval^1
-% 	~~~
-% 	\expr^2 \rbigstep \rval^2
-% 	~~~
-% 	\rval^1 \bop \rval^2 = \rval
-% }
-% {
-%     \expr^1 \bop \expr^2 \rbigstep \rval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = ruop]
-% {
-% 	\expr \rbigstep \rval',
-% 	~~~
-% 	\uop (\rval') = \rval
-% }
-% {
-%     \uop(\expr) \rbigstep \rval
-% }
-% %
-% ~~
-% %
-% \inferrule*[right = f(d)]
-% {
-% 	f(D) = \fval
-% }
-% {
-% 	f(D) \bigstep \fval
-% }
-% \end{mathpar}
-% \caption{Semantics of Evaluation in Real Computation}
-% \label{fig_real_semantics_exp}
-% \end{figure}
+\begin{figure}
+\begin{mathpar}
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\rval
+	\rbigstep
+	\rval
+}
+%
+~~
+%
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\fval
+	\rbigstep
+	\fval
+}
+%
+~~
+%
+\inferrule*[right = rbop]
+{
+	\expr^1 \rbigstep \rval^1
+	~~~
+	\expr^2 \rbigstep \rval^2
+	~~~
+	\rval^1 \bop \rval^2 = \rval
+}
+{
+    \expr^1 \bop \expr^2 \rbigstep \rval
+}
+%
+~~
+%
+\inferrule*[right = ruop]
+{
+	\expr \rbigstep \rval',
+	~~~
+	\uop (\rval') = \rval
+}
+{
+    \uop(\expr) \rbigstep \rval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation in Real Computation}
+\label{fig_real_semantics_exp}
+\end{figure}
 
 \clearpage
 \mg{I suggest to split the theorem proof by adding a lemma that states
@@ -1249,7 +1244,7 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 [$\snap(a) : A \to \distr(\real)$]
 Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined as:
 \[
-	U \samplel \edistr; S \samplel \{-1, 1\};
+	U \samplel \uniform(0,1); S \samplel \uniform\{-1, 1\};
 	y = f(a) + S \times \ln (U) \div \epsilon;
 	z = \clamp_B \big(
 	\round{y}_{\Lambda}
