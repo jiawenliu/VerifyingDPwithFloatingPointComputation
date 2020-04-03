@@ -1116,122 +1116,102 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	\caseL
 	{
 	\[
-	\inferrule*[right = uop-p]
+		\inferrule*[right = uop-p]
 		{
-			\trsenv, \expr 
-			\trsto (\expr, \ubar{\rval}, \bar{\rval})
+			\trsenv, \expr \trsto (\fval', (\ubar{\rval}, \bar{\rval})) 
 			~(\diamond)
-			\and
-			\uop (\expr) \geq 0
-			~ (\square)
+			~~~~
+			\fval = \floaten(\uop (\fval')) 
+			~~~~
+			\fval \geq 0
 		}
 		{
 		    \trsenv, \uop(\expr)
 		    \trsto
-		    \big(\uop(\expr),
+		    \Big(\fval,
+		    \big(
 		    \frac{\uop(\ubar{\rval})}{(1 + \eta)}, 
 		    (\uop(\bar{\rval}))(1 + \eta)
 		    \big)
+		    \Big)
 		}
 	\]
 	}
 	%
-	We need to show: 
-	%
-	for $\uop(\expr) \fbigstep \fval$, 
-	$\frac{\uop(\ubar{\rval})}{(1 + \eta)} \rbigstep \ubar{\rval}$ 
-	and $\uop(\bar{\rval})(1 + \eta) \rbigstep \bar{\rval}$,
-	the $\ubar{\rval} \leq \fval \leq \bar{\rval}$ holds.\\
+ 	It is sufficient to show 
+	$\frac{\uop(\ubar{\rval})}{1 + \eta}
+	\leq \fval \leq 
+	(\uop(\bar{\rval}))(1 + \eta)$.\\
 	%
 	By induction hypothesis on $(\diamond)$, we have:\\
 	%
-	(1) for $\expr \fbigstep \fval'$, 
-	$\ubar{\rval} \rbigstep \ubar{\rval'}$ 
-	and $\bar{\rval} \rbigstep \bar{\rval'}$,
-	the $\ubar{\rval'} \leq \fval \leq \bar{\rval'}$ holds.\\
+	(1) $\ubar{\rval} \leq \fval' \leq \bar{\rval}$ holds.
 	%
+	\\
 	%
-	By (1) and monotone of unary operations, we have:
-	$\uop(\ubar{\rval'})
+	By (1) and monotone of unary operators, we have:
+	%
+	$\uop(\ubar{\rval})
 	\leq \uop(\fval')
-	\leq \uop(\bar{\rval'})$.\\
+	\leq \uop(\bar{\rval})$.\\
 	%
-	By hypothesis $(\square)$ and relative error of floating point rounding, we have:\\
+	Then by hypothesis: $\fval \geq 0$ and relative error of floating point rounding, we have:\\
 	%
-	$\frac{\uop(\ubar{\rval'})}{1 + \eta}
-	\leq \floaten(\uop(\fval'))
-	\leq \uop(\bar{\rval'})(1 + \eta)$.\\
-	%
-	By evaluation rule FBOP and RBOP, we have:\\
-	%
-	$\uop(\fval') \fbigstep \floaten(\uop(\fval'))$, 
-	%
-	$\frac{\uop(\ubar{\rval})}{1 + \eta} 
-	\rbigstep \frac{\uop(\ubar{\rval'})}{1 + \eta}$ 
-	%
-	and $\uop(\bar{\rval})(1 + \eta) 
-	\rbigstep \uop(\bar{\rval'})(1 + \eta)$.\\
+	$\frac{\uop(\ubar{\rval})}{1 + \eta}
+	\leq \floaten(\uop(\fval')) = \fval
+	\leq \uop(\bar{\rval})(1 + \eta)$.
 	%
 	This case is proved.
 	%
 	\subcaseL
 	{
 	\[
-	\inferrule*[right = uop-neg]
-		{
-			\trsenv, \expr \trsto (\expr, \ubar{\rval}, \bar{\rval})
-			\and
-			\uop (\expr) < 0
-		}
-		{
-		    \trsenv, \uop(\expr)
-		    \trsto 
-		    \big(\uop(\expr),
-		    (\uop(\ubar{\rval}))(1 + \eta),
-		    \frac{\uop(\bar{\rval})}{(1 + \eta)}
-		    \big)
-		}
+	\inferrule*[right = uop-n]
+	{
+		\trsenv, \expr \trsto (\fval', (\ubar{\rval}, \bar{\rval}))
+		~~~~
+		\fval = \floaten(\uop (\fval')) 
+		~~~~
+		\fval < 0
+	}
+	{
+	    \trsenv, \uop(\expr)
+	    \trsto 
+	    \Big(\fval,
+	    \big(\uop(\ubar{\rval})(1 + \eta),
+	    \frac{\uop(\bar{\rval})}{(1 + \eta)}
+	    \big)
+	    \Big)
+	}
 	\]
 	}
 	%
-	We need to show: 
 	%
-	for $\uop(\expr) \fbigstep \fval$, 
-	$\uop(\ubar{\rval})(1 + \eta) \rbigstep \ubar{\rval}$
-	and $\frac{\uop(\bar{\rval})}{(1 + \eta)} \rbigstep \bar{\rval}$,
-	the $\ubar{\rval} \leq \fval \leq \bar{\rval}$ holds.\\
+ 	It is sufficient to show 
+	$\big(\uop(\ubar{\rval})(1 + \eta)
+	\leq \fval \leq 
+	\frac{\uop(\bar{\rval})}{(1 + \eta)}$.\\
 	%
 	By induction hypothesis on $(\diamond)$, we have:\\
 	%
-	(1) for $\expr \fbigstep \fval'$, 
-	$\ubar{\rval} \rbigstep \ubar{\rval'}$ 
-	and $\bar{\rval} \rbigstep \bar{\rval'}$,
-	the $\ubar{\rval'} \leq \fval \leq \bar{\rval'}$ holds.\\
+	(1) $\ubar{\rval} \leq \fval' \leq \bar{\rval}$ holds.
 	%
+	\\
 	%
-	By (1) and monotone of unary operations, we have:
-	$\uop(\ubar{\rval'})
+	By (1) and monotone of unary operators, we have:
+	%
+	$\uop(\ubar{\rval})
 	\leq \uop(\fval')
-	\leq \uop(\bar{\rval'})$.\\
+	\leq \uop(\bar{\rval})$.\\
 	%
-	By hypothesis $(\square)$ and relative error of floating point rounding, we have:\\
+	Then by hypothesis: $\fval < 0$ and relative error of floating point rounding, we have:\\
 	%
-	$\uop(\ubar{\rval'})(1 + \eta)
-	\leq \floaten(\uop(\fval'))
-	\leq \frac{\uop(\bar{\rval'})}{1 + \eta}$.\\
+	$\big(\uop(\ubar{\rval})(1 + \eta)
+	\leq \floaten(\uop(\fval')) = \fval
+	\leq \frac{\uop(\bar{\rval})}{(1 + \eta)}$.
 	%
-	By evaluation rule FBOP and RBOP, we have:\\
+	This case is proved.
 	%
-	$\uop(\fval') \fbigstep \floaten(\uop(\fval'))$, 
-	%
-	$\uop(\ubar{\rval})(1 + \eta) 
-	\rbigstep \uop(\ubar{\rval'})(1 + \eta)$
-	%
-	and $\frac{\uop(\bar{\rval})}{1 + \eta} 
-	\rbigstep \frac{\uop(\bar{\rval'})}{1 + \eta}$ .\\
-	%
-	Let $\fval = \floaten(\uop(\fval'))$,
-	$\ubar{\rval} = \uop(\ubar{\rval'})(1 + \eta)$ and $\bar{\rval} = \frac{\uop(\bar{\rval'})}{1 + \eta}$, this case is proved.
 	%
 \end{itemize}
 %
@@ -1249,7 +1229,7 @@ Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined
 	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
 	\big)
 \]
-where $F$ is a primitive query function over input database $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+where $f(a)$ represents a value that the query function $f$ be evaluted over input database $a \in A$, $\epsilon$ is the privacy parameter, $B$ is the clamping argument and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 %
 % \\
 % %
@@ -1334,7 +1314,7 @@ $\clamp_B \big(
 or $\clamp_B \big(
 	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
 	\big)
-	\rbigstep \varx$ and $\varx < f(a)$,
+	\rbigstep \varx$,
 %
 \begin{enumerate}
 	\item if $\varx < f(a)$, then $S = 1$;
@@ -1419,9 +1399,8 @@ $$f(a) + \frac{1}{\epsilon} \times s \times \ln (u) \fbigstep \varx;
 ~~~~~~~~~~~~~~~~~~
 f(a') + \frac{1}{\epsilon} \times s' \times \ln (u') \fbigstep \varx.$$
 %
-To show the privacy loss of $\snap$ mechanism in floating point computation is bounded by $\epsilon + 23 B \epsilon \eta$, it’s sufficent to show:
+To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficent to show:
 %
-\\
 %
 $|\fvarR - \fvarL|$ and $|\fvarR' - \fvarL'|$
 is bounded by $h(|{\rvarR} - {\rvarL}|)$, $g(|{\rvarR} - {\rvarL}|)$ and $h(|{\rvarR'} - {\rvarL'}|)$, $g(|{\rvarR'} - {\rvarL'}|)$,
