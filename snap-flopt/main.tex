@@ -1245,25 +1245,103 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined as:
 \[
 	U \samplel \uniform(0,1); S \samplel \uniform\{-1, 1\};
-	y = f(a) + S \times \ln (U) \div \epsilon;
-	z = \clamp_B \big(
-	\round{y}_{\Lambda}
+	x = \clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
 	\big)
 \]
 where $F$ is a primitive query function over input database $a \in A$, $\epsilon$ is the privacy budget, $B$ is the clamping bound and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 %
-\\
-%
-Given $U = u, S = s$, let $\expr_{\snap'} = f(a) + s \times \ln (u) \div \epsilon$,
-$\expr_{\snap''} = \clamp_B \big( \round{\rval_{\snap'} }_{\Lambda} \big)$
-%
-\\
-%
-Let $\snap'(a)$ be the same as $\snap(a)$ given $U = u, S = s$ without rounding and clamping steps, i.e., $\snap'(a): y = \expr_{\snap'}$,
-and $\snap''(a): z = \expr_{\snap''}$.
+% \\
+% %
+% Given $U = u, S = s$, let $\expr_{\snap'} = f(a) + s \times \ln (u) \div \epsilon$,
+% $\expr_{\snap''} = \clamp_B \big( \round{\rval_{\snap'} }_{\Lambda} \big)$
+% %
+% \\
+% %
+% Let $\snap'(a)$ be the same as $\snap(a)$ given $U = u, S = s$ without rounding and clamping steps, i.e., $\snap'(a): y = \expr_{\snap'}$,
+% and $\snap''(a): z = \expr_{\snap''}$.
 \end{defn}
 
+\begin{lem}
+[ZeroBoundL]
+\label{lem:zeroboundl}
+For any input $a$:
+\begin{enumerate}
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+	\fbigstep -B$ or $B$, then $U \in (0, \fvarR)$ for some $\fvarR$.
+	%
+\item
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+	\rbigstep -B$ or $B$, then $U \in (0, \rvarR)$ for some $\rvarR$.
+\end{enumerate}
+\end{lem}
 
+\begin{lem}
+[ZeroBoundR]
+\label{lem:zeroboundr}
+For any input $a$:
+\begin{enumerate}
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+	\fbigstep -B$ or $B$ and $U \in (\fvarL, \fvarR)$ for some $\fvarL, \fvarR$.
+	%
+	\\
+	%
+	 Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, 
+	 then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times S \times \ln (U) \fbigstep -b - \frac{\Lambda}{2}$ or $b + \frac{\Lambda}{2}$.
+%
+\item
+	%
+	%
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+	\rbigstep -B$ or $B$ and $U \in (\rvarL, \rvarR)$ for some $\rvarL, \rvarR$.
+	%
+	\\
+	%
+	 Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, 
+	 then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times S \times \ln (U) \rbigstep -b - \frac{\Lambda}{2}$ or $b + \frac{\Lambda}{2}$.
+\end{enumerate}
+\end{lem}
+
+\begin{lem}[sign]
+\label{lem:sign}
+For any input $a$ and output $\varx$ where
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+	\fbigstep \varx$ 
+or $\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+	\rbigstep \varx$ and $\varx < f(a)$,
+%
+\begin{enumerate}
+	\item if $\varx < f(a)$, then $S = 1$;
+	\item if $\varx = f(a)$, then $S = 1$ or $ -1$;
+	\item if $\varx > f(a)$, then $S = -1$.
+\end{enumerate}
+\end{lem}
 % \begin{defn}
 % [$\snap(a) : A \to \distr(\real)$]
 % Given privacy parameter $\epsilon$, the floating point implemented
@@ -1283,40 +1361,76 @@ and $\snap''(a): z = \expr_{\snap''}$.
 \newpage
 \section{Main Theorem}
 
-\begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
-Consider $\snap(a)$ defined as before, if $\snap(a) = x$ given database $a$ and privacy parameter $\epsilon$, then its actual privacy loss is bounded by $\epsilon + 23 B \epsilon \eta$.
+\begin{thm}
+[The $\snap$ mechanism is $(\epsilon + 23 B \epsilon \eta, 0)-$differentially private]
+%
+Consider the $\snap(a)$ defined as before. For any privacy parameter $\epsilon$ representable in floating point computation, for all possible outputs $\varx$ in floating point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
 \end{thm}
 
 \begin{proof}
 %
 %
-Given $\snap(a) = x$ and parameter $\epsilon$, we consider $a'$ be the adjacent database of $a$ satisfying $|f(a) - f(a')| \leq 1$.
+Consider:
+\\
+1. any %
+output of $\snap(a)$ in floating point computation is $\varx$,
+%
+\\
+2. any pair of adjacent database $a'$ and $a$ where $|f(a) - f(a')| \leq 1$
+%
+\\
+3. and any parameter $\epsilon$ is representable in floating point computation.
+%
+\\
 Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
 %
-
+\\
 %
-Consider the $\snap(a)$ outputting the same result $x$ under floating point and real computaion, let $(L, R)$ be the range where $\forall u \in (L, R)$ and some $s$ s.t.:
+Consider the $\snap(a)$ and $\snap(a')$ output the same result $x$ under floating point and real computation.
 %
-$$\expr_{\snap''} \rbigstep \varx.$$
+\\
 %
-We have $\Pr[\snap(a) = \varx] = R - L$. Since the ideal $\snap(a)$ is $\epsilon-$DP, we can get:
+Let $(\rvarL, \rvarR)$, $(\rvarL', \rvarR')$ be the range where 
+$\forall u \in (\rvarL, \rvarR)$ and some $s$, 
+$\forall u' \in (\rvarL', \rvarR')$ and some $s'$, s.t.:
+%
+$$f(a) + \frac{1}{\epsilon} \times s \times \ln (u) \rbigstep \varx; 
+~~~~~~~~~~~~~~~~~~
+f(a') + \frac{1}{\epsilon} \times s' \times \ln (u') \rbigstep \varx.$$
+%
+We have $\Pr[\snap(a) = \varx] = \frac{1}{2} (\rvarR - \rvarL)$ 
+and $\Pr[\snap(a') = \varx] = \frac{1}{2} (\rvarR' - \rvarL')$.
+%
+\\
+%
+Since the $\snap(a)$ in real computation is $(\epsilon, 0)-$DP, we can get:
 \[
 	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]}
-	= \frac{R - L}{R' - L'} \leq e^{\epsilon}
+	= \frac{\rvarR - \rvarL}{\rvarR' - \rvarL'} \leq e^{\epsilon}
 \]
 %
 \\
 %
-Let $(l, r)$ be the range where $\forall u \in (l, r)$ and the same $s$ s.t.: 
+Let $(\fvarL, \fvarR)$, $(\fvarL', \fvarR')$ be the range where 
+$\forall u \in (\fvarL, \fvarR)$ and some $s$, 
+$\forall u' \in (\fvarL', \fvarR')$ and some $s'$, s.t.:
 %
-$$\expr_{\snap''} \fbigstep \varx.$$
+$$f(a) + \frac{1}{\epsilon} \times s \times \ln (u) \fbigstep \varx; 
+~~~~~~~~~~~~~~~~~~
+f(a') + \frac{1}{\epsilon} \times s' \times \ln (u') \fbigstep \varx.$$
 %
 To show the privacy loss of $\snap$ mechanism in floating point computation is bounded by $\epsilon + 23 B \epsilon \eta$, it’s sufficent to show:
-$|r - l|$ is bounded $f(|{R} - {L}|)$ and $g(|{R} - {L}|)$ s.t.:
+%
+\\
+%
+$|\fvarR - \fvarL|$ and $|\fvarR' - \fvarL'|$
+is bounded by $h(|{\rvarR} - {\rvarL}|)$, $g(|{\rvarR} - {\rvarL}|)$ and $h(|{\rvarR'} - {\rvarL'}|)$, $g(|{\rvarR'} - {\rvarL'}|)$,
+%
+s.t.:
 %
 \[
 	-(\epsilon + 23 B \epsilon \eta)
-	\leq \ln( \frac{f(|{R} - {L}|)}{g(|{R} - {L}|)} )
+	\leq \ln( \frac{h(|{\rvarR} - {\rvarL}|)}{g(|{\rvarR'} - {\rvarL'}|)} )
 	\leq \epsilon + 23 B \epsilon \eta.
 \]
 
@@ -1328,164 +1442,199 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		% \item[\textbf{case}] $\boldsymbol{x = -B}$
 		\caseL{$\boldsymbol{x = -B}$}
 		%
-		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b - \Lambda / 2$.
+		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
+		% %
+		% \\
+		% %
+		% Let $L$ and $R$ be the range where $\forall u \in (L, R)$ and $s = 1$, s.t.
+		% $\expr_{\snap''} \rbigstep \varx$.
+		% %
+		% \\
+		% %
+		% Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
+		% $\expr_{\snap''} \fbigstep \varx$.
 		%
 		\\
 		%
-		Let $L$ and $R$ be the range where $\forall u \in (L, R)$ and $s = 1$, s.t.
-		$\expr_{\snap''} \rbigstep \varx$.
+		By Lemma \ref{lem:sign}, \ref{lem:zeroboundr} and \ref{lem:zeroboundl} we know $s = 1$, 
+		$U \in (0, \fvarR)$ for some $\fvarR$
+		, $U \in (0, \rvarR)$ for some $\rvarR$ s.t.:.
+		%
+		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvarR) \fbigstep -b' ~~~ (1)
+		~~~~~~~~~~~~~~~~
+		f(a) + \frac{1}{\epsilon} \times \ln(\rvarR) \rbigstep -b' ~~~ (2)
+		$$
+		\\
+		%
+		So we can get $\fvarL = \rvarL = 0$.
 		%
 		\\
 		%
-		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$\expr_{\snap''} \fbigstep \varx$.
-		%
+		In order to bound the $\fvarR$ by $\rvarR$, let $\tilde{\fvarR}$ be the real representation of $\fvarR~(\star)$ . we have the derivation as following:
 		\\
-		%
-		So we know $s = 1$, $l = L = 0$, $\ubar{R} < r < \bar{R}$ s.t.:
-		$$f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep -b'
-		\land
-		f(a) + \frac{1}{\epsilon} \times \ln(R) \rbigstep -b'.$$
-		%
-		%
-		The derivation of this case given $\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
 		% \begin{figure}
-		\begin{mathpar}
-		\inferrule[uop]
+{\scriptsize
+\begin{mathpar}
+	\inferrule*[right=bop]
+	{
+	\inferrule*[right=bop]
+	{
+		\inferrule*[right = uop]
 		{
 			\inferrule*[right = val-eq]
 			{
-				\empty
+				\tilde{\fvarR} ~~~ \text{representable}
 			}
 			{
-				\trsenv, U 
+				\trsenv, \tilde{\fvarR} 
 				\trsto
-				(R,
-				(\ubar{R}, \bar{R}))
+				(\fvarR,
+				(\tilde{\fvarR}, \tilde{\fvarR}))
 			}
 		}
 		{
-			\inferrule[bop]
-			{
 				\trsenv,
-				\ln(U) 
+				\ln(\tilde{\fvarR}) 
 				\trsto
-				(\ln(R), \ln(\ubar{R})(1 + \eta),
-				\frac{\ln(\bar{R})}{(1 + \eta)})
+				(\ln(\fvarR), \ln(\tilde{\fvarR})(1 + \eta),
+				\frac{\ln(\tilde{\fvarR})}{(1 + \eta)})
+			}
+			\and
+			\inferrule*[right = val-eq]
+			{
+			\frac{1}{\epsilon}~ \text{representable}
 			}
 			{
-				\inferrule[bop]
-				{
+				\frac{1}{\epsilon} \trsto
+				(\frac{1}{\epsilon},
+				(\frac{1}{\epsilon},
+			\frac{1}{\epsilon}))	
+			}
+		}
+			{
 					\trsenv,
-					\frac{1}{\epsilon} \times \ln(U) 
+					\frac{1}{\epsilon} \times \ln(\tilde{\fvarR}) 
 					\trsto
 					(\frac{1}{\epsilon} \times \ln(R),
-					((\frac{1}{\epsilon} \times \ln(\ubar{R}))(1 + \eta)^2,
+					((\frac{1}{\epsilon} \times \ln(\tilde{\fvarR}))(1 + \eta)^2,
 					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{R})}{(1 + \eta)^2}))
+					\frac{\frac{1}{\epsilon} \times \ln(\tilde{\fvarR})}{(1 + \eta)^2}))
 				}
-				{
-					\inferrule[id]
-					{
-						\trsenv,
-						f(a) + \frac{1}{\epsilon} \times \ln(U)
-						\trsto
-						\bigg(
-						f(a) + \frac{1}{\epsilon} \times \ln(R),
-						\big( (f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-						(1 + \eta)^2)
-						{(1 + \eta)},
-						%
-						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-						{(1 + \eta)^2}
-						)}
-						{(1 + \eta)}
-						 \big)
-						\bigg)
-					}
-					{
-						\trsenv,\snap'(a)
-						\trsto
-						\trsenv[y \mapsto \bigg(
-						f(a) + \frac{1}{\epsilon} \times \ln(R),
-						\big( (f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-						(1 + \eta)^2)
-						{(1 + \eta)},
-						%
-						\frac{(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-						{(1 + \eta)^2}
-						)}
-						{(1 + \eta)} \big)
-						\bigg)
-						]
-					}
+					\and
+				\inferrule*[right=val-eq]
+				{f(a) ~~ \text{representable}}
+				{	[],
+				f(a) \trsto
+				(f(a),(f(a),f(a)))
 				}
 			}
-		}
-		\end{mathpar}
+				{
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(\tilde{\fvarR})
+				\trsto
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvarR),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\tilde{\fvarR}))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				\frac{(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(\tilde{\fvarR})}
+				{(1 + \eta)^2}
+				)}
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+				}
+		\end{mathpar}	
+}		%
 		%
-		%
+		By Soundness Theorem and $(1)$, we have:
 		% 
 		%
-		In the same way, we have the derivation for $\snap'(a')$:
-		\begin{mathpar}
-		\inferrule
-		{
-			\dots
-		}
-		{
-			\trsenv, \snap'(a'); \snap''
-			\trsto
-			\trsenv[
-			y \mapsto 
-			\bigg(\snap'(a'),
-			\big( (f(a') + 
-			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
-			(1 + \eta)^2)
-			{(1 + \eta)},
-			%
-			\frac{(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
-			{(1 + \eta)^2}
-			)}
-			{(1 + \eta)} \big)
-			\bigg)
-			]
-		}
-		\end{mathpar}
+		\[
+		(f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\tilde{\fvarR}))
+				(1 + \eta)^2)
+				{(1 + \eta)}
+		\leq
+		-b'
+		\leq
+		\frac{(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(\tilde{\fvarR})}
+				{(1 + \eta)^2}
+				)}
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+		\]
+		Then we can get:
 		%
+		\[
+		e^{\epsilon 
+		\big( (-b'(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
+		\leq
+		\tilde{\fvarR}
+		\leq
+		e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}}
+		\]
 		%
-		Given $\snap(a') \fbigstep -b'$, $\snap(a) \fbigstep -b'$, we have the worst case lower and upper bounds for $R$ and $R'$, which are $\ubar{R}, \bar{R}, \ubar{R'}$ and $\bar{R'}$:
+		By $(\star)$ we know: $\tilde{\fvarR} = \fvarR$, so we have:
+		%
+		\[
+		e^{\epsilon 
+		\big( (-b'(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
+		\leq
+		\fvarR
+		\leq
+		e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}}
+		\]
+		%
+		\\		
+		%
+		In the same way, we get:
 		%
 		%
 		\[
-		\begin{array}{c}
-		\ubar{R} = e^{\epsilon 
-		\big( (-b'(1 + \eta) - f(a)) (1 + \eta)^2) \big)},
+		e^{\epsilon 
+		\big((-b'(1 + \eta) - f(a'))(1 + \eta)^2 \big)}
+		\leq
+		\fvarR'
 		%
-		\bar{R} = e^{\epsilon 
-		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}}
-		\\
-		%
-		\ubar{R'} = e^{\epsilon 
-		\big((-b'(1 + \eta) - f(a'))(1 + \eta)^2 \big)},
-		%
-		\bar{R'} = e^{\epsilon 
+		\leq
+		e^{\epsilon 
 		(\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2})}
-		\end{array}
 		\]
 		%		
-		The privacy loss of $\snap(a)$ in this case is bounded by:
+		Then we have that the $|\fvarR - \fvarL| = |\fvarR - 0|$ is bounded by 
+		$e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}}$ 
+		and $e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}}$;
+		%
+		\\
+		and $|\fvarR' - \fvarL'| = |\fvarR' - 0|$ is bounded by 
+		$e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$ 
+		and $e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$;
+		
+
+		So the privacy loss in this case is bounded by:
 		%
 		\[
 		\begin{array}{ll}
 		\frac
-		{\frac{1}{2}(\bar{R} - 0)}
-		{\frac{1}{2}(\ubar{R'} - 0)}
+		{\frac{1}{2}(e^{\epsilon 
+		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}})}
+		{\frac{1}{2}(e^{\epsilon 
+		\big((-b'(1 + \eta) - f(a'))(1 + \eta)^2 \big)})}
 		& = e^{\epsilon
 		\bigg(
 		\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2}
@@ -1497,7 +1646,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\frac{-b'}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2}
 		-
 		x(1 + \eta)^3 + f(a')(1 + \eta)^2 
-		\bigg)} ~ (\star)
+		\bigg)} ~ (\triangle)
 		\end{array}
 		\]
 		%
@@ -1505,7 +1654,9 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\[
 		\begin{array}{ll}
-		(\star) & < e^{\epsilon \big( 
+		e^0
+		<
+		~~~ (\triangle) & < e^{\epsilon \big( 
 		\frac{9\eta + 6}{1 + 3\eta} b'
 		+ 4.1 \eta f(a)
 		+ (1 + 2.1\eta) 
