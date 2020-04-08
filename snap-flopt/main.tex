@@ -1395,8 +1395,31 @@ $$
 % \]
 % Let $\snap'(a)$ be the same as $\snap(a)$ without rounding and clamping steps given $u, s$.
 % \end{defn}
+\begin{lem}[idealRL]
+\label{lem:idealrl}
+For any input $a$ and output $\valv \in (-B, B)$,
+let $(\rvalL, \rvalR)$ be the largest range where 
+$\forall u \in (\rvalL, \rvalR)$ and some $s$ s.t.:
+%
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+\rbigstep \valv
+$, then:
+%
+$$
+\rvalL = e^{\epsilon(\valv - \Lambda/2 - f(a))/s}
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+\rvalR = e^{\epsilon(\valv + \Lambda/2 - f(a))/s}
+$$
+and 
+$\Pr[\snap(a) = \valv] = 1/2(\rvalR - \rvalL)$.
+\end{lem}
 
-
+\begin{lem}[idealDP]
+\label{lem:idealdp}
+The $\snap$ mechanism in real computation is differentially private.
+\end{lem}
 
 \newpage
 \section{Main Theorem}
@@ -1404,31 +1427,27 @@ $$
 \begin{thm}
 [The $\snap$ mechanism is $(\epsilon + 23 B \epsilon \eta, 0)-$differentially private]
 %
-Consider the $\snap(a)$ defined as before. For any privacy parameter $\epsilon$ representable in floating point computation, for all possible outputs $\varx$ in floating point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
+Consider the $\snap$ mechanism defined as before. For any privacy parameter $\epsilon$ representable in floating point computation, for all possible outputs $\varx$ in floating point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
 \end{thm}
 
 \begin{proof}
 %
 %
-Consider:
+We consider following setting:
 \\
-1. any %
-output of $\snap(a)$ in floating point computation is $\valv$,
+1. $\valv$ is a possible output of $\snap(a)$ in floating point computation,
 %
 \\
 2. any pair of adjacent database $a'$ and $a$ where $|f(a) - f(a')| \leq 1$
 %
 \\
-3. and any parameter $\epsilon$ is representable in floating point computation.
+3. and any parameter $\epsilon$ representable in floating point computation.
 %
 \\
-Without loss of generalization, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
+Without loss of generality, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
 %
 \\
 %
-Consider the $\snap(a)$ and $\snap(a')$ output the same result $x$ under floating point and real computation.
-%
-\\
 %
 Let $(\rvalL, \rvalR)$, $(\rvalL', \rvalR')$ be the range where 
 $\forall u \in (\rvalL, \rvalR)$ and some $s$, 
@@ -1444,12 +1463,13 @@ $$\clamp_B \big(
 	\big)
 	 \rbigstep \valv.$$
 %
-We have $\Pr[\snap(a) = \valv] = \frac{1}{2} (\rvalR - \rvalL)$ 
+By \textbf{Lemma \ref{lem:idealrl}}, we have:
+$\Pr[\snap(a) = \valv] = \frac{1}{2} (\rvalR - \rvalL)$ 
 and $\Pr[\snap(a') = \valv] = \frac{1}{2} (\rvalR' - \rvalL')$.
 %
 \\
 %
-Since the $\snap(a)$ in real computation is $(\epsilon, 0)-$DP, we can get:
+By \textbf{Lemma \ref{lem:idealdp}}, we can get:
 \[
 	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]}
 	= \frac{\rvalR - \rvalL}{\rvalR' - \rvalL'} \leq e^{\epsilon}
@@ -1475,14 +1495,17 @@ $$
 To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficent to show:
 %
 %
-$|\fvalR - \fvalL|$ and $|\fvalR' - \fvalL'|$
-is bounded by $h(|{\rvalR} - {\rvalL}|)$, $g(|{\rvalR} - {\rvalL}|)$ and $h(|{\rvalR'} - {\rvalL'}|)$, $g(|{\rvalR'} - {\rvalL'}|)$,
+$h(|{\rvalR} - {\rvalL}|) \leq |\fvalR - \fvalL| \leq g(|{\rvalR} - {\rvalL}|)$ and 
+$h(|{\rvalR'} - {\rvalL'}|) \leq |\fvalR' - \fvalL'|
+\leq g(|{\rvalR'} - {\rvalL'}|) $,
 %
 s.t.:
 %
 \[
 	-(\epsilon + 23 B \epsilon \eta)
-	\leq \ln( \frac{h(|{\rvalR} - {\rvalL}|)}{g(|{\rvalR'} - {\rvalL'}|)} )
+	\leq \ln( \frac{h(|{\rvalR} - {\rvalL}|)}{g(|{\rvalR'} - {\rvalL'}|)} ) 
+	\leq
+	\ln( \frac{g(|{\rvalR} - {\rvalL}|)}{h(|{\rvalR'} - {\rvalL'}|)} )
 	\leq \epsilon + 23 B \epsilon \eta.
 \]
 
@@ -1998,15 +2021,15 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		e^{\epsilon 
 				\frac{(\frac{\valv_2}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$$
 
-		Then, we have the privacy loss is bounded by:
-		\[
-		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}.		
-		\]
+		Let  $h{(\fvalL) } = e^{\epsilon 
+				\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$ be the lower bound for $\fvalL$
+		and $g(\fvalR) = e^{\epsilon 
+		\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$ be the upper bound for $\fvalR$
 		%
-		We also have:
+		We can have:
 		\[
 		\begin{array}{ll}
-		\frac{\bar{R}}{R} 
+		\frac{g(\fvalR)}{\rvarR} 
 		& = e^{\epsilon
 		\big(\frac{y_1}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta) ^2} 
 		- y_1 + f(a) \big)}
@@ -2016,7 +2039,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\big(\frac{3 \eta}{1 +3 \eta}B + 2 \eta B \big)}
 		\leq e^{5 \epsilon B \eta}\\
 %
-		\frac{\ubar{L}}{L} 
+		\frac{h(\fvalL )}{\rvarR} 
 		& = e^{\epsilon
 		\big({y_2}{(1 + \eta)^3} - {f(a)}{(1 + \eta) ^2} 
 		- y_2 + f(a) \big)}
@@ -2030,7 +2053,8 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\[
 		\begin{array}{ll}
-		|\bar{R} - \ubar{L}| 
+		|\fvarR - \fvalL|
+		& \leq |g(\fvalR ) - h(\fvalL )| \\
 		& \leq e^{5 \epsilon B \eta}R - e^{-5 \epsilon B \eta} L \\
 		& = L \big(  e^{ \Lambda\epsilon + 5 \epsilon B \eta} 
 		- e^{-5 \epsilon B \eta} \big)\\
@@ -2055,17 +2079,25 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		- e^{5 \epsilon B \eta} \big)\\
 		& = L (e^{ \Lambda\epsilon} -  1) e^{\ln(\frac{e}{(e - 1)}) + 5 \epsilon B \eta}\\
 		& < L (e^{ \Lambda\epsilon} -  1)e^{11 \epsilon B \eta}~ (by ~ ( \frac{1}{\epsilon} < B < 2^{42} \frac{1}{\epsilon} )) \\
-		& = (R - L)e^{11 \epsilon B \eta}
+		& = (\rvalR - \rvalL)e^{11 \epsilon B \eta}
 		\end{array}
 		\]
 		In the same way, we can derive:
 		\[
-		|\ubar{R} - \bar{L}| > e^{-5 \epsilon B\eta} R - e^{5 \epsilon B\eta} L
-		> (R - L)e^{- 12 \epsilon B \eta}
+		|\fvarR' - \fvalL'|
+		\geq 
+		|h(\fvalR' ) - g(\fvalL' )|
+		 > e^{-5 \epsilon B\eta} R - e^{5 \epsilon B\eta} L
+		> (\rvalR' - \rvalL')e^{- 12 \epsilon B \eta}
 		\]
 		Then we have:
 		\[
-		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
+		e^0 \leq 
+		\frac{|\fvalR - \fvalL |}
+		{|\fvalR' - \fvalL'|}
+		\leq
+		\frac{|g(\fvalR ) - h(\fvalL )|}
+		{|h(\fvalR' ) - g(\fvalL' )|}
 		< e^{(23 \epsilon B \eta + \epsilon)}.		
 		\]
 %
