@@ -1492,7 +1492,7 @@ $$
 	\big)
 	\fbigstep \varx.$$
 %
-To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficent to show:
+To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficient to show:
 %
 %
 $h(|{\rvalR} - {\rvalL}|) \leq |\fvalR - \fvalL| \leq g(|{\rvalR} - {\rvalL}|)$ and 
@@ -1519,16 +1519,6 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
 		% %
-		% \\
-		% %
-		% Let $L$ and $R$ be the range where $\forall u \in (L, R)$ and $s = 1$, s.t.
-		% $\expr_{\snap''} \rbigstep \varx$.
-		% %
-		% \\
-		% %
-		% Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		% $\expr_{\snap''} \fbigstep \varx$.
-		%
 		\\
 		%
 		By Lemma \ref{lem:sign}, \ref{lem:clampr} and \ref{lem:clampl} we know $s = 1$, 
@@ -2102,381 +2092,416 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\]
 %
 		\subcaseL{
-		$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } $}
+		$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } ~ (\star_1)$}
 		%
 
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 > 0$, $y_2 > 0$.
+		Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = x + (\frac{\Lambda}{2})$.
+		By $(\star_1)$, 
+		we know $\valv_1 > 0$, $\valv_2 > 0$.
 		%
 		\\
 		%
-		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
-		$\expr_{\snap''} \rbigstep \varx$.
+		By Lemma and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
 		\\
 		%
-		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$\expr_{\snap''} \fbigstep \varx$.
+		By Lemma \ref{lem:roundrl}, we know:
 		%
-		\\
+		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
+		~~~~~~~~~~~~~~~~~
+		f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep \valv_2 ~~ (2).$$
 		%
-		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
-		%
-		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
-		\land
-		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
-		%
+	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:
 
-		The transition from $L$ to $l$ given the transition environment 
-		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
-		% in Figure. \ref{fig_der_snap2}
-		% \begin{figure}
-		\begin{mathpar}
-		\inferrule
+
+{\scriptsize
+\begin{mathpar}
+	\inferrule*[right=bop]
+	{
+	\inferrule*[right=bop]
+	{
+		\inferrule*[right = uop]
 		{
-			\trsenv, U 
-			\trsto
-			(
-			L,
-			(\ubar{L}, \bar{L})
-			)
-		}
-		{
-			\inferrule
+			\inferrule*[right = val-eq]
 			{
-				\trsenv, \ln(U) 
+				P ~~~ \text{representable}
+			}
+			{
+				\trsenv, P 
 				\trsto
-				(\ln(L),
-				(\ln(\ubar{L})(1 + \eta),
-				\frac{\ln(\bar{L})}{(1 + \eta)}))
+				(\fvalL,
+				(P, P))
+			}
+		}
+		{
+				\trsenv,
+				\ln(P) 
+				\trsto
+				(\ln(\fvalL), \ln(P)(1 + \eta),
+				\frac{\ln(P)}{(1 + \eta)})
+			}
+			\and
+			\inferrule*[right = val-eq]
+			{
+			\frac{1}{\epsilon}~ \text{representable}
 			}
 			{
-				\inferrule
-				{
-					\trsenv, \frac{1}{\epsilon} \times \ln(U) 
-					\trsto
-				\big(
-				\frac{1}{\epsilon} \times \ln(L) 
-					,
-					((\frac{1}{\epsilon} \times \ln(\ubar{L}))(1 + \eta)^2,
-					%
-					\frac{\frac{1}{\epsilon} \times \ln(\bar{L})}{(1 + \eta)^2})
-					\big)
-				}
-				{
-					\inferrule
-					{
-						\trsenv, f(a) + \frac{1}{\epsilon} \times \ln(U) 
-						\trsto
-						\big(
-						f(a) + \frac{1}{\epsilon} \times \ln(l)
-						,
-						(
-						\frac{f(a) + 
-						(\frac{1}{\epsilon} \times \ln(\ubar{L}))
-						(1 + \eta)^2}
-						{1 + \eta},
-						%
-						(
-						f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
-						{(1 + \eta)^2}
-						)(1 + \eta)
-						)
-						\big)
-					}
-					{
-					\trsenv, \snap'(a)
-					\trsto
-					\trsenv[
-					y \mapsto 
-					(f(a) + \frac{1}{\epsilon} \times \ln(L)
-					,
-					(
-					\err_1,
-					%
-					\err_2
-					))
-					}
-				}
+				\frac{1}{\epsilon} \trsto
+				(\frac{1}{\epsilon},
+				(\frac{1}{\epsilon},
+			\frac{1}{\epsilon}))	
 			}
 		}
-		\end{mathpar}
+			{
+					\trsenv,
+					\frac{1}{\epsilon} \times \ln(P) 
+					\trsto
+					(\frac{1}{\epsilon} \times \ln(\fvalL),
+					((\frac{1}{\epsilon} \times \ln(P))(1 + \eta)^2,
+					%
+					\frac{\frac{1}{\epsilon} \times \ln(P)}{(1 + \eta)^2}))
+				}
+					\and
+				\inferrule*[right=val-eq]
+				{f(a) ~~ \text{representable}}
+				{	[],
+				f(a) \trsto
+				(f(a),(f(a),f(a)))
+				}
+			}
+				{
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalL),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)/
+				{(1 + \eta)},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2}
+				)
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+				}
+		\end{mathpar}	
+}
 		%
 		%
-		From soundness theorem, we have  $\err_1 \leq y_1 \leq \err_2$, then we can get:
-		%
-		\\
-		$\ubar{L} = e^{(y_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$ and
-		$\bar{L} = e^{(y_1 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
+		By soundness theorem and (1), we have:
 		%
 		%
-		The transition from $R$ to $r$ given the transition environment 
-		$\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
-%
-%
-		\begin{mathpar}
-		\inferrule
-		{
-			\dots
-		}
-		{
-   		\trsenv, \snap'(a)
-   		\trsto
-   		\trsenv[y \mapsto 
-   		\big(
-   		f(a) + \frac{1}{\epsilon} \times \ln(R)
-   		,
-   		(
-   		\frac{f(a) + 
-   		(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-   		(1 + \eta)^2}
-   		{1 + \eta},
-   		%
-   		(
-   		f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-   		{(1 + \eta)^2}
-   		)(1 + \eta)
-   		)\big)
-   		]
-		}
-		\end{mathpar}
-		%
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
-		%
-\\
-		%
-		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
-		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
-		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
-		$\bar{R} = e^{(y_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
-		%
-
-		%
-		For the adjacent input $a$, we first have the same setting as input $a$ for $R'$ and $L'$.
-		Then the transition from $L'$ to $l'$ given the transition environment 
-		$\trsenv = [U \mapsto (L', (\ubar{L'}, \bar{L'})), S \mapsto (1, (1, 1))]$ is shown as following:
-		\begin{mathpar}
-		\inferrule
-		{
-			\dots
-		}
-		{
-			\trsenv, \snap'(a')
-			\trsto
-			\trsenv[ y \mapsto
-			\big(f(a) + \frac{1}{\epsilon} \times \ln(L')
-			,
-			(
-			\frac{f(a') + 
-			(\frac{1}{\epsilon} \times \ln(\ubar{L'}))
-			(1 + \eta)^2}
-			{1 + \eta},
-			%
-			(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{L'})}
-			{(1 + \eta)^2}
-			)(1 + \eta)
-			)\big)
-			]
-		}
-		\end{mathpar}
-		%
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
-		%
-
-		Taking the lower bound (i.e. $\err_1 = y_1$), we get:
-		$\ubar{L'} = e^{(y_1 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
-		%
-		Taking the upper bound (i.e. $\err_2 = y_1$), we get:
-		$\bar{L'} = e^{(y_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
-		%
-		%
-		The transition from $R'$ to $r'$ given the transition environment 
-		$\trsenv = [U \mapsto (R', (\ubar{R'}, \bar{R'})), S \mapsto (1, (1, 1))]$ is shown as following:
-		\begin{mathpar}
-		\inferrule
-		{
-			\dots
-		}
-		{
-			\trsenv, \snap'(a')
-			\trsto
-			\trsenv[y \mapsto
-			\big(f(a) + \frac{1}{\epsilon} \times \ln(R') 
-			,
-			(
-			\frac{f(a') + 
-			(\frac{1}{\epsilon} \times \ln(\ubar{R'}))
-			(1 + \eta)^2}
-			{1 + \eta},
-			%
-			(
-			f(a') + \frac{\frac{1}{\epsilon} \times \ln(\bar{R'})}
-			{(1 + \eta)^2}
-			)(1 + \eta)
-			) \big)
-			]
-		}
-		\end{mathpar}
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
-		%
-\\
-		%
-		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
-		$\ubar{R'} = e^{(y_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$.
-		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
-		$\bar{R'} = e^{(y_2 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$.
+		$$(f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)/
+				{(1 + \eta)}
+		\leq \valv_1 \leq 
+		(
+		f(a) + \frac{\frac{1}{\epsilon} \times \ln(P)}
+		{(1 + \eta)^2}){(1 + \eta)}.
+		$$ 
+		Then we can get:
 		%
 		\\
+		$$e^{(\valv_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}
+		\leq P \leq 
+		e^{(\valv_1 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
 		%
 		%
+		By $(\diamond)$, we have:
 		%
-		We have the privacy loss is bounded by:
+		\\
+		$$e^{(\valv_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}
+		\leq \fvalL \leq 
+		e^{(\valv_1 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
 		%
-		\[
-		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
-		\]
+		%		
+	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:
+%
+%
+{\scriptsize	
+\begin{mathpar}
+		\inferrule
+		{
+			\dots
+		}
+		{
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalR),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)/
+				{(1 + \eta)},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2}
+				)
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+		}
+		\end{mathpar}
+}	
 		%
-\\
+		By soundness theorem and (2), we have:
 		%
-		Since the following bound can be proved by using $1 - 2\eta < (1 + \eta)^2 < 1 + 2.1\eta, y_1 > -B, y_2 > -B $ and simple approximation:
-		\[
-		\bar{R} - \ubar{L} < (R - L) e^{(5B\eta\epsilon)}, 
-		\ubar{R'} - \bar{L'} > (R'  - L') e^{-7B\eta \epsilon}
-		\]
+		%
+		$$(f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)/
+				{(1 + \eta)}
+		\leq \valv_2 \leq 
+		(
+		f(a) + \frac{\frac{1}{\epsilon} \times \ln(P)}
+		{(1 + \eta)^2}){(1 + \eta)}.
+		$$ 
+		Then we can get:
+		%
+		\\
+		$$e^{(\valv_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}
+		\leq P \leq 
+		e^{(\valv_1 (2 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
+		%
+		%
+		By $(\diamond)$, we have:
+		%
+		\\
+		$$e^{(\valv_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}
+		\leq \fvalR \leq 
+		e^{(\valv_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
+		%
 
-		We also have the $\snap(a)$ is $\epsilon$-dp:
+		%
+		For the adjacent input $a$, we have in the same way:
+		%
+		\\
+		$$e^{(\valv_1 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}
+		\leq \fvalL' \leq 
+		e^{(\valv_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2};$$
+		%
+		$$e^{(\valv_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}
+		\leq \fvalR' \leq 
+		e^{(\valv_2 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}.$$		
+		%
+		%
+		%
+		Let $h(\fvarL) = e^{(\valv_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$, 
+		$g(\fvarR) = e^{(\valv_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$,
+		%
+		$g(\fvarL) = e^{(\valv_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$,
+		$h(\fvarR) = e^{(\valv_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$
+		%
+		%
+		\\
+		%
+		Since $1 - 2\eta 
+		< (1 + \eta)^2 < 1 + 2.1\eta, y_1 > -B, y_2 > -B $
+		we have:
 		\[
-		\frac{|R - L|}{|R' - L'|} = e^{\epsilon}
+		|\fvarR - \fvarL| \leq g(\fvarR) - h(\fvarL) 
+		< (\rvarR - \rvarL) e^{(5B\eta\epsilon)}
+		~~~~~~~ 
+		|\fvarR - \fvarL| \geq h(\fvarR) - g(\fvarL) 
+		> (\rvarR' - \rvarL') e^{-7B\eta \epsilon}
 		\]
+		%
+		%
 		So we can get:
 		\[
-		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
-		< \frac{|R - L|}{|R' - L'|} e^{(12B\eta\epsilon)}
+		0 \leq 
+		\frac{\fvarR - \fvarL}{\fvarR' - \fvarL'}
+		\leq
+		\frac{|g(\fvarR) - h(\fvarL) |}
+		{|h(\fvarR) - g(\fvarL) |}
+		< \frac{|\rvarR - \rvarL|}{|\rvarR' - \rvarL'|} e^{(12B\eta\epsilon)}
 		= e^{(1 + 12B\eta)\epsilon}
 		\]		
 %
 %
-		\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land x = 0 } $}
-
-		Let $y_1 = x - (\frac{\Lambda}{2})$, $y_2 = x + (\frac{\Lambda}{2})$, we know $y_1 < 0$, $y_2 > 0$.
-		\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv = 0 } $}
 		%
-		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
-		$\expr_{\snap''} \rbigstep \varx$.
-		%
-		\\
-		%
-		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$\expr_{\snap''} \fbigstep \varx$.
+		Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = \valv  + (\frac{\Lambda}{2})$.
+		By $(\star_1)$, 
+		we know $\valv_1 < 0$, $\valv_2 > 0$.
 		%
 		\\
 		%
-		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		By Lemma and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
-		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
-		\land
-		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
+		\\
 		%
-	%
-		The transition from $L$ to $l$ given the transition environment 
-		$\trsenv = [U \mapsto (L, (\ubar{L}, \bar{L})), S \mapsto (1, (1, 1))]$ is shown as following:
+		By Lemma \ref{lem:roundrl}, we know:
 		%
+		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
+		~~~~~~~~~~~~~~~~~
+		f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep \valv_2 ~~ (2).$$
 		%
+	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:		%
+		%
+{\scriptsize
 		\begin{mathpar}
 		\inferrule
 		{
 		\dots
 		}
 		{
-		\trsenv, \snap'(a)
-		\trsto
-		\trsenv[y \mapsto
-		\big(
-		f(a) + 
-		\frac{1}{\epsilon} \times \ln(\ubar{L})
-		,
-		(
-		\frac{f(a) + 
-		(\frac{1}{\epsilon} \times \ln(\ubar{L}))
-		(1 + \eta)^2}
-		{1 + \eta},
-		%
-		(
-		f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{L})}
-		{(1 + \eta)^2}
-		)(1 + \eta)
-		) \big)
-		]
-		}
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalL),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2}
+				)/
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+			}
 		\end{mathpar}
+	}
 		%
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.\\
+		From soundness theorem and (1), we have:
+		$$
+		(f(a) + (\frac{1}{\epsilon} \times \ln(P))
+		(1 + \eta)^2){(1 + \eta)}
+		 \leq \valv_1 \leq 
+		(f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2})/
+				{(1 + \eta)}.$$
 		%
 		%
-		Taking the lower bound , we have:
-		$\ubar{L} = e^{\epsilon 
-				\big( (y_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$.\\
+		Then, we can solve: 
+		$e^{\epsilon 
+		\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
+		\leq P \leq
+		e^{\epsilon 
+		\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
 		%
-		Taking the upper bound, we have: 
-		$\bar{L} = e^{\epsilon 
-				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
+		\\
 		%
-		%
-		The transition from $R$ to $r$ given the transition environment 
-		$\trsenv = [U \mapsto (R, (\ubar{R}, \bar{R})), S \mapsto (1, (1, 1))]$ is shown as following:
+		Let $h(\fvarL) = e^{\epsilon 
+		\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, by $(\diamond)$, we have:
+		$h(\fvarL) \leq \fvarL.$
+%
+\\
+%
+	In order to bound $\fvalR$ in terms of $\rvalR$, we have the following derivation where $P$ be the real representation of $\fvalR ~~ (\diamond)$:		%
+%
+{\scriptsize
 		\begin{mathpar}
 		\inferrule
 		{
 		 \dots
 		}
 		{
-		\trsenv, \snap'(a)
-		\trsto
-		\trsenv[y \mapsto
-		\big(
-		f(a) + 
-		\frac{1}{\epsilon} \times \ln(\ubar{R})
-		,
-		(
-		\frac{f(a) + 
-		(\frac{1}{\epsilon} \times \ln(\ubar{R}))
-		(1 + \eta)^2}
-		{1 + \eta},
-		%
-		(
-		f(a) + \frac{\frac{1}{\epsilon} \times \ln(\bar{R})}
-		{(1 + \eta)^2}
-		)(1 + \eta)
-		) \big)
-		]
-		}
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalR),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)/
+				{(1 + \eta)},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2}
+				)
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+			}
 	   \end{mathpar}
+}
 		%
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$.
+		From soundness theorem and (2), we have:
 		%
 		%
-		Taking the lower bound (i.e. $\err_1 = y_2$), we have:
-		$\ubar{R} = e^{(y_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$.
-		Taking the upper bound (i.e. $\err_2 = y_1$), we have:
-		$\bar{R} = e^{(y_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$.
+		$$(f(a) + (\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)/ {(1 + \eta)} 
+				\leq \valv_2 \leq 
+				(f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2}){(1 + \eta)}.$$
 		%
-		Using the bound we proved before, we have the folloing bound on $|\bar{R} - \ubar{L}|$ and $|\ubar{R} - \bar{L}|$:
 		%
+		Then, we can solve:
+		$e^{(\valv_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}
+		\leq P \leq
+		e^{(\valv_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$
+		%
+		\\
+		%
+		Let $g(\fvalR) = e^{(\valv_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$, by $(\diamond)$, we also have:
+		$\fvalR \leq g(\fvarR).$
+		%
+		\\
+		%
+		For the adjacent input $a'$, we have following bounds in the same ways where 
+		$g(\fvarL') = e^{\epsilon 
+		\frac{(\frac{\valv_1}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$ and
+		$h(\fvalR') = e^{(\valv_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$:
+		$$
+		\fvarL' \leq g(\fvalL')
+		;
+		~~~~~~~~~~~~~~~~
+		h(\fvalR')
+		\leq \fvalR' .$$
+%
+%	
+		Then we get:
 		\[
 		\begin{array}{ll}
-		\bar{R} - \ubar{L} 
+		\fvalR - \fvarL
+		\leq g(\fvalR)  - h(\fvalL)
 		& < 
-		e^{(2B\eta \epsilon)}R - e^{-5B\eta \epsilon} L < 
-		(R - L) e^{6B\eta \epsilon}\\
-		\ubar{R} - \bar{L}
-		& > e^{(-3B\eta \epsilon)}R - e^{5B\eta \epsilon} L > (R - L) e^{-8B\eta \epsilon},
+		e^{(2B\eta \epsilon)}\rvalR - e^{-5B\eta \epsilon} \rvalL < 
+		(\rvalR - \rvalL) e^{6B\eta \epsilon}\\
+		\fvalR' - \fvarL'
+		\geq h(\fvalR')  - g(\fvalL')
+		& > e^{(-3B\eta \epsilon)}\rvalR' - e^{5B\eta \epsilon} \rvalL > (\rvalR' - \rvalL') e^{-8B\eta \epsilon},
 		\end{array}
 		\]
 
 		and privacy loss is bounded by:
 		%
 		\[
-		\frac{|\bar{R} - \ubar{L}|}{|\ubar{R'} - \bar{L'}|}
+		e^0
+		\leq
+		\frac{\fvalR - \fvalL}{\fvalR' - \fvalL'}
+		\leq
+		\frac{|g(\fvalR)  - h(\fvalL)|}
+		{|h(\fvalR')  - g(\fvalL')|}
 		< e^{14B\eta \epsilon + \epsilon}
 		\]
 
