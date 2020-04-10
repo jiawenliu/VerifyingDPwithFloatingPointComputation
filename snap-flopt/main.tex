@@ -3147,28 +3147,42 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\]
 		%
 		%
-		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land x = 0}$}
+		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land \valv = 0}$}
 		%
-		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1 < 0$ and $y_2 > 0$. The bounds derived for $l, r$ in this case are as follows:
+		let $\valv_1 = \valv - \frac{\Lambda}{2}$, 
+		$\valv_2 = \valv - \frac{\Lambda}{2}$, 
+		we have $\valv_1 < 0$ and $\valv_2 > 0$.
+		%
+		\\
+		%
+		By Lemma \ref{lem:sign}, \ref{lem:clampid}, \ref{lem:roundrl}, the semantics and soundness theorem, we derived following bounds for $\fvalL, \fvalR, \fvalL'$ and $\fvalR'$:
 		%
 		\\
 		For input $a'$:
 		%
 		\\
-		% 
-		$\ubar{R'} = e^{\epsilon 
-				\big( (f(a') - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{R'} = e^{\epsilon 
-				\frac{(f(a') - y_2(1 + \eta))}{(1 + \eta)^2}}$.
+		$h(\fvalR') \leq \fvalR' \leq g(\fvalR')$, 
+		where
+		$h(\fvalR') = e^{\epsilon 
+				\big( (f(a') - \frac{\valv_2}{1 + \eta}) (1 + \eta)^2) \big)}$
+		%
+		and 
+		%
+		$g(\fvalR') = e^{\epsilon 
+				\frac{(f(a') - \valv_2(1 + \eta))}{(1 + \eta)^2}}$.
 		%
 		\\
 		%
 		%
-		$\ubar{L'} = e^{\epsilon 
-				\big( (f(a') - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		$h(\fvalL') \leq \fvalL' \leq g(\fvalL')$, 
+		where
+		$h(\fvalL') = e^{\epsilon 
+				\big( (f(a') - y_1(1 + \eta)) (1 + \eta)^2) \big)}$
 		%
-		$\bar{L'} = e^{\epsilon 
+		and 
+		%
+		$g(\fvalL') = e^{\epsilon 
 				\frac{f(a') - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
 		%
 		\\
@@ -3177,43 +3191,64 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		$\ubar{R} = e^{\epsilon 
-				\big( (f(a) - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		$h(\fvalR) \leq \fvalR \leq g(\fvalR)$, 
+		where
+		$h(\fvalR) = e^{\epsilon 
+				\big( (f(a) - \frac{\valv_2}{1 + \eta}) (1 + \eta)^2) \big)}$
 		%
-		$\bar{R} = e^{\epsilon 
-				\frac{(f(a) - y_2(1 + \eta))}{(1 + \eta)^2}}$.  
-		% 
-		\\
+		and 
 		%
-		$\ubar{L} = e^{\epsilon 
-				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{L} = e^{\epsilon 
-				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		$g(\fvalR) = e^{\epsilon 
+				\frac{(f(a) - \valv_2(1 + \eta))}{(1 + \eta)^2}}$.
 		%
 		\\
 		%
-		The bounds on their ratio are as follows:
+		%
+		$h(\fvalL) \leq \fvalL \leq g(\fvalL)$, 
+		where
+		$h(\fvalL) = e^{\epsilon 
+				\big( (f(a) - \valv_1(1 + \eta)) (1 + \eta)^2) \big)}$
+		%
+		and 
+		%
+		$g(\fvalL) = e^{\epsilon 
+				\frac{f(a) - \frac{\valv_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		\\
+		%
+		The bounds on their ratios are derived as follows:
 		%
 		\[
-		\frac{\ubar{R}}{R} > e^{-3B\eta \epsilon}, 
-		~ \frac{\bar{R}}{R} < e^{3B\eta \epsilon}
-		\frac{\ubar{L}}{L} > e^{-5B\eta \epsilon}, 
-		~ \frac{\bar{L}}{L} < e^{5B\eta \epsilon}
+		\frac{h(\fvalR)}{\rvalR} > e^{-3B\eta \epsilon}, 
+		~ 
+		\frac{g(\fvalR')}{\rvalR'} < e^{3B\eta \epsilon}
+		%
+		\frac{h(\fvalL')}{\fvalL'} > e^{-5B\eta \epsilon}, 
+		~ 
+		\frac{g(\fvalL)}{\fvalL} < e^{5B\eta \epsilon}
 		\]
 		%
-		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		And the bounds on $|h(\fvalR) - g(\fvalL)|$
+		and $|g(\fvalR') - h(\fvalL')|$ are as follows:
 		%
 		\[
-		|\ubar{R} - \bar{L}| > e^{-8 B\eta \epsilon}|R - L|, 
-		~ |\bar{R'} - \ubar{L'}| < e^{8 B\eta \epsilon}|R' - L'|
+		|h(\fvalR) - g(\fvalL)| > e^{-8 B\eta \epsilon}
+		|\rvalR - \rvalL|, 
+		~~~~~~~
+		|g(\fvalR') - h(\fvalL')| < e^{8 B\eta \epsilon}
+		|\rvalR' - \rvalL'|
 		\]
 		%
 		So we have the privacy loss is bounded by:
 		%
 		\[
-		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
-		> \frac{e^{-8 B\eta \epsilon}|R - L|}{e^{8 B\eta \epsilon}|R' - L'|}
+		e^0 
+		\geq 
+		\frac{\rvalR - \rvalL}{\rvalR' - \rvalL}
+		\geq
+		\frac{h(\fvalR) - g(\fvalL)}
+		{g(\fvalR') - h(\fvalL')}
+		> \frac{e^{-8 B\eta \epsilon}|\rvalR - \rvalL|}
+		{e^{8 B\eta \epsilon}|\rvalR' - \rvalL'|}
 		= e^{-16B \eta \epsilon - \epsilon}
 		\]
 		%
