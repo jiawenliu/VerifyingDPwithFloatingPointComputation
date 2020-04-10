@@ -3044,103 +3044,127 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		%
 		%
-		\caseL{$\boldsymbol{x \in  (\round{f(a')}_{\Lambda}, B)}$}
+		\caseL{$\boldsymbol{\valv \in  (\round{f(a')}_{\Lambda}, B)}$}
 		%
-		This case can also be split into 3 subcases symmetric with the case where $\boldsymbol{x \in  (-B, \round{f(a)}_{\Lambda})}$:
-		%
-		%
-		%
-		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land x \in  (0, B)}$}
+		This case can also be split into 3 subcases symmetric with the case where $\boldsymbol{\valv \in  (-B, \round{f(a)}_{\Lambda})}$:
 		%
 		%
-		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x + \frac{\Lambda}{2}$, we have $y_1, y_2 > 0$. The bounds derived for $l, r$ and $l', r'$ under input $a$ and $a'$ in this case are as follows:
+		%
+		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land \valv \in  (0, B)}$}
+		%
+		%
+	let $\valv_1 = \valv - \frac{\Lambda}{2}$,
+	%
+	$\valv_2 = \valv + \frac{\Lambda}{2}$, we have $\valv_1, \valv_2 > 0$.
+	%
+	By the semantics and soundness theorem, the bounds derived for $\fvalL, \fvalR$ and $\fvalL', \fvalR'$
+	under input $a$ and $a'$ are as follows:
 		%
 		\\
+		%
+	For input $a$:
+		%
+		\\
+		%
+		$h(\fvalR) \leq \fvalR \leq g(\fvalR)$, where
+		%
+		$h(\fvalR) = e^{\epsilon 
+				\big( (f(a) - \frac{\valv_2}
+				{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$g(\fvalR) = e^{\epsilon 
+				\frac{(f(a) - \valv_2(1 + \eta))}
+				{(1 + \eta)^2}}$.  
+		% 
+		\\
+		%
+		$h(\fvalL) \leq \fvalL \leq g(\fvalL)$, where
+%
+		$h(\fvalL) = e^{\epsilon 
+				\big( (f(a) - \frac{\valv_1}
+				{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		%
+		$g(\fvalL) = e^{\epsilon 
+				\frac{f(a) - \valv_1(1 + \eta)}
+				{(1 + \eta)^2}}$.
+		%
+		\\
+		%
 		For input $a'$:
 		%
 		\\
 		% 
-		$\ubar{R'} = e^{\epsilon 
-				\big( (f(a') - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
+		$h(\fvalR') \leq \fvalR' \leq g(\fvalR')$, where
+%
+		$h(\fvalR') = e^{\epsilon 
+				\big( (f(a') - \frac{\valv_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{R'} = e^{\epsilon 
-				\frac{(f(a') - y_2(1 + \eta))}{(1 + \eta)^2}}$.
-		%
-		\\
-		%
-		%
-		$\ubar{L'} = e^{\epsilon 
-				\big( (f(a') - \frac{y_1}{1 + \eta})) (1 + \eta)^2) \big)}$,
-		%
-		$\bar{L'} = e^{\epsilon 
-				\frac{(f(a') - y_1(1 + \eta)}{(1 + \eta)^2}}$.
+		$g(\fvalR') = e^{\epsilon 
+				\frac{(f(a') - \valv_2(1 + \eta))}{(1 + \eta)^2}}$.
 		%
 		\\
 		%
-		For input $a$:
+		$h(\fvalL') \leq \fvalL' \leq g(\fvalL')$, where
+		%
+		$h(\fvalL') = e^{\epsilon 
+				\big( (f(a') - \frac{\valv_1}{1 + \eta})) (1 + \eta)^2) \big)}$,
+		%
+		$g(\fvalL') = e^{\epsilon 
+				\frac{(f(a') - \valv_1(1 + \eta)}{(1 + \eta)^2}}$.
 		%
 		\\
-		%
-		$\ubar{R} = e^{\epsilon 
-				\big( (f(a) - \frac{y_2}{1 + \eta}) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{R} = e^{\epsilon 
-				\frac{(f(a) - y_2(1 + \eta))}{(1 + \eta)^2}}$.  
-		% 
-		\\
-		%
-		$\ubar{L} = e^{\epsilon 
-				\big( (f(a) - \frac{y_1}{1 + \eta}) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{L} = e^{\epsilon 
-				\frac{f(a) - y_1(1 + \eta)}{(1 + \eta)^2}}$.
-		%
-		%
+%
 		The bounds on their ratio are as follows:
 		%
 		\[
-		\frac{\ubar{R}}{R} > e^{-3B\eta \epsilon}, 
-		~ \frac{\bar{R}}{R} < e^{3B\eta \epsilon}
+		\frac{h(\fvalR)}{\rvalR} > e^{-3B\eta \epsilon}, 
+		~~~
+		\frac{g(\fvalL)}{\rvalL} < e^{3B\eta \epsilon},
+		~~~~
+		\frac{h(\fvalL')}{\rvalL'} > e^{-3B\eta \epsilon}, 
+		~~~
+		\frac{g(\fvalR')}{\rvalR'} < e^{3B\eta \epsilon}
 		\]
 		%
-		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		And the bounds on $|\fvalR - \fvalL|$ and 
+		$|\fvalR' - \fvalL'|$ are as follows:
 		%
 		\[
-		|\ubar{R} - \bar{L}| > e^{-7 B\eta \epsilon}|R - L|, 
-		~ |\bar{R'} - \ubar{L'}| < e^{7 B\eta \epsilon}|R' - L'|
+		|\fvalR - \fvalL| \geq
+		|h(\fvalR) - g(\fvalL)|
+		> e^{-7 B\eta \epsilon}|\rvalR - \rvalL|, 
+		~~~~~~~~~~~~~
+		|\fvalR' - \fvalL'| \geq
+		|g(\fvalR') - h(\fvalL')|
+		< e^{7 B\eta \epsilon}|\rvalR' - \rvalL'|
 		\]
 		%
 		So we have the privacy loss is bounded by:
 		%
 		\[
-		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
-		> \frac{e^{-7 B\eta \epsilon}|R - L|}{e^{7 B\eta \epsilon}|R' - L'|}
+		e^0
+		\geq
+		\frac{\fvalR - \fvalL}{\fvalR' - \fvalL'}
+		\geq
+		\frac{|h(\fvalR) - g(\fvalL)|}
+		{|g(\fvalR') - h(\fvalL')|}
+		\geq
+		\frac{e^{-7 B\eta \epsilon}|\rvalR - \rvalL|}
+		{e^{7 B\eta \epsilon}|\rvalR' - \rvalL'|}
 		= e^{-14B \eta \epsilon - \epsilon}
 		\]
 		%
-		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land x \in  (\round{f(a')}_{\Lambda}, 0)}$}
+		\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land \valv \in  (\round{f(a')}_{\Lambda}, 0)}$}
 		%		
-		let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x - \frac{\Lambda}{2}$, we have $y_1, y_2 < 0$. The bounds derived for $l, r$ in this case are as follows:
-		%
-		\\
-		For input $a'$:
-		%
-		\\
-		% 
-		$\ubar{R'} = e^{\epsilon 
-				\big( (f(a') - y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{R'} = e^{\epsilon 
-				\frac{(f(a') - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.
+		let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv - \frac{\Lambda}{2}$, we have $\valv_1, \valv_2 < 0$.
 		%
 		\\
 		%
-		%
-		$\ubar{L'} = e^{\epsilon 
-				\big( (f(a') - y_1(1 + \eta) ) (1 + \eta)^2) \big)}$,
-		%
-		$\bar{L'} = e^{\epsilon 
-				\frac{(f(a') - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+	By the semantics and soundness theorem, 
+	%
+	the bounds derived for $\fvalL, \fvalR$ and $\fvalL', \fvalR'$
+	%
+	under input $a$ and $a'$ are as follows:
 		%
 		\\
 		%
@@ -3148,6 +3172,8 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
+		$h(\fvalR) \leq \fvalR \leq g(\fvalR)$, where
+%
 		$\ubar{R} = e^{\epsilon 
 				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
 		%
@@ -3156,33 +3182,74 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		% 
 		\\
 		%
-		$\ubar{L} = e^{\epsilon 
+		$h(\fvalL) \leq \fvalL \leq g(\fvalL)$, where
+%
+		$h(\fvalL) = e^{\epsilon 
 				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{L} = e^{\epsilon 
+		$g(\fvalL) = e^{\epsilon 
 				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+		%
+		\\
+		For input $a'$:
+		%
+		\\
+		% 
+		$h(\fvalR') \leq \fvalR' \leq g(\fvalR')$, where
+%
+		$h(\fvalR') = e^{\epsilon 
+				\big( (f(a') - \valv_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		%
+		$g(\fvalR') = e^{\epsilon 
+				\frac{(f(a') - \frac{\valv_2}{1 + \eta})}{(1 + \eta)^2}}$.
+		%
+		\\
+		%
+		$h(\fvalL') \leq \fvalL' \leq g(\fvalL')$, where
+		%
+		$h(\fvalL') = e^{\epsilon 
+				\big( (f(a') - \valv_1(1 + \eta) ) (1 + \eta)^2) \big)}$,
+		%
+		$g(\fvalL') = e^{\epsilon 
+				\frac{(f(a') - \frac{\valv_1}{1 + \eta}}{(1 + \eta)^2}}$.
 		%
 		\\
 		%
 		The bounds on their ratio are as follows:
 		%
 		\[
-		\frac{\ubar{R}}{R} > e^{-5B\eta \epsilon}, 
-		~ \frac{\bar{R}}{R} < e^{5B\eta \epsilon}
+		\frac{h(\fvalR)}{\rvalR} > e^{-5B\eta \epsilon}, 
+		~~~~~
+		\frac{g(\fvalL)}{\rvalL} < e^{5B\eta \epsilon}
+		~~~~~
+		\frac{h(\fvalL')}{\rvalL'} > e^{-5B\eta \epsilon}, 
+		~~~~~
+		\frac{g(\fvalR')}{\rvalR'} < e^{5B\eta \epsilon}
 		\]
 		%
 		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
 		%
 		\[
-		|\ubar{R} - \bar{L}| > e^{-12 B\eta \epsilon}|R - L|, 
-		~ |\bar{R'} - \ubar{L'}| < e^{11 B\eta \epsilon}|R' - L'|
+		|\fvalR - \fvalL|
+		\geq
+		|h(\fvalR) - g(\fvalL)| 
+		> e^{-12 B\eta \epsilon}|\rvalR - \rvalL|, 
+		~~~~~~~~~~~~~~~~~~~~
+		|g(\fvalR') - h(\fvalL')| 
+		< e^{11 B\eta \epsilon}|\rvalR' - \rvalL'|
 		\]
 		%
 		So we have the privacy loss is bounded by:
 		%
 		\[
-		\frac{|\ubar{R} - \bar{L}|}{|\bar{R'} - \ubar{L'}|}
-		> \frac{e^{-12 B\eta \epsilon}|R - L|}{e^{11 B\eta \epsilon}|R' - L'|}
+		e^0 
+		\geq
+		\frac{|\fvalR - \fvalL|}{|\fvalR' - \fvalL'|}
+		\geq
+		\frac{|h(\fvalR) - g(\fvalL)|}
+		{|g(\fvalR') - h(\fvalL')|}
+		> \frac{e^{-12 B\eta \epsilon}|\rvalR - \rvalL|}
+		{e^{11 B\eta \epsilon}|\rvalR' - \rvalL'|}
 		= e^{-23B \eta \epsilon - \epsilon}
 		\]
 		%
