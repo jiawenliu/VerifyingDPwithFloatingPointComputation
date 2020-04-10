@@ -1746,7 +1746,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		}
 		%
 		Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
-		$\valv_2 = x + (\frac{\Lambda}{2})$.
+		$\valv_2 = \valv + (\frac{\Lambda}{2})$.
 		By $(\star_1)$, 
 		we know $\valv_1 < 0$, $\valv_2 < 0$.
 		%
@@ -2343,7 +2343,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
 		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
 		\\
@@ -2353,6 +2353,9 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
 		~~~~~~~~~~~~~~~~~
 		f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep \valv_2 ~~ (2).$$
+		%
+		%
+		By Lemma \ref{lem:sign} we have: $s = 1$.
 		%
 	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:		%
 		%
@@ -2506,161 +2509,133 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\]
 
 		%
-		\caseL{$\boldsymbol{x = \round{f(a)}_{\Lambda}}$}
+		\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
 		%
 		%
-		This case can also be split into 3 subcases by: $\round{f(a)}_{\Lambda} < 0$, $\round{f(a)}_{\Lambda} = 0$ and $\round{f(a)}_{\Lambda} > 0$. 
-		%
-		Without loss of generalization, we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.\\
-		%
-		From this assumption, let $y_1 = x - \frac{\Lambda}{2}$, $y_2 = x + \frac{\Lambda}{2}$, we know $y_1 < 0$, $y_2 < 0$.
-		%
-		Since $f(a) + 1 = f(a')$, we also have $\round{f(a)} < \round{f(a')}$.
-		So, we know $s$ can only be $1$ for input $a'$ but $s$ can be $1$ or $-1$ for input $a$.
+		There are 3 subcases by induction on $\round{f(a)}_{\Lambda}$:
+		$\round{f(a)}_{\Lambda} < 0$, $\round{f(a)}_{\Lambda} = 0$ and $\round{f(a)}_{\Lambda} > 0$. 
 		%
 		\\
 		%
-		%
-		For input $a$,
-		Let $L = e^{\epsilon(y_1 - f(a))}$ and $R = e^{\epsilon(y_2 - f(a))}$, we have: $\forall u \in (L, R)$:
-		$\expr_{\snap''} \rbigstep \varx$.
+		Without loss of generalization, we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.
 		%
 		\\
 		%
-		Let $l$ and $r$ be the range where $\forall u \in (l, r)$ and $s = 1$, s.t.
-		$\expr_{\snap''} \fbigstep \varx$.
+		Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$, we know $\valv_1 < 0$, $\valv_2 < 0$.
 		%
-		\\
+		For input $a$, by {\textbf Lemma. \ref{lem:sign}}, {\textbf Lemma. \ref{lem:sign}} and  \ref{lem:roundrl}, we have:
+		 $s = 1$ or $-1$;
+		$\rvalR = \fvalR = 1$ and
 		%
-		So we know: $\ubar{L} < l < \bar{L}$, $\ubar{R} < r < \bar{R}$ s.t.:
+		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1).$$		%
 		%
-		$$f(a) + \frac{1}{\epsilon} \times \ln(l) \fbigstep y_1
-		\land
-		f(a) + \frac{1}{\epsilon} \times \ln(r) \fbigstep y_2.$$
+		\begin{itemize}
+		\subcaseL{$s = 1$}
 		%
 		%
-		Induction on $s$, we have when $s = 1$:
+	In order to bound $\fvalL$ in terms of $\rvalL$ when $s = 1$ (denoted by $\fvalL^+$ and $\rvalL^+$), we have the following derivation where $P$ be the real representation of $\fvalL^+ ~~ (\diamond)$, :		%
 		%
-		\\
-		%
-		The transition from $R$ to $r$ given the transition environment 
-		$\trsenv = [U \mapsto (R_{+}, (\ubar{R_{+}}, \bar{R_{+}})), S \mapsto (1, (1, 1))]$ is shown as following:
-		%
+{\scriptsize
 		\begin{mathpar}
 		\inferrule
 		{
-		 \trsenv, U
-		 \trsto
-		 R_{+}, ( \ubar{R_{+}}, \bar{R_{+}} )
+		\dots
 		}
 		{
-		 \inferrule
-		 {
-		  \trsenv, \ln(U)
-		  \trsto
-		  \big(\ln (R_{+}), 
-		  (\ln(\ubar{R_{+}})(1 + \eta), \frac{\ln(\bar{R_{+}})}{1+\eta})
-		  \big)
-		 }
-		 {
-		  \inferrule
-		  {
-		  \trsenv,  \frac{1}{\epsilon}\ln(U)
-		   \trsto
-		   \bigg(\frac{1}{\epsilon} \times \ln (R_{+}), 
-		   \big(
-		   \frac{1}{\epsilon}\ln(\ubar{R_{+}})(1 + \eta)^2, 
-		   \frac{1}{\epsilon}\frac{\ln(\bar{R_{+}})}{(1+\eta)^2}
-		   \big) \bigg)
-		  }
-		  {
-		   \inferrule
-		   {
-		    \trsenv, f(a) + \frac{1}{\epsilon}\ln(U)
-			\trsto
-			\bigg(f(a) + \frac{1}{\epsilon} \times \ln (R_{+}), 
-			\big(
-			(f(a) + \frac{1}{\epsilon}\ln(\ubar{R_{+}})(1 + \eta)^2)(1 + \eta), 
-			(f(a) + \frac{1}{\epsilon}\frac{\ln(\bar{R_{+}})}{(1+\eta)^2}) / (1 + \eta) \big)
-			\bigg)
-		   }
-		   {
-		   \trsenv, \snap'(a) \trsto 
-		   \trsenv[y \mapsto
-		   (f(a) + \frac{1}{\epsilon} \times \ln (R_{+}), 
-		   (\err_1, \err_2))
-		   ]
-		   }
-		  }
-		 }
-		}
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalL),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(P))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(P)}
+				{(1 + \eta)^2}
+				)/
+				{(1 + \eta)}
+				 \big)
+				\bigg)
+			}
 		\end{mathpar}
-		%
-		%
-		From soundness theorem, we have  $\err_1 \leq y_2 \leq \err_2$. Then we can get following bounds for $r$:\\
-		%
-		%
-		$\ubar{R_+} = e^{\epsilon 
-				\big( (y_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{R_+} = e^{\epsilon 
-				\frac{(\frac{y_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.  
-		%
-		\\
-		%
-		Since $y_2 = \round{f(a)} + \frac{\Lambda}{2}$, we have $e^{\epsilon 
-				\big( (y_2 - f(a))) \big)} > 1$, so actually we know $R = r = 1$.
-		%
-		% 
-		\\
-		%
-		We can also derive the bound for $l$ in the same way as:\\
-		$\ubar{L_+} = e^{\epsilon 
-				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{L_+} = e^{\epsilon 
+	}
+	%
+	%
+	By soundness and (1), we have:
+		$ h(\fvalL^+) \leq \fvalL^+ \leq g(\fvalL^+),$
+		where 
+		$h(\fvalL^+) = e^{\epsilon 
+				\big( (y_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$ and
+		$g(\fvalL^+) = e^{\epsilon 
 				\frac{(\frac{y_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
 		%
-
+		\\
+		%
+	We still computed the looser bounds for $\fvalR^+$ in terms of $\rvalR^+$ (even though $\fvalR = \rvalR = 1$), which will be used later:
+%
+		$ h(\fvalR^+) \leq \fvalR^+ \leq g(\fvalR^+),$
+		where 
+		$h(\fvalR^+) = e^{\epsilon 
+				\big( (\valv_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$ and
+		$g(\fvalR^+) = e^{\epsilon 
+				\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}$.
 		% 
-		When $s = -1$, we can derive following bounds in the same way for $l$ and $r$:\\
+		\subcaseL{$s = -1$}
 		%
-		$\ubar{L_-} = e^{\epsilon 
-				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$,
+	In order to bound $\fvalL$ in terms of $\rvalL$ when $s = -1$ (denoted by $\fvalL^-$ and $\rvalL^-$), we have the following derivation where $P$ be the real representation of $\fvalL^- ~~ (\diamond)$, :		%
 		%
-		$\bar{L_-} = e^{\epsilon 
-				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.\\
+		$e^{\epsilon 
+				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}
+        \leq
+        \fvalL^- \leq
+        e^{\epsilon 
+				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.
 		%
 		% 
-		$\ubar{R_2} = e^{\epsilon 
-				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{R_2} = e^{\epsilon 
-				\frac{(f(a) - \frac{y_1}{1 + \eta})}{(1 + \eta)^2}}$.\\
+	\end{itemize}
 		%
-		Since $y_1 = \round{f(a)} - \frac{\Lambda}{2}$, 
 		%
-		we have $e^{\epsilon \big( (f(a) - y_1)) \big)} > 1$, so actually we know $R' = r' = 1$.
+		For input $a'$, by \textbf{Lemma \ref{lem:sign}} and $f(a) + 1 = f(a')$ we have $s = 1$, 
+		%
+		%
+		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a'))}$ and 
+		$\rvalR = e^{\epsilon(\valv_2 - f(a'))}$.
 		%
 		\\
 		%
-		For input $a'$, we have only one case where $s = 1$, the following bound can be derived:
+		By Lemma \ref{lem:roundrl}, we know:
+		%
+		$$f(a') + \frac{1}{\epsilon} \times \ln(\fvalL') \fbigstep \valv_1 ~~ (1)
+		~~~~~~~~~~~~~~~~~
+		f(a') + \frac{1}{\epsilon} \times \ln(\fvalR') \fbigstep \valv_2 ~~ (2).$$
+		%
+		By our semantics and soundness theorem , we have following bounds:
 		%
 		\\
 		%
-		$\ubar{R'} = e^{\epsilon 
-				\big( (y_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{R'} = e^{\epsilon 
-				\frac{(\frac{y_2}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$.  
+		$h(\fvalR') \leq \fvalR' \leq g(\fvalR')$,
+		where 
+		$h(\fvalR') = e^{\epsilon 
+		\big( (\valv_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$ 
+		and
+		$g(\fvalR') = e^{\epsilon \frac{(\frac{\valv_2}{1 + \eta} - f(a'))}
+		{(1 + \eta)^2}}$
 		% 
 		\\
 		%
-		$\ubar{L'} = e^{\epsilon 
-				\big( (y_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
-		%
-		$\bar{L'} = e^{\epsilon 
-				\frac{(\frac{y_1}{1 + \eta} - f(a'))}{(1 + \eta)^2}}$.
+		$h(\fvalL') \leq \fvalL' \leq g(\fvalL')$, 
+		where 
+		$h(\fvalL') = e^{\epsilon 
+		\big( (\valv_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$ 
+		and
+		$g(\fvalL') = e^{\epsilon \frac{(\frac{\valv_1}{1 + \eta} - f(a'))}
+		{(1 + \eta)^2}}$.
 
 		% \begin{mathpar}
 		% \end{mathpar}
@@ -2668,49 +2643,72 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		We have following bounds on their ratios:
 		%
 		\[
-		\frac{\ubar{R_+}}{R_+} = e^{\epsilon 
+		\frac{h(\fvalL^+)}{\rvalL^+} 
+		= e^{\epsilon 
 		\big(
-		(1 + \eta)^3 y_2 - (1 + \eta)^2f(a) - y_2 + f(a)
+		(1 + \eta)^3 \valv_1 - (1 + \eta)^2f(a) - \valv_1 + f(a)
 		\big)}
 		> e^{-3\epsilon B \eta},
-		\frac{\bar{R_+}}{R_+} = e^{\epsilon 
+		~~~
+		\frac{g{(\fvalR^+)}}{\rvalR^+} = e^{\epsilon 
 		\big(
-		frac{y_2}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2} - y_2 + f(a)
+		frac{\valv_2}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2} - \valv_2 + f(a)
 		\big)}
-		< e^{3\epsilon B \eta},
+		< e^{3\epsilon B \eta}.
 		\]
 		%
-		The same bound for $L_+$ by substituting $y_2$ with $y_1$, and similar bound for $L', R'$.
 		%
 		\[
-		\frac{\ubar{R'}}{R} = e^{\epsilon 
+		\frac{h(\fvalR')}{\rvalR'} = e^{\epsilon 
 		\big(
-		(1 + \eta)^2f(a) - (1 + \eta)^3 y_2 - f(a) + y_2
+		(1 + \eta)^2f(a) - (1 + \eta)^3 \valv_2 - f(a) + \valv_2
 		\big)}
 		> e^{-2\epsilon B \eta},
 		%
-		\frac{\bar{R'}}{R'} = e^{\epsilon 
+		~~~~~~~~~~~~
+		%
+		\frac{g{(\fvalL')}}{\rvalL'} = e^{\epsilon 
 		\big(
-		\frac{f(a)}{(1 + \eta)^2} - frac{y_2}{(1 + \eta)^3} - f(a) + y_2
+		\frac{f(a)}{(1 + \eta)^2} - \frac{\valv_2}{(1 + \eta)^3} - f(a) + \valv_2
 		\big)}
 		< e^{2\epsilon B \eta},
 		\]
 		%
-		Using the bound on their ratios, we can get following bounds on $|\bar{R_+} - \ubar{L_+}|$ and $|\ubar{R'} - \bar{L'}|$:
+		Using the bound on their ratios, we can get following bounds on $|\fvalR^+ - \fvalL^+|$ 
+		and $|\fvalR' - \fvalL'|$:
 		%
 		\[
-		|\bar{R_+} - \ubar{L_+}| < e^{3\epsilon B \eta} R - e^{-3\epsilon B \eta}L < (R - L) e^{7\epsilon B \eta},
+		|\fvalR^+ - \fvalL^+|
+		\leq
+		|g{(\fvalR^+)} - h(\fvalL^+)| 
+		< e^{3\epsilon B \eta} \rvalR^+ - e^{-3\epsilon B \eta}\rvalL^+ 
+		< (\rvalR^+ - \rvalL^+) e^{7\epsilon B \eta},
+		\]
 		%
-		|\ubar{R'} - \bar{L'}| > e^{-2\epsilon B \eta} R - e^{2\epsilon B \eta}L > (R' - L') e^{-5\epsilon B \eta}
+		\[
+		|\fvalR' - \fvalL'|
+		\geq
+		|h{(\fvalR')} - g(\fvalL')| 
+		> e^{-2\epsilon B \eta} \rvalR' - e^{2\epsilon B \eta}\rvalL' 
+		> (\rvalR' - \rvalL') e^{-5\epsilon B \eta}
 		\]
 		%
 		Then we have the following bounds on privacy loss:
 		%
 		\[
-		\frac{2 - (\ubar{L_+} + \ubar{L_-})}{\ubar{R'} - \bar{L'}}
-		< \frac{\bar{R_+} - \ubar{L_+}}{\ubar{R'} - \bar{L'}}
-		< \frac{e^{7\epsilon B \eta}(R_+ - L_+)}
-		{e^{-5\epsilon B \eta} (R' - L')}
+		e^0
+		\leq
+		\frac{2 - (\fvalL^+ + \fvalL^-)}
+		{\fvalR' - \fvalL'}
+		\leq
+		\frac{2 - (h(\fvalL^+) + h(\fvalL^-))}
+		{h(\fvalR') - g(\fvalL')}
+		< \frac{g(\fvalR^+) - h(\fvalL^+)}
+		{h(\fvalR') - g(\fvalL')}
+		< \frac{e^{7\epsilon B \eta}
+		(\rvalR^+ - \rvalL^+)}
+		{e^{-5\epsilon B \eta} 
+		(\rvalR' - \rvalL')}
 		= e^{12\epsilon B \eta + \epsilon}
 		\]
 		%
