@@ -3222,40 +3222,62 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\caseL{$\boldsymbol{x = B}$}
 		%
 		%
-		We know $s = -1$, $L = l = 0$ and $R = b$, so we only need to estimate the right side range $r$ in this case. The bounds derived for $r, r'$ are as following:
-		\[
-		\begin{array}{c}
-		\ubar{R} = e^{\epsilon 
-		\big( (f(a) -  \frac{x}{1 + \eta}) (1 + \eta)^2) \big)},
-		%
-		\bar{R} = e^{\epsilon 
-		\frac{(f(a) - x(1 + \eta))}{(1 + \eta)^2}}
+		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
+		% %
 		\\
 		%
-		\ubar{R'} = e^{\epsilon 
-		\big( (f(a') -  \frac{x}{1 + \eta}) (1 + \eta)^2) \big)},
+		By Lemma \ref{lem:sign}, \ref{lem:clampr} and \ref{lem:clampl} we know $s = 1$, 
+		$U \in (0, \fvalR)$ for some $\fvalR$
+		, $U \in (0, \rvalR)$ for some $\rvalR$ s.t.:.
 		%
-		\bar{R'} = e^{\epsilon 
-		\frac{(f(a') - x(1 + \eta))}{(1 + \eta)^2}}
-		\end{array}
-		\]
+		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep -b' ~~~ (1)
+		~~~~~~~~~~~~~~~~
+		f(a) + \frac{1}{\epsilon} \times \ln(\rvalR) \rbigstep -b' ~~~ (2)
+		$$
+		\\
+		%
+		So we can get $\fvalL = \rvalL = 0$.
+		%
+		\\
+		%
+		By our semantics, soundness theorem and (2) we have following bounds on $\fvalR$ for input $a$ and $\fvalR'$ for input $a'$:
+		%
+		\\
+		%
+		$h(\fvalR) \leq \fvalR \leq g(\fvalR)$, where
+		$h(\fvalR) = e^{\epsilon 
+		\big( (f(a) -  \frac{b}{1 + \eta}) (1 + \eta)^2) \big)}$
+		and
+		$g(\fvalR) = e^{\epsilon 
+		\frac{(f(a) - b(1 + \eta))}{(1 + \eta)^2}}$
+		%
+		\\
+		%
+		$h(\fvalR') \leq \fvalR' \leq g(\fvalR')$, where
+		$h(\fvalR') = e^{\epsilon 
+		\big( (f(a) -  \frac{b}{1 + \eta}) (1 + \eta)^2) \big)}$
+		and
+		$g(\fvalR') = e^{\epsilon 
+		\frac{(f(a) - b(1 + \eta))}{(1 + \eta)^2}}$.
+		%
+		\\
 		%		
 		The privacy loss of $\snap(a)$ in this case is bounded by:
 		%
 		\[
 		\begin{array}{ll}
 		\frac
-		{\frac{1}{2}(\ubar{R} - 0)}
-		{\frac{1}{2}(\bar{R'} - 0)}
+		{\frac{1}{2}(h(\fvalR) - 0)}
+		{\frac{1}{2}(g(\fvalR') - 0)}
 		& = e^{\epsilon
 		\bigg(
-		\big( (f(a) -  \frac{x}{1 + \eta}) (1 + \eta)^2) \big)
+		\big( (f(a) -  \frac{b}{1 + \eta}) (1 + \eta)^2) \big)
 		-
-		\frac{(f(a') - x(1 + \eta))}{(1 + \eta)^2}
+		\frac{(f(a') - b(1 + \eta))}{(1 + \eta)^2}
 		\bigg)}\\
 		& = e^{\epsilon
 		\bigg(
-		f(a)(1 + \eta)^2 - x(1 + \eta) 
+		f(a)(1 + \eta)^2 - b(1 + \eta) 
 		- \frac{f(a)}{(1 + \eta)^2} + \frac{x}{(1 + \eta)}   
 		\bigg)} ~ (\star)
 		\end{array}
@@ -3265,7 +3287,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\[
 		\begin{array}{ll}
-		(\star) & > e^{\epsilon \big(
+		e^0 > (\star) & > e^{\epsilon \big(
 		(1 + 2\eta) f(a) - \frac{\eta(\eta + 2)}{1 + \eta} x
 		- \frac{1}{1 + 2\eta}(f(a) + 1)
 		\big)}\\
@@ -3290,291 +3312,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 
 \end{proof}
 
-\newpage
-\section{Syntax - Functional}
-Following are the syntax of our system:
-%
-\[\begin{array}{llll}
-\mbox{Expr.} & \expr & ::= & \varx 
-	~|~ \rval ~|~ \fval
-	%
-	~|~ F(\data) ~|~ \expr \bop \expr
-	%
-	~|~ \uop (\expr) ~|~ \elet ~ \varx \samplel \edistr ~ \ein ~ \expr
-	~|~ \elet ~ \varx = \expr_1 ~ \ein ~ \expr_2 \\
-%
-\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
-%
-\mbox{Unary Operation} & \uop & ::= & \ln ~|~ - ~|~ \round{\cdot} 
-	%
-	~|~ \clamp_B(\cdot) \\
-%
-\mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
-%
-\mbox{Distribution} & \edistr & ::= & \uniform ~|~ \bernoulli \\ 
-%
-\mbox{Error} & \err & ::= & (\expr, \expr)
-%
-\end{array}
-\]
 
-
-\newpage
-\section{Semantics - Functional}
-
-The transition semantics with relative floating point computation error are shown in Figure. \ref{fig_func_trans_semantics_exp}. The semantics are $\expr \trsto (\err)$, which means a real expression $\expr$ can be transited in floating point computation with error bound $\err$, $\eta$ is the machine epsilon.
-
-We assume the SAMPLE and F(D) semantics for floating point and real computation are the same. $\edistr \bigstep_{\$} \valv$ represents $\valv$ is sampled from the distribution $\edistr$.
-
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = val]
-{
-	\rval \geq 0
-}
-{
-	\rval
-	\trsto
-	\big( \frac{\rval}{(1 + \eta)}, \rval(1 + \eta) \big)
-}
-%
-\and
-%
-\inferrule*[right = val-neg]
-{
-	\rval < 0
-}
-{
-	\rval
-	\trsto
-	\big( \rval(1 + \eta), \frac{\rval}{(1 + \eta)} \big)
-}
-%
-\and
-%
-\inferrule*[right = val-eq]
-{
-	\rval = \floaten(\rval)
-}
-{
-	\rval
-	\trsto
-	( \rval, \rval )
-}
-%
-\and
-%
-\inferrule*[right = f(d)]
-{
-	\empty
-}
-{
-	f(D)
-	\trsto
-	( f(D), f(D) )
-}
-%
-\and
-%
-\inferrule*[right = sample]
-{
-	\empty
-}
-{
-	\samplel \edistr
-	\trsto
-	( \samplel \edistr, \samplel \edistr )
-}
-%
-\and
-%
-\inferrule*[right = bop]
-{
-	\expr^1 \trsto (\ubar{\rval^1}, \bar{\rval^1})
-	\and
-	\expr^2 \trsto (\ubar{\rval^2}, \bar{\rval^2})
-	\and
-	\expr^1 * \expr^2 \geq 0
-}
-{
-    \expr^1 * \expr^2
-    \trsto 
-    \big(
-    \frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
-    (\bar{\rval^1} * \bar{\rval^2})(1 + \eta)
-    \big)
-}
-%
-\inferrule*[right = bop-neg]
-{
-	\expr^1 \trsto  (\ubar{\rval^1}, \bar{\rval^1})
-	\and
-	\expr^2 \trsto  (\ubar{\rval^2}, \bar{\rval^2})
-	\and
-	\expr^1 * \expr^2 < 0
-}
-{
-    \expr^1 * \expr^2
-    \trsto 
-    \big(
-    (\bar{\rval^1} * \bar{\rval^2})(1 + \eta),
-    \frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}
-    \big)
-}%
-\and
-%
-\inferrule*[right = uop]
-{
-	\expr \trsto (\ubar{\rval}, \bar{\rval})
-	\and
-	\uop (\expr) \geq 0
-}
-{
-    \uop(\expr)
-    \trsto 
-    \big(
-    \frac{\uop(\ubar{\rval})}{(1 + \eta)}, 
-    (\uop(\bar{\rval}))(1 + \eta)
-    \big)
-}
-%
-\inferrule*[right = uop-neg]
-{
-	\expr \trsto  (\ubar{\rval}, \bar{\rval})
-	\and
-	\uop (\expr) < 0
-}
-{
-    \uop(\expr)
-    \trsto 
-    \big(
-    (\uop(\ubar{\rval}))(1 + \eta),
-    \frac{\uop(\bar{\rval})}{(1 + \eta)}
-    \big)
-}
-\end{mathpar}
-\caption{Semantics of Transition for Expressions with Relative Floating Point Error}
-\label{fig_func_trans_semantics_exp}
-\end{figure}
-
-
-
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = fval]
-{
-	\floaten(\rval) = \fval
-}
-{
-	\rval
-	\bigstep
-	\fval
-}
-%
-\and
-%
-\inferrule*[right = fbop]
-{
-	\expr^1 \bigstep \fval^1
-	\and
-	\expr^2 \bigstep \fval^2
-	\and
-	\floaten(\fval^1 \bop \fval^2) = \fval
-}
-{
-    \expr^1 \bop \expr^2 \bigstep \fval
-}
-%
-\and
-%
-\inferrule*[right = fuop]
-{
-	\expr \bigstep \fval',
-	\and
-	\floaten(\uop (\fval')) = \fval
-}
-{
-    \uop(\expr) \bigstep \fval
-}
-\end{mathpar}
-\caption{Semantics of Evaluation in Floating Point Computation}
-\label{fig_fl_semantics_exp}
-\end{figure}
-
-\begin{figure}
-\begin{mathpar}
-\inferrule*[right = rval]
-{
-	\empty
-}
-{
-	\rval
-	\bigstep
-	\rval
-}
-%
-\and
-%
-\inferrule*[right = rbop]
-{
-	\expr^1 \bigstep \rval^1
-	\and
-	\expr^2 \bigstep \rval^2
-	\and
-	\rval^1 \bop \rval^2 = \rval
-}
-{
-    \expr^1 \bop \expr^2 \bigstep \rval
-}
-%
-\and
-%
-\inferrule*[right = ruop]
-{
-	\expr \bigstep \rval',
-	\and
-	\uop (\rval') = \rval
-}
-{
-    \uop(\expr) \bigstep \rval
-}
-%
-\and
-%
-\inferrule*[right = sample]
-{
-	 \fval \leftarrow \edistr^{\diamond}
-}
-{
-	\samplel \edistr \bigstep \fval
-}
-%
-\and
-%
-\inferrule*[right = f(d)]
-{
-	f(D) = \fval
-}
-{
-	f(D) \bigstep \fval
-}
-\end{mathpar}
-\caption{Semantics of Evaluation in Real Computation}
-\label{fig_func_real_semantics_exp}
-\end{figure}
-
-
-\begin{thm}[Soundness Theorem]
-Given $\expr$ where the transition 
-$\expr \trsto (\ubar{\rval}, \bar{\rval})$ holds, 
-then if $\expr$ evaluates to $c$ in floating point computation and 
-$\ubar{\rval}$ and $\bar{\rval}$ evaluates to $\ubar{r}$ and $\bar{r}$ in real computation, we have: 
-\[
-\ubar{r} \leq c \leq \bar{r}
-% ~~ \land ~~ 
-% \frac{r^1}{r^2} \leq \frac{c}{r} \leq \frac{r^2}{r^1}.
-\]
-\end{thm}
 % \begin{proof}
 % Induction on $\expr$, we have following cases:
 
