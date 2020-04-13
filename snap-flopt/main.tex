@@ -1359,11 +1359,11 @@ For any input $a$:
 \item 
 if 
 $\clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (u)}_{\Lambda}
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\big)
 	\fbigstep \valv$ and $\valv \in (-B, B)$, then:
 	%
-	$\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (u)}_{\Lambda}
+	$\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\fbigstep \valv$
 %
 \item
@@ -1371,17 +1371,17 @@ $\clamp_B \big(
 	%
 if
 $\clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (U)}_{\Lambda}
 	\big)
 	\rbigstep \valv$ and $\valv \in (-B, B)$, then:
 	%
-	$\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (u)}_{\Lambda}
+	$\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\rbigstep \valv$
 \end{enumerate}
 \end{lem}
 
 
-\begin{lem}[RoundRL]
+\begin{lem}[roundRL]
 \label{lem:roundrl}
 For any input $a$ and output $\valv \in (-B, B)$,
 let $(\fvalL, \fvalR)$ be the largest range s.t. 
@@ -1403,7 +1403,24 @@ f(a) + \frac{1}{\epsilon} \times s \times
 \fbigstep \valv + \frac{\Lambda}{2}
 $$
 \end{lem}
-
+%%
+%%
+%%
+\begin{lem}[roundId]
+\label{lem:roundid}
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep \round{f(a)}_{\Lambda}$, then $u \in (\fvalL, 1]$ for some $\fvalL$.
+	%
+\item
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep \round{f(a)}_{\Lambda}$, then $u \in (\rvalL, 1]$ for some $\rvalL$.
+\end{lem}
 % \begin{defn}
 % [$\snap(a) : A \to \distr(\real)$]
 % Given privacy parameter $\epsilon$, the floating point implemented
@@ -2545,7 +2562,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$, we know $\valv_1 < 0$, $\valv_2 < 0$.
 		%
-		For input $a$, by {\textbf Lemma. \ref{lem:sign}}, {\textbf Lemma. \ref{lem:sign}} and  \ref{lem:roundrl}, we have:
+		For input $a$, by \textbf{ Lemma. \ref{lem:sign}}, \textbf{ Lemma. \ref{lem:roundrl} and  \ref{lem:roundid}}, we have:
 		 $s = 1$ or $-1$;
 		$\rvalR = \fvalR = 1$ and
 		%
