@@ -1248,20 +1248,20 @@ where $f(a)$ represents a value that the query function $f$ be evaluted over inp
 %
 \begin{lem}[sign]
 \label{lem:sign}
-For any input $a$ and output $\varx$ where
+For any input $a$ some $s$ and output $\valv$ s.t.
 $\clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\big)
-	\fbigstep \varx$ 
+	\fbigstep \valv$ 
 or $\clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\big)
-	\rbigstep \varx$,
+	\rbigstep \valv$,
 %
 \begin{enumerate}  
-	\item if $\varx < f(a)$, then $S = 1$;
-	\item if $\varx = f(a)$, then $S = 1$ or $ -1$;
-	\item if $\varx > f(a)$, then $S = -1$.
+	\item if $\valv < f(a)$, then $s = 1$;
+	\item if $\valv = f(a)$, then $s = 1$ or $ -1$;
+	\item if $\valv > f(a)$, then $s = -1$.
 \end{enumerate}
 \end{lem}
 %
@@ -1291,23 +1291,35 @@ $\clamp_B \big(
 
 \begin{lem}[clampR]
 \label{lem:clampr}
-For any input $a$:
+Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, for any input $a$, and some $s$:
 \begin{enumerate}
 \item 
 if 
 $\clamp_B \big(
 	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\big)
-	\fbigstep -B$ or $B$ and $u \in (\fvalL, \fvalR)$ for some $\fvalL, \fvalR$.
+	\fbigstep -B$ and $u \in (\fvalL, \fvalR)$ for some $\fvalL, \fvalR$.
 	%
-	\\
 	%
-	 Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, 
 	 then:
 	 %
 	 \\
 	 %
-	$f(a) + \frac{1}{\epsilon} \times s \times \ln (u) \fbigstep -b - \frac{\Lambda}{2}$ or $b + \frac{\Lambda}{2}$.
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\fvalR) \fbigstep -b - \frac{\Lambda}{2}$.
+%
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep B$ and $u \in (\fvalL, \fvalR)$ for some $\fvalL, \fvalR$.
+	%
+	%
+	 then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\fvalR) \fbigstep b + \frac{\Lambda}{2}$.
 %
 \item
 	%
@@ -1316,16 +1328,26 @@ if
 $\clamp_B \big(
 	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\big)
-	\rbigstep -B$ or $B$ and $U \in (\rvalL, \rvalR)$ for some $\rvalL, \rvalR$.
+	\rbigstep -B$ and $u \in (\rvalL, \rvalR)$ for some $\rvalL, \rvalR$, then:
 	%
-	\\
-	%
-	 Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, 
-	 then:
 	 %
 	 \\
 	 %
-	$f(a) + \frac{1}{\epsilon} \times S \times \ln (U) \rbigstep -b - \frac{\Lambda}{2}$ or $b + \frac{\Lambda}{2}$.
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\rvalR) \rbigstep -b - \frac{\Lambda}{2}$.
+%
+\item
+	%
+	%
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep B$ and $u \in (\rvalL, \rvalR)$ for some $\rvalL, \rvalR$, then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\rvalR) \rbigstep b + \frac{\Lambda}{2}$.
+%
 \end{enumerate}
 \end{lem}
 
@@ -1374,7 +1396,7 @@ then:
 $$
 f(a) + \frac{1}{\epsilon} \times s \times 
 \ln (\fvalL)
-\fbigstep \varx - \frac{\Lambda}{2}
+\fbigstep \valv - \frac{\Lambda}{2}
 ~~~~~~~~~~~~~~~~
 f(a) + \frac{1}{\epsilon} \times s \times 
 \ln (\fvalR)
@@ -1427,7 +1449,7 @@ The $\snap$ mechanism in real computation is differentially private.
 \begin{thm}
 [The $\snap$ mechanism is $(\epsilon + 23 B \epsilon \eta, 0)-$differentially private]
 %
-Consider the $\snap$ mechanism defined as before. For any privacy parameter $\epsilon$ representable in floating point computation, for all possible outputs $\varx$ in floating point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
+Consider the $\snap$ mechanism defined as before. For any privacy parameter $\epsilon$ representable in floating point computation, for all possible outputs $\valv$ in floating point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
 \end{thm}
 
 \begin{proof}
@@ -1459,7 +1481,7 @@ $$\clamp_B \big(
 	 \rbigstep \valv; 
 ~~~~~~~~~~~~~~~~~~
 \clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\round{f(a') + \frac{1}{\epsilon} \times s' \times \ln (u')}_{\Lambda}
 	\big)
 	 \rbigstep \valv.$$
 %
@@ -1485,12 +1507,12 @@ $$
 \clamp_B \big(
 	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
 	\big)
-	\fbigstep \varx; 
+	\fbigstep \valv; 
 ~~~~~~~~~~~~~~~~~~
 \clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\round{f(a') + \frac{1}{\epsilon} \times s' \times \ln (u')}_{\Lambda}
 	\big)
-	\fbigstep \varx.$$
+	\fbigstep \valv.$$
 %
 To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficient to show:
 %
@@ -1521,17 +1543,16 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		% %
 		\\
 		%
-		By Lemma \ref{lem:sign}, \ref{lem:clampr} and \ref{lem:clampl} we know $s = 1$, 
-		$U \in (0, \fvalR)$ for some $\fvalR$
-		, $U \in (0, \rvalR)$ for some $\rvalR$ s.t.:.
+		By Lemma \ref{lem:sign}, \ref{lem:clampl} and \ref{lem:clampr} we know:
+		(a) $s = 1$, 
+		(b) $\fvalL = \rvalL = 0$;
+		and (c) $U \in (0, \fvalR)$ for some $\fvalR$
+		, $U \in (0, \rvalR)$ for some $\rvalR$
 		%
 		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep -b' ~~~ (1)
 		~~~~~~~~~~~~~~~~
-		f(a) + \frac{1}{\epsilon} \times \ln(\rvalR) \rbigstep -b' ~~~ (2)
+		f(a) + \frac{1}{\epsilon} \times \ln(\rvalR) \rbigstep -b'.
 		$$
-		\\
-		%
-		So we can get $\fvalL = \rvalL = 0$.
 		%
 		\\
 		%
@@ -1752,7 +1773,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma and $(\star) $, we know: $\rvalL = e^{\epsilon(y_1 - f(a))}$ and 
+		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(y_1 - f(a))}$ and 
 		$\rvalR = e^{\epsilon(y_2 - f(a))}$.
 		%
 		\\
@@ -1976,24 +1997,24 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\\ 
 		$$
 		e^{\epsilon 
-		\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
+		\big( (\valv_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
 		\leq
 		P
 		\leq
 		e^{\epsilon 
-		\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}.$$
+		\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}.$$
 		%
 		By $(\diamond)$, we can get:
 		%
 		\\ 
 		$$
 		e^{\epsilon 
-		\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
+		\big( (\valv_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}
 		\leq
 		\fvalR
 		\leq
 		e^{\epsilon 
-		\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2}}.$$		
+		\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2}}.$$		
 
 		In the same way, we have the bounds for $\fvarL', \fvarR'$ for input $a'$ as:
 
@@ -2102,7 +2123,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
 		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
 		\\
@@ -2224,7 +2245,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		e^{(\valv_1 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
 		%
 		%		
-	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:
+	In order to bound $\fvalR$ in terms of $\rvalR$, we have the following derivation where $P$ be the real representation of $\fvalR ~~ (\diamond)$:
 %
 %
 {\scriptsize	
@@ -2274,7 +2295,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\\
 		$$e^{(\valv_2 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}
 		\leq P \leq 
-		e^{(\valv_1 (2 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
+		e^{(\valv_2 (2 + \eta) - f(a))\epsilon/(1 + \eta)^2}.$$
 		%
 		%
 		By $(\diamond)$, we have:
@@ -2302,20 +2323,21 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		Let $h(\fvarL) = e^{(\valv_1 / (1 + \eta) - f(a))(1 + \eta)^2\epsilon}$, 
 		$g(\fvarR) = e^{(\valv_2 (1 + \eta) - f(a))\epsilon/(1 + \eta)^2}$,
 		%
-		$g(\fvarL) = e^{(\valv_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$,
-		$h(\fvarR) = e^{(\valv_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$
+		$g(\fvarL') = e^{(\valv_1 (1 + \eta) - f(a'))\epsilon/(1 + \eta)^2}$,
+		$h(\fvarR') = e^{(\valv_2 / (1 + \eta) - f(a'))(1 + \eta)^2\epsilon}$
 		%
 		%
 		\\
 		%
 		Since $1 - 2\eta 
-		< (1 + \eta)^2 < 1 + 2.1\eta, y_1 > -B, y_2 > -B $
+		< (1 + \eta)^2 < 1 + 2.1\eta,
+		\valv_1 > -B, \valv_2 > -B $
 		we have:
 		\[
 		|\fvarR - \fvarL| \leq g(\fvarR) - h(\fvarL) 
-		< (\rvarR - \rvarL) e^{(5B\eta\epsilon)}
-		~~~~~~~ 
-		|\fvarR - \fvarL| \geq h(\fvarR) - g(\fvarL) 
+		< (\rvarR - \rvarL) e^{(5B\eta\epsilon)};
+		~~~~~~~~~~~~~
+		|\fvarR' - \fvarL'| \geq h(\fvarR') - g(\fvarL') 
 		> (\rvarR' - \rvarL') e^{-7B\eta \epsilon}
 		\]
 		%
