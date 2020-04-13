@@ -1560,7 +1560,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		% %
 		\\
 		%
-		By Lemma \ref{lem:sign}, \ref{lem:clampl} and \ref{lem:clampr} we know:
+		By \textbf{Lemma \ref{lem:sign}, \ref{lem:clampl} and \ref{lem:clampr}} we know:
 		(a) $s = 1$, 
 		(b) $\fvalL = \rvalL = 0$;
 		and (c) $U \in (0, \fvalR)$ for some $\fvalR$
@@ -1790,12 +1790,12 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(y_1 - f(a))}$ and 
+		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(y_1 - f(a))}$ and 
 		$\rvalR = e^{\epsilon(y_2 - f(a))}$.
 		%
 		\\
 		%
-		By Lemma \ref{lem:roundrl}, we know:
+		By \textbf{Lemma \ref{lem:roundrl}}, we know:
 		%
 		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
 		~~~~~~~~~~~~~~~~~
@@ -2140,12 +2140,12 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
 		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
 		\\
 		%
-		By Lemma \ref{lem:roundrl}, we know:
+		By \textbf{Lemma \ref{lem:roundrl}}, we know:
 		%
 		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
 		~~~~~~~~~~~~~~~~~
@@ -2382,19 +2382,19 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
 		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
 		\\
 		%
-		By Lemma \ref{lem:roundrl}, we know:
+		By \textbf{Lemma \ref{lem:roundrl}}, we know:
 		%
 		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
 		~~~~~~~~~~~~~~~~~
 		f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep \valv_2 ~~ (2).$$
 		%
 		%
-		By Lemma \ref{lem:sign} we have: $s = 1$.
+		By \textbf{Lemma \ref{lem:sign}} we have: $s = 1$.
 		%
 	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:		%
 		%
@@ -2643,12 +2643,12 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		For input $a'$, by \textbf{Lemma \ref{lem:sign}} and $f(a) + 1 = f(a')$ we have $s = 1$, 
 		%
 		%
-		By Lemma \ref{lem:idealrl} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a'))}$ and 
+		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a'))}$ and 
 		$\rvalR = e^{\epsilon(\valv_2 - f(a'))}$.
 		%
 		\\
 		%
-		By Lemma \ref{lem:roundrl}, we know:
+		By \textbf{Lemma \ref{lem:roundrl}}, we know:
 		%
 		$$f(a') + \frac{1}{\epsilon} \times \ln(\fvalL') \fbigstep \valv_1 ~~ (1)
 		~~~~~~~~~~~~~~~~~
@@ -2700,7 +2700,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\[
 		\frac{h(\fvalR')}{\rvalR'} = e^{\epsilon 
 		\big(
-		(1 + \eta)^2f(a) - (1 + \eta)^3 \valv_2 - f(a) + \valv_2
+		(1 + \eta)^2f(a') - (1 + \eta)^3 \valv_2 - f(a') + \valv_2
 		\big)}
 		> e^{-2\epsilon B \eta},
 		%
@@ -2708,7 +2708,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\frac{g{(\fvalL')}}{\rvalL'} = e^{\epsilon 
 		\big(
-		\frac{f(a)}{(1 + \eta)^2} - \frac{\valv_2}{(1 + \eta)^3} - f(a) + \valv_2
+		\frac{f(a')}{(1 + \eta)^2} - \frac{\valv_2}{(1 + \eta)^3} - f(a') + \valv_1
 		\big)}
 		< e^{2\epsilon B \eta},
 		\]
@@ -2772,7 +2772,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma \ref{lem:clampid}, \ref{lem:roundrl} and \ref{lem:sign}, the bounds derived for 
+		By \textbf{Lemma \ref{lem:sign}, \ref{lem:roundrl} and \ref{lem:clampid}}, the bounds derived for 
 		$\fvarL, \fvarR$ and $\fvarL', \fvarR'$ under input $a$ and $a'$, in terms of $\rvarR, \rvarL$, $\rvarL', \rvarR'$ are as follows:
 		%
 		\\
@@ -3014,19 +3014,18 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\[
 		\frac{h(\fvalL'^-)}{\rvalL'^-} = e^{\epsilon 
 		\big(
-		(1 + \eta)^3 \valv_2 - (1 + \eta)^2f(a) - \valv_2 + f(a)
+		(1 + \eta)^3 \valv_2 - (1 + \eta)^2f(a') - \valv_2 + f(a')
 		\big)}
 		> e^{-3\epsilon B \eta},
 		~~~
 		%
 		\frac{g(\fvalR'^-)}{\rvalR'^-} = e^{\epsilon 
 		\big(
-		frac{\valv_2}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2} - \valv_2 + f(a)
+		frac{\valv_2}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2} - \valv_2 + f(a')
 		\big)}
 		< e^{3\epsilon B \eta},
 		\]
 		%
-		The same bound for $L_+'$ by substituting $y_2$ with $y_1$, and similar bound for $L, R$.
 		%
 		\[
 		\frac{h_{low}(\fvarR)}{\rvarR} = e^{\epsilon 
@@ -3212,21 +3211,21 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		$h(\fvalR) \leq \fvalR \leq g(\fvalR)$, where
 %
-		$\ubar{R} = e^{\epsilon 
-				\big( (f(a) - y_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
+		$h(\fvalR) = e^{\epsilon 
+				\big( (f(a) - \valv_2(1 + \eta)) (1 + \eta)^2) \big)}$, 
 		%
-		$\bar{R} = e^{\epsilon 
-				\frac{(f(a) - \frac{y_2}{1 + \eta})}{(1 + \eta)^2}}$.  
+		$g(\fvalR) = e^{\epsilon 
+				\frac{(f(a) - \frac{\valv_2}{1 + \eta})}{(1 + \eta)^2}}$.  
 		% 
 		\\
 		%
 		$h(\fvalL) \leq \fvalL \leq g(\fvalL)$, where
 %
 		$h(\fvalL) = e^{\epsilon 
-				\big( (f(a) - y_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+				\big( (f(a) - \valv_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
 		%
 		$g(\fvalL) = e^{\epsilon 
-				\frac{f(a) - \frac{y_1}{1 + \eta}}{(1 + \eta)^2}}$.
+				\frac{f(a) - \frac{\valv_1}{1 + \eta}}{(1 + \eta)^2}}$.
 		%
 		\\
 		For input $a'$:
@@ -3265,7 +3264,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\frac{g(\fvalR')}{\rvalR'} < e^{5B\eta \epsilon}
 		\]
 		%
-		And the bounds on $|\ubar{R} - \bar{L}|$ and $|\bar{R'} - \ubar{L'}|$ are as follows:
+		And the bounds on $|\fvalR - \fvalL|$ and $|\fvalR' - \fvalL'|$ are as follows:
 		%
 		\[
 		|\fvalR - \fvalL|
@@ -3273,6 +3272,8 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		|h(\fvalR) - g(\fvalL)| 
 		> e^{-12 B\eta \epsilon}|\rvalR - \rvalL|, 
 		~~~~~~~~~~~~~~~~~~~~
+		|\fvalR' - \fvalL'|
+		\leq
 		|g(\fvalR') - h(\fvalL')| 
 		< e^{11 B\eta \epsilon}|\rvalR' - \rvalL'|
 		\]
@@ -3300,7 +3301,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		\\
 		%
-		By Lemma \ref{lem:sign}, \ref{lem:clampid}, \ref{lem:roundrl}, the semantics and soundness theorem, we derived following bounds for $\fvalL, \fvalR, \fvalL'$ and $\fvalR'$:
+		By \textbf{Lemma \ref{lem:sign}, \ref{lem:clampid}, \ref{lem:roundrl}}, the semantics and soundness theorem, we derived following bounds for $\fvalL, \fvalR, \fvalL'$ and $\fvalR'$:
 		%
 		\\
 		For input $a'$:
@@ -3372,13 +3373,16 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\frac{g(\fvalL)}{\fvalL} < e^{5B\eta \epsilon}
 		\]
 		%
-		And the bounds on $|h(\fvalR) - g(\fvalL)|$
-		and $|g(\fvalR') - h(\fvalL')|$ are as follows:
+		And the bounds on $|\fvalR - \fvalL|$ and $|\fvalR' - \fvalL'|$ are as follows:
 		%
 		\[
+		|\fvalR - \fvalL|
+		\geq
 		|h(\fvalR) - g(\fvalL)| > e^{-8 B\eta \epsilon}
 		|\rvalR - \rvalL|, 
 		~~~~~~~
+		|\fvalR' - \fvalL'|
+		\leq
 		|g(\fvalR') - h(\fvalL')| < e^{8 B\eta \epsilon}
 		|\rvalR' - \rvalL'|
 		\]
@@ -3399,28 +3403,26 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		%
 		%
-		\caseL{$\boldsymbol{x = B}$}
+		\caseL{$\boldsymbol{\valv = B}$}
 		%
 		%
 		Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
 		% %
 		\\
 		%
-		By Lemma \ref{lem:sign}, \ref{lem:clampr} and \ref{lem:clampl} we know $s = 1$, 
-		$U \in (0, \fvalR)$ for some $\fvalR$
-		, $U \in (0, \rvalR)$ for some $\rvalR$ s.t.:.
+		By \textbf{Lemma \ref{lem:sign}, \ref{lem:clampl} and \ref{lem:clampr}} we know 
+		(a) $s = 1$, 
+		(b) $\fvalL = \rvalL = 0$;
+		and (c) $u \in (0, \fvalR)$ for some $\fvalR$
+		, $u \in (0, \rvalR)$ for some $\rvalR$ s.t.:.
 		%
 		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep -b' ~~~ (1)
 		~~~~~~~~~~~~~~~~
-		f(a) + \frac{1}{\epsilon} \times \ln(\rvalR) \rbigstep -b' ~~~ (2)
+		f(a) + \frac{1}{\epsilon} \times \ln(\rvalR) \rbigstep -b'.
 		$$
 		\\
 		%
-		So we can get $\fvalL = \rvalL = 0$.
-		%
-		\\
-		%
-		By our semantics, soundness theorem and (2) we have following bounds on $\fvalR$ for input $a$ and $\fvalR'$ for input $a'$:
+		By our semantics, soundness theorem and (1) we have following bounds on $\fvalR$ for input $a$ and $\fvalR'$ for input $a'$:
 		%
 		\\
 		%
@@ -3435,10 +3437,10 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		%
 		$h(\fvalR') \leq \fvalR' \leq g(\fvalR')$, where
 		$h(\fvalR') = e^{\epsilon 
-		\big( (f(a) -  \frac{b}{1 + \eta}) (1 + \eta)^2) \big)}$
+		\big( (f(a') -  \frac{b}{1 + \eta}) (1 + \eta)^2) \big)}$
 		and
 		$g(\fvalR') = e^{\epsilon 
-		\frac{(f(a) - b(1 + \eta))}{(1 + \eta)^2}}$.
+		\frac{(f(a') - b(1 + \eta))}{(1 + \eta)^2}}$.
 		%
 		\\
 		%		
@@ -3458,7 +3460,7 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		& = e^{\epsilon
 		\bigg(
 		f(a)(1 + \eta)^2 - b(1 + \eta) 
-		- \frac{f(a)}{(1 + \eta)^2} + \frac{x}{(1 + \eta)}   
+		- \frac{f(a)}{(1 + \eta)^2} + \frac{b}{(1 + \eta)}   
 		\bigg)} ~ (\star)
 		\end{array}
 		\]
@@ -3487,9 +3489,8 @@ Induction on the outputspace of $\snap(a)$ mechanism, we have following cases:
 		\]
 	%	
 	\end{itemize}
-
-
-
+	%
+	%
 \end{proof}
 
 
