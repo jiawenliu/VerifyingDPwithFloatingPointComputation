@@ -8,17 +8,17 @@ From Coq
 From Coq
      Require Import QArith.QArith Structures.Orders Recdef.
 
-From Flover.Infra
+From Snapv.Infra
      Require Import RealRationalProps RationalSimps Ltacs.
 
-From Flover.Infra
+From Snapv.Infra
      Require Export Abbrevs NatSet MachineType.
 
 (**
   Expressions will use binary operators.
   Define them first
 **)
-Inductive binop : Type := Plus | Sub | Mult | Div.
+Inductive binop : Type := Plus | Sub | Mult | Div | Round | Clamp.
 
 Definition binopEq (b1:binop) (b2:binop) :=
   match b1, b2 with
@@ -26,6 +26,9 @@ Definition binopEq (b1:binop) (b2:binop) :=
   | Sub,  Sub  => true
   | Mult, Mult => true
   | Div,  Div  => true
+  | Round, Round => true
+  |Clamp, Clamp => true
+                     
   | _,_ => false
   end.
 
@@ -39,6 +42,7 @@ Definition evalBinop (o:binop) (v1:R) (v2:R) :=
   | Sub => Rminus v1 v2
   | Mult => Rmult v1 v2
   | Div => Rdiv v1 v2
+  | _ => Rplus v1 v2
   end.
 
 Lemma binopEq_refl b:
@@ -66,12 +70,14 @@ Qed.
    Expressions will use unary operators.
    Define them first
  **)
-Inductive unop: Type := Neg | Inv.
+Inductive unop: Type := Neg | Inv | Ln .
 
 Definition unopEq (o1:unop) (o2:unop) :=
   match o1, o2 with
   | Neg, Neg => true
   | Inv, Inv => true
+  | Ln, Ln => true
+                
   | _ , _ => false
   end.
 
@@ -101,6 +107,7 @@ Definition evalUnop (o:unop) (v:R):=
   match o with
   |Neg => (- v)%R
   |Inv => (/ v)%R
+  | Ln =>   (- v)%R           
   end .
 
 Definition evalFma (v1:R) (v2:R) (v3:R):=
@@ -114,9 +121,7 @@ Inductive expr (V:Type): Type :=
   Var: nat -> expr V
 | Const: mType -> V -> expr V
 | Unop: unop -> expr V -> expr V
-| Binop: binop -> expr V -> expr V -> expr V
-| Fma: expr V -> expr V -> expr V -> expr V
-| Downcast: mType -> expr V -> expr V
+| Binop: binop -> expr V -> expr V -> expr V                                
 (* TODO: do we need mType in let-exprs? *)
 | Let: mType -> nat -> expr V -> expr V -> expr V.
 (* | Cond: expr V -> expr V -> expr V -> expr V.*)

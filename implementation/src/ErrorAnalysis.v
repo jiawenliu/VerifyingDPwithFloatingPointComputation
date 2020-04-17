@@ -2,7 +2,7 @@ From Coq
      Require Import Reals.Reals QArith.Qreals QArith.QArith.
 
 From Snapv
-     Require Import ExpressionSemantics Environments RealRangeArith
+     Require Import ExpressionSemantics Environments 
      Infra.RationalSimps TypeValidator IntervalArithQ.
 
 Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
@@ -13,7 +13,7 @@ Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
   | Binop b e1 e2 =>
     (b = Div ->
      (forall iv2 err,
-         FloverMap.find e2 A = Some (iv2, err) ->
+         SnapvMap.find e2 A = Some (iv2, err) ->
          let errIv2 := widenIntv iv2 err in
          ((Qleb (ivhi errIv2) 0) && (negb (Qeq_bool (ivhi errIv2) 0))) ||
          ((Qleb 0 (ivlo errIv2)) && (negb (Qeq_bool (ivlo errIv2) 0))) = true)) /\
@@ -26,8 +26,8 @@ Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
   | Let m x e1 e2 =>
     validErrorBoundsRec e1 E1 E2 A Gamma DeltaMap /\
     (forall iv_e1 err_e1 iv_x err_x,
-        FloverMap.find e1 A = Some (iv_e1, err_e1) ->
-        FloverMap.find (Var Q x) A = Some (iv_x, err_x) ->
+        SnapvMap.find e1 A = Some (iv_e1, err_e1) ->
+        SnapvMap.find (Var Q x) A = Some (iv_x, err_x) ->
         (Q2R (ivhi iv_e1) = Q2R (ivhi iv_x) /\
          Q2R (ivlo iv_e1) = Q2R (ivlo iv_x) /\
          Q2R (err_e1) = Q2R (err_x))) /\
@@ -45,7 +45,7 @@ Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
    end)  /\
   forall v__R (iv: intv) (err: error),
     eval_expr E1 (toRTMap (toRExpMap Gamma)) DeltaMapR (toREval (toRExp e)) v__R REAL ->
-    FloverMap.find e A = Some (iv, err) ->
+    SnapvMap.find e A = Some (iv, err) ->
     (exists v__FP m__FP,
       eval_expr E2 (toRExpMap Gamma) DeltaMap (toRExp e) v__FP m__FP) /\
     (forall v__FP m__FP,
@@ -62,7 +62,7 @@ Lemma validErrorBoundsRec_single e E1 E2 A Gamma DeltaMap:
   validErrorBoundsRec e E1 E2 A Gamma DeltaMap ->
   forall v__R iv err,
     eval_expr E1 (toRTMap (toRExpMap Gamma)) DeltaMapR (toREval (toRExp e)) v__R REAL ->
-    FloverMap.find e A = Some (iv, err) ->
+    SnapvMap.find e A = Some (iv, err) ->
     (exists v__FP m__FP,
       eval_expr E2 (toRExpMap Gamma) DeltaMap (toRExp e) v__FP m__FP) /\
     (forall v__FP m__FP,
@@ -80,8 +80,8 @@ Fixpoint validErrorBoundsCmd (c: cmd Q) E1 E2 A Gamma DeltaMap: Prop :=
   | Let m x e k =>
     validErrorBoundsRec e E1 E2 A Gamma DeltaMap /\
     (exists iv_e err_e iv_x err_x,
-       FloverMap.find e A = Some (iv_e, err_e) /\
-       FloverMap.find (Var Q x) A = Some (iv_x, err_x) /\
+       SnapvMap.find e A = Some (iv_e, err_e) /\
+       SnapvMap.find (Var Q x) A = Some (iv_x, err_x) /\
        Qeq_bool err_e err_x = true) /\
     (forall v__R v__FP,
         eval_expr E1 (toRTMap (toRExpMap Gamma)) DeltaMapR (toREval (toRExp e)) v__R REAL ->
@@ -91,7 +91,7 @@ Fixpoint validErrorBoundsCmd (c: cmd Q) E1 E2 A Gamma DeltaMap: Prop :=
   end  /\
   forall v__R (iv: intv) (err: error),
     bstep (toREvalCmd (toRCmd c)) E1 (toRTMap (toRExpMap Gamma)) DeltaMapR v__R REAL ->
-    FloverMap.find (getRetExp c) A = Some (iv, err) ->
+    SnapvMap.find (getRetExp c) A = Some (iv, err) ->
     (exists v__FP m__FP,
       bstep (toRCmd c) E2 (toRExpMap Gamma) DeltaMap v__FP m__FP) /\
     (forall v__FP m__FP,
@@ -108,7 +108,7 @@ Lemma validErrorBoundsCmdRec_single c E1 E2 A Gamma DeltaMap:
   validErrorBoundsCmdRec c E1 E2 A Gamma DeltaMap ->
   forall v__R (iv: intv) (err: error),
     bstep (toREvalCmd (toRCmd c)) E1 (toRTMap (toRExpMap Gamma)) DeltaMapR v__R REAL ->
-    FloverMap.find (getRetExp c) A = Some (iv, err) ->
+    SnapvMap.find (getRetExp c) A = Some (iv, err) ->
     (exists v__FP m__FP,
       bstep (toRCmd c) E2 (toRExpMap Gamma) DeltaMap v__FP m__FP) /\
     (forall v__FP m__FP,

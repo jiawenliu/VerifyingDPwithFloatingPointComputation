@@ -1,12 +1,12 @@
 From Coq
      Require Import QArith.QArith QArith.Qreals QArith.Qminmax micromega.Psatz Recdef.
 
-From Flover
+From Snapv
      Require Import Infra.Abbrevs Infra.RationalSimps Infra.RealRationalProps
      Infra.Ltacs Infra.RealSimps TypeValidator ssaPrgs IntervalArithQ
      IntervalArith.
 
-Lemma eqb_var x e : FloverMapFacts.P.F.eqb (Var Q x) e = true -> e = Var Q x.
+Lemma eqb_var x e : SnapvMapFacts.P.F.eqb (Var Q x) e = true -> e = Var Q x.
 Proof.
   rewrite eqb_cmp_eq. destruct e; cbn; try discriminate.
   case_eq (x ?= n)%nat; intros H; try discriminate.
@@ -14,9 +14,9 @@ Proof.
 Qed.
 
 Lemma find_in_precond P x (iv: intv) :
-  FloverMap.find (Var Q x) P = Some iv -> List.In (Var Q x, iv) (FloverMap.elements P).
+  SnapvMap.find (Var Q x) P = Some iv -> List.In (Var Q x, iv) (SnapvMap.elements P).
 Proof.
-  rewrite FloverMapFacts.P.F.elements_o.
+  rewrite SnapvMapFacts.P.F.elements_o.
   intros H. apply findA_find in H as [e [H _]].
   apply List.find_some in H as [Hin Heq].
   apply eqb_var in Heq. cbn in *. now subst.
@@ -24,7 +24,7 @@ Qed.
 
 (*
 Definition P_intv_sound E (P: precond) :=
-  forall x iv, FloverMap.find (Var Q x) P = Some iv
+  forall x iv, SnapvMap.find (Var Q x) P = Some iv
              -> exists vR: R, E x = Some vR /\ Q2R (fst iv) <= vR <= Q2R (snd iv).
 *)
 
@@ -55,7 +55,7 @@ Definition dVars_range_valid (dVars:NatSet.t) (E:env) (A:analysisResult) :Prop :
   forall v, NatSet.In v dVars ->
        exists vR iv err,
          E v =  Some vR /\
-         FloverMap.find (Var Q v) A = Some (iv, err) /\
+         SnapvMap.find (Var Q v) A = Some (iv, err) /\
          (Q2R (fst iv) <= vR <= Q2R (snd iv))%R.
 
 Ltac kill_trivial_exists :=
@@ -72,7 +72,7 @@ Fixpoint validRanges e (A:analysisResult) E Gamma :Prop :=
   | Binop b e1 e2 =>
     (b = Div ->
      (forall iv2 err,
-         FloverMap.find e2 A = Some (iv2, err) ->
+         SnapvMap.find e2 A = Some (iv2, err) ->
          ((Qleb (ivhi iv2) 0) && (negb (Qeq_bool (ivhi iv2) 0))) ||
          ((Qleb 0 (ivlo iv2)) && (negb (Qeq_bool (ivlo iv2) 0))) = true)) /\
     validRanges e1 A E Gamma /\ validRanges e2 A E Gamma
@@ -83,8 +83,8 @@ Fixpoint validRanges e (A:analysisResult) E Gamma :Prop :=
   | Let _ x e1 e2 =>
     validRanges e1 A E Gamma /\
     (exists iv1 err1 iv_x err_x,
-        FloverMap.find e1 A = Some (iv1, err1) /\
-        FloverMap.find (Var Q x) A = Some (iv_x, err_x) /\
+        SnapvMap.find e1 A = Some (iv1, err1) /\
+        SnapvMap.find (Var Q x) A = Some (iv_x, err_x) /\
         Qeq_bool (ivlo iv1) (ivlo iv_x) && Qeq_bool (ivhi iv1) (ivhi iv_x) = true) /\
     (forall vR, eval_expr E Gamma DeltaMapR (toREval (toRExp e1)) vR REAL ->
            validRanges e2 A (updEnv x vR E) Gamma)
@@ -95,14 +95,14 @@ Fixpoint validRanges e (A:analysisResult) E Gamma :Prop :=
 *)
   end /\
   exists iv err vR,
-    FloverMap.find e A = Some (iv, err) /\
+    SnapvMap.find e A = Some (iv, err) /\
     eval_expr E Gamma DeltaMapR (toREval (toRExp e)) vR REAL /\
     (Q2R (fst iv) <= vR <= Q2R (snd iv))%R.
 
 Corollary validRanges_single e A E Gamma:
   validRanges e A E Gamma ->
   exists iv err vR,
-    FloverMap.find e A = Some (iv, err) /\
+    SnapvMap.find e A = Some (iv, err) /\
     eval_expr E Gamma DeltaMapR (toREval (toRExp e)) vR REAL /\
     (Q2R (fst iv) <= vR <= Q2R (snd iv))%R.
 Proof.
@@ -142,14 +142,14 @@ Fixpoint validRangesCmd (f:cmd Q) A E Gamma {struct f} : Prop :=
   | Ret e => validRanges e A E Gamma
   end /\
   exists iv_e err_e vR,
-    FloverMap.find (getRetExp f) A = Some (iv_e, err_e) /\
+    SnapvMap.find (getRetExp f) A = Some (iv_e, err_e) /\
     bstep (toREvalCmd (toRCmd f)) E Gamma DeltaMapR vR REAL /\
     (Q2R (fst iv_e) <=  vR <= Q2R (snd iv_e))%R.
 
 Corollary validRangesCmd_single f A E Gamma:
   validRangesCmd f A E Gamma ->
   exists iv_e err_e vR,
-    FloverMap.find (getRetExp f) A = Some (iv_e, err_e) /\
+    SnapvMap.find (getRetExp f) A = Some (iv_e, err_e) /\
     bstep (toREvalCmd (toRCmd f)) E Gamma DeltaMapR vR REAL /\
     (Q2R (fst iv_e) <=  vR <= Q2R (snd iv_e))%R.
 Proof.
@@ -202,7 +202,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       unfold Q_orderedExps.exprCompare.
       rewrite e3; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -224,7 +224,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e5; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -240,7 +240,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e6; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -256,7 +256,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e6; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -272,7 +272,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e6; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -286,7 +286,7 @@ Proof.
     {
       intros Hrefl; specialize (Hdiv Hrefl).
       intros iv2 err Hfind.
-      erewrite FloverMapFacts.P.F.find_o with (y := e12) in Hfind.
+      erewrite SnapvMapFacts.P.F.find_o with (y := e12) in Hfind.
       eapply Hdiv; eauto.
       now rewrite Q_orderedExps.exprCompare_eq_sym.
     }
@@ -295,7 +295,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e6; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -312,7 +312,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e3, e4, Heq; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -327,7 +327,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e5; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.
@@ -350,7 +350,7 @@ Proof.
     + specialize (IHc e5 E validsub1).
       apply validRanges_single in IHc.
       destruct IHc as (iv_e1 & err_e1 & vR1 & find_e21 & eval_e21 & bounded_e21).
-      erewrite FloverMapFacts.P.F.find_o with (y:= e21) in find_e1; eauto.
+      erewrite SnapvMapFacts.P.F.find_o with (y:= e21) in find_e1; eauto.
       rewrite find_e21 in find_e1; inversion find_e1; subst.
       repeat eexists; eauto.
     + intros v ?.
@@ -361,7 +361,7 @@ Proof.
       intuition.
       * rewrite <- Hfind.
         symmetry.
-        apply FloverMapFacts.P.F.find_o.
+        apply SnapvMapFacts.P.F.find_o.
         simpl.
         rewrite e3, e5.
         rewrite Nat.compare_refl; auto.
@@ -386,7 +386,7 @@ Proof.
     intuition.
     + rewrite <- Hfind.
       symmetry.
-      apply FloverMapFacts.P.F.find_o.
+      apply SnapvMapFacts.P.F.find_o.
       simpl.
       rewrite e3, e4, Heq; auto.
     + erewrite expr_compare_eq_eval_compat; eauto.

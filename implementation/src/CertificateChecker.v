@@ -4,18 +4,18 @@
    Running this function on the encoded analysis result gives the desired theorem
    as shown in the soundness theorem.
 **)
-From Flover
+From Snapv
      Require Import Infra.RealRationalProps Environments TypeValidator
      ResultChecker SubdivsChecker.
 
-Require Export List ExpressionSemantics Coq.QArith.QArith Flover.SMTArith
+Require Export List ExpressionSemantics Coq.QArith.QArith Snapv.SMTArith
         RealRangeArith ErrorAnalysis FPRangeValidator ssaPrgs.
 Export ListNotations.
 
 (** Certificate checking function **)
 Definition CertificateChecker (e: expr Q) (absenv: analysisResult)
-           (P: precond) Qmap subdivs (defVars: FloverMap.t  mType):=
-  let tMap := (getValidMap defVars e (FloverMap.empty mType)) in
+           (P: precond) Qmap subdivs (defVars: SnapvMap.t  mType):=
+  let tMap := (getValidMap defVars e (SnapvMap.empty mType)) in
   match tMap with
   |Succes Gamma =>
    match subdivs with
@@ -41,7 +41,7 @@ Theorem Certificate_checking_is_sound_general (e:expr Q) (absenv:analysisResult)
     exists Gamma,
       approxEnv E1 (toRExpMap Gamma) absenv (freeVars e) NatSet.empty E2 ->
       exists iv err vR vF m outVars,
-        FloverMap.find e absenv = Some (iv, err) /\
+        SnapvMap.find e absenv = Some (iv, err) /\
         eval_expr E1 (toRTMap (toRExpMap Gamma)) DeltaMapR (toREval (toRExp e)) vR REAL /\
         eval_expr E2 (toRExpMap Gamma) DeltaMap (toRExp e) vF m /\
         (forall vF m,
@@ -49,7 +49,7 @@ Theorem Certificate_checking_is_sound_general (e:expr Q) (absenv:analysisResult)
             (Rabs (vR - vF) <= Q2R err))%R /\
         ssa e (freeVars e) outVars /\
         validTypes e Gamma /\
-        getValidMap defVars e (FloverMap.empty mType) = Succes Gamma /\
+        getValidMap defVars e (SnapvMap.empty mType) = Succes Gamma /\
         validRanges e absenv E1 (toRTMap (toRExpMap Gamma)) /\
         validErrorBounds e E1 E2 absenv Gamma /\
         validFPRanges e E2 Gamma DeltaMap.
@@ -60,7 +60,7 @@ Theorem Certificate_checking_is_sound_general (e:expr Q) (absenv:analysisResult)
 Proof.
   intros * deltas_matched P_valid unsat_qs unsat_qs_subdivs certificate_valid.
   unfold CertificateChecker in certificate_valid.
-  destruct (getValidMap defVars e (FloverMap.empty mType)) eqn:?; try congruence.
+  destruct (getValidMap defVars e (SnapvMap.empty mType)) eqn:?; try congruence.
   rename t into Gamma.
   assert (validTypes e Gamma).
   { eapply getValidMap_top_correct; eauto.
@@ -94,7 +94,7 @@ Theorem Certificate_checking_is_sound (e:expr Q) (absenv:analysisResult)
     exists Gamma,
       approxEnv E1 (toRExpMap Gamma) absenv (freeVars e) NatSet.empty E2 ->
       exists iv err vR vF m,
-        FloverMap.find e absenv = Some (iv, err) /\
+        SnapvMap.find e absenv = Some (iv, err) /\
         eval_expr E1 (toRTMap (toRExpMap Gamma)) DeltaMapR (toREval (toRExp e)) vR REAL /\
         eval_expr E2 (toRExpMap Gamma) DeltaMap (toRExp e) vF m /\
         (forall vF m,

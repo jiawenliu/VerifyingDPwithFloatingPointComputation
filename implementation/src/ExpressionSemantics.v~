@@ -158,7 +158,6 @@ Qed.
 
 Hint Resolve Unop_inv'.
 
-(*
 Lemma Downcast_dist' DeltaMap m m1 f1 v1 delta v m' E Gamma:
   isMorePrecise m1 m = true ->
   Rle (Rabs delta) (mTypeToR m') ->
@@ -172,7 +171,7 @@ Proof.
   intros; subst; eauto.
 Qed.
 
-Hint Resolve Downcast_dist'.*)
+Hint Resolve Downcast_dist'.
 
 Lemma Binop_dist' DeltaMap m1 m2 op f1 f2 v1 v2 delta v m m' E Gamma:
   Rle (Rabs delta) (mTypeToR m') ->
@@ -191,7 +190,6 @@ Qed.
 
 Hint Resolve Binop_dist'.
 
-(*
 Lemma Fma_dist' DeltaMap m1 m2 m3 f1 f2 f3 v1 v2 v3 delta v m' E Gamma m:
   Rle (Rabs delta) (mTypeToR m') ->
   eval_expr E Gamma DeltaMap f1 v1 m1 ->
@@ -207,7 +205,7 @@ Proof.
   intros; subst; eauto.
 Qed.
 
-Hint Resolve Fma_dist'.*)
+Hint Resolve Fma_dist'.
 
 Lemma Gamma_det e E1 E2 Gamma DeltaMap v1 v2 m1 m2:
   eval_expr E1 Gamma DeltaMap e v1 m1 ->
@@ -246,15 +244,16 @@ Proof.
     rewrite (IHf2 _ _ _ _ _ H9) in H4.
     unfold isJoin in H4; simpl in H4.
     destruct m; try congruence; auto.
-  (*
-- rewrite (IHf1 _ _ _ _ _ H6) in H4.
+  - rewrite (IHf1 _ _ _ _ _ H6) in H4.
     rewrite (IHf2 _ _ _ _ _ H9) in H4.
     rewrite (IHf3 _ _ _ _ _ H10) in H4.
     unfold isJoin3 in H4; simpl in H4.
     destruct m; try congruence; auto.
   - auto.
   - eapply IHf2; eauto.
-   
+    (*
+  - cbn in H2. congruence.
+  - cbn in H2. congruence.
 *)
 Qed.
 
@@ -299,9 +298,7 @@ Proof.
     rewrite (IHf1 E v0 v4); try auto.
     rewrite (IHf2 E v3 v5); try auto.
   - inversion ev1; inversion ev2; subst.
-
-    (* 
-assert (m0 = REAL) by (eapply toRTMap_eval_REAL; eauto).
+    assert (m0 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     assert (m1 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     assert (m2 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     assert (m3 = REAL) by (eapply toRTMap_eval_REAL; eauto).
@@ -310,17 +307,16 @@ assert (m0 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     subst.
     rewrite (IHf1 E v0 v5); try auto.
     rewrite (IHf2 E v3 v6); try auto.
-    rewrite (IHf3 E v4 v7); try auto.*)
+    rewrite (IHf3 E v4 v7); try auto.
   - inversion ev1; inversion ev2; subst.
-    (*
-apply REAL_least_precision in H3;
+    apply REAL_least_precision in H3;
       apply REAL_least_precision in H11; subst.
-    rewrite (IHf E v0 v3); try auto.*)
+    rewrite (IHf E v0 v3); try auto.
   - inversion ev1; inversion ev2.
-(*    assert (v0 = v3) by (eapply IHf1; eauto).
+    assert (v0 = v3) by (eapply IHf1; eauto).
     destruct m2; try discriminate.
     subst.
-    eapply IHf2; eauto.*)
+    eapply IHf2; eauto.
     (*
   - inversion ev1; inversion ev2; subst.
     + assert (m2 = REAL) by (eapply toRTMap_eval_REAL; eauto).
@@ -401,9 +397,7 @@ Lemma fma_unfolding f1 f2 f3 E v1 v2 v3 m1 m2 m3 m Gamma DeltaMap delta:
 Proof.
   intros err_v delta_map eval_f1 eval_f2 eval_f3 eval_float.
   inversion eval_float; subst.
-
-Qed.
-(*repeat
+  repeat
     (match goal with
      | [H1: eval_expr ?E ?Gamma ?DeltaMap ?f ?v1 ?m1,
         H2: eval_expr ?E ?Gamma ?DeltaMap ?f ?v2 ?m2 |- _] =>
@@ -420,8 +414,7 @@ Qed.
   - destruct Req_dec_sum as [? | Hneq]; auto.
     contradiction Hneq; auto.
   - now cbn.
-Qed.*)
-
+Qed.
 
 Lemma eval_eq_env e:
   forall E1 E2 Gamma DeltaMap v m,
@@ -434,11 +427,10 @@ Proof.
     try eauto.
   - eapply Var_load; auto.
     rewrite <- (H n); auto.
-    (*
   - econstructor; eauto.
     eapply IHe2; try eassumption.
     intros x. unfold updEnv.
-    now destruct (x =? n) eqn:?.*)
+    now destruct (x =? n) eqn:?.
 Qed.
 
 Lemma eval_expr_ignore_bind e:
@@ -465,7 +457,6 @@ Proof.
       eauto;
       hnf; intros; eapply no_usedVar;
       set_tac.
-(*
   - eapply Fma_dist'; eauto;
       [eapply IHe1 | eapply IHe2 | eapply IHe3];
       eauto;
@@ -482,7 +473,7 @@ Proof.
       * intros y. unfold updEnv. destruct (y =? n) eqn: Heqy; auto.
         apply beq_nat_true in Heqy. subst. now rewrite Heqx.
       * intros ?. apply no_usedVar. set_tac.
-        right. apply beq_nat_false in Heqx. auto.*)
+        right. apply beq_nat_false in Heqx. auto.
         (*
   - eapply Cond_then; eauto;
       [ eapply IHe1 | eapply IHe2];
@@ -522,8 +513,6 @@ Proof.
       eauto;
       hnf; intros; eapply no_usedVar;
       set_tac.
-
-    (*
   - eapply Fma_dist'; eauto;
       [eapply IHe1 | eapply IHe2 | eapply IHe3];
       eauto;
@@ -540,7 +529,7 @@ Proof.
         intros y. unfold updEnv. destruct (y =? n) eqn: Heqy; auto.
         apply beq_nat_true in Heqy. subst. now rewrite Heqx.
       * intros ?. apply no_usedVar. set_tac.
-        right. apply beq_nat_false in Heqx. auto.*)
+        right. apply beq_nat_false in Heqx. auto.
         (*
   - eapply Cond_then; eauto;
       [ eapply IHe1 | eapply IHe2];
@@ -568,9 +557,9 @@ Proof.
         | eapply Unop_neg'
         | eapply Unop_inv'
         | eapply Binop_dist'
- (*       | eapply Fma_dist'
+        | eapply Fma_dist'
         | eapply Downcast_dist'
-        | eapply Let_dist*)
+        | eapply Let_dist
         (* | eapply Cond_then
         | eapply Cond_else *) ]; try eauto;
           rewrite <- Gamma_eq; auto.
@@ -609,22 +598,21 @@ Proof.
     replace v5 with v3 in * by (eapply IHe2; eauto).
     now replace delta with delta0 by congruence.
   - inversion Heval1; inversion Heval2; subst.
-    (*replace m1 with m0 in * by (eapply Gamma_det; eauto).
+    replace m1 with m0 in * by (eapply Gamma_det; eauto).
     replace m4 with m2 in * by (eapply Gamma_det; eauto).
     replace m5 with m3 in * by (eapply Gamma_det; eauto).
     replace v5 with v0 in * by (eapply IHe1; eauto).
     replace v6 with v3 in * by (eapply IHe2; eauto).
     replace v7 with v4 in * by (eapply IHe3; eauto).
-    now replace delta with delta0 by congruence.*)
+    now replace delta with delta0 by congruence.
   - inversion Heval1; inversion Heval2; subst.
-(*    replace m3 with m1 in * by (eapply Gamma_det; eauto).
+    replace m3 with m1 in * by (eapply Gamma_det; eauto).
     replace v3 with v0 in * by (eapply IHe; eauto).
     replace delta with delta0 by congruence.
-    reflexivity.*)
+    reflexivity.
   - inversion Heval1; inversion Heval2; subst.
-
-    (*replace v0 with v3 in * by (eapply IHe1; eauto).
-    eapply IHe2; eauto.*)
+    replace v0 with v3 in * by (eapply IHe1; eauto).
+    eapply IHe2; eauto.
     (*
   - inversion Heval1; inversion Heval2; subst.
     + eapply IHe2; erewrite Gamma_det; eauto.
@@ -664,9 +652,7 @@ Proof.
     eapply Binop_dist'; eauto.
     apply Rabs_0_impl_eq in H5; f_equal; now symmetry.
   - inversion ev1; subst.
-
-    (*
-assert (m1 = REAL) by (eapply toRTMap_eval_REAL; eauto).
+    assert (m1 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     assert (m2 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     assert (m3 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     subst.
@@ -674,16 +660,15 @@ assert (m1 = REAL) by (eapply toRTMap_eval_REAL; eauto).
     specialize (IHf2 _ _ _ H9).
     specialize (IHf3 _ _ _ H10).
     eapply Fma_dist'; eauto.
-    apply Rabs_0_impl_eq in H5; f_equal; now symmetry.*)
-    
+    apply Rabs_0_impl_eq in H5; f_equal; now symmetry.
   - inversion ev1; subst.
-(*    apply REAL_least_precision in H3; subst.
+    apply REAL_least_precision in H3; subst.
     specialize (IHf _ _ _ H6).
     eapply Downcast_dist'; eauto.
     + trivial.
-    + apply Rabs_0_impl_eq in H4; f_equal; now symmetry.*)
+    + apply Rabs_0_impl_eq in H4; f_equal; now symmetry.
   - inversion ev1; subst.
-    (*econstructor; eauto.*)
+    econstructor; eauto.
     (*
   - inversion ev1; subst.
     + assert (m1 = REAL) by (eapply toRTMap_eval_REAL; eauto).
