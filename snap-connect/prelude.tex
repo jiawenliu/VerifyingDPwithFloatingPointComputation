@@ -1,0 +1,154 @@
+%
+
+\usepackage[utf8]{inputenc}%Packages
+\usepackage[T1]{fontenc}
+\usepackage{fourier} 
+\usepackage[english]{babel} 
+\usepackage{amsmath,amsfonts,amsthm} 
+\usepackage{lscape}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{times}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{ stmaryrd }
+\usepackage{ amssymb }
+\usepackage{ textcomp }
+\usepackage[normalem]{ulem}
+% For derivation rules
+\usepackage{mathpartir}
+\usepackage{color}
+\usepackage{a4wide}
+
+%Comments
+\newcommand{\mg}[1]{\textcolor[rgb]{.90,0.00,0.00}{[MG: #1]}}
+\newcommand{\jl}[1]{\textcolor[rgb]{.50,0.0,0.7}{[JL: #1]}}
+
+
+\usepackage{stmaryrd}
+\SetSymbolFont{stmry}{bold}{U}{stmry}{m}{n}
+
+\newcommand{\distr}{\mathsf{Distr}}
+\newcommand{\uniform}{\mathsf{unif}}
+\newcommand{\pdf}{\mathsf{pdf}}
+\newcommand{\snap}{\mathsf{Snap}}
+\newcommand{\fsnap}{\mathsf{Snap}_{\mathbb{F}}}
+\newcommand{\rsnap}{\mathsf{Snap}_{\mathbb{R}}}
+
+
+\newcommand{\pr}[2]{\underset{#1}{\mathsf{Pr}}[#2]}
+\newcommand{\projl}{\pi_1}
+\newcommand{\projr}{\pi_2}
+\newcommand{\supp}{\mathsf{supp}}
+\newcommand{\clamp}{\mathsf{clamp}}
+\newcommand{\real}{\mathbb{R}}
+\newcommand{\samplel}{\xleftarrow{\$}}
+\newcommand{\psup}{\mathsf{Sup}}
+\newcommand{\sign}{\mathsf{sign}}
+
+\newcommand{\lapmech}{\mathcal{L}}
+\newcommand{\laplace}{\mathsf{laplace}}
+\newcommand{\round}[1]{\lfloor #1 \rceil}
+
+
+%for syntax:
+
+%for programs:
+\newcommand{\prog}{p}
+\newcommand{\fprog}{p_{\mathbb{F}}}
+\newcommand{\rprog}{p_{\mathbb{R}}}
+\newcommand{\ret}{\mathsf{return}}
+
+
+
+%expression
+\newcommand{\expr}{e}
+\newcommand{\fexpr}{\expr_{\mathbb{F}}}
+\newcommand{\rexpr}{\expr_{\mathbb{R}}}
+
+\newcommand{\elet}{\kw{let}}
+
+\newcommand{\ein}{\kw{in}}
+
+%for smaples:
+\newcommand{\bernoulli}{\kw{bernoulli}}
+
+%values
+\newcommand{\fval}{c}
+\newcommand{\rval}{r}
+\newcommand{\valv}{v}
+\newcommand{\data}{D}
+\newcommand{\fvalR}{R_{\mathbb{F}}}
+\newcommand{\rvalR}{R_{\mathbb{R}}}
+\newcommand{\fvalL}{L_{\mathbb{F}}}
+\newcommand{\rvalL}{L_{\mathbb{R}}}
+\newcommand{\fvall}{l_{\mathbb{F}}}
+\newcommand{\rvall}{l_{\mathbb{R}}}
+
+%variables
+\newcommand{\varx}{x}
+
+\newcommand{\fvarx}{x_{\mathbb{F}}}
+\newcommand{\rvarx}{x_{\mathbb{R}}}
+\newcommand{\fvarR}{R_{\mathbb{F}}}
+\newcommand{\rvarR}{R_{\mathbb{R}}}
+\newcommand{\fvarL}{L_{\mathbb{F}}}
+\newcommand{\rvarL}{L_{\mathbb{R}}}
+\newcommand{\fvarl}{l_{\mathbb{F}}}
+\newcommand{\rvarl}{l_{\mathbb{R}}}
+
+
+\newcommand{\term}{t}
+\newcommand{\etrue}{\kw{true}}
+\newcommand{\efalse}{\kw{false}}
+% \newcommand{\eflconst}{c}
+% \newcommand{\erlconst}{r}
+\newcommand{\precision}{\eta}
+\newcommand{\floaten}{\kw{fl}}
+
+\newcommand{\err}{err}
+\newcommand{\condition}{\Phi}
+\newcommand{\edistr}{\mu}
+
+\newcommand{\fbigstep}{\Downarrow^{\mathbb{F}}}
+\newcommand{\rbigstep}{\Downarrow^{\mathbb{R}}}
+
+\newcommand{\bigstep}{\Downarrow}
+\newcommand{\trsto}{\Rightarrow}
+
+
+%for environments
+\newcommand{\trsenv}{\Theta}
+
+\newcommand{\evlenv}{\Gamma}
+
+\newcommand{\fevlenv}{\Gamma^{\mathbb{F}}}
+
+\newcommand{\revlenv}{\Gamma^{\mathbb{R}}}
+
+
+
+\usepackage{stackengine} 
+
+% For Operations
+%binary operations
+\newcommand{\bop}{*}
+\newcommand{\obop}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\bop$}}}{\bigcirc}}}
+
+\newcommand{\oexp}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{e}$}}}{\bigcirc}}}
+
+\newcommand{\oln}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\mathsf{ln}$}}}{\bigcirc}}}
+
+\newcommand{\odiv}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\div$}}}{\bigcirc}}}
+\newcommand{\ubar}[1]{\text{\b{$#1$}}}
+
+%unary operations
+\newcommand{\uop}{\circ}
+\newcommand{\ouop}{\stackMath\mathbin{\stackinset{c}{0ex}{c}{0ex}{\text{\footnotesize{$\uop$}}}{\bigcirc}}}
+
+
+
