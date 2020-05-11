@@ -17,80 +17,23 @@
 In order to verify the differential privacy proeprty of the snapping mechanism\cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and connecting it with the floating point computation semantics.
 
 \section{Connecting Coupling Logic with Floating Point Somputation}
+\begin{figure}[h]
 \begin{mathpar}
-\inferrule*[right = AxUnif]
+\inferrule*[right = FloptUnif]
 {
+\rvalu^1 = \floaten(\fvalu^1)
+\and
+\rvalu^2 = \floaten(\fvalu^2)
 }
 {
 	\vdash 
-	u_1 \samplel \mu 
-	\sim_{\epsilon, 0} 
-	u_2 \samplel \mu 
-	: \top \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
+	\fvalu^1 \samplel \mu \trsto (e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)
+	\sim_{(k_1 + k_2)+\epsilon, 0} 
+	\fvalu^2 \samplel \mu \trsto (e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)
+	: \top \Rightarrow  e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
 }
-\and
-\inferrule*[right = LapGen]
-{
-}
-{
-	\vdash 
-	y_1 \samplel \lapmech_{\epsilon}(e_1) 
-	\sim_{k' \cdot \epsilon, 0} 
-	y_2 \samplel \lapmech_{\epsilon}(e_2)
-	: | k + e_1 - e_2| \leq k'  \Rightarrow  y_1 + k = y_2
-}
-\and
-\inferrule*[right = LapNull]
-{
-}
-{
-	\vdash 
-	y_1 \samplel \lapmech_{\epsilon}(e_1) 
-	\sim_{0, 0} 
-	y_2 \samplel \lapmech_{\epsilon}(e_2)
-	: \top  \Rightarrow  y_1 - y_2 = e_1 - e_2
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	\vdash 
-	y_1 \samplel  \mu
-	\sim_{0, 0} 
-	y_2 \samplel \mu
-	: \top  \Rightarrow  y_1 = y_2
-}
-\and
-\inferrule*[right = Trans]
-{
-\empty
-}
-{
-	\vdash 
-	y_1 = f(x_1)  
-	\sim_{0, 0} 
-	y_2 = f(x_2)
-	: \Phi_1  \Rightarrow f(\Phi_1)
-}
-\and
-\inferrule*[right = Comp]
-{
-p_1 \sim_{k, 0} p_2 : \Phi_1 \Rightarrow \Phi'_1
-\\
-c_1 \sim_{k', 0} c_2 : \Phi'_1 \Rightarrow \Phi_2
-}
-{
-	\vdash 
-	p_1; c_1  
-	\sim_{k + k', 0} 
-	p_2; c_2
-	: \Phi_1  \Rightarrow  \Phi_2
-}
-\and
-f(\Phi) \equiv let ~ y = f(x) ~ in ~ \forall x.~ \Phi_1[x \mapsto f^{-1}(y)]
 \end{mathpar}
-\caption{Logic Rules Extended from \cite{barthe2016proving}}
+\caption{Rules of Connecting Coupling Logic with Floating Point Semantics}
 \label{logic_rule}
 \end{figure}
 
@@ -99,70 +42,35 @@ f(\Phi) \equiv let ~ y = f(x) ~ in ~ \forall x.~ \Phi_1[x \mapsto f^{-1}(y)]
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially praivate]
 \end{thm}
 
-\begin{proof}
-The proof follows the derivation in Figure \ref{derivation_snap}.
-\end{proof}
-
-\begin{figure}
+\begin{figure}[h]
 \begin{mathpar}
 \inferrule*[right = AxUnif]
 {
+\rvalu^1 = \floaten(\fvalu^1)
+\and
+\rvalu^2 = \floaten(\fvalu^2)
 }
 {
-	u_1 \samplel \mu \sim_{\epsilon, 0} u_2 \samplel \mu : \top \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
+	\vdash 
+	\fvalu^1 \samplel \mu 
+	\trsto (e^{-12B\epsilon \eta}\rvalu^1, e^{12B\epsilon \eta}\rvalu^1)
+	\sim_{24B\epsilon \eta +\epsilon, 0} 
+	\fvalu^2 \samplel \mu 
+	\trsto (e^{-12B\epsilon \eta}\rvalu^2, e^{12B\epsilon \eta}\rvalu^2)
+	: \top \Rightarrow  e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
 }
 \and
 \inferrule*[right = AxNull]
 {
 }
 {
-	y_1 = \frac{\ln(u_1)}{\epsilon} \sim_{0, 0} 
-	y_2 = \frac{\ln(u_2)}{\epsilon} : e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2  \Rightarrow y_2 - 1 \leq y_1 \leq 1 + y_2
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	s_1 \samplel \{ -1, 1\} \sim_{0, 0} s_2 \samplel \{ -1, 1\} : \top \Rightarrow s_1 = s_2
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	z_1 = s_1 * y_1 \sim_{0, 0} z_2 = s_2 * y_2 : s_1 = s_2 \land y_2 - 1 \leq y_1 \leq 1 + y_2  \Rightarrow | z_1 - z_2 | \leq 1
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	x_1 = f(a_1) \sim_{0, 0} x_2 = f(a_2) : a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1 \Rightarrow x_1 = x_2 + 1 
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	w_1 = x_1 + z_1 \sim_{0, 0} w_2 = x_2 + z_2 : x_1 = x_2 + 1 \land | z_1 - z_2 | \leq 1  \land -2 \leq k \leq 0   \Rightarrow w_1 + k = w_2
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	w'_1 = \round{w_1}_{\Lambda} 
-	\sim_{0, 0} w'_2 = \round{w_2}_{\Lambda} : w_1 + k = w_2 \land -2 \leq k \leq 0  \Rightarrow w'_1 + k = w'_2
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	r_1 = \clamp_B (w'_1) 
-	\sim_{0, 0} r_2 = \clamp_B (w'_2)
-	: w'_1 + k = w'_2  \land -2 \leq k \leq 0  \Rightarrow r_1 + k = r_2 
+	y_1 = f(a_1) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^1)
+	\sim_{24B\epsilon \eta +\epsilon, 0} 
+	y_2 = f(a_2) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^2)
+	 : 
+	 \\
+	e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2 \land
+	 a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1  \land |k + f(a_1) - f(a_2) | \leq 1  \Rightarrow y_1 + k = y_2 
 }
 \and
 \inferrule*[right = Comp]
@@ -170,9 +78,14 @@ The proof follows the derivation in Figure \ref{derivation_snap}.
 \cdots
 }
 {
-	r_1 = \snap(a_1) 
-	\sim_{\epsilon, 0} r_2 = \snap(a_1) 
-	: a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1  \land |k + f(a_1) - f(a_2) | \leq 1  \Rightarrow r_1 + k = r_2 
+	\fvalu^1 \samplel \mu;
+	r_1 = \clamp(\round{f(a_1) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^1)}_{\Lambda})
+	\sim_{\epsilon, 0}
+	\fvalu^2 \samplel \mu;
+	r_1 = \clamp(\round{f(a_2) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^2)}_{\Lambda})
+	: 
+	\\
+	a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1  \land |k + f(a_1) - f(a_2) | \leq 1  \Rightarrow r_1 + k = r_2 
 }
 \end{mathpar}
 \caption{Coupling Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
