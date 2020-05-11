@@ -29,7 +29,7 @@ From Snapv
 Inductive command (V: Type) : Type :=
   Assign : expr V -> expr V -> command V
   | conq : command V -> command V -> command V
-  | sample : expr V -> command V.
+  | sample : expr V -> expr V -> command V.
 
 
 
