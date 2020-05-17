@@ -37,11 +37,11 @@ In order to verify the differential privacy proeprty of the snapping mechanism\c
 \label{logic_rule}
 \end{figure}
 
-This rule means, when $\fvalu^1$ is sampled from distribution $\mu$ and can be transited to $\rvalu^1$ in snap-flopt transition semantics 
-with error range $(e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)$. 
-In the same time, when $\fvalu^2$ is sampled from distribution $\mu$ and can be transited to $\rvalu^2$ in snap-flopt transition semantics 
-with error range $(e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)$.
-If we have $ e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2$,
+This rule is interprated as: when $\fvalu^1$ is sampled from distribution $\mu$ and can be transited to $\rvalu^1$ in snap-flopt transition semantics 
+with error range $(e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)$;
+and $\fvalu^2$ is sampled from distribution $\mu$ and can be transited to $\rvalu^2$ in snap-flopt transition semantics 
+with error range $(e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)$,
+if we have the postcondition $ e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2$,
 then the privacy loss in the floating point semantics are $(k_1 + k_2 + \epsilon)$.
 
 \begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
