@@ -60,21 +60,41 @@ $e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2$,
 then the privacy loss in the floating point semantics
 are $(k_1 + k_2 + \epsilon)$.
 
-\paragraph{Semantics.}
+\paragraph{Semantics. - Non-deterministic}
 \[
 	\begin{array}{rcl}
 	\sem{\varx \samplel \edistr}_{\trsenv}
-	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | \fvalu \leftarrow \edistr^{\diamond} \land \rvalu = \floaten(\fvalu)\big\}\\
+	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | 
+	\fvalu \leftarrow \edistr^{\diamond} \land \rvalu = \floaten(\fvalu)\big\}\\
 	\sem{\varx = \expr}_{\trsenv}
 	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | 
-	\expr \trsto (\rvalu, err)\big\}\\
+	\expr \trsto (\rvalv, err)\big\}\\
 	\sem{\prog_1; \prog_2}_{\trsenv}
 	& \in &  \big\{\trsenv_2 | 
 	\sem{\prog_1}_{\trsenv} = \trsenv_1 \land
-	\sem{\prog_2}_{\trsenv_1} = \trsenv_2\big\}
+	\sem{\prog_2}_{\trsenv_1} = \trsenv_2\big\},
 	\end{array}
 \]
+where $\fvalu \leftarrow \edistr^{\diamond}$ represents a value $\fvalu$ is sampled from the $\edistr$ and
+$\expr \trsto (\rvalv, err)$ represents a the expression $\expr$
+is transited to $\rvalv$ with error bound $err$ in floating point transition semantics.
 
+\paragraph{Semantics. - Probabilistic}
+\[
+	\begin{array}{rcl}
+	\sem{\varx \samplel \edistr}_{\trsenv}
+	& = & \unit{\trsenv[\varx \mapsto \edistr]}\\
+	\sem{\varx = \expr}_{\trsenv}
+	& = & \unit{\trsenv[\varx \mapsto \rvalv] | 
+	\expr \trsto (\rvalv, err)}\\
+	\sem{\prog_1; \prog_2}_{\trsenv}
+	& = & let ~~
+	\trsenv_1 = \sem{\prog_1}_{\trsenv} ~~ in ~~
+	\sem{\prog_2}_{\trsenv_1},
+	\end{array}
+\]
+where $\expr \trsto (\rvalv, err)$ represents a the expression $\expr$
+is transited to $\rvalv$ with error bound $err$ in floating point transition semantics.
 
 \begin{thm}[The $\snap$ mechanism is 
 $\epsilon-$differentially private]
