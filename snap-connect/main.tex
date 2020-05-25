@@ -14,9 +14,18 @@
 \date{}
 
 \maketitle
-In order to verify the differential privacy proeprty of the snapping mechanism\cite{mironov2012significance}, we follow the logic rules designed from \cite{barthe2016proving} and connecting it with the floating point computation semantics.
+In order to verify the differential privacy proeprty of
+the snapping mechanism \cite{mironov2012significance},
+we follow the logic rules designed from
+\cite{barthe2016proving} and connecting 
+it with the floating point computation semantics.
 
-\section{Connecting Coupling Logic with Floating Point Computation}
+\section{
+Connecting Coupling Logic
+%
+with Floating Point Computation
+}
+%
 \begin{figure}[h]
 \begin{mathpar}
 \inferrule*[right = FloptUnif]
@@ -27,7 +36,8 @@ In order to verify the differential privacy proeprty of the snapping mechanism\c
 }
 {
 	\vdash 
-	\fvalu^1 \samplel \mu \trsto (e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)
+	\fvalu^1 \samplel \mu
+	\trsto (e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)
 	\sim_{(k_1 + k_2)+\epsilon, 0} 
 	\fvalu^2 \samplel \mu \trsto (e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)
 	: \top \Rightarrow  e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
@@ -37,14 +47,37 @@ In order to verify the differential privacy proeprty of the snapping mechanism\c
 \label{logic_rule}
 \end{figure}
 
-This rule is interprated as: when $\fvalu^1$ is sampled from distribution $\mu$ and can be transited to $\rvalu^1$ in snap-flopt transition semantics 
+This rule is interprated as:
+when $\fvalu^1$ is sampled from distribution $\mu$ and
+can be transited to $\rvalu^1$ in snap-flopt transition semantics
 with error range $(e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)$;
-and $\fvalu^2$ is sampled from distribution $\mu$ and can be transited to $\rvalu^2$ in snap-flopt transition semantics 
+and $\fvalu^2$ is sampled from distribution $\mu$ and
+%
+can be transited to $\rvalu^2$ in snap-flopt transition semantics 
 with error range $(e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)$,
-if we have the postcondition $ e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2$,
-then the privacy loss in the floating point semantics are $(k_1 + k_2 + \epsilon)$.
+if we have the postcondition
+$e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2$,
+then the privacy loss in the floating point semantics
+are $(k_1 + k_2 + \epsilon)$.
 
-\begin{thm}[The $\snap$ mechanism is $\epsilon-$differentially private]
+\paragraph{Semantics.}
+\[
+	\begin{array}{rcl}
+	\sem{\varx \samplel \edistr}_{\trsenv}
+	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | \fvalu \leftarrow \edistr^{\diamond} \land \rvalu = \floaten(\fvalu)\big\}\\
+	\sem{\varx = \expr}_{\trsenv}
+	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | 
+	\expr \trsto (\rvalu, err)\big\}\\
+	\sem{\prog_1; \prog_2}_{\trsenv}
+	& \in &  \big\{\trsenv_2 | 
+	\sem{\prog_1}_{\trsenv} = \trsenv_1 \land
+	\sem{\prog_2}_{\trsenv_1} = \trsenv_2\big\}
+	\end{array}
+\]
+
+
+\begin{thm}[The $\snap$ mechanism is 
+$\epsilon-$differentially private]
 \end{thm}
 
 \begin{figure}[h]
@@ -56,26 +89,31 @@ then the privacy loss in the floating point semantics are $(k_1 + k_2 + \epsilon
 \rvalu^2 = \floaten(\fvalu^2)
 }
 {
-	\vdash 
-	\fvalu^1 \samplel \mu 
-	\trsto (e^{-12B\epsilon \eta}\rvalu^1, e^{12B\epsilon \eta}\rvalu^1)
-	\sim_{24B\epsilon \eta +\epsilon, 0} 
-	\fvalu^2 \samplel \mu 
-	\trsto (e^{-12B\epsilon \eta}\rvalu^2, e^{12B\epsilon \eta}\rvalu^2)
-	: \top \Rightarrow  e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
+	\vdash
+	\fvalu^1 \samplel \mu
+	\trsto ( e^{-12B \epsilon \eta} \rvalu^1,
+	e^{12B \epsilon \eta}\rvalu^1)
+	\sim_{24B \epsilon \eta +\epsilon, 0}
+	\fvalu^2 \samplel \mu
+	\trsto ( e^{-12B \epsilon \eta} \rvalu^2,
+	e^{12B \epsilon \eta} \rvalu^2)
+	: \top \Rightarrow  e^{-\epsilon} \rvalu^2
+	\leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
 }
 \and
 \inferrule*[right = AxNull]
 {
 }
 {
-	y_1 = f(a_1) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^1)
-	\sim_{24B\epsilon \eta +\epsilon, 0} 
-	y_2 = f(a_2) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^2)
-	 : 
-	 \\
+	y_1 = f(a_1) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^1)
+	\sim_{ 24B \epsilon \eta + \epsilon, 0 }
+	y_2 = f(a_2) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^2)
+	:
+	\\
 	e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2 \land
-	 a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1  \land |k + f(a_1) - f(a_2) | \leq 1  \Rightarrow y_1 + k = y_2 
+	a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1
+	\land |k + f(a_1) - f(a_2) | \leq 1 
+	\Rightarrow y_1 + k = y_2 
 }
 \and
 \inferrule*[right = Comp]
@@ -84,38 +122,29 @@ then the privacy loss in the floating point semantics are $(k_1 + k_2 + \epsilon
 }
 {
 	\fvalu^1 \samplel \mu;
-	r_1 = \clamp(\round{f(a_1) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^1)}_{\Lambda})
+	r_1 = \clamp(\round{f(a_1) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^1)}_{\Lambda})
 	\sim_{\epsilon, 0}
 	\fvalu^2 \samplel \mu;
-	r_1 = \clamp(\round{f(a_2) + \frac{1}{\epsilon} \times  S \times \ln(\fvalu^2)}_{\Lambda})
+	r_1 = \clamp(\round{f(a_2) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^2)}_{\Lambda})
 	: 
 	\\
-	a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1  \land |k + f(a_1) - f(a_2) | \leq 1  \Rightarrow r_1 + k = r_2 
+	a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1 \land 
+	|k + f(a_1) - f(a_2) | \leq 1
+	\Rightarrow r_1 + k = r_2 
 }
 \end{mathpar}
-\caption{Coupling Derivation of two $\snap$ mechanisms: $\snap(a_1)$, $\snap(a_2)$}
+\caption{Coupling Derivation of two $\snap$ mechanisms:
+$\snap(a_1)$, $\snap(a_2)$}
 \label{derivation_snap}
 \end{figure}
+
+
 
 \newpage
 \bibliographystyle{plain}
 \bibliography{verifysnap.bib}
 
-
-
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
