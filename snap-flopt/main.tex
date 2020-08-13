@@ -31,7 +31,8 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 %
 
 \section{Syntax - IMP}
-\[\begin{array}{llll}
+\[
+\begin{array}{llll}
 \mbox{Programs} & \prog & ::= & 
 	%
      \varx = \expr ~|~ \varx \samplel \edistr
@@ -129,6 +130,7 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 %
 \begin{figure}
+\boxed{\trsenv, \expr \trsto \fval * \rval * \rval}
 \begin{mathpar}
 \inferrule*[right = var]
 {
@@ -205,15 +207,15 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 \inferrule*[right = bop-pp]
 {
-	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 	~~~~
-	\fval_1 \geq 0
+	\fval^1 \geq 0
 	~~~~
-	\fval_2 \geq 0
+	\fval^2 \geq 0
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval^1 * \fval^2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -222,8 +224,8 @@ In all the rules, $\eta$ is the machine epsilon.
     \trsto
     \big(
     \fval,
-    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
-        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+    (\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
+        (\bar{\rval^1} * \bar{\rval^2})(1 + \eta))
     \big)
 }
 %
@@ -231,15 +233,15 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 \inferrule*[right = bop-nn]
 {
-	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 	~~~~
-	\fval_1 < 0
+	\fval^1 < 0
 	~~~~
-	\fval_2 < 0
+	\fval^2 < 0
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval^1 * \fval^2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -248,8 +250,8 @@ In all the rules, $\eta$ is the machine epsilon.
     \trsto
     \big(
     \fval,
-    (\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}, 
-        (\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta))
+    (\frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)}, 
+        (\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta))
     \big)
 }
 %
@@ -257,15 +259,15 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 \inferrule*[right = bop-pn]
 {
-	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 	~~~~
-	\fval_1 \geq 0
+	\fval^1 \geq 0
 	~~~~
-	\fval_2 < 0
+	\fval^2 < 0
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval^1 * \fval^2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -274,8 +276,8 @@ In all the rules, $\eta$ is the machine epsilon.
     \trsto
     \big(
     \fval,
-    ((\bar{\rval_1} * \ubar{\rval_2})(1 + \eta),
-    \frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+    ((\bar{\rval^1} * \ubar{\rval^2})(1 + \eta),
+    \frac{\ubar{\rval^1} * \bar{\rval^2}}{(1 + \eta)})
     \big)
 }
 %
@@ -283,15 +285,15 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 \inferrule*[right = bop-np]
 {
-	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 	~~~~
-	\fval_1 < 0
+	\fval^1 < 0
 	~~~~
-	\fval_2 \geq 0
+	\fval^2 \geq 0
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval^1 * \fval^2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -300,8 +302,8 @@ In all the rules, $\eta$ is the machine epsilon.
     \trsto
     \big(
     \fval,
-    ((\ubar{\rval_1} * \bar{\rval_2})(1 + \eta),
-    \frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)})
+    ((\ubar{\rval^1} * \bar{\rval^2})(1 + \eta),
+    \frac{\bar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)})
     \big)
 }
 %
@@ -309,11 +311,11 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 \inferrule*[right = bop-p]
 {
-	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval^1 * \fval^2)
 	~~~~
 	\fval \geq 0
 	~~~~
@@ -324,8 +326,8 @@ In all the rules, $\eta$ is the machine epsilon.
     \trsto
     \big(
     \fval,
-    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
-        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+    (\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
+        (\bar{\rval^1} * \bar{\rval^2})(1 + \eta))
     \big)
 }
 %
@@ -333,11 +335,11 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 \inferrule*[right = bop-n]
 {
-	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval^1 * \fval^2)
 	~~~~
 	\fval < 0
 	~~~~
@@ -348,8 +350,8 @@ In all the rules, $\eta$ is the machine epsilon.
     \trsto
     \big(
     \fval,
-    ((\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta),
-        \frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+    ((\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta),
+        \frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)})
     \big)
 }
 %
@@ -401,6 +403,7 @@ In all the rules, $\eta$ is the machine epsilon.
 %
 %
 \begin{figure}
+\boxed{\trsenv, \prog \trsto \trsenv}
 \begin{mathpar}
 \inferrule*[right = asg]
 {
@@ -432,12 +435,14 @@ In all the rules, $\eta$ is the machine epsilon.
 {
 	 \fval \leftarrow \edistr^{\diamond}
 	 % \and
-	 % \rval_1 \leq \fval \leq \rval_2
+	 % \rval^1 \leq \fval \leq \rval^2
+	 ~~~~
+	 \rval^{l} \leq \fval \leq \rval^{u}
 }
 {
 	\trsenv, \varx \samplel \edistr
 	\trsto
-	\trsenv[\varx \mapsto (\fval, (\fval, \fval))]
+	\trsenv[\varx \mapsto (\fval, (\rval^{l}, \rval^{u}))]
 }
 \end{mathpar}
 \caption{Semantics of Transition with Relative Floating Point Error Propagation for Programs}
@@ -446,6 +451,7 @@ In all the rules, $\eta$ is the machine epsilon.
 
 
 \begin{figure}
+\boxed{\expr \fbigstep \fval }
 \begin{mathpar}
 \inferrule*[right = rval]
 {
@@ -500,6 +506,7 @@ In all the rules, $\eta$ is the machine epsilon.
 \end{figure}
 
 \begin{figure}
+\boxed{\expr \rbigstep \rval }
 \begin{mathpar}
 \inferrule*[right = rval]
 {
@@ -620,21 +627,21 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a b
 	{
 		 \fval \leftarrow \edistr^{\diamond}
 		 \and
-	 	\rval_1 \leq \fval \leq \rval_2 ~ (\square)
+	 	\rval^1 \leq \fval \leq \rval^2 ~ (\square)
 	}
 	{
 		\trsenv, \varx \samplel \edistr
 		\trsto
-		\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]
+		\trsenv[\varx \mapsto (\fval, (\rval^1, \rval^2))]
 	}
 	\]}
-	We need to show $\trsenv[\varx \mapsto (\fval, (\fval, \fval))]$ is a bounded environment.\\
+	We need to show $\trsenv[\varx \mapsto (\fval, (\rval^1, \rval^2))]$ is a bounded environment.\\
 	%
-	Since we know $\trsenv$ is a bounded environment and $\rval_1 \leq \fval \leq \rval_2$ by assumption $(\star)$ and $(\square)$ .
+	Since we know $\trsenv$ is a bounded environment and $\rval^1 \leq \fval \leq \rval^2$ by assumption $(\star)$ and $(\square)$ .
 	%
 	\\
 	%
-	So we know $\trsenv[\varx \mapsto (\fval, (\fval, \fval))]$ is also a bounded environment.
+	So we know $\trsenv[\varx \mapsto (\fval, (\rval^1, \rval^2))]$ is also a bounded environment.
 %
 	\caseL{\[
 	\inferrule*[right = asg]
@@ -750,15 +757,15 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	\caseL{\[
 	\inferrule*[right = bop-pp]
 	{
-		\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1})) ~ (\diamond)
+		\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1})) ~ (\diamond)
 		~~~
-		\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2})) ~ (\triangle)
+		\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2})) ~ (\triangle)
 		~~~
-		\fval_1 \geq 0
+		\fval^1 \geq 0
 		~~~
-		\fval_2 \geq 0
+		\fval^2 \geq 0
 		~~~
-		\fval = \floaten(\fval_1 * \fval_2)
+		\fval = \floaten(\fval^1 * \fval^2)
 		~~~
 		* \in \{\times, \div \}
 	}
@@ -767,41 +774,41 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	    \trsto
 	    \big(
 	    \fval,
-	    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
-	    (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+	    (\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
+	    (\bar{\rval^1} * \bar{\rval^2})(1 + \eta))
 	    \big)
 	}
 	\]}
 	%
-	It is needed to show $\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}
+	It is needed to show $\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}
 	\leq \fval \leq 
-	(\bar{\rval_1} * \bar{\rval_2})(1 + \eta)$.\\
+	(\bar{\rval^1} * \bar{\rval^2})(1 + \eta)$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	(1) $\ubar{\rval^1} \leq \fval^1 \leq \bar{\rval^1}$ holds. 
 	%
-	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval^2} \leq \fval^2 \leq \bar{\rval^2}$ holds.\\
 	%
 	Let $\bar{\rval'} = 
-	\bar{\rval_1} * \bar{\rval_2}$ and 
+	\bar{\rval^1} * \bar{\rval^2}$ and 
 	%
-	$\ubar{\rval'} = \ubar{\rval_1} * \ubar{\rval_2}$.
+	$\ubar{\rval'} = \ubar{\rval^1} * \ubar{\rval^2}$.
 	%
 	\\
 	%
-	By (1), (2) and hypothesis: $\fval_1 \geq 0$, $\fval_2 \geq 0$ and $* \in \{\times, \div\}$, we have:
+	By (1), (2) and hypothesis: $\fval^1 \geq 0$, $\fval^2 \geq 0$ and $* \in \{\times, \div\}$, we have:
 	%
 	$\fval \geq 0
 	\land
 	\ubar{\rval'}
-	\leq \fval_2 \bop \fval_1
+	\leq \fval^2 \bop \fval^1
 	\leq \bar{\rval'}$.\\
 	%
 	Then by relative error of floating point rounding, we have:\\
 	%
 	$\frac{\ubar{\rval'}}{1 + \eta}
-	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \floaten(\fval^2 \bop \fval^1) = \fval
 	\leq (\bar{\rval'})(1 + \eta)$.
 	%
 	%
@@ -810,15 +817,15 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	\caseL{\[
 		\inferrule*[right = bop-nn]
 		{
-			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 			~~~~
-			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 			~~~~
-			\fval_1 < 0
+			\fval^1 < 0
 			~~~~
-			\fval_2 < 0
+			\fval^2 < 0
 			~~~~
-			\fval = \floaten(\fval_1 * \fval_2)
+			\fval = \floaten(\fval^1 * \fval^2)
 			~~~~
 			* \in \{\times, \div \}
 		}
@@ -827,43 +834,43 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 		    \trsto
 		    \big(
 		    \fval,
-		    (\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}, 
-		        (\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta))
+		    (\frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)}, 
+		        (\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta))
 		    \big)
 		}
 	\]}
 	%
 	%
 	It is needed to show 
-	$\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}
+	$\frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)}
 	\leq \fval \leq 
-	(\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta)$.\\
+	(\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta)$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	(1) $\ubar{\rval^1} \leq \fval^1 \leq \bar{\rval^1}$ holds. 
 	%
-	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval^2} \leq \fval^2 \leq \bar{\rval^2}$ holds.\\
 	%
 	Let $\bar{\rval'} = 
-	\ubar{\rval_1} * \ubar{\rval_2}$ and 
+	\ubar{\rval^1} * \ubar{\rval^2}$ and 
 	%
-	$\ubar{\rval'} = \bar{\rval_1} * \bar{\rval_2}$.
+	$\ubar{\rval'} = \bar{\rval^1} * \bar{\rval^2}$.
 	%
 	\\
 	%
-	By (1), (2) and hypothesis: $\fval_1 < 0$, $\fval_2 < 0$ and $* \in \{\times, \div\}$, we have:
+	By (1), (2) and hypothesis: $\fval^1 < 0$, $\fval^2 < 0$ and $* \in \{\times, \div\}$, we have:
 	%
 	$\fval \geq 0
 	\land
 	\ubar{\rval'}
-	\leq \fval_2 \bop \fval_1
+	\leq \fval^2 \bop \fval^1
 	\leq \bar{\rval'}$.\\
 	%
 	Then by relative error of floating point rounding, we have:\\
 	%
 	$\frac{\ubar{\rval'}}{1 + \eta}
-	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \floaten(\fval^2 \bop \fval^1) = \fval
 	\leq (\bar{\rval'})(1 + \eta)$.
 	%
 	%
@@ -873,15 +880,15 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	\caseL{\[
 	\inferrule*[right = bop-pn]
 		{
-			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 			~~~~
-			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 			~~~~
-			\fval_1 \geq 0
+			\fval^1 \geq 0
 			~~~~
-			\fval_2 < 0
+			\fval^2 < 0
 			~~~~
-			\fval = \floaten(\fval_1 * \fval_2)
+			\fval = \floaten(\fval^1 * \fval^2)
 			~~~~
 			* \in \{\times, \div \}
 		}
@@ -890,44 +897,44 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 		    \trsto
 		    \big(
 		    \fval,
-		    ((\bar{\rval_1} * \ubar{\rval_2})(1 + \eta),
-		    \frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+		    ((\bar{\rval^1} * \ubar{\rval^2})(1 + \eta),
+		    \frac{\ubar{\rval^1} * \bar{\rval^2}}{(1 + \eta)})
 		    \big)
 		}
 	\]}
 	%
 	%
 	It is needed to show 
-	$(\bar{\rval_1} * \ubar{\rval_2})(1 + \eta)
+	$(\bar{\rval^1} * \ubar{\rval^2})(1 + \eta)
 	\leq \fval \leq 
-	\frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}$.\\
+	\frac{\ubar{\rval^1} * \bar{\rval^2}}{(1 + \eta)}$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	(1) $\ubar{\rval^1} \leq \fval^1 \leq \bar{\rval^1}$ holds. 
 	%
-	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval^2} \leq \fval^2 \leq \bar{\rval^2}$ holds.\\
 	%
 	Let $\bar{\rval'} = 
-	\ubar{\rval_1} * \bar{\rval_2}$
+	\ubar{\rval^1} * \bar{\rval^2}$
 	and 
 	%
-	$\ubar{\rval'} = \bar{\rval_1} * \ubar{\rval_2}$.
+	$\ubar{\rval'} = \bar{\rval^1} * \ubar{\rval^2}$.
 	%
 	\\
 	%
-	By (1), (2) and hypothesis: $\fval_1 \geq 0$, $\fval_2 < 0$ and $ * \in \{\times, \div\}$, we have:
+	By (1), (2) and hypothesis: $\fval^1 \geq 0$, $\fval^2 < 0$ and $ * \in \{\times, \div\}$, we have:
 	%
 	$\fval < 0
 	\land
 	\ubar{\rval'}
-	\leq \fval_2 \bop \fval_1
+	\leq \fval^2 \bop \fval^1
 	\leq \bar{\rval'}$.\\
 	%
 	Then by relative error of floating point rounding, we have:\\
 	%
 	$\ubar{\rval'}(1 + \eta)
-	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \floaten(\fval^2 \bop \fval^1) = \fval
 	\leq \frac{\bar{\rval'}}{1 + \eta}$.
 	%
 	%
@@ -937,15 +944,15 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	\caseL{\[
 	\inferrule*[right = bop-np]
 		{
-			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 			~~~~
-			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 			~~~~
-			\fval_1 < 0
+			\fval^1 < 0
 			~~~~
-			\fval_2 \geq 0
+			\fval^2 \geq 0
 			~~~~
-			\fval = \floaten(\fval_1 * \fval_2)
+			\fval = \floaten(\fval^1 * \fval^2)
 			~~~~
 			* \in \{\times, \div \}
 		}
@@ -954,44 +961,44 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 		    \trsto
 		    \big(
 		    \fval,
-		    ((\ubar{\rval_1} * \bar{\rval_2})(1 + \eta),
-		    \frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)})
+		    ((\ubar{\rval^1} * \bar{\rval^2})(1 + \eta),
+		    \frac{\bar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)})
 		    \big)
 		}
 	\]}
     % 
  	%
  	It is needed to show 
-	$(\ubar{\rval_1} * \bar{\rval_2})(1 + \eta)
+	$(\ubar{\rval^1} * \bar{\rval^2})(1 + \eta)
 	\leq \fval \leq 
-	\frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}$.\\
+	\frac{\bar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	(1) $\ubar{\rval^1} \leq \fval^1 \leq \bar{\rval^1}$ holds. 
 	%
-	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval^2} \leq \fval^2 \leq \bar{\rval^2}$ holds.\\
 	%
 	Let 
-	$\bar{\rval'} = \bar{\rval_1} * \ubar{\rval_2}$
+	$\bar{\rval'} = \bar{\rval^1} * \ubar{\rval^2}$
 	and 
 	%
-	$\ubar{\rval'} = \ubar{\rval_1} * \bar{\rval_2}$.
+	$\ubar{\rval'} = \ubar{\rval^1} * \bar{\rval^2}$.
 	%
 	\\
 	%
-	By (1), (2) and hypothesis: $\fval_1 < 0$, $\fval_2 \geq 0$ and $ * \in \{\times, \div\}$, we have:
+	By (1), (2) and hypothesis: $\fval^1 < 0$, $\fval^2 \geq 0$ and $ * \in \{\times, \div\}$, we have:
 	%
 	$\fval < 0
 	\land
 	\ubar{\rval'}
-	\leq \fval_2 \bop \fval_1
+	\leq \fval^2 \bop \fval^1
 	\leq \bar{\rval'}$.\\
 	%
 	Then by relative error of floating point rounding, we have:\\
 	%
 	$\ubar{\rval'}(1 + \eta)
-	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \floaten(\fval^2 \bop \fval^1) = \fval
 	\leq \frac{\bar{\rval'}}{1 + \eta}$.
 	%
 	%
@@ -1002,11 +1009,11 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
     \caseL{\[
 	\inferrule*[right = bop-p]
 	{
-		\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+		\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 		~~~~
-		\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+		\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 		~~~~
-		\fval = \floaten(\fval_1 * \fval_2)
+		\fval = \floaten(\fval^1 * \fval^2)
 		~~~~
 		\fval \geq 0
 		~~~~
@@ -1017,40 +1024,40 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 	    \trsto
 	    \big(
 	    \fval,
-	    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
-	    (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
+	    (\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
+	    (\bar{\rval^1} * \bar{\rval^2})(1 + \eta))
 	    \big)
 	}
     \]}
     %
     %
  	It is needed to show 
-	$\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}
+	$\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}
 	\leq \fval \leq 
-	(\bar{\rval_1} * \bar{\rval_2})(1 + \eta)$.\\
+	(\bar{\rval^1} * \bar{\rval^2})(1 + \eta)$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	(1) $\ubar{\rval^1} \leq \fval^1 \leq \bar{\rval^1}$ holds. 
 	%
-	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval^2} \leq \fval^2 \leq \bar{\rval^2}$ holds.\\
 	%
 	Let 
-	$\bar{\rval'} = \bar{\rval_1} * \bar{\rval_2}$
+	$\bar{\rval'} = \bar{\rval^1} * \bar{\rval^2}$
 	and 
 	%
-	$\ubar{\rval'} = \ubar{\rval_1} * \ubar{\rval_2}$.
+	$\ubar{\rval'} = \ubar{\rval^1} * \ubar{\rval^2}$.
 	%
 	By (1), (2) and hypothesis: $ * \in \{+, -\}$, we have:
 	%
 	$\ubar{\rval'}
-	\leq \fval_2 \bop \fval_1
+	\leq \fval^2 \bop \fval^1
 	\leq \bar{\rval'}$.\\
 	%
 	Then by hypothesis: $\fval \geq 0$ and relative error of floating point rounding, we have:\\
 	%
 	$\frac{\ubar{\rval'}}{1 + \eta}
-	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \floaten(\fval^2 \bop \fval^1) = \fval
 	\leq \bar{\rval'}(1 + \eta)$.
 	%
 	This case is proved.
@@ -1060,11 +1067,11 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
     \caseL{\[
     \inferrule*[right = bop-n]
 		{
-			\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
+			\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
 			~~~~
-			\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
+			\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
 			~~~~
-			\fval = \floaten(\fval_1 * \fval_2)
+			\fval = \floaten(\fval^1 * \fval^2)
 			~~~~
 			\fval < 0
 			~~~~
@@ -1075,40 +1082,40 @@ Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is
 		    \trsto
 		    \big(
 		    \fval,
-		    ((\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta),
-		    \frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
+		    ((\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta),
+		    \frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)})
 		    \big)
 		}
     \]}
     %
     %
  	It is needed to show 
-	$(\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta)
+	$(\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta)
 	\leq \fval \leq 
-	\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}$.\\
+	\frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)}$.\\
 	%
 	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
 	%
-	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	(1) $\ubar{\rval^1} \leq \fval^1 \leq \bar{\rval^1}$ holds. 
 	%
-	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	(2) $\ubar{\rval^2} \leq \fval^2 \leq \bar{\rval^2}$ holds.\\
 	%
 	Let 
-	$\bar{\rval'} = \ubar{\rval_1} * \ubar{\rval_2}$
+	$\bar{\rval'} = \ubar{\rval^1} * \ubar{\rval^2}$
 	and 
 	%
-	$\ubar{\rval'} = \bar{\rval_1} * \bar{\rval_2}$.
+	$\ubar{\rval'} = \bar{\rval^1} * \bar{\rval^2}$.
 	%
 	By (1), (2) and hypothesis: $ * \in \{+, -\}$, we have:
 	%
 	$\ubar{\rval'}
-	\leq \fval_2 \bop \fval_1
+	\leq \fval^2 \bop \fval^1
 	\leq \bar{\rval'}$.\\
 	%
 	Then by hypothesis: $\fval \geq 0$ and relative error of floating point rounding, we have:\\
 	%
 	$\ubar{\rval'}(1 + \eta)
-	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq \floaten(\fval^2 \bop \fval^1) = \fval
 	\leq \frac{\bar{\rval'}}{1 + \eta}$.
 	%
 	This case is proved.
@@ -1236,7 +1243,7 @@ where $f(a)$ represents a value that the query function $f$ be evaluted over inp
 % \\
 % %
 % Given $U = u, S = s$, let $\expr_{\snap'} = f(a) + s \times \ln (u) \div \epsilon$,
-% $\expr_{\snap''} = \clamp_B \big( \round{\rval_{\snap'} }_{\Lambda} \big)$
+% $\expr_{\snap''} = \clamp_B \big( \round{\rval^{\snap'} }_{\Lambda} \big)$
 % %
 % \\
 % %
