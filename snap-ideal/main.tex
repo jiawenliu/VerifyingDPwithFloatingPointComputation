@@ -18,6 +18,88 @@ In order to verify the differential privacy proeprty of the snapping mechanism\c
 
 Some new rules are added into this logic in Figure \ref{logic_rule} following with correctness proof. Then we formalized the snapping mechanism and verified its differential privacy property under these logic rules.
 
+\section{Syntax}
+\[\begin{array}{llll}
+\mbox{Programs} & \prog & ::= & 
+	%
+     \varx = \expr ~|~ \varx \samplel \edistr
+	%
+	~|~ \prog ; \prog ~|~ \eskip \\
+
+\mbox{Expr.} & \expr & ::= & \rval 
+	%
+	~|~ \varx  ~|~ \expr \bop \expr
+	%
+	~|~ \uop (\expr) \\
+%
+\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+%
+\mbox{Unary Operation} & \uop & ::= & \ln ~|~ - ~|~ \round{\cdot} 
+	%
+	~|~ \clamp_B(\cdot) \\
+%
+\mbox{Value} & \valv & ::= & \rval \\
+%
+\mbox{Distribution} & \edistr & ::= & \uniform(0, 1) 
+%
+	~|~ \uniform\{-1, 1\}\\ 
+%
+%
+\mbox{Env.} & \evlenv & ::= & \cdot ~|~ \evlenv[x \mapsto \rval] 
+%\\
+\end{array}
+\]
+
+\newpage
+\paragraph{Semantics.}
+$\boxed{\evlenv, \prog \trsto \distr(\evlenv)}$
+\[
+	\begin{array}{rcl}
+	\sem{\eskip}_{\evlenv}
+	& = & 
+	~\unit{\evlenv}
+	\\
+	%
+	\sem{\varx \samplel \edistr}_{\evlenv}
+	& = & 
+	\elet \fval = \sem{\edistr}_{\evlenv} 
+	\ein 
+	\unit{\evlenv[\varx \mapsto \rval]}
+	\\
+	%
+	\sem{\varx = \expr}_{\evlenv}
+	& = &  
+	~\unit{\evlenv[\varx \mapsto \sem{\expr}_{\evlenv}]}
+	\\
+	%
+	\sem{\prog_1; \prog_2}_{\evlenv}
+	& = &  \elet  \evlenv_1 = 
+	\sem{\prog_1}_{\evlenv} \ein
+	\sem{\prog_2}_{\evlenv_1} 
+	\end{array}
+\]
+$\boxed{\evlenv, \expr \trsto \rval}$
+\[
+	\begin{array}{rcl}
+	\sem{\expr}_{\evlenv}
+	& \in &  
+	\big\{\rval |
+	\evlenv,  
+	\expr \rbigstep \rvalv \big\}
+	\end{array}
+\]
+$\boxed{\evlenv, \edistr \trsto \rval}$
+\[
+	\begin{array}{rcl}
+	\sem{\edistr}_{\evlenv}
+	& \in & 
+	\big\{ \rval |
+	\rval \leftarrow \edistr^{\diamond} \big\}
+	\end{array}
+\]
+
+
+
 \section{Extended Programming Logic\cite{barthe2016proving}}
 \begin{defn}
 [Laplce mechanism \cite{dwork2006calibrating}]
@@ -42,19 +124,24 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 \end{enumerate}
 \end{defn}
 
-The logic rules we are using in our work is presented in Figure \ref{logic_rule}. The correctness of rules is proved in Theorem \ref{corr_axunif} and Theorem \ref{corr_axnull}
+The logic rules we are using in our work is presented in Figure \ref{logic_rule}. The correctness of rules is proved in Theorem \ref{corr_axunif} and Theorem \ref{corr_axnull}.
 
 \begin{figure}
+\boxed{\vdash: \prog \times \prog \times \Psi \times \Psi}\\
+\boxed{\Psi: (\evlenv_1, \evlenv_2) \to bool;
+~~~~
+\sem{\Psi} = \{(\evlenv_1, \evlenv_2) | \Phi(\evlenv_1, \evlenv_2) = true\}}\\
+\boxed{\evlenv: var \to \rval}
 \begin{mathpar}
 \inferrule*[right = AxUnif]
 {
 }
 {
 	\vdash 
-	u_1 \samplel \mu 
+	\varx_1 \samplel \mu 
 	\sim_{\epsilon, 0} 
-	u_2 \samplel \mu 
-	: \top \Rightarrow  e^{-\epsilon} u_2 \leq u_1 \leq e^{\epsilon} u_2
+	\varx_2 \samplel \mu 
+	: \top \Rightarrow  e^{-\epsilon} \varx_2 \leq \varx_1 \leq e^{\epsilon} \varx_2
 }
 \and
 \inferrule*[right = LapGen]
@@ -121,6 +208,25 @@ f(\Phi) \equiv let ~ y = f(x) ~ in ~ \forall x.~ \Phi_1[x \mapsto f^{-1}(y)]
 \caption{Logic Rules Extended from \cite{barthe2016proving}}
 \label{logic_rule}
 \end{figure}
+
+
+\clearpage
+\begin{thm}[Soundness]
+for any pair of programs $\prog^1$, $\prog^2$ and environments $\evlenv^1_0$, $\evlenv^2_0$ 
+satisfying $\Psi_0$: 
+$\evlenv^1_0 ~ \sem{\Psi_0} ~ \evlenv^2_0$, then the judgment  
+$\prog^1	
+\sim_{\epsilon, \delta} 
+\prog^2 :
+\Phi_0 \Rightarrow \Psi $ 
+is valid iff: 
+$$ 
+(\sem{\prog^1}_{\evlenv^1_0})  
+\sem{\Psi}^{\#(\epsilon, \delta)} 
+(\sem{\prog^2}_{\evlenv^2_0}) 
+$$.
+\end{thm}
+
 
 
 \begin{thm}
