@@ -26,7 +26,7 @@ it with the floating point computation semantics.
 	%
      \varx = \expr ~|~ \varx \samplel \edistr
 	%
-	~|~ \prog ; \prog ~|~ \eskip \\
+	~|~ \prog ; \prog \\
 
 \mbox{Expr.} & \expr & ::= & \rval 
 	%
@@ -153,17 +153,21 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \caption{Proving Rules from apRHL}
 \label{fig:aprhl}
 \end{figure}
-
+The judgment $\vdash: \prog^1 \sim_{\epsilon, \delta} \prog^2: \Phi_0 \Rightarrow \Phi$ is read as, given two environments $\trsenv_0^1$ and $\trsenv_0^2$ satisfying precondition $\Phi_0$, 
+then under the semantics definition, 
+$(\sem{\prog^1}_{\trsenv_0^1})$ 
+$\sem{\Phi}^{\#(\epsilon, \delta)}$ 
+$(\sem{\prog^2}_{\trsenv_0^2})$.
 
 \newpage
 \paragraph{Semantics.}
 $\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 \[
 	\begin{array}{rcl}
-	\sem{\eskip}_{\trsenv}
-	& = & 
-	~\unit{\trsenv}
-	\\
+% 	\sem{\eskip}_{\trsenv}
+% 	& = & 
+% 	~\unit{\trsenv}
+% 	\\
 	%
 	\sem{\varx \samplel \edistr}_{\trsenv}
 	& = & 
@@ -217,14 +221,13 @@ $\trsenv, \prog \trsto \trsenv'$ represents given and environment $\trsenv$, the
 
 \clearpage
 \begin{thm}[Soundness]
-for any pair of programs $\prog^1$, $\prog^2$ and environments $\trsenv^1_0$, $\trsenv^2_0$ 
-satisfying $\Phi_0$: 
-$\trsenv^1_0 ~ \sem{\Phi_0} ~ \trsenv^2_0$, then the judgment  
-$\prog^1	
+ $\forall \prog^1$, $\prog^2$,  $ \vdash \prog^1	
 \sim_{\epsilon, \delta} 
 \prog^2 :
-\Phi_0 \Rightarrow \Phi $ 
-is valid iff: 
+\Phi_0 \Rightarrow \Phi $,    $\forall \trsenv^1_0$, $\trsenv^2_0$ 
+s.t $\Phi_0$: 
+$\trsenv^1_0 ~ \sem{\Phi_0} ~ \trsenv^2_0$,
+then
 $$ 
 (\sem{\prog^1}_{\trsenv^1_0})  
 \sem{\Phi}^{\#(\epsilon, \delta)} 
@@ -235,6 +238,10 @@ $$.
 
 
 \begin{proof}
+By induction on the transition judgement $\vdash \prog^1	
+\sim_{\epsilon, \delta} 
+\prog^2 :
+\Phi_0 \Rightarrow \Phi $.
 \begin{itemize}
 \caseL{[\textsc{FloptUnif}]}
 	In this case, 
@@ -340,6 +347,9 @@ $$.
 		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
 		\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0}
 	$$
+	\caseL{[\textsc{Assn}] }
+	\caseL{[\textsc{Seq}] }
+	\caseL{[\textsc{ConSeq}] }
 	\end{itemize}
 \end{proof}
 
