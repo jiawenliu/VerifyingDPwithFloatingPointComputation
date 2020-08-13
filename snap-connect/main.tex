@@ -6,6 +6,7 @@
 \usepackage{url}
 \usepackage{tikz}
 \usepackage{amsfonts,amsmath}
+\usepackage{hyperref}
 \begin{document}
 
 \title{Verifying Snapping Mechanism - Connecting Ideal and Flopt}
@@ -19,6 +20,39 @@ the snapping mechanism \cite{mironov2012significance},
 we follow the logic rules designed from
 \cite{barthe2016proving} and connecting 
 it with the floating point computation semantics.
+\section{Syntax}
+\[\begin{array}{llll}
+\mbox{Programs} & \prog & ::= & 
+	%
+     \varx = \expr ~|~ \varx \samplel \edistr
+	%
+	~|~ \prog ; \prog ~|~ \eskip \\
+
+\mbox{Expr.} & \expr & ::= & \rval 
+	%
+	~|~ \varx  ~|~ \expr \bop \expr
+	%
+	~|~ \uop (\expr) \\
+%
+\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+%
+\mbox{Unary Operation} & \uop & ::= & \ln ~|~ - ~|~ \round{\cdot} 
+	%
+	~|~ \clamp_B(\cdot) \\
+%
+\mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
+%
+\mbox{Distribution} & \edistr & ::= & \uniform(0, 1) 
+%
+	~|~ \uniform\{-1, 1\}\\ 
+%
+\mbox{Error} & \err & ::= & (\rval, \rval) \\
+%
+\mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] 
+%\\
+\end{array}
+\]
+where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation.
 
 \section{
 Connecting Coupling Logic
@@ -26,139 +60,437 @@ Connecting Coupling Logic
 with Floating Point Computation
 }
 %
-\begin{figure}[h]
+Fig. \ref{fig:aprhl} presents the main rules from apRHL excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
+The rule [SEQ] for sequential composition generalizes the sequential composition theorem of differential privacy, which intuitively corresponds to the case where the postcondition of the composed commands is equality.
+This generalization allows apRHL to prove differential privacy using the coupling composition principle when the standard composition theorem is insufficient.
+\\
+The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem. They all extended from the apRHL+ \cite{barthe2016proving}.
+\begin{figure}[t]
+\boxed{\vdash: \prog \times \prog \times \Phi \times \Phi}\\
+\boxed{\Phi: (\trsenv^1, \trsenv^2) \to bool;
+~~~~
+\sem{\Phi} = 
+\{(\trsenv^1, \trsenv^2) | \Phi(\trsenv^1, \trsenv^2) = true\}}\\
+\boxed{\trsenv: var \to \fval \times \rval \times \rval}\\
+\boxed{\pi_i: \fval \times \rval \times \rval \to v}
 \begin{mathpar}
 \inferrule*[right = FloptUnif]
 {
-\rvalu^1 = \floaten(\fvalu^1)
+\empty
+}
+{
+	\vdash^F 
+	\varx^1 \samplel \mu	
+	\sim_{\epsilon, 0} 
+	\varx^2 \samplel \mu 
+	: 
+	\top \Rightarrow  
+	% (P \Rightarrow   Q)
+	e^{-\epsilon} \pi_2(\varx^2) \leq \pi_3 (\varx^1) 
+	\land \pi_2 (\varx^1) \leq e^{\epsilon} \pi_3 (\varx^2)
+}
 \and
-\rvalu^2 = \floaten(\fvalu^2)
+\inferrule*[right = FloptNull]
+{
+\empty
 }
 {
 	\vdash 
-	\fvalu^1 \samplel \mu
-	\trsto (e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)
-	\sim_{(k_1 + k_2)+\epsilon, 0} 
-	\fvalu^2 \samplel \mu \trsto (e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)
-	: \top \Rightarrow  e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
+	\varx^1 \samplel \mu	
+	\sim_{0, 0} 
+	\varx^2 \samplel \mu 
+	: \top \Rightarrow 
+	\pi_1 \varx^2 = \pi_1 \varx^1 
+	\land \pi_2 \varx^2 = \pi_2 \varx^1
+	\land \pi_3 \varx^2 = \pi_3 \varx^1
 }
 \end{mathpar}
-\caption{Rules of Connecting Coupling Logic with Floating Point Semantics}
-\label{logic_rule}
+\caption{Rules Extended from apRHL+}
+\label{fig:aprhlplus}
 \end{figure}
 
-This rule is interprated as:
-when $\fvalu^1$ is sampled from distribution $\mu$ and
-can be transited to $\rvalu^1$ in snap-flopt transition semantics
-with error range $(e^{-k_1}\rvalu^1, e^{k_1}\rvalu^1)$;
-and $\fvalu^2$ is sampled from distribution $\mu$ and
-%
-can be transited to $\rvalu^2$ in snap-flopt transition semantics 
-with error range $(e^{-k_2}\rvalu^2, e^{k_2}\rvalu^2)$,
-if we have the postcondition
-$e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2$,
-then the privacy loss in the floating point semantics
-are $(k_1 + k_2 + \epsilon)$.
+\begin{figure}[t]
+\begin{mathpar}
+\inferrule*[right = Assn]
+{
+\empty
+}
+{
+	\vdash 
+	\varx^1 = \expr^1  
+	\sim_{0, 0} 
+	\varx^2 = \expr^2  
+	: \Phi[\expr^1/\varx^1][\expr^2/\varx^2]  \Rightarrow \Phi
+}
+\and
+\inferrule*[right = Seq]
+{
+\prog_1 \sim_{k, 0} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
+\\
+\prog'_1 \sim_{k', 0} \prog'_2 : \Phi'_1 \Rightarrow \Phi_2
+}
+{
+	\vdash 
+	\prog_1; \prog'_1  
+	\sim_{k + k', 0} 
+	\prog_2; \prog'_2
+	: \Phi_1  \Rightarrow  \Phi_2
+}
+\and
+\inferrule*[right = Conseq]
+{
+\prog^1 \sim_{k, 0} \prog^2 : \Phi'_1 \Rightarrow \Phi'_2
+\and
+\Phi_1 \Rightarrow \Phi'_1
+\and 
+\Phi'_2 \Rightarrow \Phi_2
+}
+{
+\prog^1 \sim_{k, 0} \prog^2 : 
+\Phi_1 \Rightarrow \Phi_2
+}
+\end{mathpar}
+\caption{Proving Rules from apRHL}
+\label{fig:aprhl}
+\end{figure}
 
-\paragraph{Semantics. - Non-deterministic}
+
+\newpage
+\paragraph{Semantics.}
+$\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 \[
 	\begin{array}{rcl}
+	\sem{\eskip}_{\trsenv}
+	& = & 
+	~\unit{\trsenv}
+	\\
+	%
 	\sem{\varx \samplel \edistr}_{\trsenv}
-	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | 
-	\fvalu \leftarrow \edistr^{\diamond} \land \rvalu = \floaten(\fvalu)\big\}\\
+	& = & 
+	\elet (\fval, \rval^{l}, \rval^{u}) = \sem{\edistr}_{\trsenv} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval, \rval^{l}, \rval^{u})]}
+	\\
+	%
 	\sem{\varx = \expr}_{\trsenv}
-	& \in &  \big\{\trsenv[\varx \mapsto \rvalu] | 
-	\expr \trsto (\rvalv, err)\big\}\\
+	& = &  
+	~\unit{\trsenv[\varx \mapsto \sem{\expr}_{\trsenv}]}
+	\\
+	%
 	\sem{\prog_1; \prog_2}_{\trsenv}
-	& \in &  \big\{\trsenv_2 | 
-	\sem{\prog_1}_{\trsenv} = \trsenv_1 \land
-	\sem{\prog_2}_{\trsenv_1} = \trsenv_2\big\},
+	& = &  \elet  \trsenv_1 = 
+	\sem{\prog_1}_{\trsenv} \ein
+	\sem{\prog_2}_{\trsenv_1} 
 	\end{array}
 \]
-where $\fvalu \leftarrow \edistr^{\diamond}$ represents a value $\fvalu$ is sampled from the $\edistr$ and
-$\expr \trsto (\rvalv, err)$ represents a the expression $\expr$
-is transited to $\rvalv$ with error bound $err$ in floating point transition semantics.
-
-\paragraph{Semantics. - Probabilistic}
+$\boxed{\trsenv, \expr \trsto \fval \times \rval \times \rval}$
 \[
 	\begin{array}{rcl}
-	\sem{\varx \samplel \edistr}_{\trsenv}
-	& = & \unit{\trsenv[\varx \mapsto \edistr]}\\
-	\sem{\varx = \expr}_{\trsenv}
-	& = & \unit{\trsenv[\varx \mapsto \rvalv] | 
-	\expr \trsto (\rvalv, err)}\\
-	\sem{\prog_1; \prog_2}_{\trsenv}
-	& = & let ~~
-	\trsenv_1 = \sem{\prog_1}_{\trsenv} ~~ in ~~
-	\sem{\prog_2}_{\trsenv_1},
+	\sem{\expr}_{\trsenv}
+	& \in &  
+	\big\{(\fval, \rval^{l}, \rval^{u})] |
+	\exists ~~  
+	\trsenv,  
+	\expr \trsto (\fvalv, \rval^{l}, \rval^{u})\big\}
 	\end{array}
 \]
-where $\expr \trsto (\rvalv, err)$ represents a the expression $\expr$
-is transited to $\rvalv$ with error bound $err$ in floating point transition semantics and $\unit{a}$ is defined as a unit distribution with probabilistic $1$ returning $a$.
+$
+\boxed{\trsenv, \edistr \trsto \fval \times \rval \times \rval}
+$
+\[
+	\begin{array}{rcl}
+	\sem{\edistr}_{\trsenv}
+	& \in & 
+	\big\{
+	(\fval, \rval^{l}, \rval^{u}) |
+	\fval \leftarrow \edistr^{\diamond}
+	\land
+	~~ \exists ~~  
+	\trsenv, \varx \samplel \edistr \trsto \trsenv[\varx \mapsto (\fval, \rval^{l}, \rval^{u})]
+	\end{array}
+\]
+In the semantics, 
+$\trsenv, \expr \trsto (\fvalv, err)$ represents given an environment $\trsenv$, the expression $\expr$
+is transited to $\fvalv$ with error bound $err = (\rval^{l}, \rval^{u})$ in floating point transition semantics, s.t. $\rval^{l} \leq \fvalv \leq \rval^{u}$. 
+$\trsenv, \prog \trsto \trsenv'$ represents given and environment $\trsenv$, the program $\prog$ is transited to a new environment $\trsenv'$.
+
+
+\clearpage
+\begin{thm}[Soundness]
+for any pair of programs $\prog^1$, $\prog^2$ and environments $\trsenv^1_0$, $\trsenv^2_0$ 
+satisfying $\Phi_0$: 
+$\trsenv^1_0 ~ \sem{\Phi_0} ~ \trsenv^2_0$, then the judgment  
+$\prog^1	
+\sim_{\epsilon, \delta} 
+\prog^2 :
+\Phi_0 \Rightarrow \Phi $ 
+is valid iff: 
+$$ 
+(\sem{\prog^1}_{\trsenv^1_0})  
+\sem{\Phi}^{\#(\epsilon, \delta)} 
+(\sem{\prog^2}_{\trsenv^2_0}) 
+$$.
+\end{thm}
+
+
+
+\begin{proof}
+\begin{itemize}
+\caseL{[\textsc{FloptUnif}]}
+	In this case, 
+	$\sem{\Phi} = 
+	\{((\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})) 
+	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
+	|
+	\expr^{-\epsilon} \rval^{2l} \leq \rval^{1u}
+	\land
+	\expr^{\epsilon} \rval^{1l} \leq \rval^{2u}
+	\}$
+	%
+	\\
+	%
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} = \distr(\trsenv^1)$ and 
+	%
+	$\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0} = \distr(\trsenv^2)$. \\
+	%
+	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})$ s.t.,
+	%
+	$\trsenv^1 (\varx^1) = (\fval^1, \rval^{1l}, \rval^{1u})$
+	and
+	$\trsenv^2 (\varx^2) = (\fval^2, \rval^{2l}, \rval^{2u})$:
+	%
+	\\
+	%
+	$ \rval^{1l} \leq \fval^1 \leq \rval^{1u} ~ (1)$ 
+	and
+	$ \rval^{2l} \leq \fval^2 \leq \rval^{2u} ~ (2)$.
+	%
+	\\
+	%
+	Let $\rval^1$ and $\rval^2$ be the real representation of $\fval^1$ and $\fval^2$ in $\real$, by the soundness of ideal judgment, we have:
+	$\pi_1 (\distr(\trsenv^1)) ~ \Psi^{\#(\epsilon, 0)} ~ \pi_1 (\distr(\trsenv^2))$, where
+	\[
+		\Psi = \{(\rval^1, \rval^2) \in \real \times \real
+		| 
+		\rval^1 e^{-\epsilon} 
+		\leq \rval^2
+		\leq \rval^1 e^{\epsilon} \}.
+	\]
+	By $(1)$ and $(2)$, we have:
+	$\Psi \implies \Phi$.
+	\\
+	So it can be proven by implication that 
+	$(\distr(\trsenv^1)) ~ \Phi^{\#(\epsilon, 0)} ~ (\distr(\trsenv^2))$, i.e., 
+	$$
+	\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} 
+		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
+		\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0}
+	$$
+\caseL{[\textsc{FloptNull}] }
+	In this case, 
+	$\sem{\Phi} = 
+	\{((\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})) 
+	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
+	|
+	\rval^{2l} = \rval^{1l}
+	\land
+	\rval^{2u} = \rval^{1u}
+	\land
+	\fval^1 = \fval^2
+	\}$
+	%
+	\\
+	%
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} = \distr(\trsenv^1)$ and 
+	%
+	$\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0} = \distr(\trsenv^2)$. \\
+	%
+	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})$ s.t.,
+	%
+	$\trsenv^1 (\varx^1) = (\fval^1, \rval^{1l}, \rval^{1u})$
+	and
+	$\trsenv^2 (\varx^2) = (\fval^2, \rval^{2l}, \rval^{2u})$:
+	%
+	\\
+	%
+	$ \rval^{1l} \leq \fval^1 \leq \rval^{1u} ~ (1)$ 
+	and
+	$ \rval^{2l} \leq \fval^2 \leq \rval^{2u} ~ (2)$.
+	%
+	\\
+	%
+	Let $\rval^1$ and $\rval^2$ be the real representation of $\fval^1$ and $\fval^2$ in $\real$, by the soundness of ideal judgment, we have:
+	$\pi_1 (\distr(\trsenv^1)) ~ \Psi^{\#(\epsilon, 0)} ~ \pi_1 (\distr(\trsenv^2))$, where
+	\[
+		\Psi = \{(\rval^1, \rval^2) \in \real \times \real
+		| 
+		\rval^1 = \rval^2 \}.
+	\]
+	By $(1)$ and $(2)$, we have:
+	$\Psi \implies \Phi$.
+	\\
+	So it can be proven by implication that 
+	$(\distr(\trsenv^1)) ~ \Phi^{\#(\epsilon, 0)} ~ (\distr(\trsenv^2))$, i.e., 
+	$$
+	\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} 
+		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
+		\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0}
+	$$
+	\end{itemize}
+\end{proof}
+
+
+\newpage
+\section{Snapping Mechanism}
+
+\begin{defn}
+[$\snap(a) : A \to \distr(\real)$]
+Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined as:
+\[
+	\varu \samplel \uniform(0,1); s \samplel \uniform\{-1, 1\};
+	\varx = \clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (\varu)}_{\Lambda}
+	\big)
+\]
+where $f(a)$ represents a value that the query function $f$ be evaluated over input database $a \in A$, $\epsilon$ is the privacy parameter, $B$ is the clamping argument and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+\end{defn}
 
 \begin{thm}[The $\snap$ mechanism is 
 $\epsilon-$differentially private]
 \end{thm}
-
-\begin{figure}[h]
+\begin{proof}
+\tiny{
 \begin{mathpar}
-\inferrule*[right = AxUnif]
+\inferrule*[right = Seq]
 {
-\rvalu^1 = \floaten(\fvalu^1)
+	\inferrule*[right = Seq]
+	{
+	\inferrule[FloptUnif]
+	{
+	\Phi = e^{-\epsilon(1 + 24B\eta)} \pi_2(\varu^2) \leq \pi_3 (\varu^1) 
+		\land \pi_2 (\varu^1) \leq e^{\epsilon(1 + 24B\eta)} \pi_3 (\varu^2)
+	}
+	{
+		\varu_1 \samplel \uniform(0,1)
+		\sim_{\epsilon + 24B\eta\epsilon, 0} 
+		\varu_2 \samplel \uniform(0,1)
+		: 
+		\top
+		\Rightarrow 
+		\Phi
+	}
+	~~
+	\inferrule[FloptNull]
+	{
+	\empty
+	}
+	{
+		s_1 = \samplel \uniform\{-1, 1\}
+		\sim_{0, 0} 
+		s_2 = \samplel \uniform\{-1, 1\}
+		: 
+		\Phi
+		\Rightarrow 
+		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+	}
+	}
+	{
+		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
+		\sim_{\epsilon + 24B\eta\epsilon, 0} 
+		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
+		: \top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
+	}
+\\
+\Pi_R
+}
+{
+	\vdash 
+	\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
+	\varx_1 = \clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
+	\big) 
+	\sim_{\epsilon + 24B\eta\epsilon, 0} 
+	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
+	\varx_2 = \clamp_B \big(
+	\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
+	: \top  \Rightarrow  \varx_1 = \varx_2
+}
+\\
+\Pi_R:
+\\
+\inferrule*[right = ConSeq]
+{	
+\inferrule*[right = Assn]
+	{
+		\Phi' = 
+		e^{-\epsilon(1 + 24B\eta)} 
+		e^{\epsilon (\frac{\pi_2(\varx^2)}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
+		\leq 
+		e^{\pi_3 (\varx^1)(1 + \eta)^3 - f(a)(1 + \eta)^2}
+		\land 
+		e^{\epsilon(1 + 24B\eta)} 
+		e^{\epsilon (\frac{\pi_2(\varx^1)}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
+		\leq 
+		e^{\pi_3 (\varx^2)(1 + \eta)^3 - f(a')(1 + \eta)^2}
+	}
+	{
+		\varx_1 = \clamp_B \big(
+		\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
+		\big) 
+		\sim_{0, 0} 
+		\varx_2 = \clamp_B \big(
+		\round{f(a) + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
+		:
+		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+		\Rightarrow
+		\Phi'
+	}
 \and
-\rvalu^2 = \floaten(\fvalu^2)
+\mathtodo{ \Phi' \Rightarrow \varx_1 = \varx_2}
+\\
+\Phi \land \pi_1(s_1) = \pi_1(s_2)
+\Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
 }
 {
-	\vdash
-	\fvalu^1 \samplel \mu
-	\trsto ( e^{-12B \epsilon \eta} \rvalu^1,
-	e^{12B \epsilon \eta}\rvalu^1)
-	\sim_{24B \epsilon \eta +\epsilon, 0}
-	\fvalu^2 \samplel \mu
-	\trsto ( e^{-12B \epsilon \eta} \rvalu^2,
-	e^{12B \epsilon \eta} \rvalu^2)
-	: \top \Rightarrow  e^{-\epsilon} \rvalu^2
-	\leq \rvalu^1 \leq e^{\epsilon} \rvalu^2
-}
-\and
-\inferrule*[right = AxNull]
-{
-}
-{
-	y_1 = f(a_1) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^1)
-	\sim_{ 24B \epsilon \eta + \epsilon, 0 }
-	y_2 = f(a_2) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^2)
+	\varx_1 = \clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
+	\big) 
+	\sim_{0, 0} 
+	\varx_2 = \clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
 	:
-	\\
-	e^{-\epsilon} \rvalu^2 \leq \rvalu^1 \leq e^{\epsilon} \rvalu^2 \land
-	a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1
-	\land |k + f(a_1) - f(a_2) | \leq 1 
-	\Rightarrow y_1 + k = y_2 
-}
-\and
-\inferrule*[right = Comp]
-{
-\cdots
-}
-{
-	\fvalu^1 \samplel \mu;
-	r_1 = \clamp(\round{f(a_1) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^1)}_{\Lambda})
-	\sim_{\epsilon, 0}
-	\fvalu^2 \samplel \mu;
-	r_1 = \clamp(\round{f(a_2) + \frac{1}{\epsilon} \times s \times \ln(\fvalu^2)}_{\Lambda})
-	: 
-	\\
-	a_1 = a_2 + 1 \land f(a_1) = f(a_2) + 1 \land 
-	|k + f(a_1) - f(a_2) | \leq 1
-	\Rightarrow r_1 + k = r_2 
+	\Phi \land \pi_1(s_1) = \pi_1(s_2)
+	\Rightarrow \varx_1 = \varx_2
 }
 \end{mathpar}
-\caption{Coupling Derivation of two $\snap$ mechanisms:
-$\snap(a_1)$, $\snap(a_2)$}
-\label{derivation_snap}
-\end{figure}
-
-
+}
+\todo{
+	given that:
+	$
+	\Phi' = 
+		e^{-\epsilon(1 + 24B\eta)} 
+		e^{\epsilon (\frac{\pi_2(\varx^2)}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
+		\leq 
+		e^{\pi_3 (\varx^1)(1 + \eta)^3 - f(a)(1 + \eta)^2}
+		\land 
+		e^{\epsilon(1 + 24B\eta)} 
+		e^{\epsilon (\frac{\pi_2(\varx^1)}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
+		\leq 
+		e^{\pi_3 (\varx^2)(1 + \eta)^3 - f(a')(1 + \eta)^2}
+	$
+	I'm able to prove that:
+	$\varx_1 = \varx_2 \Rightarrow \Phi'$
+	but not 
+	$\Phi' \Rightarrow \varx_1 = \varx_2$.
+	\\
+	However, in order to show the differential privacy, it is needed to prove:
+	$\Phi' \Rightarrow \varx_1 = \varx_2$.
+}
+\end{proof}
 
 \newpage
 \bibliographystyle{plain}
