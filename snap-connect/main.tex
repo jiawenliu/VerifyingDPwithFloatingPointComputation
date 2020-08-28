@@ -48,8 +48,9 @@ it with the floating point computation semantics.
 %
 \mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
-\mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] 
-%\\
+\mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] \\
+%
+\mbox{Assert.} & \Phi &  & 
 \end{array}
 \]
 where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation.
@@ -66,11 +67,11 @@ This generalization allows apRHL to prove differential privacy using the couplin
 \\
 The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem. They all extended from the apRHL+ \cite{barthe2016proving}.
 \begin{figure}[t]
-\boxed{\vdash: \prog \times \prog \times \Phi \times \Phi}\\
-\boxed{\Phi: (\trsenv^1, \trsenv^2) \to bool;
+\boxed{\vdash: prog \times prog \times Assert \times Assert}\\
+\boxed{\Phi: Env \times Env \to bool;
 ~~~~
 \sem{\Phi} = 
-\{(\trsenv^1, \trsenv^2) | \Phi(\trsenv^1, \trsenv^2) = true\}}\\
+\{(\trsenv_1, \trsenv_2) | \Phi(\trsenv_1, \trsenv_2) = true\}}\\
 \boxed{\trsenv: var \to \fval \times \rval \times \rval}\\
 \boxed{\pi_i: \fval \times \rval \times \rval \to v}
 \begin{mathpar}
@@ -79,15 +80,15 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \empty
 }
 {
-	\vdash^F 
-	\varx^1 \samplel \mu	
+	\vdash
+	\varx_1 \samplel \uniform(0, 1) 	
 	\sim_{\epsilon, 0} 
-	\varx^2 \samplel \mu 
+	\varx_2 \samplel \uniform(0, 1)
 	: 
 	\top \Rightarrow  
 	% (P \Rightarrow   Q)
-	e^{-\epsilon} \pi_2(\varx^2) \leq \pi_3 (\varx^1) 
-	\land \pi_2 (\varx^1) \leq e^{\epsilon} \pi_3 (\varx^2)
+	e^{-\epsilon} \pi_2(\varx_2) \leq \pi_3 (\varx_1) 
+	\land \pi_2 (\varx_1) \leq e^{\epsilon} \pi_3 (\varx_2)
 }
 \and
 \inferrule*[right = FloptNull]
@@ -96,9 +97,9 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 }
 {
 	\vdash 
-	\varx^1 \samplel \mu	
+	\varx^1 \samplel \uniform(0, 1) 	
 	\sim_{0, 0} 
-	\varx^2 \samplel \mu 
+	\varx^2 \samplel \uniform(0, 1) 
 	: \top \Rightarrow 
 	\pi_1 \varx^2 = \pi_1 \varx^1 
 	\land \pi_2 \varx^2 = \pi_2 \varx^1
@@ -117,10 +118,10 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 }
 {
 	\vdash 
-	\varx^1 = \expr^1  
+	\varx_1 = \expr_1  
 	\sim_{0, 0} 
-	\varx^2 = \expr^2  
-	: \Phi[\expr^1/\varx^1][\expr^2/\varx^2]  \Rightarrow \Phi
+	\varx_2 = \expr_2  
+	: \Phi[\expr_1/\varx_1][\expr_2/\varx_2]  \Rightarrow \Phi
 }
 \and
 \inferrule*[right = Seq]
@@ -139,25 +140,25 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \and
 \inferrule*[right = Conseq]
 {
-\prog^1 \sim_{k, 0} \prog^2 : \Phi'_1 \Rightarrow \Phi'_2
+\prog_1 \sim_{k, 0} \prog_2 : \Phi'_1 \Rightarrow \Phi'_2
 \and
 \Phi_1 \Rightarrow \Phi'_1
 \and 
 \Phi'_2 \Rightarrow \Phi_2
 }
 {
-\prog^1 \sim_{k, 0} \prog^2 : 
+\prog_1 \sim_{k, 0} \prog_2 : 
 \Phi_1 \Rightarrow \Phi_2
 }
 \end{mathpar}
 \caption{Proving Rules from apRHL}
 \label{fig:aprhl}
 \end{figure}
-The judgment $\vdash: \prog^1 \sim_{\epsilon, \delta} \prog^2: \Phi_0 \Rightarrow \Phi$ is read as, given two environments $\trsenv_0^1$ and $\trsenv_0^2$ satisfying precondition $\Phi_0$, 
+The judgment $\vdash \prog_1 \sim_{\epsilon, \delta} \prog_2: \Phi_0 \Rightarrow \Phi$ is read as, given two environments $\trsenv_1$ and $\trsenv_2$ satisfying precondition $\Phi_0$, 
 then under the semantics definition, 
-$(\sem{\prog^1}_{\trsenv_0^1})$ 
+$(\sem{\prog_1}_{\trsenv_1})$ 
 $\sem{\Phi}^{\#(\epsilon, \delta)}$ 
-$(\sem{\prog^2}_{\trsenv_0^2})$.
+$(\sem{\prog_2}_{\trsenv_2})$.
 
 \newpage
 \paragraph{Semantics.}
@@ -169,9 +170,9 @@ $\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 % 	~\unit{\trsenv}
 % 	\\
 	%
-	\sem{\varx \samplel \edistr}_{\trsenv}
+	\sem{\varx \samplel \uniform(0, 1)}_{\trsenv}
 	& = & 
-	\elet (\fval, \rval^{l}, \rval^{u}) = \sem{\edistr}_{\trsenv} 
+	\elet (\fval, \rval^{l}, \rval^{u}) = \sem{\uniform(0, 1)}_{\trsenv} 
 	\ein 
 	\unit{\trsenv[\varx \mapsto (\fval, \rval^{l}, \rval^{u})]}
 	\\
@@ -192,25 +193,25 @@ $\boxed{\trsenv, \expr \trsto \fval \times \rval \times \rval}$
 	\begin{array}{rcl}
 	\sem{\expr}_{\trsenv}
 	& \in &  
-	\big\{(\fval, \rval^{l}, \rval^{u})] |
+	\big\{(\fval, \rval^{l}, \rval^{u}) |
 	\exists ~~  
 	\trsenv,  
 	\expr \trsto (\fvalv, \rval^{l}, \rval^{u})\big\}
 	\end{array}
 \]
 $
-\boxed{\trsenv, \edistr \trsto \fval \times \rval \times \rval}
+\boxed{\trsenv, \edistr \trsto \distr(\fval \times \rval \times \rval)}
 $
 \[
 	\begin{array}{rcl}
-	\sem{\edistr}_{\trsenv}
+	\sem{\uniform(0, 1)}_{\trsenv}
 	& \in & 
 	\big\{
 	(\fval, \rval^{l}, \rval^{u}) |
-	\fval \leftarrow \edistr^{\diamond}
-	\land
-	~~ \exists ~~  
-	\trsenv, \varx \samplel \edistr \trsto \trsenv[\varx \mapsto (\fval, \rval^{l}, \rval^{u})]
+	\fval \leftarrow \uniform(0, 1)^{\diamond}
+	\land \rval^{l} = \fval
+	\land \rval^{u} = \fval
+	\big\}
 	\end{array}
 \]
 In the semantics, 
