@@ -437,7 +437,7 @@ In all the rules, $\eta$ is the machine epsilon.
 	 % \and
 	 % \rval^1 \leq \fval \leq \rval^2
 	 ~~~~
-	 \rval^{l} \leq \fval \leq \rval^{u}
+	 \rval^{l} = \fval = \rval^{u}
 }
 {
 	\trsenv, \varx \samplel \edistr
@@ -627,7 +627,7 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a b
 	{
 		 \fval \leftarrow \edistr^{\diamond}
 		 \and
-	 	\rval^1 \leq \fval \leq \rval^2 ~ (\square)
+	 	\rval^1 = \fval = \rval^2 ~ (\square)
 	}
 	{
 		\trsenv, \varx \samplel \edistr
@@ -637,7 +637,7 @@ Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a b
 	\]}
 	We need to show $\trsenv[\varx \mapsto (\fval, (\rval^1, \rval^2))]$ is a bounded environment.\\
 	%
-	Since we know $\trsenv$ is a bounded environment and $\rval^1 \leq \fval \leq \rval^2$ by assumption $(\star)$ and $(\square)$ .
+	Since we know $\trsenv$ is a bounded environment and $\rval^1 = \fval =\rval^2$ by assumption $(\star)$ and $(\square)$ .
 	%
 	\\
 	%
