@@ -170,9 +170,9 @@ $\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 % 	~\unit{\trsenv}
 % 	\\
 	%
-	\sem{\varx \samplel \uniform(0, 1)}_{\trsenv}
+	\sem{\varx \samplel \edistr}_{\trsenv}
 	& = & 
-	\elet (\fval, \rval^{l}, \rval^{u}) = \sem{\uniform(0, 1)}_{\trsenv} 
+	\elet (\fval, \rval^{l}, \rval^{u}) = \sem{\edistr}_{\trsenv} 
 	\ein 
 	\unit{\trsenv[\varx \mapsto (\fval, \rval^{l}, \rval^{u})]}
 	\\
@@ -211,7 +211,13 @@ $
 	\fval \leftarrow \uniform(0, 1)^{\diamond}
 	\land \rval^{l} = \fval
 	\land \rval^{u} = \fval
-	\big\}
+	\big\}\\
+	\sem{\uniform\{-1, 1\}}_{\trsenv}
+	& \in & 
+	\big\{
+	(-1, -1, -1), (1, 1, 1) |
+	each ~ w.p. ~ 0.5 
+	\big\}\\	
 	\end{array}
 \]
 In the semantics, 
