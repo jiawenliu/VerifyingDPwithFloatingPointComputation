@@ -63,9 +63,8 @@ with Floating Point Computation
 %
 Fig. \ref{fig:aprhl} presents the main rules from apRHL excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
 The rule [SEQ] for sequential composition generalizes the sequential composition theorem of differential privacy, which intuitively corresponds to the case where the postcondition of the composed commands is equality.
-This generalization allows apRHL to prove differential privacy using the coupling composition principle when the standard composition theorem is insufficient.
-\\
-The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem. They all extended from the apRHL+ \cite{barthe2016proving}.
+The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem. They all extended from the apRHL+ \cite{barthe2016proving}. This generalization allows apRHL to prove differential privacy using the coupling composition principle when the standard composition theorem is insufficient.
+%
 \begin{figure}[t]
 \boxed{\vdash: prog \times prog \times Assert \times Assert}\\
 \boxed{\Phi: Env \times Env \to bool;
@@ -73,7 +72,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \sem{\Phi} = 
 \{(\trsenv_1, \trsenv_2) | \Phi(\trsenv_1, \trsenv_2) = true\}}\\
 \boxed{\trsenv: var \to \fval \times \rval \times \rval}\\
-\boxed{\pi_i: \fval \times \rval \times \rval \to v}
+\boxed{\pi_i: \fval \times \rval \times \rval \to v, i = 1, 2, 3}
 \begin{mathpar}
 \inferrule*[right = FloptUnif]
 {
@@ -88,7 +87,8 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\top \Rightarrow  
 	% (P \Rightarrow   Q)
 	e^{-\epsilon} \pi_2(\varx_2) \leq \pi_3 (\varx_1) 
-	\land \pi_2 (\varx_1) \leq e^{\epsilon} \pi_3 (\varx_2)
+	\land 
+	e^{-\epsilon} \pi_2 (\varx_1) \leq \pi_3 (\varx_2)
 }
 \and
 \inferrule*[right = FloptNull]
@@ -97,13 +97,28 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 }
 {
 	\vdash 
-	\varx^1 \samplel \uniform(0, 1) 	
+	\varx_1 \samplel \uniform(0, 1) 	
 	\sim_{0, 0} 
-	\varx^2 \samplel \uniform(0, 1) 
+	\varx_2 \samplel \uniform(0, 1) 
 	: \top \Rightarrow 
-	\pi_1 \varx^2 = \pi_1 \varx^1 
-	\land \pi_2 \varx^2 = \pi_2 \varx^1
-	\land \pi_3 \varx^2 = \pi_3 \varx^1
+	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
+	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
+	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
+}
+\and
+\inferrule*[right = FloptNull2]
+{
+\empty
+}
+{
+	\vdash 
+	\varx_1 \samplel \uniform\{-1, 1\} 	
+	\sim_{0, 0} 
+	\varx_2 \samplel \uniform\{-1, 1\}  
+	: \top \Rightarrow 
+	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
+	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
+	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
 }
 \end{mathpar}
 \caption{Rules Extended from apRHL+}
@@ -123,7 +138,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\varx_2 = \expr_2  
 	: \Phi[\expr_1/\varx_1][\expr_2/\varx_2]  \Rightarrow \Phi
 }
-\and
+~~~
 \inferrule*[right = Seq]
 {
 \prog_1 \sim_{k, 0} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
@@ -172,9 +187,9 @@ $\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 	%
 	\sem{\varx \samplel \edistr}_{\trsenv}
 	& = & 
-	\elet (\fval, \rval^{l}, \rval^{u}) = \sem{\edistr}_{\trsenv} 
+	\elet (\fval, \rval, \rval) = \sem{\edistr}_{\trsenv} 
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval, \rval^{l}, \rval^{u})]}
+	\unit{\trsenv[\varx \mapsto (\fval, \rval, \rval)]}
 	\\
 	%
 	\sem{\varx = \expr}_{\trsenv}
@@ -193,10 +208,10 @@ $\boxed{\trsenv, \expr \trsto \fval \times \rval \times \rval}$
 	\begin{array}{rcl}
 	\sem{\expr}_{\trsenv}
 	& \in &  
-	\big\{(\fval, \rval^{l}, \rval^{u}) |
+	\big\{(\fval, \rval_{l}, \rval_{u}) |
 	\exists ~~  
 	\trsenv,  
-	\expr \trsto (\fvalv, \rval^{l}, \rval^{u})\big\}
+	\expr \trsto (\fvalv, \rval_{l}, \rval_{u})\big\}
 	\end{array}
 \]
 $
@@ -207,10 +222,9 @@ $
 	\sem{\uniform(0, 1)}_{\trsenv}
 	& \in & 
 	\big\{
-	(\fval, \rval^{l}, \rval^{u}) |
+	(\fval, \rval, \rval) |
 	\fval \leftarrow \uniform(0, 1)^{\diamond}
-	\land \rval^{l} = \fval
-	\land \rval^{u} = \fval
+	\land \rval = \fval
 	\big\}\\
 	\sem{\uniform\{-1, 1\}}_{\trsenv}
 	& \in & 
@@ -222,7 +236,7 @@ $
 \]
 In the semantics, 
 $\trsenv, \expr \trsto (\fvalv, err)$ represents given an environment $\trsenv$, the expression $\expr$
-is transited to $\fvalv$ with error bound $err = (\rval^{l}, \rval^{u})$ in floating point transition semantics, s.t. $\rval^{l} \leq \fvalv \leq \rval^{u}$. 
+is transited to $\fvalv$ with error bound $err = (\rval_{l}, \rval_{u})$ in floating point transition semantics, s.t. $\rval_{l} \leq \fvalv \leq \rval_{u}$. 
 $\trsenv, \prog \trsto \trsenv'$ represents given and environment $\trsenv$, the program $\prog$ is transited to a new environment $\trsenv'$.
 
 
@@ -253,12 +267,12 @@ By induction on the transition judgement $\vdash \prog^1
 \caseL{[\textsc{FloptUnif}]}
 	In this case, 
 	$\sem{\Phi} = 
-	\{((\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})) 
+	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
 	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
 	|
-	\expr^{-\epsilon} \rval^{2l} \leq \rval^{1u}
+	\expr^{-\epsilon} \rval_{2l} \leq \rval_{1u}
 	\land
-	\expr^{\epsilon} \rval^{1l} \leq \rval^{2u}
+	\expr^{\epsilon} \rval_{1l} \leq \rval_{2u}
 	\}$
 	%
 	\\
@@ -269,28 +283,28 @@ By induction on the transition judgement $\vdash \prog^1
 	%
 	$\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0} = \distr(\trsenv^2)$. \\
 	%
-	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})$ s.t.,
+	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})$ s.t.,
 	%
-	$\trsenv^1 (\varx^1) = (\fval^1, \rval^{1l}, \rval^{1u})$
+	$\trsenv^1 (\varx^1) = (\fval_1, \rval_{1l}, \rval_{1u})$
 	and
-	$\trsenv^2 (\varx^2) = (\fval^2, \rval^{2l}, \rval^{2u})$:
+	$\trsenv^2 (\varx^2) = (\fval_2, \rval_{2l}, \rval_{2u})$:
 	%
 	\\
 	%
-	$ \rval^{1l} \leq \fval^1 \leq \rval^{1u} ~ (1)$ 
+	$ \rval_{1l} \leq \fval_1 \leq \rval_{1u} ~ (1)$ 
 	and
-	$ \rval^{2l} \leq \fval^2 \leq \rval^{2u} ~ (2)$.
+	$ \rval_{2l} \leq \fval_2 \leq \rval_{2u} ~ (2)$.
 	%
 	\\
 	%
-	Let $\rval^1$ and $\rval^2$ be the real representation of $\fval^1$ and $\fval^2$ in $\real$, by the soundness of ideal judgment, we have:
+	Let $\rval_1$ and $\rval_2$ be the real representation of $\fval_1$ and $\fval_2$ in $\real$, by the soundness of ideal judgment, we have:
 	$\pi_1 (\distr(\trsenv^1)) ~ \Psi^{\#(\epsilon, 0)} ~ \pi_1 (\distr(\trsenv^2))$, where
 	\[
-		\Psi = \{(\rval^1, \rval^2) \in \real \times \real
+		\Psi = \{(\rval_1, \rval_2) \in \real \times \real
 		| 
-		\rval^1 e^{-\epsilon} 
-		\leq \rval^2
-		\leq \rval^1 e^{\epsilon} \}.
+		\rval_1 e^{-\epsilon} 
+		\leq \rval_2
+		\leq \rval_1 e^{\epsilon} \}.
 	\]
 	By $(1)$ and $(2)$, we have:
 	$\Psi \implies \Phi$.
@@ -305,14 +319,14 @@ By induction on the transition judgement $\vdash \prog^1
 \caseL{[\textsc{FloptNull}] }
 	In this case, 
 	$\sem{\Phi} = 
-	\{((\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})) 
+	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
 	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
 	|
-	\rval^{2l} = \rval^{1l}
+	\rval_{2l} = \rval_{1l}
 	\land
-	\rval^{2u} = \rval^{1u}
+	\rval_{2u} = \rval_{1u}
 	\land
-	\fval^1 = \fval^2
+	\fval_1 = \fval_2
 	\}$
 	%
 	\\
@@ -323,26 +337,26 @@ By induction on the transition judgement $\vdash \prog^1
 	%
 	$\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0} = \distr(\trsenv^2)$. \\
 	%
-	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval^1, \rval^{1l}, \rval^{1u}), (\fval^2, \rval^{2l}, \rval^{2u})$ s.t.,
+	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})$ s.t.,
 	%
-	$\trsenv^1 (\varx^1) = (\fval^1, \rval^{1l}, \rval^{1u})$
+	$\trsenv^1 (\varx^1) = (\fval_1, \rval_{1l}, \rval_{1u})$
 	and
-	$\trsenv^2 (\varx^2) = (\fval^2, \rval^{2l}, \rval^{2u})$:
+	$\trsenv^2 (\varx^2) = (\fval_2, \rval_{2l}, \rval_{2u})$:
 	%
 	\\
 	%
-	$ \rval^{1l} \leq \fval^1 \leq \rval^{1u} ~ (1)$ 
+	$ \rval_{1l} \leq \fval_1 \leq \rval_{1u} ~ (1)$ 
 	and
-	$ \rval^{2l} \leq \fval^2 \leq \rval^{2u} ~ (2)$.
+	$ \rval_{2l} \leq \fval_2 \leq \rval_{2u} ~ (2)$.
 	%
 	\\
 	%
-	Let $\rval^1$ and $\rval^2$ be the real representation of $\fval^1$ and $\fval^2$ in $\real$, by the soundness of ideal judgment, we have:
+	Let $\rval_1$ and $\rval_2$ be the real representation of $\fval_1$ and $\fval_2$ in $\real$, by the soundness of ideal judgment, we have:
 	$\pi_1 (\distr(\trsenv^1)) ~ \Psi^{\#(\epsilon, 0)} ~ \pi_1 (\distr(\trsenv^2))$, where
 	\[
-		\Psi = \{(\rval^1, \rval^2) \in \real \times \real
+		\Psi = \{(\rval_1, \rval_2) \in \real \times \real
 		| 
-		\rval^1 = \rval^2 \}.
+		\rval_1 = \rval_2 \}.
 	\]
 	By $(1)$ and $(2)$, we have:
 	$\Psi \implies \Phi$.
@@ -354,9 +368,9 @@ By induction on the transition judgement $\vdash \prog^1
 		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
 		\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0}
 	$$
-	\caseL{[\textsc{Assn}] }
-	\caseL{[\textsc{Seq}] }
-	\caseL{[\textsc{ConSeq}] }
+	% \caseL{[\textsc{Assn}] }
+	% \caseL{[\textsc{Seq}] }
+	% \caseL{[\textsc{ConSeq}] }
 	\end{itemize}
 \end{proof}
 
@@ -388,12 +402,14 @@ $\epsilon-$differentially private]
 	{
 	\inferrule[FloptUnif]
 	{
-	\Phi = e^{-\epsilon(1 + 24B\eta)} \pi_2(\varu^2) \leq \pi_3 (\varu^1) 
-		\land \pi_2 (\varu^1) \leq e^{\epsilon(1 + 24B\eta)} \pi_3 (\varu^2)
+	\Phi = 
+	e^{-\epsilon(1 - 11B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
+		\land 
+	e^{-\epsilon(1 - 11B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
-		\sim_{\epsilon + 24B\eta\epsilon, 0} 
+		\sim_{\epsilon - 11B\eta\epsilon, 0} 
 		\varu_2 \samplel \uniform(0,1)
 		: 
 		\top
@@ -417,7 +433,7 @@ $\epsilon-$differentially private]
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{\epsilon + 24B\eta\epsilon, 0} 
+		\sim_{\epsilon - 11B\eta\epsilon, 0} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: \top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
 	}
@@ -430,7 +446,7 @@ $\epsilon-$differentially private]
 	\varx_1 = \clamp_B \big(
 	\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
 	\big) 
-	\sim_{\epsilon + 24B\eta\epsilon, 0} 
+	\sim_{\epsilon - 11B\eta\epsilon, 0} 
 	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
 	\varx_2 = \clamp_B \big(
 	\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
@@ -444,15 +460,15 @@ $\epsilon-$differentially private]
 \inferrule*[right = Assn]
 	{
 		\Phi' = 
-		e^{-\epsilon(1 + 24B\eta)} 
-		e^{\epsilon (\frac{\pi_2(\varx^2)}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
+		e^{-\epsilon(1 - 1B\eta)} 
+		e^{\epsilon (\frac{\varx_2}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
 		\leq 
-		e^{\pi_3 (\varx^1)(1 + \eta)^3 - f(a)(1 + \eta)^2}
+		e^{\varx_1(1 + \eta)^3 - f(a)(1 + \eta)^2}
 		\land 
-		e^{\epsilon(1 + 24B\eta)} 
-		e^{\epsilon (\frac{\pi_2(\varx^1)}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
+		e^{\epsilon(1 - 11B\eta)} 
+		e^{\epsilon (\frac{\varx_1}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
 		\leq 
-		e^{\pi_3 (\varx^2)(1 + \eta)^3 - f(a')(1 + \eta)^2}
+		e^{\varx_2(1 + \eta)^3 - f(a')(1 + \eta)^2}
 	}
 	{
 		\varx_1 = \clamp_B \big(
@@ -460,7 +476,7 @@ $\epsilon-$differentially private]
 		\big) 
 		\sim_{0, 0} 
 		\varx_2 = \clamp_B \big(
-		\round{f(a) + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
+		\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
 		:
 		\Phi \land \pi_1(s_1) = \pi_1(s_2)
 		\Rightarrow
@@ -478,7 +494,7 @@ $\epsilon-$differentially private]
 	\big) 
 	\sim_{0, 0} 
 	\varx_2 = \clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
+	\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
 	:
 	\Phi \land \pi_1(s_1) = \pi_1(s_2)
 	\Rightarrow \varx_1 = \varx_2
@@ -507,6 +523,130 @@ $\epsilon-$differentially private]
 	However, in order to show the differential privacy, it is needed to prove:
 	$\Phi' \Rightarrow \varx_1 = \varx_2$.
 }
+\\
+Proof of \todo{ $\Phi' \Rightarrow \varx_1 = \varx_2$}:
+\\
+By the semantics definition of $\varu \samplel \uniform(0,1)$ and $\varx = \expr$, we have
+the semantics of the pair of the snap programs as (given the input environment as empty):
+\\
+\[
+\begin{array}{ll}
+	& \sem{\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
+		\varx_1 = \clamp_B \big(
+		\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
+		\big)}_{[]} =
+	\\
+	&
+	 \elet (\fval_1, \rval_1, \rval_1 ) = \sem{\uniform(0,1)}_{[]} 
+	 \ein \elet (1, 1, 1) = \sem{\uniform\{-1, 1\}} \ein
+	 [\varu_1 \mapsto (\fval_1, \rval_1, \rval_1); 
+	 s_1 \mapsto (1, 1, 1); 
+	 \varx_1 \mapsto \bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fval_1),
+				%
+				 (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\rval_1))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				\frac{(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(\rval_1)}
+				{(1 + \eta)^2}
+				)}
+				{(1 + \eta)}
+				\bigg)]
+	\\
+	\sim
+	&
+	\sem{\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
+		\varx_2 = \clamp_B \big(
+		\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}}
+	\\
+	&
+	\elet (\fval_2, \rval_2, \rval_2) = \sem{\uniform(0,1)}_{[]}
+	\ein \elet (1, 1, 1) = \sem{\uniform\{-1, 1\}} \ein
+	[\varu_2 \mapsto (\fval_2, \rval_2, \rval_2);
+	 s_2 \mapsto (1, 1, 1); 
+	 \varx_2 \mapsto \bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fval_2),
+						%
+				\big( (f(a') + 
+				(\frac{1}{\epsilon} \times \ln(\rval_2))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				\frac{(
+				f(a') + \frac{\frac{1}{\epsilon} 
+				\times \ln(\rval_2)}
+				{(1 + \eta)^2}
+				)}
+				{(1 + \eta)}
+				 \big)
+				\bigg)]	
+	\end{array}
+\]
+We consider the first case of $\sem{\uniform\{-1, 1\}}_{[]} = (1, 1, 1)$ with probability 0.5.
+\\
+By the condition $\Phi$, we have:
+\[
+	e^{-\epsilon(1 - 11B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
+	\land 
+	e^{-\epsilon(1 - 11B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
+\]
+i.e.,
+\[
+	e^{-\epsilon(1 - 11B\eta)} \rval_2 \leq \rval_1
+	\leq e^{\epsilon(1 - 11B\eta)} \rval_2
+	 ~ (\star)
+\]
+By the soundness of the transition semantics, we have:
+\[
+	(f(a) + (\frac{1}{\epsilon} \times \ln(\rval_1))
+	(1 + \eta)^2){(1 + \eta)}
+	\leq \varx_1 \leq
+	\frac{(f(a) + \frac{\frac{1}{\epsilon} 
+	\times \ln(\rval_1)}{(1 + \eta)^2})}
+	{(1 + \eta)}
+	~~ \sim ~~
+	(f(a') + (\frac{1}{\epsilon} \times \ln(\rval_2))
+	(1 + \eta)^2){(1 + \eta)}
+	\leq \varx_2 \leq
+	\frac{(f(a') + \frac{\frac{1}{\epsilon} 
+	\times \ln(\rval_2)}
+	{(1 + \eta)^2} )}{(1 + \eta)}
+\]
+Then, we can get:
+\[
+	e^{\epsilon(\varx_1 (1 + \eta)^3 - f(a)(1 + \eta)^2)}
+	\leq \rval_1 \leq
+	e^{\epsilon(\frac{\varx_1}{(1 + \eta)^3}  - \frac{f(a)}{(1 + \eta)^2})}
+	~~ \sim ~~
+	e^{\epsilon(\varx_2 (1 + \eta)^3 - f(a')(1 + \eta)^2)}
+	\leq \rval_2 \leq
+	e^{\epsilon(\frac{\varx_2}{(1 + \eta)^3}  - \frac{f(a')}{(1 + \eta)^2})} ~ (\diamond)
+\]
+According to $(\star)$ and $(\diamond)$, we have:
+\[
+		e^{-\epsilon(1 - 1B\eta)} 
+		e^{\epsilon (\frac{\varx_2}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
+		\leq 
+		e^{\varx_1(1 + \eta)^3 - f(a)(1 + \eta)^2}
+		~~ \land ~~
+		e^{\epsilon(1 - 11B\eta)} 
+		e^{\epsilon (\frac{\varx_1}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
+		\leq 
+		e^{\varx_2(1 + \eta)^3 - f(a')(1 + \eta)^2} ~ (\Phi')
+\]
+By simplifying, we have:
+\[
+	(\Phi')	
+	~~ \implies ~~
+	\varx_2 \leq \varx_1 \leq \varx_2 
+	~~ \implies ~~
+	\varx_2 = \varx_1
+\]
+
 \end{proof}
 
 \newpage
