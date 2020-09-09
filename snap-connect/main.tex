@@ -42,7 +42,7 @@ it with the floating point computation semantics.
 %
 \mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
 %
-\mbox{Distribution} & \edistr & ::= & \uniform(0, 1) 
+\mbox{Distr.} & \edistr & ::= & \uniform(0, 1) 
 %
 	~|~ \uniform\{-1, 1\}\\ 
 %
@@ -62,17 +62,12 @@ with Floating Point Computation
 }
 %
 Fig. \ref{fig:aprhl} presents the main rules from apRHL excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
-The rule [SEQ] for sequential composition generalizes the sequential composition theorem of differential privacy, which intuitively corresponds to the case where the postcondition of the composed commands is equality.
 The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem. They all extended from the apRHL+ \cite{barthe2016proving}. This generalization allows apRHL to prove differential privacy using the coupling composition principle when the standard composition theorem is insufficient.
 %
 \begin{figure}[t]
-\boxed{\vdash: prog \times prog \times Assert \times Assert}\\
-\boxed{\Phi: Env \times Env \to bool;
-~~~~
-\sem{\Phi} = 
-\{(\trsenv_1, \trsenv_2) | \Phi(\trsenv_1, \trsenv_2) = true\}}\\
-\boxed{\trsenv: var \to \fval \times \rval \times \rval}\\
-\boxed{\pi_i: \fval \times \rval \times \rval \to v, i = 1, 2, 3}
+\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert}\\
+\boxed{\Phi: Env \times Env \to bool}\\
+\boxed{\pi_i: Value \times Value \times Value \to Value, ~~ i = 1, 2, 3}
 \begin{mathpar}
 \inferrule*[right = FloptUnif]
 {
@@ -81,7 +76,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 {
 	\vdash
 	\varx_1 \samplel \uniform(0, 1) 	
-	\sim_{\epsilon, 0} 
+	\sim_{\epsilon} 
 	\varx_2 \samplel \uniform(0, 1)
 	: 
 	\top \Rightarrow  
@@ -98,7 +93,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 {
 	\vdash 
 	\varx_1 \samplel \uniform(0, 1) 	
-	\sim_{0, 0} 
+	\sim_{0} 
 	\varx_2 \samplel \uniform(0, 1) 
 	: \top \Rightarrow 
 	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
@@ -113,7 +108,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 {
 	\vdash 
 	\varx_1 \samplel \uniform\{-1, 1\} 	
-	\sim_{0, 0} 
+	\sim_{0} 
 	\varx_2 \samplel \uniform\{-1, 1\}  
 	: \top \Rightarrow 
 	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
@@ -134,35 +129,37 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 {
 	\vdash 
 	\varx_1 = \expr_1  
-	\sim_{0, 0} 
+	\sim_{0} 
 	\varx_2 = \expr_2  
 	: \Phi[\expr_1/\varx_1][\expr_2/\varx_2]  \Rightarrow \Phi
 }
 ~~~
 \inferrule*[right = Seq]
 {
-\prog_1 \sim_{k, 0} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
+\prog_1 \sim_{\epsilon, 0} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
 \\
-\prog'_1 \sim_{k', 0} \prog'_2 : \Phi'_1 \Rightarrow \Phi_2
+\prog'_1 \sim_{\epsilon', 0} \prog'_2 : \Phi'_1 \Rightarrow \Phi_2
 }
 {
 	\vdash 
 	\prog_1; \prog'_1  
-	\sim_{k + k', 0} 
+	\sim_{\epsilon + \epsilon'} 
 	\prog_2; \prog'_2
 	: \Phi_1  \Rightarrow  \Phi_2
 }
 \and
 \inferrule*[right = Conseq]
 {
-\prog_1 \sim_{k, 0} \prog_2 : \Phi'_1 \Rightarrow \Phi'_2
+\prog_1 \sim_{\epsilon} \prog_2 : \Phi'_1 \Rightarrow \Phi'_2
 \and
 \Phi_1 \Rightarrow \Phi'_1
 \and 
 \Phi'_2 \Rightarrow \Phi_2
+\and 
+\epsilon \leq \epsilon'
 }
 {
-\prog_1 \sim_{k, 0} \prog_2 : 
+\prog_1 \sim_{\epsilon'} \prog_2 : 
 \Phi_1 \Rightarrow \Phi_2
 }
 \end{mathpar}
@@ -177,7 +174,43 @@ $(\sem{\prog_2}_{\trsenv_2})$.
 
 \newpage
 \paragraph{Semantics.}
-$\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
+$\boxed{Env \times Expr. \trsto Value \times Value \times Value }$
+%
+\[
+	\begin{array}{rcl}
+	\sem{\expr}_{\trsenv}
+	& \in &  
+	\big\{(\fval, \rval_{l}, \rval_{u}) ~|~
+	\exists ~~  
+	\trsenv,  
+	\expr \trsto (\fvalv, \rval_{l}, \rval_{u})\big\}
+	\end{array}
+\]
+%
+$
+\boxed{Env \times \distr. \trsto 
+\distr(Value \times Value \times Value )}
+$
+%
+\[
+	\begin{array}{rcl}
+	\sem{\uniform(0, 1)}_{\trsenv}
+	& \in & 
+	\big\{
+	(\fval, \rval_{l}, \rval_{u}) ~|~
+	\fval \leftarrow \uniform(0, 1)^{\diamond}
+	\land \rval_{l} = \rval_{u} = \fval
+	\big\}\\
+	\sem{\uniform\{-1, 1\}}_{\trsenv}
+	& \in & 
+	\big\{
+	(-1, -1, -1), (1, 1, 1) ~|~
+	each ~ w.p. ~ 0.5 
+	\big\}\\	
+	\end{array}
+\]
+%
+$\boxed{Env \times prog \trsto \distr(Env)}$
 \[
 	\begin{array}{rcl}
 % 	\sem{\eskip}_{\trsenv}
@@ -187,9 +220,9 @@ $\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 	%
 	\sem{\varx \samplel \edistr}_{\trsenv}
 	& = & 
-	\elet (\fval, \rval, \rval) = \sem{\edistr}_{\trsenv} 
+	\elet (\fval, \rval_{l}, \rval_{u}) = \sem{\edistr}_{\trsenv} 
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval, \rval, \rval)]}
+	\unit{\trsenv[\varx \mapsto (\fval, \rval_{l}, \rval_{u})]}
 	\\
 	%
 	\sem{\varx = \expr}_{\trsenv}
@@ -201,37 +234,6 @@ $\boxed{\trsenv, \prog \trsto \distr(\trsenv)}$
 	& = &  \elet  \trsenv_1 = 
 	\sem{\prog_1}_{\trsenv} \ein
 	\sem{\prog_2}_{\trsenv_1} 
-	\end{array}
-\]
-$\boxed{\trsenv, \expr \trsto \fval \times \rval \times \rval}$
-\[
-	\begin{array}{rcl}
-	\sem{\expr}_{\trsenv}
-	& \in &  
-	\big\{(\fval, \rval_{l}, \rval_{u}) |
-	\exists ~~  
-	\trsenv,  
-	\expr \trsto (\fvalv, \rval_{l}, \rval_{u})\big\}
-	\end{array}
-\]
-$
-\boxed{\trsenv, \edistr \trsto \distr(\fval \times \rval \times \rval)}
-$
-\[
-	\begin{array}{rcl}
-	\sem{\uniform(0, 1)}_{\trsenv}
-	& \in & 
-	\big\{
-	(\fval, \rval, \rval) |
-	\fval \leftarrow \uniform(0, 1)^{\diamond}
-	\land \rval = \fval
-	\big\}\\
-	\sem{\uniform\{-1, 1\}}_{\trsenv}
-	& \in & 
-	\big\{
-	(-1, -1, -1), (1, 1, 1) |
-	each ~ w.p. ~ 0.5 
-	\big\}\\	
 	\end{array}
 \]
 In the semantics, 
@@ -460,7 +462,7 @@ $\epsilon-$differentially private]
 \inferrule*[right = Assn]
 	{
 		\Phi' = 
-		e^{-\epsilon(1 - 1B\eta)} 
+		e^{-\epsilon(1 - 11B\eta)} 
 		e^{\epsilon (\frac{\varx_2}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
 		\leq 
 		e^{\varx_1(1 + \eta)^3 - f(a)(1 + \eta)^2}
@@ -504,24 +506,24 @@ $\epsilon-$differentially private]
 \todo{
 	given that:
 	$
-	\Phi' = 
-		e^{-\epsilon(1 + 24B\eta)} 
-		e^{\epsilon (\frac{\pi_2(\varx^2)}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
-		\leq 
-		e^{\pi_3 (\varx^1)(1 + \eta)^3 - f(a)(1 + \eta)^2}
+	\Phi = 
+	e^{-\epsilon(1 + 24B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
 		\land 
-		e^{\epsilon(1 + 24B\eta)} 
-		e^{\epsilon (\frac{\pi_2(\varx^1)}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
-		\leq 
-		e^{\pi_3 (\varx^2)(1 + \eta)^3 - f(a')(1 + \eta)^2}
+	e^{-\epsilon(1 + 24B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
 	$
-	I'm able to prove that:
+	I'm only able to prove that:
 	$\varx_1 = \varx_2 \Rightarrow \Phi'$
 	but not 
 	$\Phi' \Rightarrow \varx_1 = \varx_2$.
 	\\
-	However, in order to show the differential privacy, it is needed to prove:
-	$\Phi' \Rightarrow \varx_1 = \varx_2$.
+	However, given
+	$ 
+	\Phi = 
+	e^{-\epsilon(1 - 11B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
+		\land 
+	e^{-\epsilon(1 - 11B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
+	$, we are able to prove:
+	$\Phi \implies \Phi' \implies \varx_1 = \varx_2$.
 }
 \\
 Proof of \todo{ $\Phi' \Rightarrow \varx_1 = \varx_2$}:
