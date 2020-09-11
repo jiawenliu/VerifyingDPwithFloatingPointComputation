@@ -132,6 +132,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 
 \begin{figure}[t]
 \begin{mathpar}
+\mathtodo{
 \inferrule*[right = Assn]
 {
 \expr_1 \trsto (\fval_1, \rval_{l1}, \rval_{u1})
@@ -145,6 +146,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\varx_2 = \expr_2  
 	: \Phi[(\fval_1, \rval_{l1}, \rval_{u1})/\varx_1]
 	[(\fval_2, \rval_{l2}, \rval_{u2})/\varx_2]  \Rightarrow \Phi
+}
 }
 \and
 \inferrule*[right = Assn]
@@ -268,166 +270,82 @@ is transited to $\fvalv$ with error bound $err = (\rval_{l}, \rval_{u})$ in floa
 $\trsenv, \prog \trsto \trsenv'$ represents given and environment $\trsenv$, the program $\prog$ is transited to a new environment $\trsenv'$.
 
 
-\clearpage
-\begin{thm}[Soundness]
- $\forall \prog^1$, $\prog^2$,  $ \vdash \prog^1	
-\sim_{\epsilon, \delta} 
-\prog^2 :
-\Phi_0 \Rightarrow \Phi $,    $\forall \trsenv^1_0$, $\trsenv^2_0$ 
-s.t $\Phi_0$: 
-$\trsenv^1_0 ~ \sem{\Phi_0} ~ \trsenv^2_0$,
-then
-$$ 
-(\sem{\prog^1}_{\trsenv^1_0})  
-\sem{\Phi}^{\#(\epsilon, \delta)} 
-(\sem{\prog^2}_{\trsenv^2_0}) 
-$$.
-\end{thm}
 
 
-
-\begin{proof}
-By induction on the transition judgement $\vdash \prog^1	
-\sim_{\epsilon, \delta} 
-\prog^2 :
-\Phi_0 \Rightarrow \Phi $.
-\begin{itemize}
-\caseL{[\textsc{FloptUnif}]}
-	In this case, 
-	$\sem{\Phi} = 
+\newpage
+\begin{thm}
+\label{thm:unif_coupling}
+Let $\edistr_1 \in \distr(\real)$, $\edistr_2 \in \distr(\real)$ are defined:
+\[
+	{\edistr_1}(x) = \uniform(0, 1)
+\]
+\[
+	{\edistr_2}(y) = {\uniform}(0, 1)
+\]
+where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
+\[
+	\pdf_{\uniform}(x) = 
+	\begin{cases}
+	1 & x \in [0, 1)^{\mathbb{F}}\\
+	0       & o.w.
+	\end{cases}.
+\]
+Then, $	\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} 
+		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
+		\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2}$, 
+where
+\[
+	\sem{\Phi} = 
 	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
 	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
 	|
 	\expr^{-\epsilon} \rval_{2l} \leq \rval_{1u}
 	\land
 	\expr^{\epsilon} \rval_{1l} \leq \rval_{2u}
-	\}$
-	%
-	\\
-	%
-	By the semantics of sampling, we have:\\
-	%
-	$\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} = \distr(\trsenv^1)$ and 
-	%
-	$\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0} = \distr(\trsenv^2)$. \\
-	%
-	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})$ s.t.,
-	%
-	$\trsenv^1 (\varx^1) = (\fval_1, \rval_{1l}, \rval_{1u})$
-	and
-	$\trsenv^2 (\varx^2) = (\fval_2, \rval_{2l}, \rval_{2u})$:
-	%
-	\\
-	%
-	$ \rval_{1l} \leq \fval_1 \leq \rval_{1u} ~ (1)$ 
-	and
-	$ \rval_{2l} \leq \fval_2 \leq \rval_{2u} ~ (2)$.
-	%
-	\\
-	%
-	Let $\rval_1$ and $\rval_2$ be the real representation of $\fval_1$ and $\fval_2$ in $\real$, by the soundness of ideal judgment, we have:
-	$\pi_1 (\distr(\trsenv^1)) ~ \Psi^{\#(\epsilon, 0)} ~ \pi_1 (\distr(\trsenv^2))$, where
-	\[
-		\Psi = \{(\rval_1, \rval_2) \in \real \times \real
-		| 
-		\rval_1 e^{-\epsilon} 
-		\leq \rval_2
-		\leq \rval_1 e^{\epsilon} \}.
-	\]
-	By $(1)$ and $(2)$, we have:
-	$\Psi \implies \Phi$.
-	\\
-	So it can be proven by implication that 
-	$(\distr(\trsenv^1)) ~ \Phi^{\#(\epsilon, 0)} ~ (\distr(\trsenv^2))$, i.e., 
-	$$
-	\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} 
-		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
-		\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0}
-	$$
-\caseL{[\textsc{FloptNull}] }
-	In this case, 
-	$\sem{\Phi} = 
-	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
-	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
-	|
-	\rval_{2l} = \rval_{1l}
-	\land
-	\rval_{2u} = \rval_{1u}
-	\land
-	\fval_1 = \fval_2
-	\}$
-	%
-	\\
-	%
-	By the semantics of sampling, we have:\\
-	%
-	$\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} = \distr(\trsenv^1)$ and 
-	%
-	$\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0} = \distr(\trsenv^2)$. \\
-	%
-	By the definition of the environment and the soundness of the transition semantics, we have for any $(\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})$ s.t.,
-	%
-	$\trsenv^1 (\varx^1) = (\fval_1, \rval_{1l}, \rval_{1u})$
-	and
-	$\trsenv^2 (\varx^2) = (\fval_2, \rval_{2l}, \rval_{2u})$:
-	%
-	\\
-	%
-	$ \rval_{1l} \leq \fval_1 \leq \rval_{1u} ~ (1)$ 
-	and
-	$ \rval_{2l} \leq \fval_2 \leq \rval_{2u} ~ (2)$.
-	%
-	\\
-	%
-	Let $\rval_1$ and $\rval_2$ be the real representation of $\fval_1$ and $\fval_2$ in $\real$, by the soundness of ideal judgment, we have:
-	$\pi_1 (\distr(\trsenv^1)) ~ \Psi^{\#(\epsilon, 0)} ~ \pi_1 (\distr(\trsenv^2))$, where
-	\[
-		\Psi = \{(\rval_1, \rval_2) \in \real \times \real
-		| 
-		\rval_1 = \rval_2 \}.
-	\]
-	By $(1)$ and $(2)$, we have:
-	$\Psi \implies \Phi$.
-	\\
-	So it can be proven by implication that 
-	$(\distr(\trsenv^1)) ~ \Phi^{\#(\epsilon, 0)} ~ (\distr(\trsenv^2))$, i.e., 
-	$$
-	\sem{\varx^1 \samplel \edistr^1}_{\trsenv^1_0} 
-		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
-		\sem{\varx^2 \samplel \edistr^2}_{\trsenv^2_0}
-	$$
-	% \caseL{[\textsc{Assn}] }
-	% \caseL{[\textsc{Seq}] }
-	% \caseL{[\textsc{ConSeq}] }
-	\end{itemize}
-\end{proof}
-
-\newpage
-\begin{thm}
-\label{corr_axunif}
-Let $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$ are defined:
-\[
-	{\mu_1}(x) = \uniform(x)
-\]
-\[
-	{\mu_2}(y) = {\uniform}(y)
-\]
-where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
-\[
-	\pdf_{\uniform}(x) = 
-	\begin{cases}
-	1 & x \in [0, 1)\\
-	0       & o.w.
-	\end{cases}.
-\]
-Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
-\[
-	\Psi = \{(x,y) \in \real \times \real | x \cdot e^{-\epsilon} \leq y \leq x \cdot e^{\epsilon} \}
+	\}
 \]
 \end{thm}
-\begin{proof}[Proof of Theorem \ref{corr_axunif}]
-
-Existing $\mu_L, \mu_R \in \distr(\real \times \real)$:
+\begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} = 
+	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
+	= \sem{\edistr_1}_{\trsenv_1} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
+	$ and 
+	%
+	\\
+	%
+	$\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2} = 
+	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
+	= \sem{\edistr_2}_{\trsenv_2} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
+	$. \\
+	%
+	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsenv}$ we have:
+	\\
+	%
+	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
+	and
+	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
+	%
+	\\
+	%
+	Then, it is enough to show:
+	${\edistr_1}(x) ~ \Psi^{\#(\epsilon, 0)} ~ {\edistr_1}(y)$, where
+	\[
+		\Psi = \{(\fval_1, \fval_2) \in \float \times \float
+		| 
+		\fval_1 e^{-\epsilon} 
+		\leq \fval_2
+		\leq \fval_1 e^{\epsilon} \}.
+	\]
+%
+\\
+%
+Let $\mu_L, \mu_R \in \distr(\real \times \real)$ be the two witness distribution s.t.:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
@@ -439,11 +357,11 @@ Existing $\mu_L, \mu_R \in \distr(\real \times \real)$:
 	\begin{cases}
 	{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
 	0       & o.w.
-	\end{cases}.
+	\end{cases},
 \]
-
-
-Their $\pdf.$ are defined:
+%
+%
+where their $\pdf.$ are defined as:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
@@ -451,6 +369,7 @@ Their $\pdf.$ are defined:
 	0       & o.w.
 	\end{cases}
 \]
+%
 \[
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
@@ -458,22 +377,33 @@ Their $\pdf.$ are defined:
 	0       & o.w.
 	\end{cases}.
 \]
+It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
 \begin{itemize}
 	\item $\supp(\mu_L) \in \Psi \land \supp(\mu_R) \in \Psi$
 
 	\begin{itemize}
 		\item $\supp(\mu_L) \subseteq \Psi$ 
-
+		%
+		\\
+		%
 		By definition of the $\pdf$ of $\mu_L$, we have: $\pr{(x,y) \samplel \mu_L}{(x,y) \notin \Psi} = 0$.
-
+		%
+		\\%
+		%
 		Then we can derive $\supp(\mu_L) \in \Psi$
-
+		%
+		\\
+		%
 		\item $\supp(\mu_R) \subseteq \Psi$
-
+		%
+		\\
+		%
 		By definition of the $\pdf$ of $\mu_R$, we have: $\pr{(x,y) \samplel \mu_R}{(x,y) \notin \Psi} = 0$.
-
+		%
+		\\
+		%
 		Then we can derive $\supp(\mu_L) \in \Psi$
-
+		%
 	\end{itemize}		
 
 
@@ -571,6 +501,139 @@ Their $\pdf.$ are defined:
 	 \end{itemize}
 
 \end{itemize}
+\end{proof}
+%
+%
+%
+%
+%
+%
+\clearpage
+\begin{thm}[Soundness]
+ $\forall \prog_1$, $\prog_2$,  $ \vdash \prog_1	
+\sim_{\epsilon, \delta} 
+\prog^2 :
+\Phi_0 \Rightarrow \Phi $,    $\forall \trsenv_1$, $\trsenv_2$ 
+s.t $\Phi_0$: 
+$\trsenv_1 ~ \sem{\Phi_0} ~ \trsenv_2$,
+then
+$$ 
+(\sem{\prog_1}_{\trsenv_1})  
+\sem{\Phi}^{\#(\epsilon, \delta)} 
+(\sem{\prog_2}_{\trsenv_2}) 
+$$.
+\end{thm}
+
+
+
+\begin{proof}
+By induction on the transition judgement $\vdash \prog_1	
+\sim_{\epsilon, \delta} 
+\prog_2 :
+\Phi_0 \Rightarrow \Phi $.
+\begin{itemize}
+\caseL{[\textsc{FloptUnif}]}
+	In this case, 
+	$\sem{\Phi} = 
+	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
+	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
+	~|~
+	\expr^{-\epsilon} \rval_{2l} \leq \rval_{1u}
+	\land
+	\expr^{\epsilon} \rval_{1l} \leq \rval_{2u}
+	\}$
+	%
+	\\
+	%
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} = 
+	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
+	= \sem{\edistr_1}_{\trsenv_1} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
+	$ and 
+	%
+	$\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2} = 
+	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
+	= \sem{\edistr_2}_{\trsenv_2} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
+	$. \\
+	%
+	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsenv}$ we have:
+	\\
+	%
+	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
+	and
+	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
+	%
+	\\
+	%
+	Then, it is enough to show:
+	${\edistr_1}(x) ~ \Psi^{\#(\epsilon, 0)} ~ {\edistr_1}(y)$, where
+	\[
+		\Psi = \{(\fval_1, \fval_2) \in \float \times \float
+		| 
+		\fval_1 e^{-\epsilon} 
+		\leq \fval_2
+		\leq \fval_1 e^{\epsilon} \}.
+	\]
+	%
+	Which is proved in the Theorem \ref{thm:unif_coupling}.
+\caseL{[\textsc{FloptNull}] }
+	In this case, 
+	$\sem{\Phi} = 
+	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
+	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
+	|
+	\rval_{2l} = \rval_{1l}
+	\land
+	\rval_{2u} = \rval_{1u}
+	\land
+	\fval_1 = \fval_2
+	\}$
+	%
+	\\
+	%
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} = 
+	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
+	= \sem{\edistr_1}_{\trsenv_1} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
+	$ and 
+	%
+	$\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2} = 
+	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
+	= \sem{\edistr_2}_{\trsenv_2} 
+	\ein 
+	\unit{\trsenv[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
+	$. \\
+	%
+	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsenv}$ we have:
+	\\
+	%
+	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
+	and
+	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
+	%
+	\\
+	%
+	Then, it is enough to show:
+	${\edistr_1}(x) ~ \Psi^{\#(0, 0)} ~ {\edistr_1}(y)$, where
+	\[
+		\Psi = \{(\fval_1, \fval_2) \in \float \times \float
+		~| ~
+		\fval_1 = \fval_2 \}.
+	\]
+	%
+	Which is obviously.
+	% \caseL{[\textsc{Assn}] }
+	% \caseL{[\textsc{Seq}] }
+	% \caseL{[\textsc{ConSeq}] }
+	\end{itemize}
 \end{proof}
 
 
