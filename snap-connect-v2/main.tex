@@ -50,7 +50,15 @@ it with the floating point computation semantics.
 %
 \mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] \\
 %
-\mbox{Assert.} & \Phi &  & 
+\mbox{Bool Atom} & \batom & :: = & \pi_i(\varx) ~|~ \pi_i(\expr) 
+	~|~ \valv \\
+%
+\mbox{Bool Expression} & \bexp & :: = & \batom = \batom ~|~ \batom > \batom
+	~|~ \batom \geq \batom ~|~ \batom < \batom ~|~ \batom \leq \batom
+	~|~ \etrue ~|~ \efalse \\
+%
+\mbox{Assert.} & \Phi & ::= & \top ~|~ \bot ~|~ \bexp 
+	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
 \end{array}
 \]
 where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation.
@@ -71,151 +79,6 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are relate
 \end{enumerate}
 \end{defn}
 %
-Fig. \ref{fig:aprhl} presents the main rules from apRHL excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
-The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem. They all extended from the apRHL+ \cite{barthe2016proving}. This generalization allows apRHL to prove differential privacy using the coupling composition principle when the standard composition theorem is insufficient.
-%
-\begin{figure}[t]
-\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert}\\
-\boxed{\Phi: Env \times Env \to bool}\\
-\boxed{\pi_i: Value \times Value \times Value \to Value, ~~ i = 1, 2, 3}
-\begin{mathpar}
-\inferrule*[right = Unif]
-{
-\empty
-}
-{
-	\vdash
-	\varx_1 \samplel \uniform(0, 1) 	
-	\sim_{\epsilon} 
-	\varx_2 \samplel \uniform(0, 1)
-	: 
-	\top \Rightarrow  
-	% (P \Rightarrow   Q)
-	e^{-\epsilon} \pi_2(\varx_2) \leq \pi_3 (\varx_1) 
-	\land 
-	e^{-\epsilon} \pi_2 (\varx_1) \leq \pi_3 (\varx_2)
-}
-\and
-\inferrule*[right = Null]
-{
-\empty
-}
-{
-	\vdash 
-	\varx_1 \samplel \uniform(0, 1) 	
-	\sim_{0} 
-	\varx_2 \samplel \uniform(0, 1) 
-	: \top \Rightarrow 
-	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
-	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
-	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
-}
-\and
-\inferrule*[right = Null2]
-{
-\empty
-}
-{
-	\vdash 
-	\varx_1 \samplel \uniform\{-1, 1\} 	
-	\sim_{0} 
-	\varx_2 \samplel \uniform\{-1, 1\}  
-	: \top \Rightarrow 
-	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
-	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
-	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
-}
-\and
-\inferrule*[right = round]
-{
-\empty
-}
-{
-	\vdash 
-	\varx_1 \samplel \round{\vary_1}_{\Lambda}	
-	\sim_{0} 
-	\varx_2 \samplel \round{\vary_2}_{\Lambda}
-	: k - \frac{\Lambda}{2} \leq \pi_1(\vary_1) < k + \frac{\Lambda}{2} 
-	\land
-	k - \frac{\Lambda}{2} \leq \pi_1(\vary_2) < k + \frac{\Lambda}{2}	
-	\Rightarrow 
-	\pi_1 (\varx_2) = \pi_1 (\varx_1 ) = k
-}
-\end{mathpar}
-\caption{Rules Extended from apRHL+}
-\label{fig:aprhlplus}
-\end{figure}
-
-\begin{figure}[t]
-\begin{mathpar}
-\mathtodo{
-\inferrule*[right = Assn]
-{
-\expr_1 \trsto (\fval_1, \rval_{l1}, \rval_{u1})
-\and
-\expr_2 \trsto (\fval_2, \rval_{l2}, \rval_{u2})
-}
-{
-	\vdash 
-	\varx_1 = \expr_1  
-	\sim_{0} 
-	\varx_2 = \expr_2  
-	: \Phi[(\fval_1, \rval_{l1}, \rval_{u1})/\varx_1]
-	[(\fval_2, \rval_{l2}, \rval_{u2})/\varx_2]  \Rightarrow \Phi
-}
-}
-\and
-\inferrule*[right = Assn]
-{
-\empty
-}
-{
-	\vdash 
-	\varx_1 = \expr_1  
-	\sim_{0} 
-	\varx_2 = \expr_2  
-	: \Phi[\expr_1/\varx_1]
-	[\expr_2/\varx_2]  \Rightarrow \Phi
-}
-~~~
-\inferrule*[right = Seq]
-{
-\prog_1 \sim_{\epsilon} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
-\\
-\prog'_1 \sim_{\epsilon'} \prog'_2 : \Phi'_1 \Rightarrow \Phi_2
-}
-{
-	\vdash 
-	\prog_1; \prog'_1  
-	\sim_{\epsilon + \epsilon'} 
-	\prog_2; \prog'_2
-	: \Phi_1  \Rightarrow  \Phi_2
-}
-\and
-\inferrule*[right = Conseq]
-{
-\prog_1 \sim_{\epsilon} \prog_2 : \Phi'_1 \Rightarrow \Phi'_2
-\and
-\Phi_1 \Rightarrow \Phi'_1
-\and 
-\Phi'_2 \Rightarrow \Phi_2
-\and 
-\epsilon \leq \epsilon'
-}
-{
-\prog_1 \sim_{\epsilon'} \prog_2 : 
-\Phi_1 \Rightarrow \Phi_2
-}
-\end{mathpar}
-\caption{Proving Rules from apRHL}
-\label{fig:aprhl}
-\end{figure}
-The judgment $\vdash \prog_1 \sim_{\epsilon, \delta} \prog_2: \Phi_0 \Rightarrow \Phi$ is read as, given two environments $\trsenv_1$ and $\trsenv_2$ satisfying precondition $\Phi_0$, 
-then under the semantics definition, 
-$(\sem{\prog_1}_{\trsenv_1})$ 
-$\sem{\Phi}^{\#(\epsilon, \delta)}$ 
-$(\sem{\prog_2}_{\trsenv_2})$.
-
 \newpage
 \paragraph{Semantics.}
 $\boxed{Env \times Expr. \trsto Value \times Value \times Value }$
@@ -293,6 +156,142 @@ $\trsenv, \prog \trsto \trsenv'$ represents given and environment $\trsenv$,
 the program $\prog$ is transited to a new environment $\trsenv'$.
 %
 %
+%
+\begin{figure}[ht]
+\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert}\\
+\boxed{\Phi: Env \times Env \to bool}\\
+\boxed{\pi_i: Value \times Value \times Value \to Value, ~~ i = 1, 2, 3}
+\begin{mathpar}
+\inferrule*[right = Unif]
+{
+\empty
+}
+{
+	\vdash
+	\varx_1 \samplel \uniform(0, 1) 	
+	\sim_{\epsilon} 
+	\varx_2 \samplel \uniform(0, 1)
+	: 
+	\top \Rightarrow  
+	% (P \Rightarrow   Q)
+	\rvalL_1 \leq \pi_1(\varx_2) \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \pi_1 (\varx_1) \leq \rvalR_2
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
+	\leq e^{\epsilon}
+}
+\and
+\inferrule*[right = Null]
+{
+\empty
+}
+{
+	\vdash 
+	\varx_1 \samplel \uniform(0, 1) 	
+	\sim_{0} 
+	\varx_2 \samplel \uniform(0, 1) 
+	: \top \Rightarrow 
+	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
+	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
+	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
+}
+\and
+\inferrule*[right = Null2]
+{
+\empty
+}
+{
+	\vdash 
+	\varx_1 \samplel \uniform\{-1, 1\} 	
+	\sim_{0} 
+	\varx_2 \samplel \uniform\{-1, 1\}  
+	: \top \Rightarrow 
+	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
+	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
+	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
+}
+\and
+\inferrule*[right = round]
+{
+\empty
+}
+{
+	\vdash 
+	\varx_1 \samplel \round{\vary_1}_{\Lambda}	
+	\sim_{0} 
+	\varx_2 \samplel \round{\vary_2}_{\Lambda}
+	: k - \frac{\Lambda}{2} \leq \pi_1(\vary_1) < k + \frac{\Lambda}{2} 
+	\land
+	k - \frac{\Lambda}{2} \leq \pi_1(\vary_2) < k + \frac{\Lambda}{2}	
+	\Rightarrow 
+	\pi_1 (\varx_2) = \pi_1 (\varx_1 ) = k
+}
+\end{mathpar}
+\caption{Rules Extended from apRHL+}
+\label{fig:aprhlplus}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{mathpar}
+\inferrule*[right = Assn]
+{
+\empty
+}
+{
+	\vdash 
+	\varx_1 = \expr_1  
+	\sim_{0} 
+	\varx_2 = \expr_2  
+	: \Phi[\expr_1/\varx_1]
+	[\expr_2/\varx_2]  \Rightarrow \Phi
+}
+~~~
+\inferrule*[right = Seq]
+{
+\prog_1 \sim_{\epsilon} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
+\\
+\prog'_1 \sim_{\epsilon'} \prog'_2 : \Phi'_1 \Rightarrow \Phi_2
+}
+{
+	\vdash 
+	\prog_1; \prog'_1  
+	\sim_{\epsilon + \epsilon'} 
+	\prog_2; \prog'_2
+	: \Phi_1  \Rightarrow  \Phi_2
+}
+\and
+\inferrule*[right = Conseq]
+{
+\prog_1 \sim_{\epsilon} \prog_2 : \Phi'_1 \Rightarrow \Phi'_2
+\and
+\Phi_1 \Rightarrow \Phi'_1
+\and 
+\Phi'_2 \Rightarrow \Phi_2
+\and 
+\epsilon \leq \epsilon'
+}
+{
+\prog_1 \sim_{\epsilon'} \prog_2 : 
+\Phi_1 \Rightarrow \Phi_2
+}
+\end{mathpar}
+\caption{Proving Rules from apRHL}
+\label{fig:aprhl}
+\end{figure}
+%
+Fig. \ref{fig:aprhl} presents the main rules from apRHL+ \cite{barthe2016proving} excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
+The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem.
+%
+The judgment $\vdash \prog_1 \sim_{\epsilon, \delta} \prog_2: \Phi_0 \Rightarrow \Phi$ is read as, given two environments $\trsenv_1$ and $\trsenv_2$ satisfying precondition $\Phi_0$, 
+%
+then under the semantics definition, 
+$(\sem{\prog_1}_{\trsenv_1})$ 
+$\sem{\Phi}^{\#(\epsilon, \delta)}$ 
+$(\sem{\prog_2}_{\trsenv_2})$.
+
+
 %
 \newpage
 \begin{thm}
