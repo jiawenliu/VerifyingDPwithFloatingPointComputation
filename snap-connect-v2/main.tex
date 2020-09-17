@@ -298,9 +298,8 @@ $(\sem{\prog_2}_{\trsenv_2})$.
 \label{thm:unif_coupling}
 Let $\edistr_1 \in \distr(\float)$, $\edistr_2 \in \distr(\float)$ are defined:
 \[
-	\edistr_1(x) = \uniform(0, 1)
-\]
-\[
+	\edistr_1(x) = \uniform(0, 1),
+~~
 	\edistr_2(y) = \uniform(0, 1)
 \]
 where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
@@ -316,53 +315,24 @@ Then, $	\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1}
 		\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2}$, 
 where
 \[
-	\sem{\Phi} = 
+\begin{array}{rl}
+	\sem{\Phi} = &
 	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
-	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
-	|
-	\expr^{-\epsilon} \rval_{2l} \leq \rval_{1u}
+	\in (\float \times \real \times \real) \times (\float \times \real \times \real)\\
+	& |
+	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \fval_1 \leq \rvalR_2
 	\land
-	\expr^{-\epsilon} \rval_{1l} \leq \rval_{2u}
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
+	\leq e^{\epsilon}
 	\}
+\end{array}
 \]
 \end{thm}
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
-	By the semantics of sampling, we have:\\
-	%
-	$\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} = 
-	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
-	= \sem{\edistr_1}_{\trsenv_1} 
-	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
-	$ and 
-	%
-	\\
-	%
-	$\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2} = 
-	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
-	= \sem{\edistr_2}_{\trsenv_2} 
-	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
-	$. \\
-	%
-	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsenv}$ we have:
-	\\
-	%
-	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
-	and
-	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
-	%
-	\\
-	%
-	Then, it is enough to show:
-	${\edistr_1}(x) ~ \Psi^{\#(\epsilon, 0)} ~ {\edistr_1}(y)$, where
-	\[
-		\Psi = \{(\fval_1, \fval_2) \in \float \times \float
-		| 
-		\fval_1 e^{-\epsilon} 
-		\leq \fval_2
-		\leq \fval_1 e^{\epsilon} \}.
-	\]
 %
 %
 Let $\mu_L, \mu_R \in \distr(\float \times \float)$ be the two witness distribution s.t.:
@@ -371,8 +341,8 @@ Let $\mu_L, \mu_R \in \distr(\float \times \float)$ be the two witness distribut
 	\begin{cases}
 	{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
 	0       & o.w.
-	\end{cases}
-	\\
+	\end{cases},
+	~~
 	{\mu_R}(x, y) = 
 	\begin{cases}
 	{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
@@ -387,10 +357,8 @@ where their $\pdf.$ are defined as:
 	\begin{cases}
 	\pdf_{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
 	0       & o.w.
-	\end{cases}
-\]
-%
-\[
+	\end{cases},
+~~
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
 	\pdf_{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
@@ -406,7 +374,13 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		%
 		\\
 		%
-		By definition of the $\pdf$ of $\mu_L$, we have: $\pr{(x,y) \samplel \mu_L}{(x,y) \notin \Psi} = 0$.
+		Let $\rvalL_1 = x$, $\rvalR_1 = 2x$, $\rvalL_2 = y$ and $\rvalR_2 = 2y$. 
+		By definition of the $\pdf$ of $\mu_L$, we have: 
+		$\rvalL_1 \leq x \leq \rvalR_1 
+		\land \rvalL_2 \leq y \leq \rvalR_2
+		\land e^{-\epsilon} \leq 
+		\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
+		\leq e^{\epsilon} \in \Psi$ when $\pdf_{\mu_R}(x, y) > 0$.
 		%
 		\\%
 		%
@@ -418,7 +392,13 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		%
 		\\
 		%
-		By definition of the $\pdf$ of $\mu_R$, we have: $\pr{(x,y) \samplel \mu_R}{(x,y) \notin \Psi} = 0$.
+		Let $\rvalL_1 = x$, $\rvalR_1 = 2x$, $\rvalL_2 = y$ and $\rvalR_2 = 2y$. 
+		By definition of the $\pdf$ of $\mu_L$, we have: 
+		$\rvalL_1 \leq x \leq \rvalR_1 
+		\land \rvalL_2 \leq y \leq \rvalR_2
+		\land e^{-\epsilon} \leq 
+		\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
+		\leq e^{\epsilon} \in \Psi$ when $\pdf_{\mu_R}(x, y) > 0$.
 		%
 		\\
 		%
@@ -676,6 +656,7 @@ where $f(a)$ represents a value that the query function $f$ be evaluated over in
 $\epsilon-$differentially private]
 \end{thm}
 \begin{proof}
+The proof is developed by cases as following:
 \tiny{
 \begin{mathpar}
 \inferrule*[right = Seq]
