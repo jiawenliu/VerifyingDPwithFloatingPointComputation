@@ -319,7 +319,7 @@ where
 	\sem{\Phi} = &
 	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
 	\in (\float \times \real \times \real) \times (\float \times \real \times \real)\\
-	& |
+	& ~|~
 	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~
 	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
 	\land 
@@ -331,7 +331,7 @@ where
 	\}
 \end{array}
 \]
-\end{thm}
+\end{thm}	
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
 %
 %
@@ -657,6 +657,51 @@ $\epsilon-$differentially private]
 \end{thm}
 \begin{proof}
 The proof is developed by cases as following:
+\begin{itemize}
+	\caseL{$\boldsymbol{\valv = -B}$}
+	\caseL{
+	$\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
+	}
+	%
+	\subcaseL{
+	$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 
+	\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1) $
+	}
+	%
+	\subcaseL{
+	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } ~ (\star_1)$}
+
+	%
+	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv = 0 } $}
+	%
+	\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
+	%
+	\subcaseL{$s = 1$}
+	%
+	\subcaseL{$s = -1$}
+	%
+	\caseL{
+	$\boldsymbol{\valv \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$
+	}
+	%
+	\caseL{$\boldsymbol{\valv = \round{f(a')}_{\Lambda}}$}
+	%
+	\subcaseL{$s = 1$}
+	%
+	\subcaseL{$s = -1$}
+	%
+	\caseL{$\boldsymbol{\valv \in  (\round{f(a')}_{\Lambda}, B)}$}
+	%
+	\subcaseL{
+	$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land \valv \in  (0, B)}$}
+	%
+	\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land \valv \in  (\round{f(a')}_{\Lambda}, 0)}$}
+	%
+	\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land \valv = 0}$}
+	%
+	\caseL{$\boldsymbol{\valv = B}$}
+	%
+\end{itemize}
 \tiny{
 \begin{mathpar}
 \inferrule*[right = Seq]
@@ -764,151 +809,6 @@ The proof is developed by cases as following:
 }
 \end{mathpar}
 }
-\todo{
-	given that:
-	$
-	\Phi = 
-	e^{-\epsilon(1 + 24B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
-		\land 
-	e^{-\epsilon(1 + 24B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
-	$
-	I'm only able to prove that:
-	$\varx_1 = \varx_2 \Rightarrow \Phi'$
-	but not 
-	$\Phi' \Rightarrow \varx_1 = \varx_2$.
-	\\
-	However, given
-	$ 
-	\Phi = 
-	e^{-\epsilon(1 - 11B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
-		\land 
-	e^{-\epsilon(1 - 11B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
-	$, we are able to prove:
-	$\Phi \implies \Phi' \implies \varx_1 = \varx_2$.
-}
-\\
-Proof of \todo{ $\Phi' \Rightarrow \varx_1 = \varx_2$}:
-\\
-By the semantics definition of $\varu \samplel \uniform(0,1)$ and $\varx = \expr$, we have
-the semantics of the pair of the snap programs as (given the input environment as empty):
-\\
-\[
-\begin{array}{ll}
-	& \sem{\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
-		\varx_1 = \clamp_B \big(
-		\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
-		\big)}_{[]} =
-	\\
-	&
-	 \elet (\fval_1, \rval_1, \rval_1 ) = \sem{\uniform(0,1)}_{[]} 
-	 \ein \elet (1, 1, 1) = \sem{\uniform\{-1, 1\}} \ein
-	 [\varu_1 \mapsto (\fval_1, \rval_1, \rval_1); 
-	 s_1 \mapsto (1, 1, 1); 
-	 \varx_1 \mapsto \bigg(
-				f(a) + \frac{1}{\epsilon} \times \ln(\fval_1),
-				%
-				 (f(a) + 
-				(\frac{1}{\epsilon} \times \ln(\rval_1))
-				(1 + \eta)^2)
-				{(1 + \eta)},
-				%
-				\frac{(
-				f(a) + \frac{\frac{1}{\epsilon} 
-				\times \ln(\rval_1)}
-				{(1 + \eta)^2}
-				)}
-				{(1 + \eta)}
-				\bigg)]
-	\\
-	\sim
-	&
-	\sem{\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
-		\varx_2 = \clamp_B \big(
-		\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}}
-	\\
-	&
-	\elet (\fval_2, \rval_2, \rval_2) = \sem{\uniform(0,1)}_{[]}
-	\ein \elet (1, 1, 1) = \sem{\uniform\{-1, 1\}} \ein
-	[\varu_2 \mapsto (\fval_2, \rval_2, \rval_2);
-	 s_2 \mapsto (1, 1, 1); 
-	 \varx_2 \mapsto \bigg(
-				f(a) + \frac{1}{\epsilon} \times \ln(\fval_2),
-						%
-				\big( (f(a') + 
-				(\frac{1}{\epsilon} \times \ln(\rval_2))
-				(1 + \eta)^2)
-				{(1 + \eta)},
-				%
-				\frac{(
-				f(a') + \frac{\frac{1}{\epsilon} 
-				\times \ln(\rval_2)}
-				{(1 + \eta)^2}
-				)}
-				{(1 + \eta)}
-				 \big)
-				\bigg)]	
-	\end{array}
-\]
-We consider the first case of $\sem{\uniform\{-1, 1\}}_{[]} = (1, 1, 1)$ with probability 0.5.
-\\
-By the condition $\Phi$, we have:
-\[
-	e^{-\epsilon(1 - 11B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
-	\land 
-	e^{-\epsilon(1 - 11B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
-\]
-i.e.,
-\[
-	e^{-\epsilon(1 - 11B\eta)} \rval_2 \leq \rval_1
-	\leq e^{\epsilon(1 - 11B\eta)} \rval_2
-	 ~ (\star)
-\]
-By the soundness of the transition semantics, we have:
-\[
-	(f(a) + (\frac{1}{\epsilon} \times \ln(\rval_1))
-	(1 + \eta)^2){(1 + \eta)}
-	\leq \varx_1 \leq
-	\frac{(f(a) + \frac{\frac{1}{\epsilon} 
-	\times \ln(\rval_1)}{(1 + \eta)^2})}
-	{(1 + \eta)}
-	~~ \sim ~~
-	(f(a') + (\frac{1}{\epsilon} \times \ln(\rval_2))
-	(1 + \eta)^2){(1 + \eta)}
-	\leq \varx_2 \leq
-	\frac{(f(a') + \frac{\frac{1}{\epsilon} 
-	\times \ln(\rval_2)}
-	{(1 + \eta)^2} )}{(1 + \eta)}
-\]
-Then, we can get:
-\[
-	e^{\epsilon(\varx_1 (1 + \eta)^3 - f(a)(1 + \eta)^2)}
-	\leq \rval_1 \leq
-	e^{\epsilon(\frac{\varx_1}{(1 + \eta)^3}  - \frac{f(a)}{(1 + \eta)^2})}
-	~~ \sim ~~
-	e^{\epsilon(\varx_2 (1 + \eta)^3 - f(a')(1 + \eta)^2)}
-	\leq \rval_2 \leq
-	e^{\epsilon(\frac{\varx_2}{(1 + \eta)^3}  - \frac{f(a')}{(1 + \eta)^2})} ~ (\diamond)
-\]
-According to $(\star)$ and $(\diamond)$, we have:
-\[
-		e^{-\epsilon(1 - 1B\eta)} 
-		e^{\epsilon (\frac{\varx_2}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
-		\leq 
-		e^{\varx_1(1 + \eta)^3 - f(a)(1 + \eta)^2}
-		~~ \land ~~
-		e^{\epsilon(1 - 11B\eta)} 
-		e^{\epsilon (\frac{\varx_1}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
-		\leq 
-		e^{\varx_2(1 + \eta)^3 - f(a')(1 + \eta)^2} ~ (\Phi')
-\]
-By simplifying, we have:
-\[
-	(\Phi')	
-	~~ \implies ~~
-	\varx_2 \leq \varx_1 \leq \varx_2 
-	~~ \implies ~~
-	\varx_2 = \varx_1
-\]
 
 \end{proof}
 
