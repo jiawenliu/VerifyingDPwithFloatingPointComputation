@@ -645,20 +645,205 @@ By induction on the transition judgement $\vdash \prog_1
 Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined as:
 \[
 	\varu \samplel \uniform(0,1); s \samplel \uniform\{-1, 1\};
-	\varx = \clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (\varu)}_{\Lambda}
-	\big)
+	\varx = f(a) + \frac{1}{\epsilon} \times s \times \ln (\varu);
+	\vary = \round{\varx}_{\Lambda};
+	\varz = \clamp_B (\vary)
 \]
 where $f(a)$ represents a value that the query function $f$ be evaluated over input database $a \in A$, $\epsilon$ is the privacy parameter, $B$ is the clamping argument and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+\end{defn}
+
+\begin{defn}[$\Lambda$ equivalent]
+Given two floating point values $\valv_1$ and $\valv_2$, if for some floating point value $\fvalv$ which is a multiple of $\Lambda$:
+\[
+	\fvalv - \frac{\Lambda}{2} \leq \valv_1 < \fvalv + \frac{\Lambda}{2}
+	~~
+	\land
+	~~
+	\fvalv - \frac{\Lambda}{2} \leq \valv_2 < \fvalv + \frac{\Lambda}{2},	
+\]
+then $\valv_1$ and $\valv_2$ are $\Lambda$ equivalent, i.e., 
+$\valv_1 \lameq \valv_2 \lameq \fvalv$.
 \end{defn}
 
 \begin{thm}[The $\snap$ mechanism is 
 $\epsilon-$differentially private]
 \end{thm}
 \begin{proof}
-The proof is developed by cases as following:
+Induction on the output space of $\snap(a)$ mechanism, let $\valv$ be the output of $\snap(a)$, we have following cases:
 \begin{itemize}
 	\caseL{$\boldsymbol{\valv = -B}$}
+%
+Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
+%
+Let $\rvalL_1 = \rvalL_2 = 0$, 
+$\rvalR_1 = e^{\epsilon 
+		(\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+and $\rvalR_2 = e^{\epsilon 
+		(\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
+By the calculation in the Flopt Version proof, we have:
+\[
+	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
+	< e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)} < e^{\epsilon(24 \eta B + 1)}.
+\]
+Then, we have following derivation for this case:
+
+\tiny{
+\begin{mathpar}
+\inferrule*[right = Seq]
+{
+	\inferrule*[right = Seq]
+	{
+	\inferrule[Unif]
+	{
+	\Phi = 
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \fval_1 \leq \rvalR_2
+	}
+	{
+		\varu_1 \samplel \uniform(0,1)
+		\sim_{\epsilon(24 \eta B + 1)} 
+		\varu_2 \samplel \uniform(0,1)
+		: 
+		\top
+		\Rightarrow 
+		\Phi
+	}
+	~~
+	\inferrule[Null]
+	{
+	\empty
+	}
+	{
+		s_1 = \samplel \uniform\{-1, 1\}
+		\sim_{0} 
+		s_2 = \samplel \uniform\{-1, 1\}
+		: 
+		\Phi
+		\Rightarrow 
+		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+	}
+	}
+	{
+		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
+		\sim_{\epsilon(24 \eta B + 1)} 
+		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
+		: 
+		\top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2) = \valv
+	}
+\\
+\Pi_R
+}
+{
+	\vdash 
+	\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
+	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1);
+	\vary_1 = \round{\varx_1}_{\Lambda};
+	\varz_1 = \clamp_B (\vary_1)
+	\\
+	\sim_{\epsilon(24 \eta B + 1)} 
+	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
+	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
+	\vary_2 = \round{\varx_2}_{\Lambda};
+	\varz_2 = \clamp_B (\vary_2)
+	: \\
+	\valv = -B \land f(a) + 1 = f(a')  \land
+	\Rightarrow  \pi_1(\varx_1) = \pi_1(\varx_2) = \valv
+}
+\\
+\Pi_R:
+\\
+\inferrule*[right = Seq]
+{
+\inferrule*[right = ConSeq]
+{	
+\inferrule*[right = Assn]
+	{
+		\empty
+	}
+	{
+		\varx_1 = 
+		f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
+		\sim_{0} 
+		\varx_2 =
+		f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
+		:
+		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+		\Rightarrow
+		\Phi'
+	}
+\and
+\Phi' \Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
+\\
+\Phi \land \pi_1(s_1) = \pi_1(s_2)
+\Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
+}
+{
+	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
+	\sim_{0} 
+	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
+	:
+	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
+	\Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2)
+}
+\and
+\Delta_R
+}
+{
+	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1);
+	\vary_1 = \round{\varx_1}_{\Lambda};
+	\varz_1 = \clamp(\vary_1)
+	\sim_{0} 
+	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2);
+	\vary_2 = \round{\varx_2}_{\Lambda};
+	\varz_2 = \clamp(\vary_2)
+	:
+	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
+	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+}
+\\
+\Delta_R:
+\\
+\inferrule*[right = Seq]
+{
+	\inferrule*[right = round]
+	{
+		\empty
+	}
+	{
+		\vary_1 = \round{\varx_1}_{\Lambda}
+		\sim_{0}
+		\vary_2 = \round{\varx_2}_{\Lambda}
+		: \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
+		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	}
+	\and
+	\inferrule*[right = null]
+	{
+		\empty
+	}
+	{
+		\varz_1 = \clamp(\vary_1)
+		\sim_{0}
+		\varz_2 = \clamp(\vary_2)
+		: \pi_1(\varx_1) = \pi_1(\varx_2) 
+		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	}
+}
+{
+	\vary_1 = \round{\varx_1}_{\Lambda};
+	\varz_1 = \clamp(\vary_1)
+	\sim_{0} 
+	\vary_2 = \round{\varx_2}_{\Lambda};
+	\varz_2 = \clamp(\vary_2)
+	:
+	\pi_1(\varx_1) \lameq \pi_1(\varx_2)
+	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+}
+\end{mathpar}
+}
+%
+%	
 	\caseL{
 	$\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
 	}
@@ -702,113 +887,7 @@ The proof is developed by cases as following:
 	\caseL{$\boldsymbol{\valv = B}$}
 	%
 \end{itemize}
-\tiny{
-\begin{mathpar}
-\inferrule*[right = Seq]
-{
-	\inferrule*[right = Seq]
-	{
-	\inferrule[Unif]
-	{
-	\Phi = 
-	e^{-\epsilon(1 - 11B\eta)} \pi_2(\varu_2) \leq \pi_3 (\varu_1) 
-		\land 
-	e^{-\epsilon(1 - 11B\eta)} \pi_2 (\varu_1) \leq \pi_3 (\varu_2)
-	}
-	{
-		\varu_1 \samplel \uniform(0,1)
-		\sim_{\epsilon - 11B\eta\epsilon, 0} 
-		\varu_2 \samplel \uniform(0,1)
-		: 
-		\top
-		\Rightarrow 
-		\Phi
-	}
-	~~
-	\inferrule[Null]
-	{
-	\empty
-	}
-	{
-		s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{0, 0} 
-		s_2 = \samplel \uniform\{-1, 1\}
-		: 
-		\Phi
-		\Rightarrow 
-		\Phi \land \pi_1(s_1) = \pi_1(s_2)
-	}
-	}
-	{
-		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{\epsilon - 11B\eta\epsilon, 0} 
-		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
-		: \top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
-	}
-\\
-\Pi_R
-}
-{
-	\vdash 
-	\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
-	\varx_1 = \clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
-	\big) 
-	\sim_{\epsilon - 11B\eta\epsilon, 0} 
-	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
-	\varx_2 = \clamp_B \big(
-	\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
-	: \top  \Rightarrow  \pi_1(\varx_1) = \pi_1(\varx_2)
-}
-\\
-\Pi_R:
-\\
-\inferrule*[right = ConSeq]
-{	
-\inferrule*[right = Assn]
-	{
-		\Phi' = 
-		e^{-\epsilon(1 - 11B\eta)} 
-		e^{\epsilon (\frac{\pi_1(\varx_2)}{(1 + \eta)^3} - \frac{f(a')}{(1 + \eta)^2})}
-		\leq 
-		e^{\pi_1(\varx_1)(1 + \eta)^3 - f(a)(1 + \eta)^2}
-		\land 
-		e^{\epsilon(1 - 11B\eta)} 
-		e^{\epsilon (\frac{\pi_1(\varx_1)}{(1 + \eta)^3} - \frac{f(a)}{(1 + \eta)^2})}
-		\leq 
-		e^{\pi_1(\varx_2)(1 + \eta)^3 - f(a')(1 + \eta)^2}
-	}
-	{
-		\pi_1(\varx_1) = \clamp_B \big(
-		\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
-		\big) 
-		\sim_{0, 0} 
-		\pi_1(\varx_2) = \clamp_B \big(
-		\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
-		:
-		\Phi \land \pi_1(s_1) = \pi_1(s_2)
-		\Rightarrow
-		\Phi'
-	}
-\and
-\mathtodo{ \Phi' \Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)}
-\\
-\Phi \land \pi_1(s_1) = \pi_1(s_2)
-\Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
-}
-{
-	\varx_1 = \clamp_B \big(
-	\round{f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{\Lambda}
-	\big) 
-	\sim_{0, 0} 
-	\varx_2 = \clamp_B \big(
-	\round{f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}_{\Lambda}
-	:
-	\Phi \land \pi_1(s_1) = \pi_1(s_2)
-	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
-}
-\end{mathpar}
-}
+
 
 \end{proof}
 
