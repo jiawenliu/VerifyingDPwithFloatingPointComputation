@@ -664,6 +664,47 @@ Given two floating point values $\valv_1$ and $\valv_2$, if for some floating po
 then $\valv_1$ and $\valv_2$ are $\Lambda$ equivalent, i.e., 
 $\valv_1 \lameq \valv_2 \lameq \fvalv$.
 \end{defn}
+%
+% \begin{lem}[]
+% \label{lem:xisLameq}
+% Given the environment $\trsenv_1 = [\varu_1 \to (\fvalv_1, \rvalv_1, \rvalv_1)]$, $\trsenv_1 = [\varu_2 \to (\fvalv_2, \rvalv_2, \rvalv_2)]$ and $f(a) + 1 = f(a')$, if 
+% \begin{itemize}
+% 	\item $\fvalv < 0$, 
+% 	$e^{\epsilon 
+% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta)^3 
+% 		- f(a) (1 + \eta)^2) \big)}
+% 	\leq \fvalv_1 \leq 
+% 	e^{\epsilon 
+% 		(\frac{(\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - f(a))}{(1 + \eta)^2})}$,
+% 	$e^{\epsilon 
+% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta)^3 
+% 		- f(a') (1 + \eta)^2) \big)}
+% 	\leq \fvalv_2 \leq 
+% 	e^{\epsilon 
+% 		(\frac{(\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - f(a))}{(1 + \eta)^2})}$, 
+% 	Or
+% 	\item
+% 	$\fvalv = 0$, 
+% 	$e^{\epsilon 
+% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta)
+% 		- f(a) (1 + \eta)^2) \big)}
+% 	\leq \fvalv_1 \leq 
+% 	e^{\epsilon 
+% 		((\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - \frac{f(a))}{(1 + \eta)^2})}$,
+% 	$e^{\epsilon 
+% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta) 
+% 		- f(a') (1 + \eta)^2) \big)}
+% 	\leq \fvalv_2 \leq 
+% 	e^{\epsilon 
+% 		((\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - \frac{f(a))}{(1 + \eta)^2})}$, 
+% \end{itemize}
+% then we have:
+% 	\[
+% 	\pi_1(\sem{\varx_1 = f(a) + \frac{1}{\epsilon}\ln(\varu_1)}_{\trsenv_1}(\varx_1))
+% 	\lameq 
+% 	\pi_1(\sem{\varx_2 = f(a') + \frac{1}{\epsilon}\ln(\varu_2)}_{\trsenv_2}(\varx_2))	
+% 	\]	
+% \end{lem}
 
 \begin{thm}[The $\snap$ mechanism is 
 $\epsilon-$differentially private]
@@ -675,6 +716,7 @@ Induction on the output space of $\snap(a)$ mechanism, let $\valv$ be the output
 %
 Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
 %
+\\
 Let $\rvalL_1 = \rvalL_2 = 0$, 
 $\rvalR_1 = e^{\epsilon 
 		(\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
@@ -682,12 +724,12 @@ and $\rvalR_2 = e^{\epsilon
 		(\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
 By the calculation in the Flopt Version proof, we have:
 \[
-	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
-	< e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)} < e^{\epsilon(24 \eta B + 1)}.
+	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	< e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)} < e^{\epsilon(23 \eta B + 1)}.
 \]
 Then, we have following derivation for this case:
 
-\tiny{
+{\tiny
 \begin{mathpar}
 \inferrule*[right = Seq]
 {
@@ -696,13 +738,13 @@ Then, we have following derivation for this case:
 	\inferrule[Unif]
 	{
 	\Phi = 
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\rvalL_1 \leq \pi_1(\varu_1) \leq \rvalR_1 
 	\land 
-	\rvalL_2 \leq \fval_1 \leq \rvalR_2
+	\rvalL_2 \leq \pi_1(\varu_2) \leq \rvalR_2
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
-		\sim_{\epsilon(24 \eta B + 1)} 
+		\sim_{\epsilon(23 \eta B + 1)} 
 		\varu_2 \samplel \uniform(0,1)
 		: 
 		\top
@@ -726,7 +768,7 @@ Then, we have following derivation for this case:
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{\epsilon(24 \eta B + 1)} 
+		\sim_{\epsilon(23 \eta B + 1)} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
 		\top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2) = \valv
@@ -741,7 +783,7 @@ Then, we have following derivation for this case:
 	\vary_1 = \round{\varx_1}_{\Lambda};
 	\varz_1 = \clamp_B (\vary_1)
 	\\
-	\sim_{\epsilon(24 \eta B + 1)} 
+	\sim_{\epsilon(23 \eta B + 1)} 
 	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	\vary_2 = \round{\varx_2}_{\Lambda};
@@ -843,8 +885,103 @@ Then, we have following derivation for this case:
 \end{mathpar}
 }
 %
-%	
-	\caseL{
+The $\Phi' \Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2)$ is proved as following:
+%
+\\
+By the program semantics, we have:
+\\
+{\tiny
+\[
+\begin{array}{ll}
+	& \sem{\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
+		\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)}_{[]} =
+	\\
+	&
+	 \elet (\fval_1, \rval_1, \rval_1 ) = \sem{\uniform(0,1)}_{[]} 
+	 \ein \elet (1, 1, 1) = \sem{\uniform\{-1, 1\}} \ein
+	 [\varu_1 \mapsto (\fval_1, \rval_1, \rval_1); 
+	 s_1 \mapsto (1, 1, 1); 
+	 \varx_1 \mapsto \bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fval_1),
+				%
+				 (f(a) + 
+				(\frac{1}{\epsilon} \times \ln(\rval_1))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				\frac{(
+				f(a) + \frac{\frac{1}{\epsilon} 
+				\times \ln(\rval_1)}
+				{(1 + \eta)^2}
+				)}
+				{(1 + \eta)}
+				\bigg)]
+	\\
+	\sim
+	&
+	\sem{\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
+		\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)}
+	\\
+	&
+	\elet (\fval_2, \rval_2, \rval_2) = \sem{\uniform(0,1)}_{[]}
+	\ein \elet (1, 1, 1) = \sem{\uniform\{-1, 1\}} \ein
+	[\varu_2 \mapsto (\fval_2, \rval_2, \rval_2);
+	 s_2 \mapsto (1, 1, 1); 
+	 \varx_2 \mapsto \bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fval_2),
+						%
+				\big( (f(a') + 
+				(\frac{1}{\epsilon} \times \ln(\rval_2))
+				(1 + \eta)^2)
+				{(1 + \eta)},
+				%
+				\frac{(
+				f(a') + \frac{\frac{1}{\epsilon} 
+				\times \ln(\rval_2)}
+				{(1 + \eta)^2}
+				)}
+				{(1 + \eta)}
+				 \big)
+				\bigg)]	
+	\end{array}
+\]
+}
+%
+ We also have $\pi_1(\varu_1) = \pi_2(\varu_1) = \pi_3(\varu_1)$, 
+	$\pi_1(\varu_2) = \pi_2(\varu_2) = \pi_3(\varu_2)$,
+	$\pi_2(\varx_1) \leq \pi_1(\varx_1) \leq \pi_3(\varx_1)$ and 
+	$\pi_2(\varx_2) \leq \pi_1(\varx_2) \leq \pi_3(\varx_2)$ by the semantics, 
+	since $\Phi' = 	
+\rvalL_1 \leq \pi_1(\varu_1) < \rvalR_1 
+	\land 
+	\rvalL_2 \leq \pi_1(\varu_2) < \rvalR_2$, 
+	we can get:
+{\tiny
+\[
+\begin{array}{rcl}
+	(f(a) + (\frac{1}{\epsilon} \times \ln(\rvalL_1))
+	(1 + \eta)^2){(1 + \eta)}
+	\leq \pi_1(\varx_1) \leq 
+	\frac{(f(a) + \frac{\frac{1}{\epsilon} 
+	\times \ln(\rvalR_1)}{(1 + \eta)^2})}{(1 + \eta)}
+	& ~ \sim ~ &
+	(f(a') + (\frac{1}{\epsilon} \times \ln(\rvalL_2))
+	(1 + \eta)^2){(1 + \eta)} 
+	\leq \pi_1(\varx_2) \leq 
+	\frac{(f(a') + \frac{\frac{1}{\epsilon} 
+	\times \ln(\rvalR_2)}{(1 + \eta)^2})}{(1 + \eta)}
+	\\
+	0 \leq \pi_1(\varx_1) \leq  b + \frac{\Lambda}{2}
+	& ~ \sim ~ &
+	0 \leq \pi_1(\varx_2) \leq b + \frac{\Lambda}{2}
+	\\
+	\pi_1(\varx_1) & ~ \lameq ~ & \pi_1(\varx_2)
+\end{array}
+\]
+}
+%
+%
+\caseL{
 	$\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
 	}
 	%
@@ -853,6 +990,181 @@ Then, we have following derivation for this case:
 	\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1) $
 	}
 	%
+	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
+		we know $\valv_1 < 0$, $\valv_2 < 0$.
+\\
+Let $\rvalL_1 = e^{\epsilon 
+				\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+$\rvalL_2 = e^{\epsilon 
+				\big( (\valv_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
+$\rvalR_1 = e^{\epsilon 
+		(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+and $\rvalR_2 = e^{\epsilon 
+		(\frac{(\frac{\valv_2}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
+By the calculation in the Flopt Version proof, we have:
+\[
+	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	< e^{\epsilon(23 \eta B + 1)}.
+\]
+Then, we have following derivation for this case:
+
+\tiny{
+\begin{mathpar}
+\inferrule*[right = Seq]
+{
+	\inferrule*[right = Seq]
+	{
+	\inferrule[Unif]
+	{
+	\Phi = 
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \fval_1 \leq \rvalR_2
+	}
+	{
+		\varu_1 \samplel \uniform(0,1)
+		\sim_{\epsilon(23 \eta B + 1)} 
+		\varu_2 \samplel \uniform(0,1)
+		: 
+		\top
+		\Rightarrow 
+		\Phi
+	}
+	~~
+	\inferrule[Null]
+	{
+	\empty
+	}
+	{
+		s_1 = \samplel \uniform\{-1, 1\}
+		\sim_{0} 
+		s_2 = \samplel \uniform\{-1, 1\}
+		: 
+		\Phi
+		\Rightarrow 
+		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+	}
+	}
+	{
+		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
+		\sim_{\epsilon(23 \eta B + 1)} 
+		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
+		: 
+		\top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2) = \valv
+	}
+\\
+\Pi_R
+}
+{
+	\vdash 
+	\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\};
+	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1);
+	\vary_1 = \round{\varx_1}_{\Lambda};
+	\varz_1 = \clamp_B (\vary_1)
+	\\
+	\sim_{\epsilon(23 \eta B + 1)} 
+	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
+	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
+	\vary_2 = \round{\varx_2}_{\Lambda};
+	\varz_2 = \clamp_B (\vary_2)
+	: \\
+	\valv = -B \land f(a) + 1 = f(a')  \land
+	\Rightarrow  \pi_1(\varx_1) = \pi_1(\varx_2) = \valv
+}
+\\
+\Pi_R:
+\\
+\inferrule*[right = Seq]
+{
+\inferrule*[right = ConSeq]
+{	
+\inferrule*[right = Assn]
+	{
+		\empty
+	}
+	{
+		\varx_1 = 
+		f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
+		\sim_{0} 
+		\varx_2 =
+		f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
+		:
+		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+		\Rightarrow
+		\Phi'
+	}
+\and
+\Phi' \Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
+\\
+\Phi \land \pi_1(s_1) = \pi_1(s_2)
+\Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
+}
+{
+	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
+	\sim_{0} 
+	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
+	:
+	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
+	\Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2)
+}
+\and
+\Delta_R
+}
+{
+	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1);
+	\vary_1 = \round{\varx_1}_{\Lambda};
+	\varz_1 = \clamp(\vary_1)
+	\sim_{0} 
+	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2);
+	\vary_2 = \round{\varx_2}_{\Lambda};
+	\varz_2 = \clamp(\vary_2)
+	:
+	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
+	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+}
+\\
+\Delta_R:
+\\
+\inferrule*[right = Seq]
+{
+	\inferrule*[right = round]
+	{
+		\empty
+	}
+	{
+		\vary_1 = \round{\varx_1}_{\Lambda}
+		\sim_{0}
+		\vary_2 = \round{\varx_2}_{\Lambda}
+		: \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
+		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	}
+	\and
+	\inferrule*[right = null]
+	{
+		\empty
+	}
+	{
+		\varz_1 = \clamp(\vary_1)
+		\sim_{0}
+		\varz_2 = \clamp(\vary_2)
+		: \pi_1(\varx_1) = \pi_1(\varx_2) 
+		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	}
+}
+{
+	\vary_1 = \round{\varx_1}_{\Lambda};
+	\varz_1 = \clamp(\vary_1)
+	\sim_{0} 
+	\vary_2 = \round{\varx_2}_{\Lambda};
+	\varz_2 = \clamp(\vary_2)
+	:
+	\pi_1(\varx_1) \lameq \pi_1(\varx_2)
+	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+}
+\end{mathpar}
+}
+%
 	\subcaseL{
 	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } ~ (\star_1)$}
 
