@@ -1226,20 +1226,20 @@ Then, we have following derivation for this case:
 %
 	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
 		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
-		we know $\valv_1 < 0$, $\valv_2 < 0$.
+		we know $\valv_1 > 0$, $\valv_2 > 0$.
 \\
 Let $\rvalL_1 = e^{\epsilon 
-				\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+				\big( \valv_1(1 + \eta) - f(a) (1 + \eta)^2) \big)}$,
 $\rvalL_2 = e^{\epsilon 
-				\big( (\valv_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
+				\big( \valv_1(1 + \eta) - f(a') (1 + \eta)^2) \big)}$, 
 $\rvalR_1 = e^{\epsilon 
-		(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+		(\frac{\valv_2}{1 + \eta} - \frac{f(a)}{(1 + \eta)^2})}$
 and $\rvalR_2 = e^{\epsilon 
-		(\frac{(\frac{\valv_2}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
+		(\frac{\valv_2}{1 + \eta} - \frac{f(a')}{(1 + \eta)^2})}$.
 By the calculation in the Flopt Version proof, we have:
 \[
 	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	< e^{\epsilon(23 \eta B + 1)}.
+	\leq e^{\epsilon(12 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
 \]
 %
 Then, we have the derivation exactly the same as previous cases.
@@ -1247,9 +1247,61 @@ Then, we have the derivation exactly the same as previous cases.
 	%
 	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv = 0 } $}
 	%
+	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+	$\valv_2 = \valv  + (\frac{\Lambda}{2})$,
+	we know $\valv_1 < 0$, $\valv_2 > 0$.
+	By \textbf{Lemma 3} from the Flopt Version we have: $s = 1$.	%
+	\\
+	Let $\rvalL_1 = e^{\epsilon 
+					\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+	$\rvalL_2 = e^{\epsilon 
+					\big(\valv_1(1 + \eta) - f(a') (1 + \eta)^2) \big)}$, 
+	$\rvalR_1 = e^{\epsilon 
+			(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+	and $\rvalR_2 = e^{\epsilon 
+			(\frac{\valv_2}{1 + \eta} - \frac{f(a')}{(1 + \eta)^2})}$.
+	By the calculation in the Flopt Version proof, we have:
+	\[
+		e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+		\leq e^{\epsilon(14 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
+	\]
+	%
+	Then, we have the derivation exactly the same as previous cases.
+	%
+	%
 	\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
 	%
+	There are 3 subcases by induction on $\round{f(a)}_{\Lambda}$:
+		$\round{f(a)}_{\Lambda} < 0$, $\round{f(a)}_{\Lambda} = 0$ and $\round{f(a)}_{\Lambda} > 0$. 
+		%
+		\\
+		%
+		Without loss of generalization, we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.
+		%
+		\\
+		%
+		Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$, we know $\valv_1 < 0$, $\valv_2 < 0$.
+		%
+		For input $a$, by \textbf{ Lemma. 3}, \textbf{ Lemma. 7 and  8} from the Flopt Version, we have:
+		 $s = 1$ or $-1$ and $\rvalR_1 = \rvalR_2 = 1$.
+	%
 	\subcaseL{$s = 1$}
+	%
+	Let $\rvalL_1 = e^{\epsilon 
+					\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+	$\rvalL_2 = e^{\epsilon 
+					\big((f(a') - \valv_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+	$\rvalR_1 = e^{\epsilon 
+			(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+	and $\rvalR_2 = e^{\epsilon 
+			(\frac{ f(a') - \frac{\valv_2}{1 + \eta}}{(1 + \eta)^2})}$.
+	By the calculation in the Flopt Version proof, we have:
+	\[
+		e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+		\leq e^{\epsilon(12 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
+	\]
+	%
+	Then, we have the derivation exactly the same as previous cases.
 	%
 	\subcaseL{$s = -1$}
 	%
