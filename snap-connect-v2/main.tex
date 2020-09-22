@@ -48,48 +48,23 @@ it with the floating point computation semantics.
 %
 \mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
-\mbox{Env.} & \trsenv & ::= & \cdot ~|~ \trsenv[x \mapsto (\fval, \err)] \\
-%
-\mbox{Bool Atom} & \batom & :: = & \pi_i(\varx) ~|~ \pi_i(\expr) 
-	~|~ \valv \\
-%
-\mbox{Bool Expression} & \bexp & :: = & \batom = \batom ~|~ \batom > \batom
-	~|~ \batom \geq \batom ~|~ \batom < \batom ~|~ \batom \leq \batom
-	~|~ \etrue ~|~ \efalse \\
-%
-\mbox{Assert.} & \Phi & ::= & \top ~|~ \bot ~|~ \bexp 
-	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
+\mbox{Env.} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval, \err)] 
 \end{array}
 \]
 where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation.
 
-\section{
-Connecting Coupling Logic
+
 %
-with Floating Point Computation
-}
-%
-\begin{defn}
-[$(\epsilon, \delta)$ - lifting \cite{barthe2016proving}]
-Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
-\begin{enumerate}
-	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
-	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
-	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
-\end{enumerate}
-\end{defn}
-%
-\newpage
 \paragraph{Semantics.}
 $\boxed{Env \times Expr. \trsto Value \times Value \times Value }$
 %
 \[
 	\begin{array}{rcl}
-	\sem{\expr}_{\trsenv}
+	\sem{\expr}_{\trsmem}
 	& \in &  
 	\big\{(\fval, \rval_{l}, \rval_{u}) ~|~
 	\exists ~~  
-	\trsenv,  
+	\trsmem,  
 	\expr \trsto (\fvalv, \rval_{l}, \rval_{u})\big\}
 	\end{array}
 \]
@@ -101,14 +76,14 @@ $
 %
 \[
 	\begin{array}{rcl}
-	\sem{\uniform(0, 1)}_{\trsenv}
+	\sem{\uniform(0, 1)}_{\trsmem}
 	& \in & 
 	\big\{
 	(\fval, \rval_{l}, \rval_{u}) ~|~
 	\fval \leftarrow \uniform(0, 1)^{\diamond}
 	\land \rval_{l} = \rval_{u} = \fval
 	\big\}\\
-	\sem{\uniform\{-1, 1\}}_{\trsenv}
+	\sem{\uniform\{-1, 1\}}_{\trsmem}
 	& \in & 
 	\big\{
 	(-1, -1, -1), (1, 1, 1) ~|~
@@ -121,45 +96,120 @@ $\boxed{Env \times prog \trsto \distr(Env)}$
 \[
 \begin{array}{rcl}
 	%
-	\sem{\varx \samplel \edistr}_{\trsenv}
+	\sem{\varx \samplel \edistr}_{\trsmem}
 	& = & 
-	\elet (\fval, \rval_{l}, \rval_{u}) = \sem{\edistr}_{\trsenv}
+	\elet (\fval, \rval_{l}, \rval_{u}) = \sem{\edistr}_{\trsmem}
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval, \rval_{l}, \rval_{u})]}
+	\unit{\trsmem[\varx \mapsto (\fval, \rval_{l}, \rval_{u})]}
 	\\
 	%
-	\sem{\varx = \expr}_{\trsenv}
+	\sem{\varx = \expr}_{\trsmem}
 	& = &  
-	~\unit{\trsenv[\varx \mapsto \sem{\expr}_{\trsenv}]}
+	~\unit{\trsmem[\varx \mapsto \sem{\expr}_{\trsmem}]}
 	\\
 	%
-	\sem{\prog_1; \prog_2}_{\trsenv}
-	& = &  \elet  \trsenv_1 = 
-	\sem{\prog_1}_{\trsenv} \ein
-	\sem{\prog_2}_{\trsenv_1} 
+	\sem{\prog_1; \prog_2}_{\trsmem}
+	& = &  \elet  \trsmem_1 = 
+	\sem{\prog_1}_{\trsmem} \ein
+	\sem{\prog_2}_{\trsmem_1} 
 \end{array}
 \]
 %
 In the semantics, 
 %
-$\trsenv, \expr \trsto (\fvalv, err)$ represents given an environment
+$\trsmem, \expr \trsto (\fvalv, err)$ represents given an environment
 %
-$\trsenv$, the expression $\expr$
+$\trsmem$, the expression $\expr$
 %
 is transited to $\fvalv$ with error bound $err = (\rval_{l}, \rval_{u})$
 in floating point transition semantics,
 %
 s.t. $\rval_{l} \leq \fvalv \leq \rval_{u}$.
 %
-$\trsenv, \prog \trsto \trsenv'$ represents given and environment $\trsenv$,
+$\trsmem, \prog \trsto \trsmem'$ represents given and environment $\trsmem$,
 %
-the program $\prog$ is transited to a new environment $\trsenv'$.
+the program $\prog$ is transited to a new environment $\trsmem'$.
 %
 %
+%
+\section{Judgement and Validity}
+%
+\begin{defn}
+[$(\epsilon, \delta)$ - lifting \cite{barthe2016proving}]
+Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
+\begin{enumerate}
+	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
+	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
+\end{enumerate}
+\end{defn}
+%
+\begin{defn}[tagged variable]
+Let $\mathcal{X}\langle 1 \rangle$ and $\mathcal{X}\langle 2 \rangle$ be the sets of tagged variables, finite sets of variable names tagged with $\langle 1 \rangle$ or $\langle 2 \rangle$ respectively:
+\[
+	\mathcal{X}\langle 1 \rangle = \{\varx\langle 1 \rangle ~|~ x \in \mathcal{X}\}
+	~~
+	\text{and}
+	~~
+	\mathcal{X}\langle 2 \rangle = \{\varx\langle 2 \rangle ~|~ x \in \mathcal{X}\},
+\]
+where $\mathcal{X}$ is a finite set of variable names.
+\end{defn}
+%
+\paragraph{Assertion.} We consider a set $\mathcal{A}$ of assertions (predicates) from first order logic by the following grammar:
+\[
+\begin{array}{llll}
+%
+\mbox{Bool Expression} & \bexp & :: = & 
+\pi_i(\expr\langle 1 / 2 \rangle) = \pi_i(\expr\langle 1 / 2 \rangle)  
+ ~|~ \pi_i(\expr\langle 1 / 2 \rangle) < \pi_i(\expr\langle 1 / 2 \rangle) 
+ ~|~ \pi_i(\expr\langle 1 / 2 \rangle) \leq \pi_i(\expr\langle 1 / 2 \rangle)
+	\\
+%
+\mbox{Assert.} & \mathcal{A} & ::= & \top ~|~ \bot ~|~ \bexp 
+	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
+\end{array}
+\]
+%
+We typically use capital Greek letters ($\Phi, \Psi, \cdots$) for predicates. 
+%
+$\expr\langle 1 / 2 \rangle$ denotes an expression where program variables are tagged with $\langle 1 \rangle$ or $\langle 2 \rangle$.
+%
+$\pi_i(\expr\langle 1 / 2 \rangle)$ represents an expression where program variables are projected to the $i^{th}$ value from its triples, where $i \in \{1, 2, 3\}$.
+%
+\paragraph{Assertion Interpretation.} Assertions are interpreted as set of product environments. Let $\Phi$ be an assertion,
+%
+for example, when $\Phi \triangleq \pi_1(\expr_1\langle 1 \rangle) < \pi_1(\expr_2\langle 2 \rangle)$:
+\[
+	\sem{\Phi} = \{(\trsmem_1, \trsmem_2)
+	~|~ \pi_1(\sem{\expr_1}_{\trsmem_1}) 
+	< \pi_1(\sem{\expr_2}_{\trsmem_2}) \}.
+\]
+%
+%
+\paragraph{Judgment.}
+The judgments are defined in following form:
+\[
+	\prog_1 \sim_{\epsilon} \prog_2: \Phi \Rightarrow \Psi.
+\]
+Here, $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of memories. Each assertions can refer to two copies $x\langle 1 \rangle, x\langle 2 \rangle$ of each program variable $x$, where these tagged variables refer to the value of x in the execution of $\prog_1$ and $\prog_2$ respectively.
+%
+\\
+A judgment is valid, written $\vdash \prog_1 \sim_{\epsilon, \delta} \prog_2: \Phi_0 \Rightarrow \Phi$, 
+if for any two environments $\trsmem_1$ and $\trsmem_2$ satisfying precondition $\Phi_0$, 
+i.e., $(\trsmem_1, \trsmem_2) \in \sem{\Phi_0}$, there exists a lifting of $\Phi$ relating the output distributions: 
+%
+$(\sem{\prog_1}_{\trsmem_1})$ 
+$\sem{\Phi}^{\#(\epsilon, \delta)}$ 
+$(\sem{\prog_2}_{\trsmem_2})$.
+%
+\\
+%
+Fig. \ref{fig:aprhl} presents the main rules from apRHL+ \cite{barthe2016proving} excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
+The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem.
 %
 \begin{figure}[ht]
-\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert}\\
-\boxed{\Phi: Env \times Env \to bool}\\
+\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert, ~~ \Phi: Env \times Env \to bool}\\
 \boxed{\pi_i: Value \times Value \times Value \to Value, ~~ i = 1, 2, 3}
 \begin{mathpar}
 \inferrule*[right = Unif]
@@ -174,16 +224,16 @@ the program $\prog$ is transited to a new environment $\trsenv'$.
 	: 
 	\top \Rightarrow  
 	% (P \Rightarrow   Q)
-	\rvalL_1 \leq \pi_1(\varx_2) \leq \rvalR_1 
+	\rvalL_1 \leq \pi_1(\varx_2\langle 2 \rangle) \leq \rvalR_1 
 	\land 
-	\rvalL_2 \leq \pi_1 (\varx_1) \leq \rvalR_2
+	\rvalL_2 \leq \pi_1 (\varx_1\langle 1 \rangle) \leq \rvalR_2
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
 	\leq e^{\epsilon}
 }
 \and
-\inferrule*[right = Null]
+\inferrule
 {
 \empty
 }
@@ -193,12 +243,13 @@ the program $\prog$ is transited to a new environment $\trsenv'$.
 	\sim_{0} 
 	\varx_2 \samplel \uniform(0, 1) 
 	: \top \Rightarrow 
-	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
-	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
-	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
-}
+	\pi_1 (\varx_2\langle 2 \rangle) 
+	= \pi_1 (\varx_1\langle 1 \rangle )
+	\land \pi_2 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_1\langle 1 \rangle)
+	\land \pi_3 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_1\langle 1 \rangle)
+}~\textbf{null1}
 \and
-\inferrule*[right = Null2]
+\inferrule
 {
 \empty
 }
@@ -208,10 +259,10 @@ the program $\prog$ is transited to a new environment $\trsenv'$.
 	\sim_{0} 
 	\varx_2 \samplel \uniform\{-1, 1\}  
 	: \top \Rightarrow 
-	\pi_1 (\varx_2) = \pi_1 (\varx_1 )
-	\land \pi_2 (\varx_2) = \pi_2 (\varx_1)
-	\land \pi_3 (\varx_2) = \pi_3 (\varx_1)
-}
+	\pi_1 (\varx_2\langle 2 \rangle) = \pi_1 (\varx_1\langle 1 \rangle )
+	\land \pi_2 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_1\langle 1 \rangle)
+	\land \pi_3 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_1\langle 1 \rangle)
+}~\textbf{null}
 \and
 \inferrule*[right = round]
 {
@@ -222,17 +273,15 @@ the program $\prog$ is transited to a new environment $\trsenv'$.
 	\varx_1 \samplel \round{\vary_1}_{\Lambda}	
 	\sim_{0} 
 	\varx_2 \samplel \round{\vary_2}_{\Lambda}
-	: k - \frac{\Lambda}{2} \leq \pi_1(\vary_1) < k + \frac{\Lambda}{2} 
-	\land
-	k - \frac{\Lambda}{2} \leq \pi_1(\vary_2) < k + \frac{\Lambda}{2}	
+	: \vary_1 \langle 1 \rangle \lameq \vary_2 \langle 2 \rangle
 	\Rightarrow 
-	\pi_1 (\varx_2) = \pi_1 (\varx_1 ) = k
+	\pi_1 (\varx_2 \langle 2 \rangle) = \pi_1 (\varx_1 \langle 1 \rangle) = k
 }
 \end{mathpar}
 \caption{Rules Extended from apRHL+}
 \label{fig:aprhlplus}
 \end{figure}
-
+%
 \begin{figure}[ht]
 \begin{mathpar}
 \inferrule*[right = Assn]
@@ -244,8 +293,8 @@ the program $\prog$ is transited to a new environment $\trsenv'$.
 	\varx_1 = \expr_1  
 	\sim_{0} 
 	\varx_2 = \expr_2  
-	: \Phi[\expr_1/\varx_1]
-	[\expr_2/\varx_2]  \Rightarrow \Phi
+	: \Phi[\expr_1/\varx_1\langle 1 \rangle]
+	[\expr_2/\varx_2\langle 2 \rangle]  \Rightarrow \Phi
 }
 ~~~
 \inferrule*[right = Seq]
@@ -281,38 +330,35 @@ the program $\prog$ is transited to a new environment $\trsenv'$.
 \label{fig:aprhl}
 \end{figure}
 %
-Fig. \ref{fig:aprhl} presents the main rules from apRHL+ \cite{barthe2016proving} excluding the while and condition rules which is not defined in out syntax, as well as the sampling rule, which we generalized in extended apRHL.
-The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem.
-%
-The judgment $\vdash \prog_1 \sim_{\epsilon, \delta} \prog_2: \Phi_0 \Rightarrow \Phi$ is read as, given two environments $\trsenv_1$ and $\trsenv_2$ satisfying precondition $\Phi_0$, 
-%
-then under the semantics definition, 
-$(\sem{\prog_1}_{\trsenv_1})$ 
-$\sem{\Phi}^{\#(\epsilon, \delta)}$ 
-$(\sem{\prog_2}_{\trsenv_2})$.
-
-
 %
 \newpage
 \begin{thm}
 \label{thm:unif_coupling}
-Let $\edistr_1 \in \distr(\float)$, $\edistr_2 \in \distr(\float)$ are defined:
+Let $\edistr_1 \in \distr(\float \times \real \times \real)$, $\edistr_2 \in \distr(\float \times \real \times \real)$ are defined:
 \[
-	\edistr_1(x) = \uniform(0, 1),
+	\edistr_1(\fvarx, \rvarx_l, \rvarx_u) 
+	= \sem{\uniform(0, 1)}_{[]},
 ~~
-	\edistr_2(y) = \uniform(0, 1)
+	\edistr_1(\fvary, \rvary_l, \rvary_u) 
+	= \sem{\uniform(0, 1)}_{[]}
 \]
 where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
 \[
-	\pdf_{\uniform}(x) = 
+	\pdf_{\uniform}(\fvarx, \rvarx_l, \rvarx_u) = 
 	\begin{cases}
-	1 & x \in [0, 1)^{\mathbb{F}}\\
+	1 & \fvarx \in [0, 1)^{\mathbb{F}}\\
+	0       & o.w.
+	\end{cases},
+	~~
+	\pdf_{\uniform}(\fvary, \rvary_l, \rvary_u) = 
+	\begin{cases}
+	1 & \fvary \in [0, 1)^{\mathbb{F}}\\
 	0       & o.w.
 	\end{cases}.
 \]
-Then, $	\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} 
+Then, $	\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} 
 		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
-		\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2}$, 
+		\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2}$, 
 where
 \[
 \begin{array}{rl}
@@ -335,33 +381,34 @@ where
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
 %
 %
-Let $\mu_L, \mu_R \in \distr(\float \times \float)$ be the two witness distribution s.t.:
+Let $\mu_L, \mu_R \in \distr((\float \times \real \times \real) \times (\float \times \real \times \real))$ be the two witness distribution s.t.:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
-	{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
+	{\uniform}(x) & \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y) \land \pi_1(x) \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
-	~~
+~~~
 	{\mu_R}(x, y) = 
 	\begin{cases}
-	{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
+	{\uniform}(y) & \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y) \land \pi_1(y) \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
 \]
 %
 %
-where their $\pdf.$ are defined as:
+where $\varx = (\fvarx, \rvarx_l, \rvarx_u) \in (\float \times \real \times \real)$, $\vary = (\fvary, \rvary_l, \rvary_u ) \in (\float \times \real \times \real)$ and their $\pdf.$ are defined as:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
-	\pdf_{\uniform}(x) & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
+	\pdf_{\uniform}(x) & \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y) \land \pi_1(x) \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
-~~
+\]
+\[
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
-	\pdf_{\uniform}(y) & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
+	\pdf_{\uniform}(y) & \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y) \land \pi_1(y) \in [0, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -374,19 +421,17 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		%
 		\\
 		%
-		Let $\rvalL_1 = x$, $\rvalR_1 = 2x$, $\rvalL_2 = y$ and $\rvalR_2 = 2y$. 
+		Let $\rvalL_1 = \fvarx$, $\rvalR_1 = 2\fvarx$, $\rvalL_2 = \fvary$ and $\rvalR_2 = 2\fvary$. 
 		By definition of the $\pdf$ of $\mu_L$, we have: 
-		$\rvalL_1 \leq x \leq \rvalR_1 
-		\land \rvalL_2 \leq y \leq \rvalR_2
+		$\rvalL_1 \leq \fvarx \leq \rvalR_1 
+		\land \rvalL_2 \leq \fvary \leq \rvalR_2
 		\land e^{-\epsilon} \leq 
 		\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
-		\leq e^{\epsilon} \in \Psi$ when $\pdf_{\mu_R}(x, y) > 0$.
+		\leq e^{\epsilon} \in \Psi$ where $\pdf_{\mu_R}(x, y) = \pdf_{\uniform}(x) > 0$.
 		%
 		\\%
 		%
 		Then we can derive $\supp(\mu_L) \in \Psi$
-		%
-		\\
 		%
 		\item $\supp(\mu_R) \subseteq \Psi$
 		%
@@ -398,15 +443,14 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\land \rvalL_2 \leq y \leq \rvalR_2
 		\land e^{-\epsilon} \leq 
 		\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
-		\leq e^{\epsilon} \in \Psi$ when $\pdf_{\mu_R}(x, y) > 0$.
+		\leq e^{\epsilon} \in \Psi$ when $\pdf_{\mu_R}(x, y) = \pdf_{\uniform}(y) > 0$.
 		%
 		\\
 		%
 		Then we can derive $\supp(\mu_L) \in \Psi$
 		%
 	\end{itemize}		
-
-
+%
 	\item $\projl(\mu_L) = \mu_1 \land \pi_2(\mu_R) = \mu_2$
 	
 	\begin{itemize}
@@ -414,16 +458,18 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 
 		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
 
-		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x \in \float$:
+		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x = (\fvarx, \rvarx_l, \rvarx_u) \in \float \times \real \times \real$:
 		\[
 			\pdf_{\projl(\mu_L)}(x) = 
 			\begin{cases}
-			\int_{y}\pdf_{\uniform}(x) & (x,y) \in \Psi \land x \in [0, 1)\\
+			\int_{y}\pdf_{\uniform}(x) 
+			& \fvarx \cdot e^{-\epsilon} = \pi_1(\fvary) 
+			\land \fvarx \in [0, 1)\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(x) & x \in [0, 1)\\
+			\pdf_{\uniform}(x) & \fvarx \in [0, 1)\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -434,16 +480,18 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 
 		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
 
-		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y \in \float$:
+		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y = (\fvary, \rvary_l, \rvary_u) \in \float \times \real \times \real$:
 		\[
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
-			\int_{x}\pdf_{\uniform}(y) & (x,y) \in \Psi \land y \in [0, 1)\\
+			\int_{x}\pdf_{\uniform}(y) 
+			& \fvarx \cdot e^{-\epsilon} = \pi_1(\fvary) 
+			\land \fvary \in [0, 1)\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(y) & y \in [0, 1)\\
+			\pdf_{\uniform}(y) & \fvary \in [0, 1)\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -468,8 +516,13 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 	 \end{array}
 	 \]
 	 \begin{itemize}
-	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [0, 1) \land x \cdot e^{-\epsilon} = y\}$:\\
-		 \[
+	 	\item[{\bf case}]
+	 	%
+	 	$S \subseteq \{(x, y) ~|~ 
+	 	\pi_1(x) \in [0, 1) \land \pi_1(x) \cdot e^{-\epsilon} 
+	 	= \pi_1(y)\}$:
+	 	%
+		\[
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 & = 
@@ -477,25 +530,24 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		 & = 
 		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon})\\ 
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x )\\
-		 & = 0 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x) 
+		 = 0 
 		 \end{array}
 		 \]
-	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [1, e^{\epsilon}) \land x \cdot e^{-\epsilon} = y\}$:\\
+		 %
+	 	\item[{\bf case}] $S \subseteq \{(x, y) 
+	 	~|~ \pi_1(x) \in [1, e^{\epsilon}) 
+	 	\land \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y)\}$:
+	 	%
 		 \[
-		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
-		 & = 
-		 0 - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
-		 & <  0 
-		 \end{array}
+		 = 
+		 0 - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y) <0
 		 \]
-	 	\item[{\bf case}] o.w.\\
+	 	\item[{\bf case}] o.w.:
+	 	%
 		 \[
-		 \begin{array}{ll}
-		 \Delta_{\epsilon}(\mu_L, \mu_R) 
-		 & = 0 - 0 =  0 
-		 \end{array}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) = 0 - 0 =  0 
 		 \]	 	
 
 	 \end{itemize}
@@ -513,14 +565,14 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
  $\forall \prog_1$, $\prog_2$,  $ \vdash \prog_1	
 \sim_{\epsilon, \delta} 
 \prog^2 :
-\Phi_0 \Rightarrow \Phi $,    $\forall \trsenv_1$, $\trsenv_2$ 
+\Phi_0 \Rightarrow \Phi $,    $\forall \trsmem_1$, $\trsmem_2$ 
 s.t $\Phi_0$: 
-$\trsenv_1 ~ \sem{\Phi_0} ~ \trsenv_2$,
+$\trsmem_1 ~ \sem{\Phi_0} ~ \trsmem_2$,
 then
 $$ 
-(\sem{\prog_1}_{\trsenv_1})  
+(\sem{\prog_1}_{\trsmem_1})  
 \sem{\Phi}^{\#(\epsilon, \delta)} 
-(\sem{\prog_2}_{\trsenv_2}) 
+(\sem{\prog_2}_{\trsmem_2}) 
 $$.
 \end{thm}
 
@@ -547,21 +599,21 @@ By induction on the transition judgement $\vdash \prog_1
 	%
 	By the semantics of sampling, we have:\\
 	%
-	$\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} = 
+	$\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} = 
 	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
-	= \sem{\edistr_1}_{\trsenv_1} 
+	= \sem{\edistr_1}_{\trsmem_1} 
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
+	\unit{\trsmem[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
 	$ and 
 	%
-	$\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2} = 
+	$\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2} = 
 	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
-	= \sem{\edistr_2}_{\trsenv_2} 
+	= \sem{\edistr_2}_{\trsmem_2} 
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
+	\unit{\trsmem[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
 	$. \\
 	%
-	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsenv}$ we have:
+	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsmem}$ we have:
 	\\
 	%
 	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
@@ -598,21 +650,21 @@ By induction on the transition judgement $\vdash \prog_1
 	%
 	By the semantics of sampling, we have:\\
 	%
-	$\sem{\varx_1 \samplel \edistr_1}_{\trsenv_1} = 
+	$\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} = 
 	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
-	= \sem{\edistr_1}_{\trsenv_1} 
+	= \sem{\edistr_1}_{\trsmem_1} 
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
+	\unit{\trsmem[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
 	$ and 
 	%
-	$\sem{\varx_2 \samplel \edistr_2}_{\trsenv_2} = 
+	$\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2} = 
 	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
-	= \sem{\edistr_2}_{\trsenv_2} 
+	= \sem{\edistr_2}_{\trsmem_2} 
 	\ein 
-	\unit{\trsenv[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
+	\unit{\trsmem[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
 	$. \\
 	%
-	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsenv}$ we have:
+	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsmem}$ we have:
 	\\
 	%
 	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
@@ -667,7 +719,7 @@ $\valv_1 \lameq \valv_2 \lameq \fvalv$.
 %
 % \begin{lem}[]
 % \label{lem:xisLameq}
-% Given the environment $\trsenv_1 = [\varu_1 \to (\fvalv_1, \rvalv_1, \rvalv_1)]$, $\trsenv_1 = [\varu_2 \to (\fvalv_2, \rvalv_2, \rvalv_2)]$ and $f(a) + 1 = f(a')$, if 
+% Given the environment $\trsmem_1 = [\varu_1 \to (\fvalv_1, \rvalv_1, \rvalv_1)]$, $\trsmem_1 = [\varu_2 \to (\fvalv_2, \rvalv_2, \rvalv_2)]$ and $f(a) + 1 = f(a')$, if 
 % \begin{itemize}
 % 	\item $\fvalv < 0$, 
 % 	$e^{\epsilon 
@@ -700,9 +752,9 @@ $\valv_1 \lameq \valv_2 \lameq \fvalv$.
 % \end{itemize}
 % then we have:
 % 	\[
-% 	\pi_1(\sem{\varx_1 = f(a) + \frac{1}{\epsilon}\ln(\varu_1)}_{\trsenv_1}(\varx_1))
+% 	\pi_1(\sem{\varx_1 = f(a) + \frac{1}{\epsilon}\ln(\varu_1)}_{\trsmem_1}(\varx_1))
 % 	\lameq 
-% 	\pi_1(\sem{\varx_2 = f(a') + \frac{1}{\epsilon}\ln(\varu_2)}_{\trsenv_2}(\varx_2))	
+% 	\pi_1(\sem{\varx_2 = f(a') + \frac{1}{\epsilon}\ln(\varu_2)}_{\trsmem_2}(\varx_2))	
 % 	\]	
 % \end{lem}
 
