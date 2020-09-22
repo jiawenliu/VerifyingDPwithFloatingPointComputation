@@ -1223,7 +1223,27 @@ Then, we have following derivation for this case:
 %
 	\subcaseL{
 	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } ~ (\star_1)$}
-
+%
+	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
+		we know $\valv_1 < 0$, $\valv_2 < 0$.
+\\
+Let $\rvalL_1 = e^{\epsilon 
+				\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+$\rvalL_2 = e^{\epsilon 
+				\big( (\valv_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
+$\rvalR_1 = e^{\epsilon 
+		(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+and $\rvalR_2 = e^{\epsilon 
+		(\frac{(\frac{\valv_2}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
+By the calculation in the Flopt Version proof, we have:
+\[
+	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	< e^{\epsilon(23 \eta B + 1)}.
+\]
+%
+Then, we have the derivation exactly the same as previous cases.
+%
 	%
 	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv = 0 } $}
 	%
