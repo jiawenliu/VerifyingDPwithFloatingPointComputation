@@ -162,8 +162,10 @@ where $\mathcal{X}$ is a finite set of variable names.
 %
 \mbox{Bool Expression} & \bexp & :: = & 
 \pi_i(\expr\langle 1 / 2 \rangle) = \pi_i(\expr\langle 1 / 2 \rangle)  
- ~|~ \pi_i(\expr\langle 1 / 2 \rangle) < \pi_i(\expr\langle 1 / 2 \rangle) 
+ ~|~ \pi_i(\expr\langle 1 / 2 \rangle) < \pi_i(\expr\langle 1 / 2 \rangle) \\
+ & & &
  ~|~ \pi_i(\expr\langle 1 / 2 \rangle) \leq \pi_i(\expr\langle 1 / 2 \rangle)
+ ~|~ \pi_i(\expr\langle 1 / 2 \rangle) \lameq \pi_i(\expr\langle 1 / 2 \rangle)
 	\\
 %
 \mbox{Assert.} & \mathcal{A} & ::= & \top ~|~ \bot ~|~ \bexp 
@@ -787,12 +789,12 @@ Then, we have following derivation for this case:
 {
 	\inferrule*[right = Seq]
 	{
-	\inferrule[Unif]
+	\inferrule
 	{
-	\Phi = 
-	\rvalL_1 \leq \pi_1(\varu_1) \leq \rvalR_1 
+	\Phi \triangleq 
+	\rvalL_1 \leq \pi_1(\varu_1 \langle 1 \rangle) \leq \rvalR_1 
 	\land 
-	\rvalL_2 \leq \pi_1(\varu_2) \leq \rvalR_2
+	\rvalL_2 \leq \pi_1(\varu_2 \langle 2 \rangle) \leq \rvalR_2
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
@@ -802,9 +804,9 @@ Then, we have following derivation for this case:
 		\top
 		\Rightarrow 
 		\Phi
-	}
+	}~\textbf{unif}
 	~~
-	\inferrule[Null]
+	\inferrule
 	{
 	\empty
 	}
@@ -815,15 +817,17 @@ Then, we have following derivation for this case:
 		: 
 		\Phi
 		\Rightarrow 
-		\Phi \land \pi_1(s_1) = \pi_1(s_2)
-	}
+		\Phi \land \pi_1(s_1 \langle 1 \rangle) 
+		= \pi_1(s_2\langle 2 \rangle)
+	}~\textbf{null}
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
 		\sim_{\epsilon(23 \eta B + 1)} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
-		\top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2) = \valv
+		\top \Rightarrow \Phi \land \pi_1(s_1\langle 1 \rangle) 
+		= \pi_1(s_2\langle 2 \rangle)
 	}
 \\
 \Pi_R
@@ -842,7 +846,8 @@ Then, we have following derivation for this case:
 	\varz_2 = \clamp_B (\vary_2)
 	: \\
 	\valv = -B \land f(a) + 1 = f(a')  \land
-	\Rightarrow  \pi_1(\varx_1) = \pi_1(\varx_2) = \valv
+	\Rightarrow  \pi_1(\varx_1\langle 1 \rangle) 
+	= \pi_1(\varx_2\langle 2 \rangle) = \valv
 }
 \\
 \Pi_R:
@@ -862,23 +867,21 @@ Then, we have following derivation for this case:
 		\varx_2 =
 		f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 		:
-		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+		\Phi \land \pi_1(s_1\langle 1 \rangle) = \pi_1(s_2\langle 2 \rangle)
 		\Rightarrow
 		\Phi'
 	}
 \and
-\Phi' \Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
-\\
-\Phi \land \pi_1(s_1) = \pi_1(s_2)
-\Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
+\Phi' \Rightarrow \pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle) 
 }
 {
 	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
 	\sim_{0} 
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	:
-	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
-	\Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2)
+	f(a) + 1 = f(a') \land \Phi 
+	\land \pi_1(s_1\langle 1 \rangle) = \pi_1(s_2\langle 2 \rangle)
+	\Rightarrow \pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle)
 }
 \and
 \Delta_R
@@ -892,8 +895,8 @@ Then, we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp(\vary_2)
 	:
-	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
-	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1\langle 1 \rangle) = \pi_1(s_2\langle 2 \rangle)
+	\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
 }
 \\
 \Delta_R:
@@ -908,11 +911,11 @@ Then, we have following derivation for this case:
 		\vary_1 = \round{\varx_1}_{\Lambda}
 		\sim_{0}
 		\vary_2 = \round{\varx_2}_{\Lambda}
-		: \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
-		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+		: \pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle) 
+		\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
 	}
 	\and
-	\inferrule*[right = null]
+	\inferrule
 	{
 		\empty
 	}
@@ -920,9 +923,9 @@ Then, we have following derivation for this case:
 		\varz_1 = \clamp(\vary_1)
 		\sim_{0}
 		\varz_2 = \clamp(\vary_2)
-		: \pi_1(\varx_1) = \pi_1(\varx_2) 
-		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
-	}
+		: \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle) 
+		\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
+	}~\textbf{null}
 }
 {
 	\vary_1 = \round{\varx_1}_{\Lambda};
@@ -931,8 +934,8 @@ Then, we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp(\vary_2)
 	:
-	\pi_1(\varx_1) \lameq \pi_1(\varx_2)
-	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	\pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle)
+	\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
 }
 \end{mathpar}
 }
@@ -1061,18 +1064,18 @@ By the calculation in the Flopt Version proof, we have:
 \]
 Then, we have following derivation for this case:
 
-\tiny{
+{\tiny
 \begin{mathpar}
 \inferrule*[right = Seq]
 {
 	\inferrule*[right = Seq]
 	{
-	\inferrule[Unif]
+	\inferrule
 	{
-	\Phi = 
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\Phi \triangleq 
+	\rvalL_1 \leq \pi_1(\varu_1 \langle 1 \rangle) \leq \rvalR_1 
 	\land 
-	\rvalL_2 \leq \fval_1 \leq \rvalR_2
+	\rvalL_2 \leq \pi_1(\varu_2 \langle 2 \rangle) \leq \rvalR_2
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
@@ -1082,9 +1085,9 @@ Then, we have following derivation for this case:
 		\top
 		\Rightarrow 
 		\Phi
-	}
+	}~\textbf{unif}
 	~~
-	\inferrule[Null]
+	\inferrule
 	{
 	\empty
 	}
@@ -1095,15 +1098,17 @@ Then, we have following derivation for this case:
 		: 
 		\Phi
 		\Rightarrow 
-		\Phi \land \pi_1(s_1) = \pi_1(s_2)
-	}
+		\Phi \land \pi_1(s_1 \langle 1 \rangle) 
+		= \pi_1(s_2\langle 2 \rangle)
+	}~\textbf{null}
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
 		\sim_{\epsilon(23 \eta B + 1)} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
-		\top \Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2) = \valv
+		\top \Rightarrow \Phi \land \pi_1(s_1\langle 1 \rangle) 
+		= \pi_1(s_2\langle 2 \rangle)
 	}
 \\
 \Pi_R
@@ -1122,7 +1127,8 @@ Then, we have following derivation for this case:
 	\varz_2 = \clamp_B (\vary_2)
 	: \\
 	\valv = -B \land f(a) + 1 = f(a')  \land
-	\Rightarrow  \pi_1(\varx_1) = \pi_1(\varx_2) = \valv
+	\Rightarrow  \pi_1(\varx_1\langle 1 \rangle) 
+	= \pi_1(\varx_2\langle 2 \rangle) = \valv
 }
 \\
 \Pi_R:
@@ -1142,23 +1148,21 @@ Then, we have following derivation for this case:
 		\varx_2 =
 		f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 		:
-		\Phi \land \pi_1(s_1) = \pi_1(s_2)
+		\Phi \land \pi_1(s_1\langle 1 \rangle) = \pi_1(s_2\langle 2 \rangle)
 		\Rightarrow
 		\Phi'
 	}
 \and
-\Phi' \Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
-\\
-\Phi \land \pi_1(s_1) = \pi_1(s_2)
-\Rightarrow \Phi \land \pi_1(s_1) = \pi_1(s_2)
+\Phi' \Rightarrow \pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle) 
 }
 {
 	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
 	\sim_{0} 
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	:
-	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
-	\Rightarrow \pi_1(\varx_1) \lameq \pi_1(\varx_2)
+	f(a) + 1 = f(a') \land \Phi 
+	\land \pi_1(s_1\langle 1 \rangle) = \pi_1(s_2\langle 2 \rangle)
+	\Rightarrow \pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle)
 }
 \and
 \Delta_R
@@ -1172,8 +1176,8 @@ Then, we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp(\vary_2)
 	:
-	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1) = \pi_1(s_2)
-	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	f(a) + 1 = f(a') \land \Phi \land \pi_1(s_1\langle 1 \rangle) = \pi_1(s_2\langle 2 \rangle)
+	\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
 }
 \\
 \Delta_R:
@@ -1188,11 +1192,11 @@ Then, we have following derivation for this case:
 		\vary_1 = \round{\varx_1}_{\Lambda}
 		\sim_{0}
 		\vary_2 = \round{\varx_2}_{\Lambda}
-		: \pi_1(\varx_1) \lameq \pi_1(\varx_2) 
-		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+		: \pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle) 
+		\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
 	}
 	\and
-	\inferrule*[right = null]
+	\inferrule
 	{
 		\empty
 	}
@@ -1200,9 +1204,9 @@ Then, we have following derivation for this case:
 		\varz_1 = \clamp(\vary_1)
 		\sim_{0}
 		\varz_2 = \clamp(\vary_2)
-		: \pi_1(\varx_1) = \pi_1(\varx_2) 
-		\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
-	}
+		: \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle) 
+		\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
+	}~\textbf{null}
 }
 {
 	\vary_1 = \round{\varx_1}_{\Lambda};
@@ -1211,8 +1215,8 @@ Then, we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp(\vary_2)
 	:
-	\pi_1(\varx_1) \lameq \pi_1(\varx_2)
-	\Rightarrow \pi_1(\varx_1) = \pi_1(\varx_2)
+	\pi_1(\varx_1\langle 1 \rangle) \lameq \pi_1(\varx_2\langle 2 \rangle)
+	\Rightarrow \pi_1(\varx_1\langle 1 \rangle) = \pi_1(\varx_2\langle 2 \rangle)
 }
 \end{mathpar}
 }
