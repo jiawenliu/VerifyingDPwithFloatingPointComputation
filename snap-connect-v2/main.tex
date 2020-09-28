@@ -810,8 +810,14 @@ and $\rvalR_2 = e^{\epsilon
 By the calculation in the Flopt Version proof, we have:
 \[
 	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	< e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)} < e^{\epsilon(23 \eta B + 1)}.
+	< e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)} 
+	< e^{\epsilon(23 \eta B + 1)}.
 \]
+%
+In this case, since $\rvalL_1 = \rvalL_2 = 0$, we have $\frac{\rvalR_2}{\rvalL_2} = \infty$. 
+Because the final value is all clamped to $B$, there is actually no privacy loss.
+We don’t need to talk about the ratio between $\rvalL_2$ and $\rvalR_2$.
+
 Then, we have following derivation for this case:
 
 {\tiny
