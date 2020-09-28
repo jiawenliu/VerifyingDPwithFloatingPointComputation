@@ -135,12 +135,12 @@ the program $\prog$ is transited to a new environment $\trsmem'$.
 \section{Judgement and Validity}
 %
 \begin{defn}
-[$(\epsilon, \delta)$ - lifting \cite{barthe2016proving}]
-Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
+[$\epsilon-$lifting \cite{barthe2016proving}]
+Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$ are related by the $\epsilon-$lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
 	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
-	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq \delta$.
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq 0.0$.
 \end{enumerate}
 \end{defn}
 %
@@ -221,18 +221,26 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 {
 	\vdash
 	\varx_1 \samplel \uniform(0, 1) 	
-	\sim_{\epsilon} 
+	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
 	\varx_2 \samplel \uniform(0, 1)
-	: 
-	\top \Rightarrow  
-	% (P \Rightarrow   Q)
-	\rvalL_1 \leq \pi_1(\varx_2\langle 2 \rangle) \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq \pi_1 (\varx_1\langle 1 \rangle) \leq \rvalR_2
+	:
+	e^{-\epsilon} \leq 
+	\frac{\rvalL_1}{\rvalL_2}
+	\leq e^{\epsilon}
 	\land
 	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
+	\frac{\rvalR_1}{\rvalR_2}
 	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	\leq e^{\epsilon}
+	\\
+	\Rightarrow  
+	% (P \Rightarrow   Q)
+	\rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
 }
 \and
 \inferrule
@@ -358,9 +366,21 @@ where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined 
 	0       & o.w.
 	\end{cases}.
 \]
-Then, $	\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} 
-		~ \sem{\Phi}^{\#(\epsilon, 0)} ~
-		\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2}$, 
+Then, $	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
+	e^{-\epsilon} \leq 
+	\frac{\rvalL_1}{\rvalL_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1}{\rvalR_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	\leq e^{\epsilon}$, s.t. 
+$\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} 
+	~ \sem{\Phi}^{\#(\epsilon + \ln(\frac{\rvalR_1}{\rvalL_1})} ~
+\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2}$, 
 where
 \[
 \begin{array}{rl}
@@ -368,32 +388,49 @@ where
 	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
 	\in (\float \times \real \times \real) \times (\float \times \real \times \real)\\
 	& ~|~
-	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1 ~ (\star) 
 	\land 
-	\rvalL_2 \leq \fval_1 \leq \rvalR_2
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
-	\leq e^{\epsilon}
+	\rvalL_2 \leq \fval_2 \leq \rvalR_2 ~ (\diamond)
 	\}
 \end{array}
 \]
 \end{thm}	
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
 %
+By the restriction on $\rvalR_1$, $\rvalL_1$, $\rvalR_2$ and $\rvalL_2$, we have:
+\\
+$e^{-\epsilon}\rvalL_2 \leq \rvalL_1 \leq e^{\epsilon}\rvalL_2$ (1)
+and
+$e^{-\epsilon}\rvalR_2 \leq \rvalR_1 \leq e^{\epsilon}\rvalR_2$ (2).
 %
-Let $\mu_L, \mu_R \in \distr((\float \times \real \times \real) \times (\float \times \real \times \real))$ be the two witness distribution s.t.:
+\\
+Since we also have the relation on $\fval_1$ and $\fval_2$, i.e. $(\star)$ and $(\diamond)$, we can get:
+\\
+$e^{-\epsilon} \rvalL_2 \leq \fval_1 \leq e^{\epsilon} \rvalR_2$ (3)
+and
+$e^{-\epsilon} \rvalL_1 \leq \fval_2 \leq e^{\epsilon} \rvalR_1$ (4)
+\\
+Then, by $(\star)$ and (3), we can get: 
+$e^{-\epsilon} \frac{\rvalL_2}{\rvalR_2} 
+\leq \frac{\fval_1}{\fval_2} \leq
+e^{\epsilon} \frac{\rvalR_2}{\rvalL_2} $, i.e., 
+$e^{-(\epsilon + \ln(\frac{\rvalR_2}{\rvalL_2}))}  
+\leq \frac{\fval_1}{\fval_2} \leq
+e^{\epsilon + \ln(\frac{\rvalR_2}{\rvalL_2})}$.
+%
+\\
+%
+Let $\epsilon' = \epsilon + \ln(\frac{\rvalL_2}{\rvalR_2})$ and $\mu_L, \mu_R \in \distr((\float \times \real \times \real) \times (\float \times \real \times \real))$ be the two witness distribution s.t.:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
-	{\uniform}(x) & \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y) \land \pi_1(x) \in [0, 1)\\
+	{\uniform}(x) & \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y) \land \pi_1(x) \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
 ~~~
 	{\mu_R}(x, y) = 
 	\begin{cases}
-	{\uniform}(y) & \pi_1(x) \cdot e^{-\epsilon} = \pi_1(y) \land \pi_1(y) \in [0, 1)\\
+	{\uniform}(y) & \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y) \land \pi_1(y) \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
 \]
@@ -422,14 +459,11 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\item $\supp(\mu_L) \subseteq \Psi$ 
 		%
 		\\
-		%
-		Let $\rvalL_1 = \fvarx$, $\rvalR_1 = 2\fvarx$, $\rvalL_2 = \fvary$ and $\rvalR_2 = 2\fvary$. 
-		By definition of the $\pdf$ of $\mu_L$, we have: 
-		$\rvalL_1 \leq \fvarx \leq \rvalR_1 
-		\land \rvalL_2 \leq \fvary \leq \rvalR_2
-		\land e^{-\epsilon} \leq 
-		\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
-		\leq e^{\epsilon} \in \Psi$ where $\pdf_{\mu_R}(x, y) = \pdf_{\uniform}(x) > 0$.
+		% 
+		By definition of the $\pdf$ of $\mu_L$, 
+		$\forall \pdf_{\mu_R}(x, y) > 0$,
+		we have 
+		$\pi_1(x) \cdot e^{-\epsilon} = \pi(y) \in \Psi$ 
 		%
 		\\%
 		%
@@ -439,13 +473,10 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		%
 		\\
 		%
-		Let $\rvalL_1 = x$, $\rvalR_1 = 2x$, $\rvalL_2 = y$ and $\rvalR_2 = 2y$. 
-		By definition of the $\pdf$ of $\mu_L$, we have: 
-		$\rvalL_1 \leq x \leq \rvalR_1 
-		\land \rvalL_2 \leq y \leq \rvalR_2
-		\land e^{-\epsilon} \leq 
-		\frac{\rvalR_1 - \rvalL_1}{\rvalL_2 - \rvalR_2}
-		\leq e^{\epsilon} \in \Psi$ when $\pdf_{\mu_R}(x, y) = \pdf_{\uniform}(y) > 0$.
+		By definition of the $\pdf$ of $\mu_L$, 
+		$\forall \pdf_{\mu_L}(x, y) > 0$,
+		we have
+		$\pi_1(x) \cdot e^{-\epsilon} = \pi(y) \in \Psi$ 
 		%
 		\\
 		%
