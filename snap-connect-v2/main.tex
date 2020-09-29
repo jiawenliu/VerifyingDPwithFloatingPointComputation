@@ -224,9 +224,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
 	\varx_2 \samplel \uniform(0, 1)
 	:
-	\rvalL_1 \neq 0
-	\land 
-	\rvalL_2 \neq 0
+	\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
@@ -235,11 +233,11 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1}{\rvalR_2}
 	\leq e^{\epsilon}
+	\\
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
 	\leq e^{\epsilon}
-	\\
 	\Rightarrow  
 	\rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
 	\land 
@@ -375,7 +373,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \end{figure}
 %
 %
-\newpage
+\clearpage
 \begin{thm}
 \label{thm:unif_coupling}
 Let $\edistr_1 \in \distr(\float \times \real \times \real)$, $\edistr_2 \in \distr(\float \times \real \times \real)$ are defined:
@@ -428,7 +426,8 @@ where
 	\}
 \end{array}
 \]
-\end{thm}	
+\end{thm}
+%
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
 %
 By the restriction on $\rvalR_1$, $\rvalL_1$, $\rvalR_2$ and $\rvalL_2$, we have:
@@ -1134,7 +1133,7 @@ By the calculation in the Flopt Version proof, we have:
 	< e^{\epsilon(23 \eta B + 1)}.
 \]
 We also have:
-$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3\eta B}$.
+$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3 \epsilon \eta B}$.
 \\
 Then, we have following derivation for this case:
 
@@ -1153,7 +1152,7 @@ Then, we have following derivation for this case:
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
-		\sim_{\epsilon(23 \eta B + 1) + 3\eta B} 
+		\sim_{\epsilon(26 \eta B + 1)} 
 		\varu_2 \samplel \uniform(0,1)
 		: 
 		\top
@@ -1313,10 +1312,13 @@ and $\rvalR_2 = e^{\epsilon
 By the calculation in the Flopt Version proof, we have:
 \[
 	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon(12 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
+	\leq e^{\epsilon(12 \eta B + 1)}.
 \]
 %
-Then, we have the derivation exactly the same as previous cases.
+	We also have:
+	$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3 \epsilon \eta B}$.
+	\\
+Since $ \epsilon(12 \eta B + 1) + 3 \epsilon \eta B < e^{\epsilon(23 \eta B + 1)}$, we have the derivation exactly the same as previous cases.
 %
 	%
 	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv = 0 } $}
@@ -1337,14 +1339,14 @@ Then, we have the derivation exactly the same as previous cases.
 	By the calculation in the Flopt Version proof, we have:
 	\[
 		e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-		\leq e^{\epsilon(14 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
+		\leq e^{\epsilon(14 \eta B + 1)}.
 	\]
 	%
 	We also have:
-	$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3\eta B}$.
+	$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3 \epsilon \eta B}$.
 	\\
-	Then, we have the derivation exactly the same as previous cases.
-	%
+	Since $ \epsilon(14 \eta B + 1) + 3 \epsilon \eta B < e^{\epsilon(23 \eta B + 1)}$, 
+	we have the derivation exactly the same as previous cases.
 	%
 	\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
 	%
@@ -1375,10 +1377,15 @@ Then, we have the derivation exactly the same as previous cases.
 	By the calculation in the Flopt Version proof, we have:
 	\[
 		e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-		\leq e^{\epsilon(12 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
+		\leq e^{\epsilon(12 \eta B + 1)} .
 	\]
 	%
-	Then, we have the derivation exactly the same as previous cases.
+	We also have:
+	$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3\epsilon \eta B}$.
+	\\
+	Since $ \epsilon(12 \eta B + 1) + 3 \epsilon \eta B < e^{\epsilon(23 \eta B + 1)}$, 
+	%
+	we have the derivation exactly the same as previous cases.
 	%
 	\subcaseL{$s = -1$}
 	%
