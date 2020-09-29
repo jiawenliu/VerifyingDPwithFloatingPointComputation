@@ -224,9 +224,42 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
 	\varx_2 \samplel \uniform(0, 1)
 	:
+	\rvalL_1 \neq 0
+	\land 
+	\rvalL_2 \neq 0
+	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
 	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1}{\rvalR_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	\leq e^{\epsilon}
+	\\
+	\Rightarrow  
+	\rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
+}
+\and
+\mathtodo{
+\inferrule*[right = Unif0]
+{
+\empty
+}
+{
+	\vdash
+	\varx_1 \samplel \uniform(0, 1) 	
+	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
+	\varx_2 \samplel \uniform(0, 1)
+	:
+	\rvalL_1 = 0
+	\lor 
+	\rvalL_2 = 0
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1}{\rvalR_2}
@@ -241,6 +274,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
 	\land 
 	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
+}
 }
 \and
 \inferrule
@@ -272,7 +306,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\pi_1 (\varx_2\langle 2 \rangle) = \pi_1 (\varx_1\langle 1 \rangle )
 	\land \pi_2 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_1\langle 1 \rangle)
 	\land \pi_3 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_1\langle 1 \rangle)
-}~\textbf{null}
+}~\textbf{null}	
 \and
 \inferrule*[right = round]
 {
@@ -841,7 +875,7 @@ Then, we have following derivation for this case:
 		\top
 		\Rightarrow 
 		\Phi
-	}~\textbf{unif}
+	}~\textbf{unif0}
 	~~
 	\inferrule
 	{
@@ -1079,26 +1113,29 @@ By the program semantics, we have:
 	%
 	\subcaseL{
 	$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 
-	\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1) $
+	\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1)$
 	}
 	%
 	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
 		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
 		we know $\valv_1 < 0$, $\valv_2 < 0$.
 \\
-Let $\rvalL_1 = e^{\epsilon 
+Let $\rvalL_1 = e^{\epsilon
 				\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
-$\rvalL_2 = e^{\epsilon 
+$\rvalL_2 = e^{\epsilon
 				\big( (\valv_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
-$\rvalR_1 = e^{\epsilon 
+$\rvalR_1 = e^{\epsilon
 		(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
-and $\rvalR_2 = e^{\epsilon 
+and $\rvalR_2 = e^{\epsilon
 		(\frac{(\frac{\valv_2}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
 By the calculation in the Flopt Version proof, we have:
 \[
 	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
 	< e^{\epsilon(23 \eta B + 1)}.
 \]
+We also have:
+$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3\eta B}$.
+\\
 Then, we have following derivation for this case:
 
 {\tiny
@@ -1116,7 +1153,7 @@ Then, we have following derivation for this case:
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
-		\sim_{\epsilon(23 \eta B + 1)} 
+		\sim_{\epsilon(23 \eta B + 1) + 3\eta B} 
 		\varu_2 \samplel \uniform(0,1)
 		: 
 		\top
@@ -1141,7 +1178,7 @@ Then, we have following derivation for this case:
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{\epsilon(23 \eta B + 1)} 
+		\sim_{\epsilon(23 \eta B + 1) + 3\eta B} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
 		\top \Rightarrow \Phi \land \pi_1(s_1\langle 1 \rangle) 
@@ -1303,6 +1340,9 @@ Then, we have the derivation exactly the same as previous cases.
 		\leq e^{\epsilon(14 \eta B + 1)} < e^{\epsilon(23 \eta B + 1)}.
 	\]
 	%
+	We also have:
+	$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3\eta B}$.
+	\\
 	Then, we have the derivation exactly the same as previous cases.
 	%
 	%
