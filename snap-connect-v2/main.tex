@@ -28,7 +28,7 @@ it with the floating point computation semantics.
 	%
 	~|~ \prog ; \prog \\
 
-\mbox{Expr.} & \expr & ::= & \rval 
+\mbox{Expr} & \expr & ::= & \rval  ~|~  \fval
 	%
 	~|~ \varx  ~|~ \expr \bop \expr
 	%
@@ -40,17 +40,17 @@ it with the floating point computation semantics.
 	%
 	~|~ \clamp_B(\cdot) \\
 %
-\mbox{Value} & \valv & ::= & \rval ~|~  \fval \\
+\mbox{Value} & \valv & ::= & \fval_{(\rval, \rval)}\\
 %
-\mbox{Distr.} & \edistr & ::= & \uniform(0, 1) 
+\mbox{Distr} & \edistr & ::= & \uniform(0, 1) 
 %
 	~|~ \uniform\{-1, 1\}\\ 
 %
 \mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
-\mbox{Env.} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval_{\err})]\\
+\mbox{Env} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval_{\err})]\\
 %
-\mbox{Type} & \tau & ::= & \float_{\real \times \real}
+\mbox{Type} & \tau & ::= & \float ~|~ \real ~|~ \float_{\real \times \real}
 \end{array}
 \]
 where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation. The type $\float_{\real \times \real}$ represents the base type of expressions. In Env., the variables are mapped to $(\fval_{\err})$ of the type $\float_{\real \times \real}$.
@@ -58,7 +58,7 @@ where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$
 
 %
 \paragraph{Semantics.}
-$\boxed{Env \times Expr. \trsto Value \times Value \times Value }$
+$\boxed{Env \times Expr \to Value }$
 %
 \[
 	\begin{array}{rcl}
@@ -72,8 +72,8 @@ $\boxed{Env \times Expr. \trsto Value \times Value \times Value }$
 \]
 %
 $
-\boxed{Env \times \distr. \trsto 
-\distr(Value \times Value \times Value )}
+\boxed{Env \times \distr \to 
+\distr(Value)}
 $
 %
 \[
@@ -94,7 +94,7 @@ $
 	\end{array}
 \]
 %
-$\boxed{Env \times prog \trsto \distr(Env)}$
+$\boxed{Env \times prog \to \distr(Env)}$
 \[
 \begin{array}{rcl}
 	%
@@ -404,7 +404,8 @@ where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined 
 	0       & o.w.
 	\end{cases},
 \]
-where $\fvarx$ and $\rvary$ is the only random variable in $\edistr_1$ and $\edistr_2$ respectively. The $\rvarx_l, \rvarx_u$ and $\rvary_l, \rvary_u$ are deterministic functions of $\fvarx$ and $\fvary$ respectively in $\edistr_1$ and $\edistr_2$ . In our $\uniform$ distribution semantics, i.e., $\sem{\uniform(0, 1)}$, the deterministic function is equality.
+where $\fvarx$ and $\fvary$ is the only random variable in $\edistr_1$ and $\edistr_2$ respectively. 
+The $\rvarx_l, \rvarx_u$ and $\rvary_l, \rvary_u$ are deterministic results calculated from $\fvarx$ and $\fvary$ respectively in $\edistr_1$ and $\edistr_2$ . In our $\uniform$ distribution semantics, i.e., $\sem{\uniform(0, 1)}$, the deterministic function is equality $(\rvarx_u = \rvarx_l = \fvarx) \land (\fvary = \rvary_l = \rvary_u)$.
 \\
 Then, $	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
 	e^{-\epsilon} \leq 
