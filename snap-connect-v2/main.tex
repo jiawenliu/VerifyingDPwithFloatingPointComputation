@@ -378,7 +378,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \clearpage
 \begin{thm}
 \label{thm:unif_coupling}
-Let $\edistr_1 \in \distr(\float_{\real \times \real})$, $\edistr_2 \in \distr(\float_{\real \times \real})$ are defined:
+Let $\edistr_1 \in \distr(\float)$, $\edistr_2 \in \distr(\float)$ are defined:
 \[
 	\edistr_1(\fvarx_{(\rvarx_l, \rvarx_u)}) 
 	= \sem{\uniform(0, 1)}_{[]},
@@ -645,7 +645,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 \begin{thm}[Soundness]
  $\forall \prog_1$, $\prog_2$,  $ \vdash \prog_1	
 \sim_{\epsilon} 
-\prog_2 :
+\prog^2 :
 \Phi_0 \Rightarrow \Phi $,    $\forall \trsmem_1$, $\trsmem_2$ 
 s.t $\Phi_0$: 
 $\trsmem_1 ~ \sem{\Phi_0} ~ \trsmem_2$,
@@ -660,13 +660,116 @@ $$.
 
 
 \begin{proof}
-By induction on the transition judgement $\vdash \prog_1	
-\sim_{\epsilon} 
+By induction on the judgement $\vdash \prog_1	
+\sim_{\epsilon}
 \prog_2 :
-\Phi_0 \Rightarrow \Phi $.
+\Phi_0 \Rightarrow \Phi $, we have following cases:
 \begin{itemize}
 \caseL{[\textsc{Unif}]}
-	In this case, the lifting over the output distribution is proved in the Theorem \ref{thm:unif_coupling}.
+	In this case, 
+	$\sem{\Phi}$ is interpreted as:
+	$	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
+	e^{-\epsilon} \leq 
+	\frac{\rvalL_1}{\rvalL_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1}{\rvalR_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	\leq e^{\epsilon}$, s.t. 
+\[
+\begin{array}{rl}
+	\sem{\Phi} = &
+	\{((\fval_{1(\rval_{1l}, \rval_{1u})}), (\fval_{2(\rval_{2l}, \rval_{2u})})) 
+	\in (\float_{\real \times \real}) \times (\float_{\real \times \real})\\
+	& ~|~
+	\rval_{1l} = \rval_{1u} = \fval_1 
+	\land \fval_2 = \rval_{2l} = \rval_{2u}
+	\land
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1 ~ (\star) 
+	\land 
+	\rvalL_2 \leq \fval_2 \leq \rvalR_2 ~ (\diamond)
+	\}
+\end{array}
+\]
+	%
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx_1 \samplel \uniform(0, 1)}_{\trsmem_1} = 
+	\elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem_1} 
+	\ein 
+	\unit{\trsmem[\varx \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}
+	$
+	%
+	\\
+	%
+	$\sem{\varx_2 \samplel \uniform(0, 1)}_{\trsmem_2} = 
+	\elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem_2} 
+	\ein 
+	\unit{\trsmem[\varx \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}
+	$. \\
+	%
+	By the semantics of $\sem{\uniform(0, 1)}_{\trsmem}$ we also have:
+	\\
+	%
+	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
+	and
+	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
+	%
+	\\
+	%
+	Then, it is enough to show:
+	${\edistr_1}(x) ~ \Psi^{\#(\epsilon)} ~ {\edistr_2}(y)$,
+	where ${\edistr_1}(x) \in \distr(\float)$, ${\edistr_2}(y) \in \distr(\float)$ 
+	and
+	 $\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
+	e^{-\epsilon} \leq 
+	\frac{\rvalL_1}{\rvalL_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1}{\rvalR_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	\leq e^{\epsilon}$, 
+where
+\[
+	\sem{\Psi} = 
+	\{(\fval_1, \fval_2) \in \float \times \float 
+	~|~
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \fval_2 \leq \rvalR_2
+	\}.
+\]
+And the $\edistr_1(\varx), \edistr_2(\vary)$ are defined as:
+\[
+	\pdf_{\edistr_1}(\varx) = 
+	\begin{cases}
+	1 & \varx \in [0, 1)^{\mathbb{F}} 
+	%\land \fvarx = \rvarx_1 = \rvarx_2
+	\\
+	0       & o.w.
+	\end{cases},
+	~~
+	\pdf_{\edistr_2}(\vary) = 
+	\begin{cases}
+	1 & \vary \in [0, 1)^{\mathbb{F}}
+	% \land \fvary = \rvary_1 = \rvary_2
+	\\
+	0       & o.w.
+	\end{cases},
+\]
+	Which is proved in the Theorem \ref{thm:unif_coupling}.
+	%
+	%
 \caseL{[\textsc{Null}] }
 	In this case, 
 	$\sem{\Phi} = 
