@@ -199,12 +199,12 @@ The judgments are defined in following form:
 Here, $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of memories. Each assertions can refer to two copies $x\langle 1 \rangle, x\langle 2 \rangle$ of each program variable $x$, where these tagged variables refer to the value of x in the execution of $\prog_1$ and $\prog_2$ respectively.
 %
 \\
-A judgment is valid, written $\vdash \prog_1 \sim_{\epsilon, \delta} \prog_2: \Phi_0 \Rightarrow \Phi$, 
+A judgment is valid, written $\vdash \prog_1 \sim_{\epsilon} \prog_2: \Phi_0 \Rightarrow \Phi$, 
 if for any two environments $\trsmem_1$ and $\trsmem_2$ satisfying precondition $\Phi_0$, 
 i.e., $(\trsmem_1, \trsmem_2) \in \sem{\Phi_0}$, there exists a lifting of $\Phi$ relating the output distributions: 
 %
 $(\sem{\prog_1}_{\trsmem_1})$ 
-$\sem{\Phi}^{\#(\epsilon, \delta)}$ 
+$\sem{\Phi}^{\#(\epsilon)}$ 
 $(\sem{\prog_2}_{\trsmem_2})$.
 %
 \\
@@ -644,15 +644,15 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 \clearpage
 \begin{thm}[Soundness]
  $\forall \prog_1$, $\prog_2$,  $ \vdash \prog_1	
-\sim_{\epsilon, \delta} 
-\prog^2 :
+\sim_{\epsilon} 
+\prog_2 :
 \Phi_0 \Rightarrow \Phi $,    $\forall \trsmem_1$, $\trsmem_2$ 
 s.t $\Phi_0$: 
 $\trsmem_1 ~ \sem{\Phi_0} ~ \trsmem_2$,
 then
 $$ 
 (\sem{\prog_1}_{\trsmem_1})  
-\sem{\Phi}^{\#(\epsilon, \delta)} 
+\sem{\Phi}^{\#(\epsilon)} 
 (\sem{\prog_2}_{\trsmem_2}) 
 $$.
 \end{thm}
@@ -661,59 +661,12 @@ $$.
 
 \begin{proof}
 By induction on the transition judgement $\vdash \prog_1	
-\sim_{\epsilon, \delta} 
+\sim_{\epsilon} 
 \prog_2 :
 \Phi_0 \Rightarrow \Phi $.
 \begin{itemize}
 \caseL{[\textsc{Unif}]}
-	In this case, 
-	$\sem{\Phi} = 
-	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
-	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
-	~|~
-	\expr^{-\epsilon} \rval_{2l} \leq \rval_{1u}
-	\land
-	\expr^{\epsilon} \rval_{1l} \leq \rval_{2u}
-	\}$
-	%
-	\\
-	%
-	By the semantics of sampling, we have:\\
-	%
-	$\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} = 
-	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
-	= \sem{\edistr_1}_{\trsmem_1} 
-	\ein 
-	\unit{\trsmem[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
-	$ and 
-	%
-	$\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2} = 
-	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
-	= \sem{\edistr_2}_{\trsmem_2} 
-	\ein 
-	\unit{\trsmem[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
-	$. \\
-	%
-	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsmem}$ we have:
-	\\
-	%
-	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
-	and
-	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
-	%
-	\\
-	%
-	Then, it is enough to show:
-	${\edistr_1}(x) ~ \Psi^{\#(\epsilon, 0)} ~ {\edistr_1}(y)$, where
-	\[
-		\Psi = \{(\fval_1, \fval_2) \in \float \times \float
-		| 
-		\fval_1 e^{-\epsilon} 
-		\leq \fval_2
-		\leq \fval_1 e^{\epsilon} \}.
-	\]
-	%
-	Which is proved in the Theorem \ref{thm:unif_coupling}.
+	In this case, the lifting over the output distribution is proved in the Theorem \ref{thm:unif_coupling}.
 \caseL{[\textsc{Null}] }
 	In this case, 
 	$\sem{\Phi} = 
@@ -763,9 +716,10 @@ By induction on the transition judgement $\vdash \prog_1
 	\]
 	%
 	Which is obviously.
-	% \caseL{[\textsc{Assn}] }
-	% \caseL{[\textsc{Seq}] }
-	% \caseL{[\textsc{ConSeq}] }
+	\caseL{[\textsc{Assn}] }
+	By the semantics of assignment, we have:\\
+	\caseL{[\textsc{Seq}] }
+	\caseL{[\textsc{ConSeq}] }
 	\end{itemize}
 \end{proof}
 
