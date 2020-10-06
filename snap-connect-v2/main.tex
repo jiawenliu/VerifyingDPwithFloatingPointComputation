@@ -707,10 +707,12 @@ By induction on the judgement $\vdash \prog_1
 }
 \]}
 	In this case, 
-	assume $m_1, m_2$, $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0$, s.t.,
-	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition is as follows:
+	assume $m_1, m_2$, $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2$, s.t.,
+	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition is:
 	$$
-	\Phi_0 \triangleq 
+	\Phi_0 \triangleq
+	\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0
+	\land 
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
 	\leq e^{\epsilon}
@@ -723,7 +725,9 @@ By induction on the judgement $\vdash \prog_1
 	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
 	\leq e^{\epsilon}
 	$$
-	And the post-condition $\Phi \triangleq \rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
+	%
+	%
+	The post-condition $\Phi \triangleq \rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
 	\land 
 	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
 	\land
@@ -731,11 +735,12 @@ By induction on the judgement $\vdash \prog_1
 	\land 
 	\pi_1 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_2\langle 2 \rangle)
 	$ is interpreted as:
+	%
 \[
-\begin{array}{rl}
-	\sem{\Phi} = &
-	\{(m_1, m_2)\\
-	& \left \vert
+	\sem{\Phi} =
+	\left \{
+	(m_1, m_2)
+	\left \vert
 	\begin{array}{l}
 	(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}
 	\land
@@ -746,13 +751,12 @@ By induction on the judgement $\vdash \prog_1
 	\rvalL_2 \leq \fval_2 \leq \rvalR_2
 	\\
 	\land
-	\rval_{1l} = \fval_1 = \rval_{1u}
+	\fval_1 = \rval_{1l} = \rval_{1u}
 	\land 
-	\rval_{2l} = \fval_2 = \rval_{2u}
+	\fval_2 = \rval_{2l} = \rval_{2u}
 	\end{array}
 	\right.
-	\}
-\end{array}
+	\right \}
 \]
 	%
 	By the semantics of sampling, we have:\\
@@ -793,10 +797,9 @@ By induction on the judgement $\vdash \prog_1
 	Now the following subproof is to show the subgoal:
 	%
 	\\
-	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\edistr_1} ~ R^{\#(\epsilon)} ~ {\edistr_2}$, then $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$.
+	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\edistr_1} ~ R^{\#(\epsilon)} ~ {\edistr_2}$, then $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$,
 	%
-	where ${\edistr_1} \in \distr(\float)$, ${\edistr_2} \in \distr(\float)$ 
-	and
+	where
 	\[
 		R = 
 		\{(\fval_1, \fval_2) \in \float \times \float 
@@ -806,7 +809,8 @@ By induction on the judgement $\vdash \prog_1
 		\rvalL_2 \leq \fval_2 \leq \rvalR_2
 		\},
 	\]
-	and the $\edistr_1, \edistr_2$ are defined as:
+	and  ${\edistr_1} \in \distr(\float)$, ${\edistr_2} \in \distr(\float)$ 
+	are defined as:
 	\[
 		\pdf_{\edistr_1}(\varx) = 
 		\begin{cases}
@@ -822,8 +826,9 @@ By induction on the judgement $\vdash \prog_1
 		% \land \fvary = \rvary_1 = \rvary_2
 		\\
 		0       & o.w.
-		\end{cases}.
+		\end{cases},
 	\]
+	which are two instances of $\uniform(0, 1)$.
 	% Which is proved in the Theorem \ref{thm:unif_coupling}.
 	%
 	\begin{subproof}
@@ -845,12 +850,15 @@ By induction on the judgement $\vdash \prog_1
 	%
 	\\ 
 	%
-	Given $\edistr_1$, for any $\fval_1 \leftarrow \edistr_1^{\diamond}$, we can always find one and only one $\fval_{1(\rval_{1l}, \rval_{1u})}$ where $\rval_{1l} = \fval_1 = \rval_{1u}$.
+	\textbf{Proof of (i):} Given $\edistr_1$, for any $\fval_1 \leftarrow \edistr_1^{\diamond}$, we can always find one and only one $\fval_{1(\rval_{1l}, \rval_{1u})}$ where $\rval_{1l} = \fval_1 = \rval_{1u}$.
 	%
 	\\
 	Then we can construct one and only one $\edistr'_1 \in \distr(\float_{\real \times \real})$
-	by setting the pdf on $\fval_{1(\rval_{1l}, \rval_{1u})}$ the same as $\pdf_{\edistr_1}(\fval_1)$, which  
-	pdf defined as $\pdf_{\edistr'_1}$:
+	by setting the pdf on $\fval_{1(\rval_{1l}, \rval_{1u})}$ the same as $\pdf_{\edistr_1}(\fval_1)$. 
+	\\
+	%
+	Then we have the pdf of $\edistr'_1$  
+	is defined as $\pdf_{\edistr'_1}$:
 	%
 	\[
 	\pdf_{\edistr'_1}(\fval_{1(\rval_{1l}, \rval_{1u})}) = 
@@ -906,10 +914,10 @@ By induction on the judgement $\vdash \prog_1
 	In this way, (i) are proved.
 	\\
 	%
-	We can also prove (ii) by repeating every steps above except substituting $\trsmem_1, \fvalv_1, \rvalv_{1l}$ and $\rvalv_{1u}$ with $\trsmem_2, \fvalv_2, \rvalv_{2l}$ and $\rvalv_{2u}$.
+	\textbf{Proof of (ii):} We can also prove (ii) by repeating every steps above except substituting $\trsmem_1, \fvalv_1, \rvalv_{1l}$ and $\rvalv_{1u}$ with $\trsmem_2, \fvalv_2, \rvalv_{2l}$ and $\rvalv_{2u}$.
 	%
 	\\
-	To prove (3), given any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
+	\textbf{Proof of (iii):} Given any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
 	$\fvalv_1 \leftarrow \edistr_1^{\diamond}$, $\fvalv_2 \leftarrow \edistr_2^{\diamond}$, we have by definition of $R$:
 	%
 	\\
@@ -918,7 +926,7 @@ By induction on the judgement $\vdash \prog_1
 	$\rvalL_2 \leq \fvalv_2 \leq \rvalR_2 ~ (4)$
 	\\
 	%
-	We can also construct one and only one pair of environments $\trsmem_1', \trsmem_2'$ as:
+	By (i) and (ii), we can also construct one and only one pair of environments $\trsmem_1', \trsmem_2'$ as:
 	\\
 	$\trsmem_1' = \trsmem_1[\varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}] ~ (5)$ and
 	$\trsmem_2' = \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}] ~ (6)$,
