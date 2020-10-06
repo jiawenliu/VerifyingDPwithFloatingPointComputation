@@ -244,6 +244,11 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
 	\land 
 	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
+	\\
+	\land 
+	\pi_1(\varx_1\langle 1 \rangle) = \pi_2(\varx_1\langle 1 \rangle) = \pi_3(\varx_1\langle 1 \rangle)
+	\land 
+	\pi_1 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_2\langle 2 \rangle)
 }
 \and
 \mathtodo{
@@ -645,7 +650,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 \begin{thm}[Soundness]
  $\forall \prog_1$, $\prog_2$,  $ \vdash \prog_1	
 \sim_{\epsilon} 
-\prog^2 :
+\prog_2 :
 \Phi_0 \Rightarrow \Phi $,    $\forall \trsmem_1$, $\trsmem_2$ 
 s.t $\Phi_0$: 
 $\trsmem_1 ~ \sem{\Phi_0} ~ \trsmem_2$,
@@ -665,10 +670,47 @@ By induction on the judgement $\vdash \prog_1
 \prog_2 :
 \Phi_0 \Rightarrow \Phi $, we have following cases:
 \begin{itemize}
-\caseL{[\textsc{Unif}]}
+\caseL{\[
+	\inferrule*[right = Unif]
+{
+\empty
+}
+{
+	\vdash
+	\varx_1 \samplel \uniform(0, 1) 	
+	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
+	\varx_2 \samplel \uniform(0, 1)
+	:
+	\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalL_1}{\rvalL_2}
+	\leq e^{\epsilon}
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1}{\rvalR_2}
+	\leq e^{\epsilon}
+	\\
+	\land
+	e^{-\epsilon} \leq 
+	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+	\leq e^{\epsilon}
+	\Rightarrow  
+	\rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
+	\\
+	\land 
+	\pi_1(\varx_1\langle 1 \rangle) = \pi_2(\varx_1\langle 1 \rangle) = \pi_3(\varx_1\langle 1 \rangle)
+	\land 
+	\pi_1 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_2\langle 2 \rangle)
+}
+\]}
 	In this case, 
-	$\sem{\Phi}$ is interpreted as:
-	$	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
+	assume $m_1, m_2$, $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0$, s.t.,
+	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition is as follows:
+	$$
+	\Phi_0 \triangleq 
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
 	\leq e^{\epsilon}
@@ -679,30 +721,47 @@ By induction on the judgement $\vdash \prog_1
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}$, s.t. 
+	\leq e^{\epsilon}
+	$$
+	And the post-condition $\Phi \triangleq \rvalL_1 \leq \pi_1(\varx_1\langle 1 \rangle) \leq \rvalR_1 
+	\land 
+	\rvalL_2 \leq \pi_1 (\varx_2\langle 2 \rangle) \leq \rvalR_2
+	\land
+	\pi_1(\varx_1\langle 1 \rangle) = \pi_2(\varx_1\langle 1 \rangle) = \pi_3(\varx_1\langle 1 \rangle)
+	\land 
+	\pi_1 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_2\langle 2 \rangle)
+	$ is interpreted as:
 \[
 \begin{array}{rl}
 	\sem{\Phi} = &
-	\{((\fval_{1(\rval_{1l}, \rval_{1u})}), (\fval_{2(\rval_{2l}, \rval_{2u})})) 
-	\in (\float_{\real \times \real}) \times (\float_{\real \times \real})\\
-	& ~|~
-	\rval_{1l} = \rval_{1u} = \fval_1 
-	\land \fval_2 = \rval_{2l} = \rval_{2u}
+	\{(m_1, m_2)\\
+	& \left \vert
+	\begin{array}{l}
+	(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}
 	\land
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1 ~ (\star) 
+	(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}
+	\land
+	\rvalL_1 \leq \fval_1 \leq \rvalR_1
 	\land 
-	\rvalL_2 \leq \fval_2 \leq \rvalR_2 ~ (\diamond)
+	\rvalL_2 \leq \fval_2 \leq \rvalR_2
+	\\
+	\land
+	\rval_{1l} = \fval_1 = \rval_{1u}
+	\land 
+	\rval_{2l} = \fval_2 = \rval_{2u}
+	\end{array}
+	\right.
 	\}
 \end{array}
 \]
 	%
 	By the semantics of sampling, we have:\\
 	%
-	$\sem{\varx_1 \samplel \uniform(0, 1)}_{\trsmem_1} = 
+	$\sem{\varx_1 \samplel \uniform(0, 1)}_{\trsmem_1} =
 	\elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
 	= \sem{\uniform(0, 1)}_{\trsmem_1} 
 	\ein 
-	\unit{\trsmem[\varx \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}
+	\unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}
 	$
 	%
 	\\
@@ -711,114 +770,220 @@ By induction on the judgement $\vdash \prog_1
 	\elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
 	= \sem{\uniform(0, 1)}_{\trsmem_2} 
 	\ein 
-	\unit{\trsmem[\varx \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}
+	\unit{\trsmem_2[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}
 	$. \\
 	%
-	By the semantics of $\sem{\uniform(0, 1)}_{\trsmem}$ we also have:
-	\\
-	%
-	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
-	and
-	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
-	%
-	\\
-	%
-	Then, it is enough to show:
-	${\edistr_1}(x) ~ \Psi^{\#(\epsilon)} ~ {\edistr_2}(y)$,
-	where ${\edistr_1}(x) \in \distr(\float)$, ${\edistr_2}(y) \in \distr(\float)$ 
-	and
-	 $\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
-	e^{-\epsilon} \leq 
-	\frac{\rvalL_1}{\rvalL_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1}{\rvalR_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}$, 
-where
-\[
-	\sem{\Psi} = 
-	\{(\fval_1, \fval_2) \in \float \times \float 
-	~|~
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq \fval_2 \leq \rvalR_2
-	\}.
-\]
-And the $\edistr_1(\varx), \edistr_2(\vary)$ are defined as:
-\[
-	\pdf_{\edistr_1}(\varx) = 
-	\begin{cases}
-	1 & \varx \in [0, 1)^{\mathbb{F}} 
-	%\land \fvarx = \rvarx_1 = \rvarx_2
-	\\
-	0       & o.w.
-	\end{cases},
-	~~
-	\pdf_{\edistr_2}(\vary) = 
-	\begin{cases}
-	1 & \vary \in [0, 1)^{\mathbb{F}}
-	% \land \fvary = \rvary_1 = \rvary_2
-	\\
-	0       & o.w.
-	\end{cases},
-\]
-	Which is proved in the Theorem \ref{thm:unif_coupling}.
-	%
-	%
-\caseL{[\textsc{Null}] }
-	In this case, 
-	$\sem{\Phi} = 
-	\{((\fval_1, \rval_{1l}, \rval_{1u}), (\fval_2, \rval_{2l}, \rval_{2u})) 
-	\in (\float \times \real \times \real) \times (\float \times \real \times \real)
-	|
-	\rval_{2l} = \rval_{1l}
-	\land
-	\rval_{2u} = \rval_{1u}
-	\land
-	\fval_1 = \fval_2
-	\}$
-	%
-	\\
-	%
-	By the semantics of sampling, we have:\\
-	%
-	$\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} = 
-	\elet (\fval_1, \rval_{1l}, \rval_{1u}) 
-	= \sem{\edistr_1}_{\trsmem_1} 
+	Then we need to prove:
+	\[\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2),\]
+	where 
+	$\mu^*_1(\trsmem_1) = \elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem_1} 
 	\ein 
-	\unit{\trsmem[\varx \mapsto (\fval_1, \rval_{1l}, \rval_{1u})]}
-	$ and 
+	\unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$ and
 	%
-	$\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2} = 
-	\elet (\fval_2, \rval_{2l}, \rval_{2u}) 
-	= \sem{\edistr_2}_{\trsmem_2} 
-	\ein 
-	\unit{\trsmem[\varx \mapsto (\fval_2, \rval_{2l}, \rval_{2u})]}
-	$. \\
-	%
-	Then by the semantics of $\sem{\uniform(0, 1)}_{\trsmem}$ we have:
 	\\
 	%
-	$ \rval_{1l} = \fval_1 = \rval_{1u} ~ (1)$ 
+	$\mu^*_2(\trsmem_2) = \elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem_2} 
+	\ein
+	\unit{\trsmem_2[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}$.
+	%
+	\\
+	%
+	Now the following subproof is to show the subgoal:
+	%
+	\\
+	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\edistr_1} ~ R^{\#(\epsilon)} ~ {\edistr_2}$, then $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$.
+	%
+	where ${\edistr_1} \in \distr(\float)$, ${\edistr_2} \in \distr(\float)$ 
 	and
-	$ \rval_{2l} = \fval_2 = \rval_{2u} ~ (2)$.
-	%
-	\\
-	%
-	Then, it is enough to show:
-	${\edistr_1}(x) ~ \Psi^{\#(0, 0)} ~ {\edistr_1}(y)$, where
 	\[
-		\Psi = \{(\fval_1, \fval_2) \in \float \times \float
-		~| ~
-		\fval_1 = \fval_2 \}.
+		R = 
+		\{(\fval_1, \fval_2) \in \float \times \float 
+		~|~
+		\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+		\land 
+		\rvalL_2 \leq \fval_2 \leq \rvalR_2
+		\},
+	\]
+	and the $\edistr_1, \edistr_2$ are defined as:
+	\[
+		\pdf_{\edistr_1}(\varx) = 
+		\begin{cases}
+		1 & \varx \in [0, 1)^{\mathbb{F}} 
+		%\land \fvarx = \rvarx_1 = \rvarx_2
+		\\
+		0       & o.w.
+		\end{cases} ,
+		~~
+		\pdf_{\edistr_2}(\vary) = 
+		\begin{cases}
+		1 & \vary \in [0, 1)^{\mathbb{F}}
+		% \land \fvary = \rvary_1 = \rvary_2
+		\\
+		0       & o.w.
+		\end{cases}.
+	\]
+	% Which is proved in the Theorem \ref{thm:unif_coupling}.
+	%
+	\begin{subproof}
+	%
+	It is equivalent to show following 3 items for any environment $\trsmem_1, \trsmem_2$:
+	\\
+	%
+	(i) For any $\edistr_1 \in \distr(\float)$, there is one and only one $\edistr^*_1(\trsmem_1) \in \distr(Env)$.
+	%
+	\\
+	(ii) For any $\edistr_2 \in \distr(\float)$, there is one and only one $\edistr^*_2(\trsmem_2) \in \distr(Env)$.
+	\\
+	%
+	(iii) For any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
+	$\fvalv_1 \leftarrow \edistr_1^{\diamond}$, $\fvalv_2 \leftarrow \edistr_2^{\diamond}$,
+	there is one and only one pair of environments 
+	$(\trsmem_1[ \varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}], \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}]) \in \sem{\Phi}$
+	where $\rval_{1l}, \rval_{1u}, \rval_{2l}, \rval_{2u} \in \real$.
+	%
+	\\ 
+	%
+	Given $\edistr_1$, for any $\fval_1 \leftarrow \edistr_1^{\diamond}$, we can always find one and only one $\fval_{1(\rval_{1l}, \rval_{1u})}$ where $\rval_{1l} = \fval_1 = \rval_{1u}$.
+	%
+	\\
+	Then we can construct one and only one $\edistr'_1 \in \distr(\float_{\real \times \real})$
+	by setting the pdf on $\fval_{1(\rval_{1l}, \rval_{1u})}$ the same as $\pdf_{\edistr_1}(\fval_1)$, which  
+	pdf defined as $\pdf_{\edistr'_1}$:
+	%
+	\[
+	\pdf_{\edistr'_1}(\fval_{1(\rval_{1l}, \rval_{1u})}) = 
+		\begin{cases}
+		1 & \fval_1 \in [0, 1)^{\mathbb{F}}
+		\land  \fval_1 = \rval_{1l} = \rval_{1u}
+		\\
+		0       & o.w.
+		\end{cases},
 	\]
 	%
-	Which is obviously.
+	We can also rewrite $\edistr'_1$ as 
+	$\elet \fval_{1(\rval_{1l}, \rval_{1u})} \leftarrow \edistr'^{\diamond}_1 
+	\ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$.
+	%
+	\\
+	Given $\trsmem_1$, by the definition of $\sem{\uniform(0, 1)}_{\trsmem_1}$ we have:
+	\\
+	%
+	$ \sem{\uniform(0, 1)}_{\trsmem_1} \in  
+	\{\fval_{1(\rval_{1l}, \rval_{1u})} 
+	~|~ \fval_1 \leftarrow \uniform(0, 1)^{\diamond} 
+	\land \rval_{1l} = \fval_1 = \rval_{1u}\}$
+	\\
+	%
+	Since the $\uniform(0, 1)$ have the same pdf as $\edistr_1$, we know $\edistr'_1 = \sem{\uniform(0, 1)}_{\trsmem_1}$.
+	%
+	\\
+	Then we can rewrite $\edistr'_1$ as 
+	$\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
+	\ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$
+	%
+	\\
+	%
+	Since for any $\fval_{1(\rval_{1l}, \rval_{1u})} \in \sem{\uniform(0, 1)}_{\trsmem_1}$, 
+	we can always construct one and only one environment $\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]$.
+	%
+	\\
+	In this way, we can construct one and only one distribution in domain of Env 
+	by setting pdf on 
+	$\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]$
+	equal to 
+	$\fval_{1(\rval_{1l}, \rval_{1u})}$.
+	%
+	\\
+	%
+	Then we have $\mu^*_1(\trsmem_1) \in \distr(\float_{\real \times \real})$ defined as 
+	$\elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem_2} 
+	\ein
+	\unit{\fval_{2(\rval_{2l}, \rval_{2u})}}$.
+	%
+	In this way, (i) are proved.
+	\\
+	%
+	We can also prove (ii) by repeating every steps above except substituting $\trsmem_1, \fvalv_1, \rvalv_{1l}$ and $\rvalv_{1u}$ with $\trsmem_2, \fvalv_2, \rvalv_{2l}$ and $\rvalv_{2u}$.
+	%
+	\\
+	To prove (3), given any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
+	$\fvalv_1 \leftarrow \edistr_1^{\diamond}$, $\fvalv_2 \leftarrow \edistr_2^{\diamond}$, we have by definition of $R$:
+	%
+	\\
+	$\rvalL_1 \leq \fvalv_1 \leq \rvalR_1 ~ (3)$
+	%
+	$\rvalL_2 \leq \fvalv_2 \leq \rvalR_2 ~ (4)$
+	\\
+	%
+	We can also construct one and only one pair of environments $\trsmem_1', \trsmem_2'$ as:
+	\\
+	$\trsmem_1' = \trsmem_1[\varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}] ~ (5)$ and
+	$\trsmem_2' = \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}] ~ (6)$,
+	\\
+	where $\rval_{1l} = \fval_1 = \rval_{1u} ~ (7)$ and $\rval_{2l} = \fval_2 = \rval_{2u} ~ (8)$.
+	%
+	\\
+	In order to show $(\trsmem_1', \trsmem_2') \in \sem{\Phi}$, we need to prove:
+	\\
+	(a)	$(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}$.
+	This is proved by (5).
+	\\
+	(b) $(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}$.
+	This is proved by (6).
+	\\
+	(c) $\rvalL_1 \leq \fval_1 \leq \rvalR_1$.
+	This is proved by (3).
+	\\
+	(d) $\rvalL_2 \leq \fval_2 \leq \rvalR_2$.
+	This is proved by (4).
+	\\
+	(e) $\rval_{1l} = \fval_1 = \rval_{1u}$.
+	This is proved by (7).
+	\\ 
+	(f) $\rval_{2l} = \fval_2 = \rval_{2u}$.
+	This is proved by (8).
+	\\
+	Then we have (iii) proved. 
+	\end{subproof}
+	%
+	Since we have ${\edistr_1} ~ R^{\#(\epsilon)} ~ {\edistr_2}$ proved in the Theorem \ref{thm:unif_coupling},
+	%
+	where 
+	\[ R = 
+			\{(\fval_1, \fval_2) \in \float \times \float 
+			~|~
+			\rvalL_1 \leq \fval_1 \leq \rvalR_1 
+			\land 
+			\rvalL_2 \leq \fval_2 \leq \rvalR_2
+			\},
+	\]
+	and ${\edistr_1} \in \distr(\float)$, ${\edistr_2} \in \distr(\float)$ defined as:
+	\[
+		\pdf_{\edistr_1}(\varx) = 
+		\begin{cases}
+		1 & \varx \in [0, 1)^{\mathbb{F}} 
+		%\land \fvarx = \rvarx_1 = \rvarx_2
+		\\
+		0       & o.w.
+		\end{cases} ,
+		~~
+		\pdf_{\edistr_2}(\vary) = 
+		\begin{cases}
+		1 & \vary \in [0, 1)^{\mathbb{F}}
+		% \land \fvary = \rvary_1 = \rvary_2
+		\\
+		0       & o.w.
+		\end{cases}.
+	\]	
+	%
+	We have $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$ by \textbf{Subgoal}.
+
+	\caseL{[\textsc{Null}] }
+
+
 	\caseL{[\textsc{Assn}] }
 	By the semantics of assignment, we have:\\
 	\caseL{[\textsc{Seq}] }
