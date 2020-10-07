@@ -133,7 +133,6 @@ $\trsmem, \prog \trsto \trsmem'$ represents given and environment $\trsmem$,
 the program $\prog$ is transited to a new environment $\trsmem'$.
 %
 %
-%
 \section{Judgement and Validity}
 %
 \begin{defn}
@@ -181,14 +180,52 @@ $\expr\langle 1 / 2 \rangle$ denotes an expression where program variables are t
 %
 $\pi_i(\expr\langle 1 / 2 \rangle)$ represents an expression where program variables are projected to the $i^{th}$ value from its triples, where $i \in \{1, 2, 3\}$.
 %
-\paragraph{Assertion Interpretation.} Assertions are interpreted as set of product environments. Let $\Phi$ be an assertion,
+\paragraph{Assertion Interpretation.} Assertions are interpreted as relation between environments, i.e., set of paired environments. Let $\Phi$ be an assertion,
 %
-for example, when $\Phi \triangleq \pi_1(\expr_1\langle 1 \rangle) < \pi_1(\expr_2\langle 2 \rangle)$:
-\[
-	\sem{\Phi} = \{(\trsmem_1, \trsmem_2)
-	~|~ \pi_1(\sem{\expr_1}_{\trsmem_1}) 
-	< \pi_1(\sem{\expr_2}_{\trsmem_2}) \}.
-\]
+by the definition of $\mathcal{A}$, we have $\sem{\bexp}$ as:
+\\
+$\sem{\pi_i(\expr\langle 1 \rangle) 
+= \pi_i(\expr\langle 2 \rangle)} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
+= \pi_i(\sem{\expr}_{\trsmem_2}) \}$;
+%
+\\
+$\sem{\pi_i(\expr\langle 1 \rangle) 
+< \pi_i(\expr\langle 2 \rangle)} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
+< \pi_i(\sem{\expr}_{\trsmem_2}) \}$
+%
+\\
+$\sem{\pi_i(\expr\langle 1 \rangle) 
+\leq \pi_i(\expr\langle 2 \rangle)} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
+\leq \pi_i(\sem{\expr}_{\trsmem_2}) \}$
+%
+\\
+$\sem{\pi_i(\expr\langle 1 \rangle) 
+\lameq \pi_i(\expr\langle 2 \rangle)} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
+\lameq \pi_i(\sem{\expr}_{\trsmem_2}) \}$
+%
+\\
+$\sem{\top} = \{(\trsmem_1, \trsmem_2)\}$
+%
+\\
+$\sem{\bot} = \{\}$
+%
+\\
+$\sem{\bexp_1 \land \bexp_2} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\bexp_1} \land 
+	(\trsmem_1, \trsmem_2) \in \sem{\bexp_2} \big\}$
+%
+\\
+$\sem{\bexp_1 \lor \bexp_2} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\bexp_1} \lor 
+	(\trsmem_1, \trsmem_2) \in \sem{\bexp_2} \big\}$
+%
+\\
+$\sem{\neg \bexp} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \notin \sem{\bexp} \big\}$
 %
 %
 \paragraph{Judgment.}
@@ -218,7 +255,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \begin{mathpar}
 \inferrule*[right = Unif]
 {
-\empty
+\forall \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in \real
 }
 {
 	\vdash
@@ -226,7 +263,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
 	\varx_2 \samplel \uniform(0, 1)
 	:
-	\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0
+	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
