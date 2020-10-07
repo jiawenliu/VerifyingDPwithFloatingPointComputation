@@ -168,6 +168,11 @@ where $\mathcal{X}$ is a finite set of variable names.
  ~|~ \pi_i(\expr\langle 1 / 2 \rangle) \leq \pi_i(\expr\langle 1 / 2 \rangle)
  ~|~ \pi_i(\expr\langle 1 / 2 \rangle) \lameq \pi_i(\expr\langle 1 / 2 \rangle)
 	\\
+	%
+& & &
+ ~|~ \pi_i(\expr\langle 1 / 2 \rangle) = \pi_i(\expr\langle 1 / 2 \rangle)
+ ~|~ \pi_i(\expr\langle 1 / 2 \rangle) \neq \pi_i(\expr\langle 1 / 2 \rangle)
+	\\
 %
 \mbox{Assert.} & \mathcal{A} & ::= & \top ~|~ \bot ~|~ \bexp 
 	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
@@ -206,6 +211,18 @@ $\sem{\pi_i(\expr\langle 1 \rangle)
 \lameq \pi_i(\expr\langle 2 \rangle)} = 
 \{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
 \lameq \pi_i(\sem{\expr}_{\trsmem_2}) \}$
+%
+\\
+$\sem{\pi_i(\expr\langle 1 \rangle) 
+\neq \pi_i(\expr\langle 2 \rangle)} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
+\neq \pi_i(\sem{\expr}_{\trsmem_2}) \}$
+%
+\\
+$\sem{\pi_i(\expr\langle 1 \rangle) 
+= \pi_i(\expr\langle 2 \rangle)} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \pi_{i}(\sem{\expr}_{\trsmem_{1}}) 
+= \pi_i(\sem{\expr}_{\trsmem_2}) \}$
 %
 \\
 $\sem{\top} = \{(\trsmem_1, \trsmem_2)\}$
@@ -702,7 +719,7 @@ $$.
 
 
 \begin{proof}
-By induction on the judgement $\vdash \prog_1	
+By induction on the judgment $\vdash \prog_1	
 \sim_{\epsilon}
 \prog_2 :
 \Phi_0 \Rightarrow \Phi $, we have following cases:
@@ -710,7 +727,7 @@ By induction on the judgement $\vdash \prog_1
 \caseL{\[
 	\inferrule*[right = Unif]
 {
-\empty
+\forall \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in \real
 }
 {
 	\vdash
@@ -718,16 +735,16 @@ By induction on the judgement $\vdash \prog_1
 	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
 	\varx_2 \samplel \uniform(0, 1)
 	:
-	\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0
+	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
 	\leq e^{\epsilon}
+	\\
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1}{\rvalR_2}
 	\leq e^{\epsilon}
-	\\
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
@@ -748,7 +765,7 @@ By induction on the judgement $\vdash \prog_1
 	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition is:
 	$$
 	\Phi_0 \triangleq
-	\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \neq 0
+	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
 	\land 
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
@@ -772,6 +789,28 @@ By induction on the judgement $\vdash \prog_1
 	\land 
 	\pi_1 (\varx_2\langle 2 \rangle) = \pi_2 (\varx_2\langle 2 \rangle) = \pi_3 (\varx_2\langle 2 \rangle)
 	$ is interpreted as:
+	%
+	\[
+	\sem{\Phi} =
+	\left \{
+	(m_1, m_2)
+	\left \vert
+	\begin{array}{l}
+	\rvalL_1 \leq \pi_1(\sem{\varx_1}_{\trsmem_1}) \leq \rvalR_1
+	\land 
+	\rvalL_2 \leq \pi_1(\sem{\varx_2}_{\trsmem_2}) \leq \rvalR_2
+	\\
+	\land
+	\pi_1(\sem{\varx_1}_{\trsmem_1}) = \pi_2(\sem{\varx_1}_{\trsmem_1}) = \pi_3(\sem{\varx_1}_{\trsmem_1})
+	\land 
+	\pi_1(\sem{\varx_2}_{\trsmem_2}) = \pi_2(\sem{\varx_2}_{\trsmem_2}) = \pi_3(\sem{\varx_2}_{\trsmem_2})
+	\end{array}
+	\right.
+	\right \}
+\]
+	%
+	Let $(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}$ and 
+	$(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}$, we can rewrite the interpretation of $\sem{\Phi}$ as:
 	%
 \[
 	\sem{\Phi} =
@@ -817,17 +856,17 @@ By induction on the judgement $\vdash \prog_1
 	Then we need to prove:
 	\[\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2),\]
 	where 
-	$\mu^*_1(\trsmem_1) = \elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
-	= \sem{\uniform(0, 1)}_{\trsmem_1} 
+	$\mu^*_1(\trsmem) = \elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem} 
 	\ein 
-	\unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$ and
+	\unit{\trsmem[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$ and
 	%
 	\\
 	%
-	$\mu^*_2(\trsmem_2) = \elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
-	= \sem{\uniform(0, 1)}_{\trsmem_2} 
+	$\mu^*_2(\trsmem) = \elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
+	= \sem{\uniform(0, 1)}_{\trsmem} 
 	\ein
-	\unit{\trsmem_2[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}$.
+	\unit{\trsmem[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}$.
 	%
 	\\
 	%
