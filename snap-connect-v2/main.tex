@@ -787,36 +787,9 @@ By induction on the judgment $\vdash \prog_1
 \clearpage
 \begin{thm}
 \label{thm:unif_coupling}
-Let $\edistr_1 \in \distr(\float)$, $\edistr_2 \in \distr(\float)$ are defined:
-\[
-	\edistr_1(\fvarx_{(\rvarx_l, \rvarx_u)}) 
-	= \sem{\uniform(0, 1)}_{[]},
-~~
-	\edistr_2(\fvary_{(\rvary_l, \rvary_u)}) 
-	= \sem{\uniform(0, 1)}_{[]}
-\]
-where $\uniform$ is uniform distribution over $[0, 1)$ whoes $\pdf.$ is defined as:
-\[
-	\pdf_{\edistr_1}(\fvarx_{(\rvarx_l, \rvarx_u)}) = 
-	\begin{cases}
-	1 & \fvarx \in [0, 1)^{\mathbb{F}} 
-	%\land \fvarx = \rvarx_1 = \rvarx_2
-	\\
-	0       & o.w.
-	\end{cases},
-	~~
-	\pdf_{\edistr_2}(\fvary_{(\rvary_l, \rvary_u)}) = 
-	\begin{cases}
-	1 & \fvary \in [0, 1)^{\mathbb{F}}
-	% \land \fvary = \rvary_1 = \rvary_2
-	\\
-	0       & o.w.
-	\end{cases},
-\]
-where $\fvarx$ and $\fvary$ is the only random variable in $\edistr_1$ and $\edistr_2$ respectively. 
-The $\rvarx_l, \rvarx_u$ and $\rvary_l, \rvary_u$ are deterministic results calculated from $\fvarx$ and $\fvary$ respectively in $\edistr_1$ and $\edistr_2$ . In our $\uniform$ distribution semantics, i.e., $\sem{\uniform(0, 1)}$, the deterministic function is equality $(\rvarx_u = \rvarx_l = \fvarx) \land (\fvary = \rvary_l = \rvary_u)$.
-\\
-Then, $	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
+for any $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in \real$ s.t. 
+$	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
+	\land 
 	e^{-\epsilon} \leq 
 	\frac{\rvalL_1}{\rvalL_2}
 	\leq e^{\epsilon}
@@ -827,29 +800,44 @@ Then, $	\exists ~ \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2. ~ s.t. ~
 	\land
 	e^{-\epsilon} \leq 
 	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}$, s.t. 
-$\sem{\varx_1 \samplel \edistr_1}_{\trsmem_1} 
-	~ \sem{\Phi}^{\#(\epsilon + \ln(\frac{\rvalR_1}{\rvalL_1})} ~
-\sem{\varx_2 \samplel \edistr_2}_{\trsmem_2}$, 
+	\leq e^{\epsilon}
+$, 
+%
+$${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
+%
 where
-\[
-\begin{array}{rl}
-	\sem{\Phi} = &
-	\{((\fval_{1(\rval_{1l}, \rval_{1u})}), (\fval_{2(\rval_{2l}, \rval_{2u})})) 
-	\in (\float_{\real \times \real}) \times (\float_{\real \times \real})\\
-	& ~|~
-	\rval_{1l} = \rval_{1u} = \fval_1 
-	\land \fval_2 = \rval_{2l} = \rval_{2u}
-	\land
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1 ~ (\star) 
-	\land 
-	\rvalL_2 \leq \fval_2 \leq \rvalR_2 ~ (\diamond)
-	\}
-\end{array}
-\]
+	$R = \{(\fval_1, \fval_2) \in \float \times \float 
+		~|~
+		\rvalL_1 \leq \fval_1 \leq \rvalR_1 ~ (\star)
+		\land 
+		\rvalL_2 \leq \fval_2 \leq \rvalR_2 ~ (\diamond)
+		\}$.
+	%
 \end{thm}
 %
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
+%
+Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is enough to show 
+${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$
+%
+where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $\pdf.$ is defined as:
+\[
+	\pdf_{\edistr_1}(x) = 
+	\begin{cases}
+	1 & x \in [0, 1)^{\mathbb{F}} 
+	%\land \fvarx = \rvarx_1 = \rvarx_2
+	\\
+	0       & o.w.
+	\end{cases},
+	~~
+	\pdf_{\edistr_2}(y) = 
+	\begin{cases}
+	1 & y \in [0, 1)^{\mathbb{F}}
+	% \land \fvary = \rvary_1 = \rvary_2
+	\\
+	0       & o.w.
+	\end{cases},
+\]
 %
 By the restriction on $\rvalR_1$, $\rvalL_1$, $\rvalR_2$ and $\rvalL_2$, we have:
 \\
@@ -874,37 +862,37 @@ e^{\epsilon + \ln(\frac{\rvalR_2}{\rvalL_2})}$.
 %
 \\
 %
-Let $\epsilon' = \epsilon + \ln(\frac{\rvalL_2}{\rvalR_2})$ and $\mu_L, \mu_R \in \distr((\float_{\real \times \real}) \times (\float_{\real \times \real}))$ be the two witness distribution s.t.:
+Let $\epsilon' = \epsilon + \ln(\frac{\rvalL_2}{\rvalR_2})$ and 
+$\mu_L, \mu_R \in \distr(\float \times \float)$ 
+be the two witness distribution s.t.:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
 	\edistr_1(\varx)
-	& \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y) \land \pi_1(x) \in [0, 1)\\
+	& x \cdot e^{-\epsilon'} = y \land x \in (0, 1]\\
 	0       & o.w.
 	\end{cases},
 ~~~
 	{\mu_R}(x, y) = 
 	\begin{cases}
 	\edistr_2(y)
-	& \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y) \land \pi_1(y) \in [0, 1)\\
+	& x \cdot e^{-\epsilon'} = y \land y \in (0, 1]\\
 	0       & o.w.
 	\end{cases},
 \]
 %
 %
-where $\varx = (\fvarx_{(\rvarx_l, \rvarx_u)}) \in (\float_{\real \times \real})$,
-$\vary = (\fvary_{(\rvary_l, \rvary_u)}) \in (\float_{\real \times \real})$ and their $\pdf.$ are defined as:
+and their $\pdf.$ are defined as:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
-	\pdf_{\edistr_1}(x) & \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y) \land \pi_1(x) \in [0, 1)\\
+	\pdf_{\edistr_1}(x) & x \cdot e^{-\epsilon'} = y \land x \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
-\]
-\[
+~~~
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
-	\pdf_{\edistr_2}(y) & \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y) \land \pi_1(y) \in [0, 1)\\
+	\pdf_{\edistr_2}(y) & x \cdot e^{-\epsilon'} = y \land y \in [0, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -920,7 +908,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_R}(x, y) > 0$,
 		we have 
-		$\pi_1(x) \cdot e^{-\epsilon'} = \pi(y) \in \Psi$ 
+		$x \cdot e^{-\epsilon'} = y \in \Psi$ 
 		%
 		\\%
 		%
@@ -933,7 +921,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_L}(x, y) > 0$,
 		we have
-		$\pi_1(x) \cdot e^{-\epsilon'} = \pi(y) \in \Psi$ 
+		$x \cdot e^{-\epsilon'} = y\in \Psi$ 
 		%
 		\\
 		%
@@ -948,13 +936,13 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 
 		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
 
-		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x = (\fvarx_{(\rvarx_l, \rvarx_u)}) \in \float_{\real \times \real}$:
+		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x  \in \float$:
 		\[
 			\pdf_{\projl(\mu_L)}(x) = 
 			\begin{cases}
 			\int_{y}\pdf_{\uniform}(x) 
-			& \fvarx \cdot e^{-\epsilon'} = \pi_1(\fvary) 
-			\land \fvarx \in [0, 1)\\
+			& x \cdot e^{-\epsilon'} = y
+			\land x \in [0, 1)\\
 			0       & o.w.
 			\end{cases} 
 			= 
@@ -970,18 +958,18 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 
 		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
 
-		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y = (\fvary_{(\rvary_l, \rvary_u)}) \in \float_{\real \times \real}$:
+		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y \in \float$:
 		\[
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
 			\int_{x}\pdf_{\uniform}(y) 
-			& \fvarx \cdot e^{-\epsilon'} = \pi_1(\fvary) 
-			\land \fvary \in [0, 1)\\
+			& x \cdot e^{-\epsilon'} = y 
+			\land y \in (0, 1]\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(y) & \fvary \in [0, 1)\\
+			\pdf_{\uniform}(y) & y \in (0, 1]\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -1009,8 +997,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 	 	\item[{\bf case}]
 	 	%
 	 	$S \subseteq \{(x, y) ~|~ 
-	 	\pi_1(x) \in [0, 1) \land \pi_1(x) \cdot e^{-\epsilon} 
-	 	= \pi_1(y)\}$:
+	 	x \in (0, 1] \land x \cdot e^{-\epsilon'} = y \}$:
 	 	%
 		\[
 		 \begin{array}{ll}
@@ -1026,8 +1013,8 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		 \]
 		 %
 	 	\item[{\bf case}] $S \subseteq \{(x, y) 
-	 	~|~ \pi_1(x) \in [1, e^{\epsilon'}) 
-	 	\land \pi_1(x) \cdot e^{-\epsilon'} = \pi_1(y)\}$:
+	 	~|~ x \in [1, e^{\epsilon'}) 
+	 	\land x \cdot e^{-\epsilon'} = y \}$:
 	 	%
 		 \[
 		 \Delta_{\epsilon'}(\mu_L, \mu_R) 
