@@ -147,6 +147,21 @@ Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$ are relat
 \end{enumerate}
 \end{defn}
 %
+%
+\begin{defn}[$\Lambda$ equivalent]
+Given two floating point values $\valv_1$ and $\valv_2$, if for some floating point value $\fvalv$ which is a multiple of $\Lambda$:
+\[
+	\fvalv - \frac{\Lambda}{2} \leq \valv_1 < \fvalv + \frac{\Lambda}{2}
+	~~
+	\land
+	~~
+	\fvalv - \frac{\Lambda}{2} \leq \valv_2 < \fvalv + \frac{\Lambda}{2},	
+\]
+then $\valv_1$ and $\valv_2$ are $\Lambda$ equivalent, i.e., 
+$\valv_1 \lameq \valv_2 \lameq \fvalv$.
+\end{defn}
+%
+%
 \begin{defn}[tagged variable]
 Let $\mathcal{X}\langle 1 \rangle$ and $\mathcal{X}\langle 2 \rangle$ be the sets of tagged variables, finite sets of variable names tagged with $\langle 1 \rangle$ or $\langle 2 \rangle$ respectively:
 \[
@@ -178,6 +193,7 @@ where $\mathcal{X}$ is a finite set of variable names.
 %
 \mbox{Assert.} & \mathcal{A} & ::= & \top ~|~ \bot ~|~ \bexp 
 	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
+	~|~ \mathcal{A} \implies \mathcal{A}
 \end{array}
 \]
 %
@@ -195,22 +211,22 @@ $\sem{\expr^i\langle 1 \rangle
 = \expr^i\langle 2 \rangle} = 
 \{(\trsmem_1, \trsmem_2) 
 ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-= \sem{\expr}_{\trsmem_2})^i \}$;
+= \sem{\expr}_{\trsmem_2})^i \};
 %
-\\
-$\sem{\expr^i\langle 1 \rangle) 
+~~~~~~~
+\sem{\expr^i\langle 1 \rangle) 
 < \expr^i\langle 2 \rangle)} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-< \sem{\expr}_{\trsmem_2})^i \}$
+< \sem{\expr}_{\trsmem_2})^i \}$;
 %
 \\
 $\sem{\expr^i\langle 1 \rangle) 
 \leq \expr^i\langle 2 \rangle)} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-\leq \sem{\expr}_{\trsmem_2})^i \}$
+\leq \sem{\expr}_{\trsmem_2})^i \};
 %
-\\
-$\sem{\expr^i\langle 1 \rangle) 
+~~~~~
+\sem{\expr^i\langle 1 \rangle) 
 \lameq \expr^i\langle 2 \rangle)} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
 \lameq \sem{\expr}_{\trsmem_2})^i \}$
@@ -248,6 +264,7 @@ $\sem{\neg \bexp} = \big\{(\trsmem_1, \trsmem_2)
 ~|~ (\trsmem_1, \trsmem_2) \notin \sem{\bexp} \big\}$
 %
 %
+%
 \paragraph{Judgment.}
 The judgments are defined in following form:
 \[
@@ -273,44 +290,9 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \boxed{\vdash: prog \times prog \times \real \times Assert \times Assert, ~~ \Phi: Env \times Env \to bool}\\
 \boxed{ Value \times Value \times Value \to Value, ~~ i = 1, 2, 3}
 \begin{mathpar}
-% \inferrule
-% {
-% 	\forall \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in (0,1]^{\real}
-% }
-% {
-% 	\vdash
-% 	\varx \samplel \uniform(0, 1] 	
-% 	\sim_{\epsilon +\ln(\rvalR_2 / \rvalL_2)} 
-% 	\vary \samplel \uniform(0, 1]
-% 	:
-% 	e^{-\epsilon} \rvalL_2 \leq 
-% 	\rvalL_1
-% 	\leq e^{\epsilon}\rvalL_2 
-% 	\land
-% 	e^{-\epsilon}\rvalR_2 
-% 	\leq \rvalR_1 \leq 
-% 	e^{\epsilon}\rvalR_2
-% 	\\
-% 	\land
-% 	e^{-\epsilon} \leq 
-% 	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-% 	\leq e^{\epsilon}
-% 	\Rightarrow
-% 	\rvalL_1 \leq \varx^1\langle 1 \rangle \leq \rvalR_1 
-% 	\land 
-% 	\rvalL_2 \leq \vary^1\langle 2 \rangle \leq \rvalR_2
-% 	\\
-% 	\land 
-% 	\varx\langle 1 \rangle^1 = \varx\langle 1 \rangle^2 = \varx\langle 1 \rangle^3
-% 	\land 
-% 	\vary\langle 2 \rangle^1 = \vary^2\langle 2 \rangle = \vary\langle 2 \rangle^3
-% }
-% ~\textbf{unif}
-%
-\and
 \inferrule
 {
-	\forall \rvalL, \rvalR \in (0,1]^{\real}
+	\forall \rvalL, \rvalR \in [0,1]^{\real}
 }
 {
 	\vdash
@@ -318,54 +300,13 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\sim_{\epsilon} 
 	\vary \samplel \uniform(0, 1]
 	:
-	% e^{-\epsilon}  \vary^1 \langle 2\rangle \leq 
-	% \varx^1\langle 1 \rangle
-	% \leq e^{\epsilon}  \vary^1 \langle 2\rangle
-	% % \\
-	% \land
-	% e^{-\epsilon} \leq 
-	% \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	% \leq e^{\epsilon}
-	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	\top
 	\Rightarrow
-	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR	
+	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	\implies
+	e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR 	
 }
 ~\textbf{unif}
-%
-% \and
-% %
-% \inferrule
-% {
-% 	\forall \rvalR_1, \rvalR_2 \in \real
-% }
-% {
-% 	\vdash
-% 	\varx_1 \samplel \uniform(0, 1] 	
-% 	\sim_{\epsilon} 
-% 	\varx_2 \samplel \uniform(0, 1]
-% 	:
-% 	\rvalR_1 \neq 0 \land \rvalR_2 \neq 0
-% 	\land
-% 	e^{-\epsilon}\rvalR_2 
-% 	\leq \rvalR_1 \leq 
-% 	e^{\epsilon}\rvalR_2
-% 	\\
-% 	\Rightarrow  
-% 	0 < \varx_1\langle 1 \rangle) \leq \rvalR_1 
-% 	\land 
-% 	0 < (\varx_2\langle 2 \rangle) \leq \rvalR_2
-% 	\land
-% 	e^{-\epsilon} \varx_1\langle 1 \rangle) 
-% 	\leq (\varx_2\langle 2 \rangle) \leq
-% 	e^{-\epsilon} \varx_1\langle 1 \rangle) 
-% 	\\
-% 	\land 
-% 	\varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle)
-% 	\land 
-% 	(\varx_2\langle 2 \rangle) 
-% 	= (\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle)
-% }
-% ~\textbf{unif}_0
 \and
 %
 \inferrule
@@ -526,111 +467,77 @@ By induction on the judgment $\vdash \prog_1
 \Phi_0 \Rightarrow \Phi $, we have following cases:
 \begin{itemize}
 \caseL{\[
-	\inferrule*[right = Unif]
+\inferrule
 {
-\forall \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in \real
+	\forall \rvalL, \rvalR \in (0,1]^{\real}
 }
 {
 	\vdash
-	\varx_1 \samplel \uniform(0, 1]	
-	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
-	\varx_2 \samplel \uniform(0, 1]
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
 	:
-	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalL_1}{\rvalL_2}
-	\leq e^{\epsilon}
-	\\
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1}{\rvalR_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}
-	\Rightarrow  
-	\rvalL_1 \leq \varx_1\langle 1 \rangle) \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq (\varx_2\langle 2 \rangle) \leq \rvalR_2
-	\\
-	\land 
-	\varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle)
-	\land 
-	(\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle)
+	\top
+	\Rightarrow
+	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+			\implies
+	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR	
 }
 \]}
 	In this case, 
-	assume $m_1, m_2$, $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2$, s.t.,
-	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition is:
-	$$
+	assume $m_1, m_2$, $\rvalL, \rvalR \in (0,1]^{\real}$, s.t.,
+	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition
+	$
 	\Phi_0 \triangleq
-	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
-	\land 
-	e^{-\epsilon} \leq 
-	\frac{\rvalL_1}{\rvalL_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1}{\rvalR_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}
-	$$
+	\top
+	$
+	%
+	is interpreted as:
+	%
+	\[
+	\sem{\Phi_0} =
+	\left \{
+	(m_1, m_2)
+	\right \}
+	\]
 	%
 	%
-	The post-condition $\Phi \triangleq \rvalL_1 \leq \varx_1\langle 1 \rangle) \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq (\varx_2\langle 2 \rangle) \leq \rvalR_2
-	\land
-	\varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle)
-	\land 
-	(\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle)
+	The post-condition $\Phi \triangleq 
+		\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR
+		\implies
+	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR
 	$ is interpreted as:
 	%
 	\[
 	\sem{\Phi} =
 	\left \{
 	(m_1, m_2)
-	\left \vert
-	\begin{array}{l}
-	\rvalL_1 \leq \sem{\varx_1}_{\trsmem_1}) \leq \rvalR_1
-	\land 
-	\rvalL_2 \leq \sem{\varx_2}_{\trsmem_2}) \leq \rvalR_2
-	\\
-	\land
-	\sem{\varx_1}_{\trsmem_1}) = \sem{\varx_1}_{\trsmem_1}) = \sem{\varx_1}_{\trsmem_1})
-	\land 
-	\sem{\varx_2}_{\trsmem_2}) = \sem{\varx_2}_{\trsmem_2}) = \sem{\varx_2}_{\trsmem_2})
-	\end{array}
+	~ \left \vert ~
+	\rvalL \leq \sem{\varx}_{\trsmem_1}^1 \leq \rvalR
+	\implies
+	e^{-\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
 	\right.
 	\right \}
-\]
+	\]
 	%
-	Let $(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}$ and 
-	$(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}$, we can rewrite the interpretation of $\sem{\Phi}$ as:
+	Let $(\fvalv_{(\rvalv_{l}, \rvalv_{u})}) = \sem{x}_{m_1}$ and 
+	$(\fvalw_{(\rvalw_{l}, \rvalw_{u})}) = \sem{y}_{m_2}$, we can rewrite the interpretation of $\sem{\Phi}$ as:
 	%
 \[
 	\sem{\Phi} =
 	\left \{
 	(m_1, m_2)
-	\left \vert
+	~ \left \vert ~
 	\begin{array}{l}
-	(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}
-	\land
-	(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}
-	\land
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1
+	(\fvalv_{(\rvalv_{l}, \rvalv_{u})}) = \sem{x}_{m_1}
 	\land 
-	\rvalL_2 \leq \fval_2 \leq \rvalR_2
+	(\fvalw_{(\rvalw_{l}, \rvalw_{u})}) = \sem{y}_{m_2}
+	\land
 	\\
-	\land
-	\fval_1 = \rval_{1l} = \rval_{1u}
-	\land 
-	\fval_2 = \rval_{2l} = \rval_{2u}
+	\rvalL \leq \fvalv \leq \rvalR
+	\implies
+	e^{-\epsilon} \rvalL \leq 
+	\fvalw \leq e^{\epsilon}\rvalR
 	\end{array}
 	\right.
 	\right \}
@@ -638,36 +545,38 @@ By induction on the judgment $\vdash \prog_1
 	%
 	By the semantics of sampling, we have:\\
 	%
-	$\sem{\varx_1 \samplel \uniform(0, 1]}_{\trsmem_1} =
-	\elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
+	$\sem{\varx \samplel \uniform(0, 1]}_{\trsmem_1} =
+	\elet (\fvalv_{(\rvalv_{l}, \rvalv_{u})}) 
 	= \sem{\uniform(0, 1]}_{\trsmem_1} 
 	\ein 
-	\unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}
+	\unit{\trsmem_1[\varx \mapsto (\fvalv_{(\rvalv_{l}, \rvalv_{u})})]}
 	$
 	%
 	\\
 	%
-	$\sem{\varx_2 \samplel \uniform(0, 1]}_{\trsmem_2} = 
-	\elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
+	$\sem{\vary \samplel \uniform(0, 1]}_{\trsmem_2} = 
+	\elet (\fvalw_{(\rvalw_{l}, \rvalw_{u})})
 	= \sem{\uniform(0, 1]}_{\trsmem_2} 
 	\ein 
-	\unit{\trsmem_2[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}
+	\unit{\trsmem_2[\vary \mapsto (\fvalw_{(\rvalw_{l}, \rvalw_{u})})]}
 	$. \\
 	%
 	Then we need to prove:
-	\[\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2),\]
+	\[\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2),\]
 	where 
-	$\mu^*_1(\trsmem) = \elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
+	$\mu_1(\trsmem) = 
+	\elet (\fvalv_{(\rvalv_{l}, \rvalv_{u})}) 
 	= \sem{\uniform(0, 1]}_{\trsmem} 
 	\ein 
-	\unit{\trsmem[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$ and
+	\unit{\trsmem[\varx \mapsto (\fvalv_{(\rvalv_{l}, \rvalv_{u})})]}$ and
 	%
 	\\
 	%
-	$\mu^*_2(\trsmem) = \elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
+	$\mu_2(\trsmem) = 
+	\elet (\fvalw_{(\rvalw_{l}, \rvalw_{u})})
 	= \sem{\uniform(0, 1]}_{\trsmem} 
-	\ein
-	\unit{\trsmem[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}$.
+	\ein 
+	\unit{\trsmem[\vary \mapsto (\fvalw_{(\rvalw_{l}, \rvalw_{u})})]}$.
 	%
 	\\
 	%
@@ -679,12 +588,12 @@ By induction on the judgment $\vdash \prog_1
 	where
 	\[
 		R = 
-		\{(\fval_1, \fval_2) \in \float \times \float 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
 		~|~
-		\rvalL_1 \leq \fval_1 \leq \rvalR_1 
-		\land 
-		\rvalL_2 \leq \fval_2 \leq \rvalR_2
-		\}.
+		\rvalL \leq \fval_1 \leq \rvalR
+		\implies
+		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\right \}.
 	\]
 	%
 	\begin{subproof}
@@ -729,27 +638,6 @@ By induction on the judgment $\vdash \prog_1
 		0       & o.w.
 		\end{cases},
 	\]
-	%
-	% We can also rewrite $\edistr'_1$ as 
-	% $\elet \fval_{1(\rval_{1l}, \rval_{1u})} \leftarrow \edistr'^{\diamond}_1 
-	% \ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$.
-	% %
-	% \\
-	% Given $\trsmem_1$, by the definition of $\sem{\uniform(0, 1)}_{\trsmem_1}$ we have:
-	% \\
-	% %
-	% $ \sem{\uniform(0, 1)}_{\trsmem_1} \in  
-	% \{\fval_{1(\rval_{1l}, \rval_{1u})} 
-	% ~|~ \fval_1 \leftarrow \uniform(0, 1)^{\diamond} 
-	% \land \rval_{1l} = \fval_1 = \rval_{1u}\}$
-	% \\
-	% %
-	% Since the $\uniform(0, 1)$ have the same pdf as $\edistr_1$, we know $\edistr'_1 = \sem{\uniform(0, 1)}_{\trsmem_1}$.
-	% %
-	% \\
-	% Then we can rewrite $\edistr'_1$ as 
-	% $\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
-	% \ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$
 	Then by the Monad Law, we have the distribution:
 	$\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
 	\ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$.
@@ -833,213 +721,37 @@ By induction on the judgment $\vdash \prog_1
 	\]
 	%
 	Then we have $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$ proved by \textbf{Subgoal}.
-\caseL{\[
-	\inferrule*[right = Unif]
-{
-\forall \rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in \real
-}
-{
-	\vdash
-	\varx_1 \samplel \uniform(0, 1]	
-	\sim_{\epsilon+\ln(\frac{\rvalR_2}{\rvalL_2})} 
-	\varx_2 \samplel \uniform(0, 1]
-	:
-	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalL_1}{\rvalL_2}
-	\leq e^{\epsilon}
-	\\
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1}{\rvalR_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}
-	\Rightarrow  
-	\rvalL_1 \leq \varx_1\langle 1 \rangle) \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq (\varx_2\langle 2 \rangle) \leq \rvalR_2
-	\\
-	\land 
-	\varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle)
-	\land 
-	(\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle)
-}
-\]}
-	In this case, 
-	assume $m_1, m_2$, $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2$, s.t.,
-	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition is:
-	$$
-	\Phi_0 \triangleq
-	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
-	\land 
-	e^{-\epsilon} \leq 
-	\frac{\rvalL_1}{\rvalL_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1}{\rvalR_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}
-	$$
-	%
-	%
-	The post-condition $\Phi \triangleq \rvalL_1 \leq \varx_1\langle 1 \rangle) \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq (\varx_2\langle 2 \rangle) \leq \rvalR_2
-	\land
-	\varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle) = \varx_1\langle 1 \rangle)
-	\land 
-	(\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle) = (\varx_2\langle 2 \rangle)
-	$ is interpreted as:
-	%
-	\[
-	\sem{\Phi} =
-	\left \{
-	(m_1, m_2)
-	\left \vert
-	\begin{array}{l}
-	\rvalL_1 \leq \sem{\varx_1}_{\trsmem_1}) \leq \rvalR_1
-	\land 
-	\rvalL_2 \leq \sem{\varx_2}_{\trsmem_2}) \leq \rvalR_2
-	\\
-	\land
-	\sem{\varx_1}_{\trsmem_1}) = \sem{\varx_1}_{\trsmem_1}) = \sem{\varx_1}_{\trsmem_1})
-	\land 
-	\sem{\varx_2}_{\trsmem_2}) = \sem{\varx_2}_{\trsmem_2}) = \sem{\varx_2}_{\trsmem_2})
-	\end{array}
-	\right.
-	\right \}
-\]
-	%
-	Let $(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}$ and 
-	$(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}$, we can rewrite the interpretation of $\sem{\Phi}$ as:
-	%
-\[
-	\sem{\Phi} =
-	\left \{
-	(m_1, m_2)
-	\left \vert
-	\begin{array}{l}
-	(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}
-	\land
-	(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}
-	\land
-	\rvalL_1 \leq \fval_1 \leq \rvalR_1
-	\land 
-	\rvalL_2 \leq \fval_2 \leq \rvalR_2
-	\\
-	\land
-	\fval_1 = \rval_{1l} = \rval_{1u}
-	\land 
-	\fval_2 = \rval_{2l} = \rval_{2u}
-	\end{array}
-	\right.
-	\right \}
-\]
-	%
-	By the semantics of sampling, we have:\\
-	%
-	$\sem{\varx_1 \samplel \uniform(0, 1]}_{\trsmem_1} =
-	\elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
-	= \sem{\uniform(0, 1]}_{\trsmem_1} 
-	\ein 
-	\unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}
-	$
-	%
-	\\
-	%
-	$\sem{\varx_2 \samplel \uniform(0, 1]}_{\trsmem_2} = 
-	\elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
-	= \sem{\uniform(0, 1]}_{\trsmem_2} 
-	\ein 
-	\unit{\trsmem_2[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}
-	$. \\
-	%
-	Then we need to prove:
-	\[\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2),\]
-	where 
-	$\mu^*_1(\trsmem) = \elet (\fval_{1(\rval_{1l}, \rval_{1u})}) 
-	= \sem{\uniform(0, 1]}_{\trsmem} 
-	\ein 
-	\unit{\trsmem[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$ and
-	%
-	\\
-	%
-	$\mu^*_2(\trsmem) = \elet (\fval_{2(\rval_{2l}, \rval_{2u})}) 
-	= \sem{\uniform(0, 1]}_{\trsmem} 
-	\ein
-	\unit{\trsmem[\varx_2 \mapsto (\fval_{2(\rval_{2l}, \rval_{2u})})]}$.
-	%
-	\\
-	%
-	Now the following subproof is to show the subgoal:
-	%
-	\\
-	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]}$, then $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$,
-	%
-	where
-	\[
-		R = 
-		\{(\fval_1, \fval_2) \in \float \times \float 
-		~|~
-		\rvalL_1 \leq \fval_1 \leq \rvalR_1 
-		\land 
-		\rvalL_2 \leq \fval_2 \leq \rvalR_2
-		\}.
-	\]
-
+\caseL{}
 	\caseL{[\textsc{Null}] }
-
-
 	\caseL{[\textsc{Assn}] }
-	By the semantics of assignment, we have:\\
 	\caseL{[\textsc{Seq}] }
 	\caseL{[\textsc{ConSeq}] }
 	\end{itemize}
 \end{proof}
 %
 %
-\clearpage
+\newpage
 \begin{thm}
 \label{thm:unif_coupling}
-for any $\rvalL_1, \rvalL_2, \rvalR_1, \rvalR_2 \in \real$ s.t. 
-$	\rvalL_1 \neq 0 \land \rvalL_2 \neq 0 \land \rvalR_1 \neq 0 \land \rvalR_2 \neq 0
-	\land 
-	e^{-\epsilon} \leq 
-	\frac{\rvalL_1}{\rvalL_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1}{\rvalR_2}
-	\leq e^{\epsilon}
-	\land
-	e^{-\epsilon} \leq 
-	\frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	\leq e^{\epsilon}
-$, 
+for any $\rvalL, \rvalR \in (0,1]^{\real}$, 
 %
 $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
 where
-	$R = \{(\fval_1, \fval_2) \in \float \times \float 
+	$	R = 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
 		~|~
-		\rvalL_1 \leq \fval_1 \leq \rvalR_1 ~ (\star)
-		\land 
-		\rvalL_2 \leq \fval_2 \leq \rvalR_2 ~ (\diamond)
-		\}$.
+		\rvalL \leq \fval_1 \leq \rvalR
+		\implies
+		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\right \}
+		$.
 	%
 \end{thm}
 %
 \begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
 %
-Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is enough to show 
+Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is equivalent to show 
 ${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$
 %
 where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $\pdf.$ is defined as:
@@ -1061,30 +773,20 @@ where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $
 	\end{cases},
 \]
 %
-By the restriction on $\rvalR_1$, $\rvalL_1$, $\rvalR_2$ and $\rvalL_2$, we have:
-\\
-$e^{-\epsilon}\rvalL_2 \leq \rvalL_1 \leq e^{\epsilon}\rvalL_2$ (1)
-and
-$e^{-\epsilon}\rvalR_2 \leq \rvalR_1 \leq e^{\epsilon}\rvalR_2$ (2).
+Let $R' =
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		~|~
+		e^{-\epsilon} \fval_1 \leq \fval_2 \leq e^{\epsilon} \fval_1
+		\right \}$, we know $R' \implies R$.
 %
-\\
-Since we also have the relation on $\fval_1$ and $\fval_2$, i.e. $(\star)$ and $(\diamond)$, we can get:
-\\
-$e^{-\epsilon} \rvalL_2 \leq \fval_1 \leq e^{\epsilon} \rvalR_2$ (3)
-and
-$e^{-\epsilon} \rvalL_1 \leq \fval_2 \leq e^{\epsilon} \rvalR_1$ (4)
-\\
-Then, by $(\star)$ and (3), we can get: 
-$e^{-\epsilon} \frac{\rvalL_2}{\rvalR_2} 
-\leq \frac{\fval_1}{\fval_2} \leq
-e^{\epsilon} \frac{\rvalR_2}{\rvalL_2} $, i.e., 
-$e^{-(\epsilon + \ln(\frac{\rvalR_2}{\rvalL_2}))}  
-\leq \frac{\fval_1}{\fval_2} \leq
-e^{\epsilon + \ln(\frac{\rvalR_2}{\rvalL_2})}$.
+Then, we know ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2
+\implies {\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
+% \\
+Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
 %
 \\
 %
-Let $\epsilon' = \epsilon + \ln(\frac{\rvalL_2}{\rvalR_2})$ and 
+Let $\epsilon' = \epsilon$ and 
 $\mu_L, \mu_R \in \distr(\float \times \float)$ 
 be the two witness distribution s.t.:
 \[
@@ -1120,38 +822,38 @@ and their $\pdf.$ are defined as:
 \]
 It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
 \begin{itemize}
-	\item $\supp(\mu_L) \in \Psi \land \supp(\mu_R) \in \Psi$
+	\item $\supp(\mu_L) \in R' \land \supp(\mu_R) \in R'$
 
 	\begin{itemize}
-		\item $\supp(\mu_L) \subseteq \Psi$ 
+		\item $\supp(\mu_L) \subseteq R'$ 
 		%
 		\\
 		% 
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_R}(x, y) > 0$,
 		we have 
-		$x \cdot e^{-\epsilon'} = y \in \Psi$ 
+		$x \cdot e^{-\epsilon'} = y \in R'$ 
 		%
 		\\%
 		%
-		Then we can derive $\supp(\mu_L) \in \Psi$
+		Then we can derive $\supp(\mu_L) \in R'$
 		%
-		\item $\supp(\mu_R) \subseteq \Psi$
+		\item $\supp(\mu_R) \subseteq R'$
 		%
 		\\
 		%
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_L}(x, y) > 0$,
 		we have
-		$x \cdot e^{-\epsilon'} = y\in \Psi$ 
+		$x \cdot e^{-\epsilon'} = y\in R'$ 
 		%
 		\\
 		%
-		Then we can derive $\supp(\mu_L) \in \Psi$
+		Then we can derive $\supp(\mu_L) \in R'$
 		%
 	\end{itemize}		
 %
-	\item $\projl(\mu_L) = \mu_1 \land \mu_R) = \mu_2$
+	\item $\projl(\mu_L) = \mu_1 \land \projr(\mu_R) = \mu_2$
 	
 	\begin{itemize}
 		\item $\projl(\mu_L) = \mu_1$ 
@@ -1176,7 +878,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 			\pdf_{\mu_1}(x)
 		\]
 
-		\item $\projl(\mu_R) = \mu_2$ 
+		\item $\projr(\mu_R) = \mu_2$ 
 
 		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
 
@@ -1271,18 +973,6 @@ Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined
 where $f(a)$ represents a value that the query function $f$ be evaluated over input database $a \in A$, $\epsilon$ is the privacy parameter, $B$ is the clamping argument and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
 
-\begin{defn}[$\Lambda$ equivalent]
-Given two floating point values $\valv_1$ and $\valv_2$, if for some floating point value $\fvalv$ which is a multiple of $\Lambda$:
-\[
-	\fvalv - \frac{\Lambda}{2} \leq \valv_1 < \fvalv + \frac{\Lambda}{2}
-	~~
-	\land
-	~~
-	\fvalv - \frac{\Lambda}{2} \leq \valv_2 < \fvalv + \frac{\Lambda}{2},	
-\]
-then $\valv_1$ and $\valv_2$ are $\Lambda$ equivalent, i.e., 
-$\valv_1 \lameq \valv_2 \lameq \fvalv$.
-\end{defn}
 %
 % \begin{lem}[]
 % \label{lem:xisLameq}
@@ -1330,6 +1020,7 @@ $\epsilon-$differentially private]
 \end{thm}
 \begin{proof}
 Induction on the output space of $\snap(a)$ mechanism, let $\valv$ be the output of $\snap(a)$, we have following cases:
+Let $a, a'$ be adjacent data base where $f(a) = f(a') + 1$
 \begin{itemize}
 	\caseL{$\boldsymbol{\valv = -B}$}
 %
@@ -1338,22 +1029,12 @@ Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b'
 \\
 Let $\rvalL_1 = \rvalL_2 = 0$, 
 $\rvalR_1 = e^{\epsilon 
-		(\frac{(\frac{-b'}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+		(-(b + \Lambda / 2)(1 + \eta)^3 - f(a))(1 + \eta)^2}$
 and $\rvalR_2 = e^{\epsilon 
-		(\frac{(\frac{-b'}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
-By the calculation in the Flopt Version proof, we have:
-\[
-	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	< e^{\epsilon(10.1 \eta B + 1 + 2.1\eta)} 
-	< e^{\epsilon(23 \eta B + 1)}.
-\]
-%
-In this case, since $\rvalL_1 = \rvalL_2 = 0$, we have $\frac{\rvalR_2}{\rvalL_2} = \infty$. 
-Because the final value is all clamped to $B$, there is actually no privacy loss.
-%
-We don’t need to talk about the ratio between $\rvalL_2$ and $\rvalR_2$.
-%
-Then, we have following derivation for this case:
+		(-(b + \Lambda / 2)(1 + \eta) - f(a'))(1 + \eta)^2}$.
+		\\
+Assume $\rvalL_1 \leq u_1 \leq \rvalR_1$,
+we have following derivation for this case:
 
 {\tiny
 \begin{mathpar}
@@ -1363,19 +1044,17 @@ Then, we have following derivation for this case:
 	{
 	\inferrule
 	{
-	\Phi \triangleq 
-	\rvalL_1 \leq \varu_1 \langle 1 \rangle) \leq \rvalR_1 
-	\land 
-	\rvalL_2 \leq \varu_2 \langle 2 \rangle) \leq \rvalR_2
+	\rvalL_1, \rvalR_1 \in (0, 1]
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
-		\sim_{\epsilon(23 \eta B + 1)} 
+		\sim_{\epsilon(1 + \eta)^2} 
 		\varu_2 \samplel \uniform(0,1)
 		: 
 		\top
 		\Rightarrow 
-		\Phi
+		\rvalL_1 \leq u^1_1 \leq \rvalR_1 \implies 
+		e^{\epsilon(1 + \eta)^2}\rvalL_1 \leq u^1_1 \leq e^{\epsilon(1 + \eta)^2}\rvalR_1
 	}~\textbf{unif}
 	~~
 	\inferrule
