@@ -193,7 +193,7 @@ where $\mathcal{X}$ is a finite set of variable names.
 %
 \mbox{Assert.} & \mathcal{A} & ::= & \top ~|~ \bot ~|~ \bexp 
 	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
-	~|~ \mathcal{A} \implies \mathcal{A}
+	~|~ \mathcal{A} \imply \mathcal{A}
 \end{array}
 \]
 %
@@ -303,10 +303,28 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\top
 	\Rightarrow
 	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
-	\implies
+	\imply
 	e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR 	
 }
-~\textbf{unif}
+~\textbf{unif+}
+\and
+\inferrule
+{
+	\forall \rvalL, \rvalR \in [0,1]^{\real}
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	\imply
+	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR 	
+}
+~\textbf{unif-}
 \and
 %
 \inferrule
@@ -315,31 +333,15 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 }
 {
 	\vdash 
-	\varx_1 \samplel \uniform(0, 1]	
+	\varx_1 \samplel \edistr
 	\sim_{0} 
-	\varx_2 \samplel \uniform(0, 1] 
+	\varx_2 \samplel \edistr
 	: \top \Rightarrow 
-	(\varx_2\langle 2 \rangle) 
-	= (\varx_1\langle 1 \rangle )
-	\land (\varx_2\langle 2 \rangle) = (\varx_1\langle 1 \rangle)
-	\land (\varx_2\langle 2 \rangle) = (\varx_1\langle 1 \rangle)
+	(\varx_2^1\langle 2 \rangle) 
+	= (\varx_1^1\langle 1 \rangle )
+	\land (\varx_2^2\langle 2 \rangle) = (\varx_1^2\langle 1 \rangle)
+	\land (\varx_2^3\langle 2 \rangle) = (\varx_1^3\langle 1 \rangle)
 }~\textbf{null}
-\and
-\inferrule
-{
-\empty
-}
-{
-	\vdash 
-	\varx_1 \samplel \uniform\{-1, 1\} 	
-	\sim_{0} 
-	\varx_2 \samplel \uniform\{-1, 1\}  
-	: \top \Rightarrow
-	\\ 
-	(\varx_2\langle 2 \rangle) = (\varx_1\langle 1 \rangle )
-	\land (\varx_2\langle 2 \rangle) = (\varx_1\langle 1 \rangle)
-	\land (\varx_2\langle 2 \rangle) = (\varx_1\langle 1 \rangle)
-}~\textbf{null}_{2}	
 \and
 \inferrule
 {
@@ -480,9 +482,9 @@ By induction on the judgment $\vdash \prog_1
 	\top
 	\Rightarrow
 	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
-			\implies
-	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR	
-}
+			\imply
+	e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR	
+}~\textbf{unif+}
 \]}
 	In this case, 
 	assume $m_1, m_2$, $\rvalL, \rvalR \in (0,1]^{\real}$, s.t.,
@@ -504,7 +506,7 @@ By induction on the judgment $\vdash \prog_1
 	%
 	The post-condition $\Phi \triangleq 
 		\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR
-		\implies
+		\imply
 	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR
 	$ is interpreted as:
 	%
@@ -514,7 +516,7 @@ By induction on the judgment $\vdash \prog_1
 	(m_1, m_2)
 	~ \left \vert ~
 	\rvalL \leq \sem{\varx}_{\trsmem_1}^1 \leq \rvalR
-	\implies
+	\imply
 	e^{-\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
 	\right.
 	\right \}
@@ -535,7 +537,7 @@ By induction on the judgment $\vdash \prog_1
 	\land
 	\\
 	\rvalL \leq \fvalv \leq \rvalR
-	\implies
+	\imply
 	e^{-\epsilon} \rvalL \leq 
 	\fvalw \leq e^{\epsilon}\rvalR
 	\end{array}
@@ -583,7 +585,7 @@ By induction on the judgment $\vdash \prog_1
 	Now the following subproof is to show the subgoal:
 	%
 	\\
-	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]}$, then $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$,
+	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]}$, then $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$,
 	%
 	where
 	\[
@@ -591,7 +593,7 @@ By induction on the judgment $\vdash \prog_1
 		\left \{(\fval_1, \fval_2) \in \float \times \float 
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
-		\implies
+		\imply
 		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
 		\right \}.
 	\]
@@ -601,10 +603,10 @@ By induction on the judgment $\vdash \prog_1
 	It is equivalent to show following 3 items for any environment $\trsmem_1, \trsmem_2$:
 	\\
 	%
-	(i) For any $\muniform(0,1]\in \distr(\float)$, there is one and only one $\edistr^*_1(\trsmem_1) \in \distr(Env)$.
+	(i) For any $\muniform(0,1]\in \distr(\float)$, there is one and only one $\edistr_1(\trsmem_1) \in \distr(Env)$.
 	%
 	\\
-	(ii) For any $\muniform(0,1] \in \distr(\float)$, there is one and only one $\edistr^*_2(\trsmem_2) \in \distr(Env)$.
+	(ii) For any $\muniform(0,1] \in \distr(\float)$, there is one and only one $\edistr_2(\trsmem_2) \in \distr(Env)$.
 	\\
 	%
 	(iii) For any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
@@ -654,7 +656,7 @@ By induction on the judgment $\vdash \prog_1
 	\ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$ and get:
 	%
 	%
-	$\mu^*_1(\trsmem_1) \in \distr(\float_{\real \times \real})$ as 
+	$\mu_1(\trsmem_1) \in \distr(\float_{\real \times \real})$ as 
 	$\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
 	\ein \unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$.
 	\\
@@ -672,17 +674,18 @@ By induction on the judgment $\vdash \prog_1
 	$\fvalv_2 \in \supp(\muniform(0,1])$, we have by definition of $R$:
 	%
 	\\
-	$\rvalL_1 \leq \fvalv_1 \leq \rvalR_1 ~ (3)$
+	$\rvalL \leq \fvalv_1 \leq \rvalR \imply
 	%
-	$\rvalL_2 \leq \fvalv_2 \leq \rvalR_2 ~ (4)$
+	e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+	 ~ (3)$
 	\\
 	%
 	By (i) and (ii), we can also construct one and only one pair of environments $\trsmem_1', \trsmem_2'$ as:
 	\\
-	$\trsmem_1' = \trsmem_1[\varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}] ~ (5)$ and
-	$\trsmem_2' = \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}] ~ (6)$,
+	$\trsmem_1' = \trsmem_1[\varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}] ~ (4)$ and
+	$\trsmem_2' = \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}] ~ (5)$,
 	\\
-	where $\rval_{1l} = \fval_1 = \rval_{1u} ~ (7)$ and $\rval_{2l} = \fval_2 = \rval_{2u} ~ (8)$.
+	where $\rval_{1l} = \fval_1 = \rval_{1u}$ and $\rval_{2l} = \fval_2 = \rval_{2u}$.
 	%
 	\\
 	In order to show $(\trsmem_1', \trsmem_2') \in \sem{\Phi}$, we need to prove:
@@ -693,35 +696,47 @@ By induction on the judgment $\vdash \prog_1
 	(b) $(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}$.
 	This is proved by (6).
 	\\
-	(c) $\rvalL_1 \leq \fval_1 \leq \rvalR_1$.
+	(c) $\rvalL \leq \fvalv_1 \leq \rvalR \imply
+	%
+	e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR$.
 	This is proved by (3).
-	\\
-	(d) $\rvalL_2 \leq \fval_2 \leq \rvalR_2$.
-	This is proved by (4).
-	\\
-	(e) $\rval_{1l} = \fval_1 = \rval_{1u}$.
-	This is proved by (7).
-	\\ 
-	(f) $\rval_{2l} = \fval_2 = \rval_{2u}$.
-	This is proved by (8).
 	\\
 	Then we have (iii) proved. 
 	\end{subproof}
 	%
-	Since we have $\muniform(0,1] ~ R^{\#(\epsilon)} ~ \muniform(0,1]$ proved in the Theorem \ref{thm:unif_coupling},
+	Since we have $\muniform(0,1] ~ R^{\#(\epsilon)} ~ \muniform(0,1]$ proved in the Theorem \ref{thm:unif+_coupling},
 	%
 	where 
-	\[ R = 
-			\{(\fval_1, \fval_2) \in \float \times \float 
-			~|~
-			\rvalL_1 \leq \fval_1 \leq \rvalR_1 
-			\land 
-			\rvalL_2 \leq \fval_2 \leq \rvalR_2
-			\},
+	\[
+		R = 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		~|~
+		\rvalL \leq \fval_1 \leq \rvalR
+		\imply
+		e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\right \}.
 	\]
 	%
-	Then we have $\mu^*_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu^*_2(\trsmem_2)$ proved by \textbf{Subgoal}.
-\caseL{}
+	Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved according to \textbf{Subgoal}.
+	%
+	\caseL{[\textsc{unif-}] }
+	%
+	The same as case [\textsc{unif+}].
+		Since we have $\muniform(0,1] ~ R^{\#(\epsilon)} ~ \muniform(0,1]$ proved in the Theorem \ref{thm:unif-_coupling},
+	%
+	where 
+	\[
+		R = 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		~|~
+		\rvalL \leq \fval_1 \leq \rvalR
+		\imply
+		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR
+		\right \}.
+	\]
+	%
+	Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved.
+	%
 	\caseL{[\textsc{Null}] }
 	\caseL{[\textsc{Assn}] }
 	\caseL{[\textsc{Seq}] }
@@ -732,24 +747,24 @@ By induction on the judgment $\vdash \prog_1
 %
 \newpage
 \begin{thm}
-\label{thm:unif_coupling}
+\label{thm:unif+_coupling}
 for any $\rvalL, \rvalR \in (0,1]^{\real}$, 
 %
 $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
 where
 	$	R = 
-		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
-		\implies
-		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\imply
+		e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
 		\right \}
 		$.
 	%
 \end{thm}
 %
-\begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
+\begin{proof}[Proof of Theorem \ref{thm:unif+_coupling}]
 %
 Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is equivalent to show 
 ${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$
@@ -774,11 +789,19 @@ where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $
 \]
 %
 Let $R' =
-		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
 		~|~
-		e^{-\epsilon} \fval_1 \leq \fval_2 \leq e^{\epsilon} \fval_1
-		\right \}$, we know $R' \implies R$.
+		\fval_2 =  e^{\epsilon}  \fval_1
+		\right \}$.
+\\
+Since $\fval_2 = e^{\epsilon} \fval_1 \implies 
+\forall \rvalL, \rvalR \in (0,1]^{\real}. (
+\rvalL \leq \fval_1 \leq \rvalR
+\imply
+e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR)$,
+ we have $R' \implies R$.
 %
+\\
 Then, we know ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2
 \implies {\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
 % \\
@@ -786,21 +809,20 @@ Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
 %
 \\
 %
-Let $\epsilon' = \epsilon$ and 
-$\mu_L, \mu_R \in \distr(\float \times \float)$ 
+Let $\mu_L, \mu_R \in \distr(\float \times \float)$ 
 be the two witness distribution s.t.:
 \[
 	{\mu_L}(x, y) = 
 	\begin{cases}
 	\edistr_1(\varx)
-	& x \cdot e^{-\epsilon'} = y \land x \in (0, 1]\\
+	& x  = y \cdot e^{-\epsilon} \land x \in (0, 1]\\
 	0       & o.w.
 	\end{cases},
 ~~~
 	{\mu_R}(x, y) = 
 	\begin{cases}
 	\edistr_2(y)
-	& x \cdot e^{-\epsilon'} = y \land y \in (0, 1]\\
+	& x  = y \cdot e^{-\epsilon} \land y \in (0, 1]\\
 	0       & o.w.
 	\end{cases},
 \]
@@ -810,13 +832,13 @@ and their $\pdf.$ are defined as:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
-	\pdf_{\edistr_1}(x) & x \cdot e^{-\epsilon'} = y \land x \in [0, 1)\\
+	\pdf_{\edistr_1}(x) & x = y \cdot e^{-\epsilon} \land x \in [0, 1)\\
 	0       & o.w.
 	\end{cases},
 ~~~
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
-	\pdf_{\edistr_2}(y) & x \cdot e^{-\epsilon'} = y \land y \in [0, 1)\\
+	\pdf_{\edistr_2}(y) & x = y \cdot e^{-\epsilon} \land y \in [0, 1)\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -832,7 +854,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_R}(x, y) > 0$,
 		we have 
-		$x \cdot e^{-\epsilon'} = y \in R'$ 
+		$x  = y \cdot e^{-\epsilon} \in R'$ 
 		%
 		\\%
 		%
@@ -845,7 +867,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_L}(x, y) > 0$,
 		we have
-		$x \cdot e^{-\epsilon'} = y\in R'$ 
+		$x  = y \cdot e^{-\epsilon}\in R'$ 
 		%
 		\\
 		%
@@ -865,7 +887,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 			\pdf_{\projl(\mu_L)}(x) = 
 			\begin{cases}
 			\int_{y}\pdf_{\uniform}(x) 
-			& x \cdot e^{-\epsilon'} = y
+			& x = y \cdot e^{-\epsilon} 
 			\land x \in [0, 1)\\
 			0       & o.w.
 			\end{cases} 
@@ -887,7 +909,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
 			\int_{x}\pdf_{\uniform}(y) 
-			& x \cdot e^{-\epsilon'} = y 
+			& x = y \cdot e^{-\epsilon} 
 			\land y \in (0, 1]\\
 			0       & o.w.
 			\end{cases} 
@@ -901,19 +923,19 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\]
 	\end{itemize}	
 
-	\item $\Delta_{\epsilon'}(\mu_L, \mu_R) \leq 0$
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq 0$
 
 	By definition of $\epsilon-$DP divergence, we have:
 	 \[
 	 \begin{array}{ll}
-	 \Delta_{\epsilon'}(\mu_L, \mu_R) 
+	 \Delta_{\epsilon}(\mu_L, \mu_R) 
 	 & = \underset{S}{\psup}
 	 \Big(
-	 \pr{(x,y) \samplel \mu_L}{(x,y) \in S} - e^{\epsilon'} \pr{(x,y) \samplel \mu_R}{(x,y) \in S}
+	 \pr{(x,y) \samplel \mu_L}{(x,y) \in S} - e^{\epsilon} \pr{(x,y) \samplel \mu_R}{(x,y) \in S}
 	 \Big) \\
 	 & =\underset{S}{\psup}
 	 \Big(
-	 \int_{(x,y) \in S} \pdf_{\mu_L}(x, y) - e^{\epsilon'} \int_{(x,y) \in S} \pdf_{\mu_R}(x, y)
+	 \int_{(x,y) \in S} \pdf_{\mu_L}(x, y) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\mu_R}(x, y)
 	 \Big)	 
 	 \end{array}
 	 \]
@@ -921,34 +943,34 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 	 	\item[{\bf case}]
 	 	%
 	 	$S \subseteq \{(x, y) ~|~ 
-	 	x \in (0, 1] \land x \cdot e^{-\epsilon'} = y \}$:
+	 	x \in (0, 1] \land x \cdot e^{-\epsilon} = y \}$:
 	 	%
 		\[
 		 \begin{array}{ll}
-		 \Delta_{\epsilon'}(\mu_L, \mu_R) 
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon'} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon'} \int_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon'})\\ 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon})\\ 
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon'}* e^{-\epsilon'} \int_{(x,y) \in S} \pdf_{\uniform}(x) 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x) 
 		 = 0 
 		 \end{array}
 		 \]
 		 %
 	 	\item[{\bf case}] $S \subseteq \{(x, y) 
-	 	~|~ x \in [1, e^{\epsilon'}) 
-	 	\land x \cdot e^{-\epsilon'} = y \}$:
+	 	~|~ x \in [1, e^{\epsilon}) 
+	 	\land x \cdot e^{-\epsilon} = y \}$:
 	 	%
 		 \[
-		 \Delta_{\epsilon'}(\mu_L, \mu_R) 
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 = 
-		 0 - e^{\epsilon'} \int_{(x,y) \in S} \pdf_{\uniform}(y) <0
+		 0 - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y) <0
 		 \]
 	 	\item[{\bf case}] o.w.:
 	 	%
 		 \[
-		 \Delta_{\epsilon'}(\mu_L, \mu_R) = 0 - 0 =  0 
+		 \Delta_{\epsilon}(\mu_L, \mu_R) = 0 - 0 =  0 
 		 \]	 	
 
 	 \end{itemize}
@@ -957,6 +979,237 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 \end{proof}
 %
 %
+\begin{thm}
+\label{thm:unif-_coupling}
+for any $\rvalL, \rvalR \in (0,1]^{\real}$, 
+%
+$${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
+%
+where
+	$	R = 
+		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
+		~|~
+		\rvalL \leq \fval_1 \leq \rvalR
+		\imply
+		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR
+		\right \}
+		$.
+	%
+\end{thm}
+%
+\begin{proof}[Proof of Theorem \ref{thm:unif-_coupling}]
+%
+Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is equivalent to show 
+${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$
+%
+where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $\pdf.$ is defined as:
+\[
+	\pdf_{\edistr_1}(x) = 
+	\begin{cases}
+	1 & x \in [0, 1)^{\mathbb{F}} 
+	%\land \fvarx = \rvarx_1 = \rvarx_2
+	\\
+	0       & o.w.
+	\end{cases},
+	~~
+	\pdf_{\edistr_2}(y) = 
+	\begin{cases}
+	1 & y \in [0, 1)^{\mathbb{F}}
+	% \land \fvary = \rvary_1 = \rvary_2
+	\\
+	0       & o.w.
+	\end{cases},
+\]
+%
+Let $R' =
+		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
+		~|~
+		\fval_2 =  e^{-\epsilon}  \fval_1
+		\right \}$.
+\\
+Since $\fval_2 = e^{-\epsilon} \fval_1 \implies 
+\forall \rvalL, \rvalR \in (0,1]^{\real}. (
+\rvalL \leq \fval_1 \leq \rvalR
+\imply
+e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR)$,
+ we have $R' \implies R$.
+%
+\\
+Then, we know ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2
+\implies {\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
+% \\
+Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
+%
+\\
+%
+Let $\mu_L, \mu_R \in \distr(\float \times \float)$ 
+be the two witness distribution s.t.:
+\[
+	{\mu_L}(x, y) = 
+	\begin{cases}
+	\edistr_1(\varx)
+	& x \cdot e^{-\epsilon} = y  \land x \in (0, 1]\\
+	0       & o.w.
+	\end{cases},
+~~~
+	{\mu_R}(x, y) = 
+	\begin{cases}
+	\edistr_2(y)
+	& x \cdot e^{-\epsilon} = y \land y \in (0, 1]\\
+	0       & o.w.
+	\end{cases},
+\]
+%
+%
+and their $\pdf.$ are defined as:
+\[
+	\pdf_{\mu_L}(x, y) = 
+	\begin{cases}
+	\pdf_{\edistr_1}(x) & x \cdot e^{-\epsilon} = y  \land x \in [0, 1)\\
+	0       & o.w.
+	\end{cases},
+~~~
+	\pdf_{\mu_R}(x, y) = 
+	\begin{cases}
+	\pdf_{\edistr_2}(y) & x \cdot e^{-\epsilon} = y  \land y \in [0, 1)\\
+	0       & o.w.
+	\end{cases}.
+\]
+It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
+\begin{itemize}
+	\item $\supp(\mu_L) \in R' \land \supp(\mu_R) \in R'$
+
+	\begin{itemize}
+		\item $\supp(\mu_L) \subseteq R'$ 
+		%
+		\\
+		% 
+		By definition of the $\pdf$ of $\mu_L$, 
+		$\forall \pdf_{\mu_R}(x, y) > 0$,
+		we have 
+		$x \cdot e^{-\epsilon} = y  \in R'$ 
+		%
+		\\%
+		%
+		Then we can derive $\supp(\mu_L) \in R'$
+		%
+		\item $\supp(\mu_R) \subseteq R'$
+		%
+		\\
+		%
+		By definition of the $\pdf$ of $\mu_L$, 
+		$\forall \pdf_{\mu_L}(x, y) > 0$,
+		we have
+		$x \cdot e^{-\epsilon} = y \in R'$ 
+		%
+		\\
+		%
+		Then we can derive $\supp(\mu_L) \in R'$
+		%
+	\end{itemize}		
+%
+	\item $\projl(\mu_L) = \mu_1 \land \projr(\mu_R) = \mu_2$
+	
+	\begin{itemize}
+		\item $\projl(\mu_L) = \mu_1$ 
+
+		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
+
+		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x  \in \float$:
+		\[
+			\pdf_{\projl(\mu_L)}(x) = 
+			\begin{cases}
+			\int_{y}\pdf_{\uniform}(x) 
+			& x \cdot e^{-\epsilon}  = y 
+			\land x \in [0, 1)\\
+			0       & o.w.
+			\end{cases} 
+			= 
+			\begin{cases}
+			\pdf_{\uniform}(x) & \fvarx \in [0, 1)\\
+			0       & o.w.
+			\end{cases}
+			=
+			\pdf_{\mu_1}(x)
+		\]
+
+		\item $\projr(\mu_R) = \mu_2$ 
+
+		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
+
+		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y \in \float$:
+		\[
+			\pdf_{\projr(\mu_R)}(y) = 
+			\begin{cases}
+			\int_{x}\pdf_{\uniform}(y) 
+			& x \cdot e^{-\epsilon} = y 
+			\land y \in (0, 1]\\
+			0       & o.w.
+			\end{cases} 
+			= 
+			\begin{cases}
+			\pdf_{\uniform}(y) & y \in (0, 1]\\
+			0       & o.w.
+			\end{cases}
+			=
+			\pdf_{\mu_2}(y)
+		\]
+	\end{itemize}	
+
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq 0$
+
+	By definition of $\epsilon-$DP divergence, we have:
+	 \[
+	 \begin{array}{ll}
+	 \Delta_{\epsilon}(\mu_L, \mu_R) 
+	 & = \underset{S}{\psup}
+	 \Big(
+	 \pr{(x,y) \samplel \mu_L}{(x,y) \in S} - e^{\epsilon} \pr{(x,y) \samplel \mu_R}{(x,y) \in S}
+	 \Big) \\
+	 & =\underset{S}{\psup}
+	 \Big(
+	 \int_{(x,y) \in S} \pdf_{\mu_L}(x, y) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\mu_R}(x, y)
+	 \Big)	 
+	 \end{array}
+	 \]
+	 \begin{itemize}
+	 	\item[{\bf case}]
+	 	%
+	 	$S \subseteq \{(x, y) ~|~ 
+	 	x \in (0, 1] \land x \cdot e^{-\epsilon} = y \}$:
+	 	%
+		\[
+		 \begin{array}{ll}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 & = 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
+		 & = 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon})\\ 
+		 & = 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x) 
+		 = 0 
+		 \end{array}
+		 \]
+		 %
+	 	\item[{\bf case}] $S \subseteq \{(x, y) 
+	 	~|~ x \in [1, e^{\epsilon}) 
+	 	\land x \cdot e^{-\epsilon} = y \}$:
+	 	%
+		 \[
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 = 
+		 0 - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y) <0
+		 \]
+	 	\item[{\bf case}] o.w.:
+	 	%
+		 \[
+		 \Delta_{\epsilon}(\mu_L, \mu_R) = 0 - 0 =  0 
+		 \]	 	
+
+	 \end{itemize}
+
+\end{itemize}
+\end{proof}
 %
 \newpage
 \section{Snapping Mechanism}
@@ -1022,7 +1275,7 @@ $\epsilon-$differentially private]
 Induction on the output space of $\snap(a)$ mechanism, let $\valv$ be the output of $\snap(a)$, we have following cases:
 Let $a, a'$ be adjacent data base where $f(a) = f(a') + 1$
 \begin{itemize}
-	\caseL{$\boldsymbol{\valv = -B}$}
+	\caseL{$\boldsymbol{\varz = -B}$}
 %
 Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, $b' = b + \Lambda / 2$.
 %
@@ -1033,18 +1286,37 @@ $\rvalR_1 = e^{\epsilon
 and $\rvalR_2 = e^{\epsilon 
 		(-(b + \Lambda / 2)(1 + \eta) - f(a'))(1 + \eta)^2}$.
 		\\
-Assume $\rvalL_1 \leq u_1 \leq \rvalR_1$,
-we have following derivation for this case:
+Then we have following derivation for this case:
 
 {\tiny
 \begin{mathpar}
-\inferrule*[right = Seq]
+\inferrule
 {
-	\inferrule*[right = Seq]
+	\inferrule
 	{
 	\inferrule
 	{
-	\rvalL_1, \rvalR_1 \in (0, 1]
+		\inferrule
+		{
+			\forall \rvalL, \rvalR \in (0, 1]
+		}
+		{	\varu_1 \samplel \uniform(0,1)
+			\sim_{\epsilon(1 + \eta)^2} 
+			\varu_2 \samplel \uniform(0,1)
+			: 
+			\top
+			\Rightarrow 
+			\rvalL \leq u^1_1 \leq \rvalR \imply 
+			e^{\epsilon(1 + \eta)^2}\rvalL \leq u^1_2 \leq e^{\epsilon(1 + \eta)^2}\rvalR
+		}~\textbf{unif}
+		\\ 
+		\top \Rightarrow \top
+		\and
+		(\rvalL \leq u^1_1 \leq \rvalR) \imply 
+		(e^{\epsilon(1 + \eta)^2}\rvalL \leq u^1_2 \leq e^{\epsilon(1 + \eta)^2}\rvalR)
+		\Rightarrow
+		\rvalL_1 \leq u^1_1 \leq \rvalR_1 \imply 
+		\rvalL_2 \leq u^1_2 \leq \rvalR_2
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
@@ -1053,10 +1325,10 @@ we have following derivation for this case:
 		: 
 		\top
 		\Rightarrow 
-		\rvalL_1 \leq u^1_1 \leq \rvalR_1 \implies 
-		e^{\epsilon(1 + \eta)^2}\rvalL_1 \leq u^1_1 \leq e^{\epsilon(1 + \eta)^2}\rvalR_1
-	}~\textbf{unif}
-	~~
+		\rvalL_1 \leq u^1_1 \leq \rvalR_1 \imply 
+		\rvalL_2 \leq u^1_2 \leq \rvalR_2
+	}~\textbf{Conseq}
+	\and
 	\inferrule
 	{
 	\empty
@@ -1079,8 +1351,9 @@ we have following derivation for this case:
 		: 
 		\top \Rightarrow \Phi \land s_1\langle 1 \rangle) 
 		= s_2\langle 2 \rangle)
-	}
+	}~\textbf{Seq}
 \\
+\Pi_R
 }
 {
 	\vdash 
@@ -1094,13 +1367,13 @@ we have following derivation for this case:
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp_B (\vary_2)
-	: \\
-	\valv = -B \land f(a) + 1 = f(a')  \land
-	\Rightarrow  \varx_1\langle 1 \rangle) 
-	= \varx_2\langle 2 \rangle) = \valv
-}
+	: 
+	f(a) + 1 = f(a')
+	\Rightarrow 
+	\varz_1\langle 1 \rangle = -B \imply \varz_2\langle 2 \rangle = -B
+}~\textbf{Seq}
 \\
-
+\Pi_R:
 \\
 \inferrule*[right = Seq]
 {
