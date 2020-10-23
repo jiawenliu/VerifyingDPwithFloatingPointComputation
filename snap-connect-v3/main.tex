@@ -304,7 +304,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\Rightarrow
 	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
 	\imply
-	e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR 	
+	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
 }
 ~\textbf{unif+}
 \and
@@ -483,7 +483,8 @@ By induction on the judgment $\vdash \prog_1
 	\Rightarrow
 	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
 			\imply
-	e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR	
+	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon} \rvalR
+	\land \vary^1 \langle 2 \rangle \leq 1)	
 }~\textbf{unif+}
 \]}
 	In this case, 
@@ -594,7 +595,8 @@ By induction on the judgment $\vdash \prog_1
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
-		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		(e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\land \fval_2 \leq 1)
 		\right \}.
 	\]
 	%
@@ -754,11 +756,12 @@ $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
 where
 	$	R = 
-		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
+		\left \{(\fval_1, \fval_2) \in (0,1]^{\float} \times (0,1]^{\float} 
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
-		e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\land \fval_2 \leq 1)
 		\right \}
 		$.
 	%
@@ -773,7 +776,7 @@ where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $
 \[
 	\pdf_{\edistr_1}(x) = 
 	\begin{cases}
-	1 & x \in [0, 1)^{\mathbb{F}} 
+	1 & x \in (0, 1]^{\float} 
 	%\land \fvarx = \rvarx_1 = \rvarx_2
 	\\
 	0       & o.w.
@@ -781,7 +784,7 @@ where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $
 	~~
 	\pdf_{\edistr_2}(y) = 
 	\begin{cases}
-	1 & y \in [0, 1)^{\mathbb{F}}
+	1 & y \in (0, 1]^{\float}
 	% \land \fvary = \rvary_1 = \rvary_2
 	\\
 	0       & o.w.
@@ -789,16 +792,18 @@ where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $
 \]
 %
 Let $R' =
-		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
+		\left \{(\fval_1, \fval_2) \in (0, 1]^{\float} \times (0, 1]^{\float} 
 		~|~
-		\fval_2 =  e^{\epsilon}  \fval_1
+		(\fval_1 \in (0, e^{-\epsilon}) \imply \fval_2 =  e^{\epsilon}  \fval_1)
+		\land
+		(\fval_1 \in [e^{-\epsilon}, 1] \imply \fval_2 = 1 )
 		\right \}$.
 \\
-Since $\fval_2 = e^{\epsilon} \fval_1 \implies 
+Since this can implies $
 \forall \rvalL, \rvalR \in (0,1]^{\real}. (
 \rvalL \leq \fval_1 \leq \rvalR
 \imply
-e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR)$,
+(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR \land \fval_2 \leq 1))$,
  we have $R' \implies R$.
 %
 \\
@@ -809,36 +814,40 @@ Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
 %
 \\
 %
-Let $\mu_L, \mu_R \in \distr(\float \times \float)$ 
-be the two witness distribution s.t.:
-\[
-	{\mu_L}(x, y) = 
-	\begin{cases}
-	\edistr_1(\varx)
-	& x  = y \cdot e^{-\epsilon} \land x \in (0, 1]\\
-	0       & o.w.
-	\end{cases},
-~~~
-	{\mu_R}(x, y) = 
-	\begin{cases}
-	\edistr_2(y)
-	& x  = y \cdot e^{-\epsilon} \land y \in (0, 1]\\
-	0       & o.w.
-	\end{cases},
-\]
-%
-%
-and their $\pdf.$ are defined as:
+Let $\mu_L, \mu_R \in \distr((0,1]^{\float} \times (0,1]^{\float})$ 
+be the two witness distribution s.t.
+% \[
+% 	{\mu_L}(x, y) = 
+% 	\begin{cases}
+% 	\edistr_1(\varx)
+% 	& x  = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon}]\\
+% 	\muniform()
+% 	0       & o.w.
+% 	\end{cases},
+% ~~~
+% 	{\mu_R}(x, y) = 
+% 	\begin{cases}
+% 	\edistr_2(y)
+% 	& x  = y \cdot e^{-\epsilon} \land y \in (0, 1]\\
+% 	0       & o.w.
+% 	\end{cases},
+% \]
+% %
+% %
+% and 
+their $\pdf.$ are defined as:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
-	\pdf_{\edistr_1}(x) & x = y \cdot e^{-\epsilon} \land x \in [0, 1)\\
+	\pdf_{\edistr_1}(y) & x = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon})\\
+	1 		& x \in [e^{-\epsilon}, 1] \land y = 1\\
 	0       & o.w.
 	\end{cases},
 ~~~
 	\pdf_{\mu_R}(x, y) = 
 	\begin{cases}
-	\pdf_{\edistr_2}(y) & x = y \cdot e^{-\epsilon} \land y \in [0, 1)\\
+	\pdf_{\edistr_2}(x) 		& x = y \cdot e^{-\epsilon} \land y \in (0, 1)\\
+	\frac{1}{1 - e^{-\epsilon}}& x \in [e^{-\epsilon}, 1] \land y = 1\\
 	0       & o.w.
 	\end{cases}.
 \]
@@ -853,8 +862,11 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		% 
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_R}(x, y) > 0$,
-		we have 
-		$x  = y \cdot e^{-\epsilon} \in R'$ 
+		we have: 
+		\\
+		$x = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon})\in R'$ 
+		and 
+		$x \in [e^{-\epsilon}, 1] \land y = 1 \in R'$
 		%
 		\\%
 		%
@@ -867,7 +879,10 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		By definition of the $\pdf$ of $\mu_L$, 
 		$\forall \pdf_{\mu_L}(x, y) > 0$,
 		we have
-		$x  = y \cdot e^{-\epsilon}\in R'$ 
+		\\
+		$x = y \cdot e^{-\epsilon} \land y \in (0, 1)\in R'$ 
+		and 
+		$x \in [e^{-\epsilon}, 1] \land y = 1 \in R'$
 		%
 		\\
 		%
@@ -886,14 +901,16 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\[
 			\pdf_{\projl(\mu_L)}(x) = 
 			\begin{cases}
-			\int_{y}\pdf_{\uniform}(x) 
-			& x = y \cdot e^{-\epsilon} 
-			\land x \in [0, 1)\\
+			\int_{y}\pdf_{\uniform}(y) 
+			& x = y \cdot e^{-\epsilon}  \land x \in (0, e^{-\epsilon})\\
+			\int_{y} 1 & x \in [e^{-\epsilon}, 1] \land y = 1\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(x) & \fvarx \in [0, 1)\\
+			1
+			&  x \in (0, e^{-\epsilon})\\
+			1 & x \in [e^{-\epsilon}, 1] \\
 			0       & o.w.
 			\end{cases}
 			=
@@ -908,14 +925,16 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\[
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
-			\int_{x}\pdf_{\uniform}(y) 
-			& x = y \cdot e^{-\epsilon} 
-			\land y \in (0, 1]\\
+			\int_{x}\pdf_{\uniform}(x) 
+			& x = y \cdot e^{-\epsilon} \land y \in (0, 1)\\
+			\int_{x} \frac{1}{1 - e^{-\epsilon}} 
+			& x \in [e^{-\epsilon}, 1] \land y = 1\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(y) & y \in (0, 1]\\
+			1 & y \in (0, 1)\\
+			1 & y = 1\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -943,29 +962,29 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 	 	\item[{\bf case}]
 	 	%
 	 	$S \subseteq \{(x, y) ~|~ 
-	 	x \in (0, 1] \land x \cdot e^{-\epsilon} = y \}$:
+	 	x = y \cdot e^{-\epsilon}  \land x \in (0, e^{-\epsilon}) \}$:
 	 	%
 		\[
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
+		 \int_{(x,y) \in S} \pdf_{\uniform}(y) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x)\\
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon})\\ 
+		 \int_{(x,y) \in S} 1 - e^{\epsilon} \int_{(x,y) \in S} 1\\ 
 		 & = 
-		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x) 
-		 = 0 
+		 (1 - e^{\epsilon})\int_{(x,y) \in S} 1
+		 \leq 0 
 		 \end{array}
 		 \]
 		 %
 	 	\item[{\bf case}] $S \subseteq \{(x, y) 
-	 	~|~ x \in [1, e^{\epsilon}) 
-	 	\land x \cdot e^{-\epsilon} = y \}$:
+	 	~|~ x \in [e^{-\epsilon}, 1] \land y = 1 \}$:
 	 	%
 		 \[
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 = 
-		 0 - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y) <0
+		 \int_{(x,y) \in S} 1 - e^{\epsilon} \int_{(x,y) \in S} \frac{1}{1 - e^{-\epsilon}}
+		   = (1 - e^{\epsilon}) \leq 0
 		 \]
 	 	\item[{\bf case}] o.w.:
 	 	%
