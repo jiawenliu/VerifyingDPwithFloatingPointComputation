@@ -306,7 +306,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\imply
 	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
 }
-~\textbf{unif+}
+~\textbf{Unif+}
 \and
 \inferrule
 {
@@ -324,7 +324,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\imply
 	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR 	
 }
-~\textbf{unif-}
+~\textbf{Unif-}
 \and
 %
 \inferrule
@@ -341,7 +341,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	= (\varx_1^1\langle 1 \rangle )
 	\land (\varx_2^2\langle 2 \rangle) = (\varx_1^2\langle 1 \rangle)
 	\land (\varx_2^3\langle 2 \rangle) = (\varx_1^3\langle 1 \rangle)
-}~\textbf{null}
+}~\textbf{Null}
 \and
 \inferrule
 {
@@ -356,39 +356,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	(\vary_2 \langle 2 \rangle)
 	\Rightarrow 
 	(\varx_2 \langle 2 \rangle) = (\varx_1 \langle 1 \rangle)
-}~\textbf{round}
-% \and
-% \inferrule
-% {
-% \empty
-% }
-% {
-% 	\vdash 
-% 	\varx_1 = \clamp_B{(\vary_1)}	
-% 	\sim_{0} 
-% 	\varx_2 = \clamp_B{(\vary_2)}
-% 	: (B \leq ( \vary_2 \langle 2 \rangle))
-% 	\land 
-% 	(B \leq ( \vary_2 \langle 2 \rangle))
-% 	\Rightarrow 
-% 	(\varx_2 \langle 2 \rangle) = (\varx_1 \langle 1 \rangle) = B
-% }~\textbf{clamp}_r
-% \and
-% \inferrule
-% {
-% \empty
-% }
-% {
-% 	\vdash 
-% 	\varx_1 = \clamp_B{(\vary_1)}	
-% 	\sim_{0} 
-% 	\varx_2 = \clamp_B{(\vary_2)}
-% 	: ( ( \vary_2 \langle 2 \rangle) \leq -B)
-% 	\land 
-% 	( ( \vary_2 \langle 2 \rangle) \leq -B )
-% 	\Rightarrow 
-% 	(\varx_2 \langle 2 \rangle) = (\varx_1 \langle 1 \rangle) = -B
-% }~\textbf{clamp}_l
+}~\textbf{Round}
 \end{mathpar}
 \caption{Rules Extended from apRHL+}
 \label{fig:aprhlplus}
@@ -396,7 +364,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 %
 \begin{figure}[ht]
 \begin{mathpar}
-\inferrule*[right = Assn]
+\inferrule
 {
 \empty
 }
@@ -407,9 +375,9 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\varx_2 = \expr_2  
 	: \Phi[\expr_1/\varx_1\langle 1 \rangle]
 	[\expr_2/\varx_2\langle 2 \rangle]  \Rightarrow \Phi
-}
+}~\textbf{Assn}
 ~~~
-\inferrule*[right = Seq]
+\inferrule
 {
 \prog_1 \sim_{\epsilon} \prog_2 : \Phi_1 \Rightarrow \Phi'_1
 \\
@@ -421,9 +389,9 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\sim_{\epsilon + \epsilon'} 
 	\prog_2; \prog'_2
 	: \Phi_1  \Rightarrow  \Phi_2
-}
+}~\textbf{Seq}
 \and
-\inferrule*[right = Conseq]
+\inferrule
 {
 \prog_1 \sim_{\epsilon} \prog_2 : \Phi'_1 \Rightarrow \Phi'_2
 \and
@@ -436,7 +404,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 {
 \prog_1 \sim_{\epsilon'} \prog_2 : 
 \Phi_1 \Rightarrow \Phi_2
-}
+}~\textbf{Conseq}
 \end{mathpar}
 \caption{Proving Rules from apRHL}
 \label{fig:aprhl}
@@ -518,7 +486,8 @@ By induction on the judgment $\vdash \prog_1
 	~ \left \vert ~
 	\rvalL \leq \sem{\varx}_{\trsmem_1}^1 \leq \rvalR
 	\imply
-	e^{-\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
+	(e^{-\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
+		\land \sem{\vary}_{\trsmem_2}^1 \leq 1)
 	\right.
 	\right \}
 	\]
@@ -539,8 +508,9 @@ By induction on the judgment $\vdash \prog_1
 	\\
 	\rvalL \leq \fvalv \leq \rvalR
 	\imply
-	e^{-\epsilon} \rvalL \leq 
-	\fvalw \leq e^{\epsilon}\rvalR
+	(e^{-\epsilon} \rvalL \leq 
+		\fvalw \leq e^{\epsilon}\rvalR
+		\land \fvalw \leq 1)
 	\end{array}
 	\right.
 	\right \}
@@ -591,7 +561,7 @@ By induction on the judgment $\vdash \prog_1
 	where
 	\[
 		R = 
-		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
@@ -678,7 +648,8 @@ By induction on the judgment $\vdash \prog_1
 	\\
 	$\rvalL \leq \fvalv_1 \leq \rvalR \imply
 	%
-	e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+	(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+	\land \fval_2 \leq 1)
 	 ~ (3)$
 	\\
 	%
@@ -700,7 +671,8 @@ By induction on the judgment $\vdash \prog_1
 	\\
 	(c) $\rvalL \leq \fvalv_1 \leq \rvalR \imply
 	%
-	e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR$.
+	(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+	\land \fval_2 \leq 1)$.
 	This is proved by (3).
 	\\
 	Then we have (iii) proved. 
@@ -711,14 +683,14 @@ By induction on the judgment $\vdash \prog_1
 	where 
 	\[
 		R = 
-		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
-		e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		(e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\land \fval_2 \leq 1)
 		\right \}.
-	\]
-	%
+	\]	%
 	Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved according to \textbf{Subgoal}.
 	%
 	\caseL{[\textsc{unif-}] }
@@ -729,7 +701,7 @@ By induction on the judgment $\vdash \prog_1
 	where 
 	\[
 		R = 
-		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
@@ -1244,49 +1216,7 @@ Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined
 \]
 where $f(a)$ represents a value that the query function $f$ be evaluated over input database $a \in A$, $\epsilon$ is the privacy parameter, $B$ is the clamping argument and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
 \end{defn}
-
 %
-% \begin{lem}[]
-% \label{lem:xisLameq}
-% Given the environment $\trsmem_1 = [\varu_1 \to (\fvalv_1, \rvalv_1, \rvalv_1)]$, $\trsmem_1 = [\varu_2 \to (\fvalv_2, \rvalv_2, \rvalv_2)]$ and $f(a) + 1 = f(a')$, if 
-% \begin{itemize}
-% 	\item $\fvalv < 0$, 
-% 	$e^{\epsilon 
-% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta)^3 
-% 		- f(a) (1 + \eta)^2) \big)}
-% 	\leq \fvalv_1 \leq 
-% 	e^{\epsilon 
-% 		(\frac{(\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - f(a))}{(1 + \eta)^2})}$,
-% 	$e^{\epsilon 
-% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta)^3 
-% 		- f(a') (1 + \eta)^2) \big)}
-% 	\leq \fvalv_2 \leq 
-% 	e^{\epsilon 
-% 		(\frac{(\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - f(a))}{(1 + \eta)^2})}$, 
-% 	Or
-% 	\item
-% 	$\fvalv = 0$, 
-% 	$e^{\epsilon 
-% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta)
-% 		- f(a) (1 + \eta)^2) \big)}
-% 	\leq \fvalv_1 \leq 
-% 	e^{\epsilon 
-% 		((\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - \frac{f(a))}{(1 + \eta)^2})}$,
-% 	$e^{\epsilon 
-% 		\big((\valv - \frac{\Lambda}{2})(1 + \eta) 
-% 		- f(a') (1 + \eta)^2) \big)}
-% 	\leq \fvalv_2 \leq 
-% 	e^{\epsilon 
-% 		((\frac{\valv + \frac{\Lambda}{2}}{1 + \eta} - \frac{f(a))}{(1 + \eta)^2})}$, 
-% \end{itemize}
-% then we have:
-% 	\[
-% 	\sem{\varx_1 = f(a) + \frac{1}{\epsilon}\ln(\varu_1)}_{\trsmem_1}(\varx_1))
-% 	\lameq 
-% 	\sem{\varx_2 = f(a') + \frac{1}{\epsilon}\ln(\varu_2)}_{\trsmem_2}(\varx_2))	
-% 	\]	
-% \end{lem}
-
 \begin{thm}[The $\snap$ mechanism is 
 $\epsilon-$differentially private]
 \end{thm}
@@ -1323,29 +1253,27 @@ Then we have following derivation for this case:
 			\sim_{\epsilon(1 + \eta)^2} 
 			\varu_2 \samplel \uniform(0,1)
 			: 
-			\top
+			f(a) = f(a') + 1
 			\Rightarrow 
-			\rvalL \leq u^1_1 \leq \rvalR \imply 
-			e^{\epsilon(1 + \eta)^2}\rvalL \leq u^1_2 \leq e^{\epsilon(1 + \eta)^2}\rvalR
-		}~\textbf{unif}
+			\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+			e^{\epsilon(1 + \eta)^2} \rvalL \leq u^1_2\langle 2 \rangle \leq e^{\epsilon(1 + \eta)^2}\rvalR
+		}~\textbf{Unif+}
 		\\ 
-		\top \Rightarrow \top
+		f(a) = f(a') + 1 \Rightarrow f(a) = f(a') + 1
 		\and
-		(\rvalL \leq u^1_1 \leq \rvalR) \imply 
-		(e^{\epsilon(1 + \eta)^2}\rvalL \leq u^1_2 \leq e^{\epsilon(1 + \eta)^2}\rvalR)
+		\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+		\Big(e^{\epsilon(1 + \eta)^2}\rvalL \leq u^1_2\langle 2 \rangle \leq e^{\epsilon(1 + \eta)^2}\rvalR \Big)
 		\Rightarrow
-		\rvalL_1 \leq u^1_1 \leq \rvalR_1 \imply 
-		\rvalL_2 \leq u^1_2 \leq \rvalR_2
+		\Phi
 	}
 	{
 		\varu_1 \samplel \uniform(0,1)
 		\sim_{\epsilon(1 + \eta)^2} 
 		\varu_2 \samplel \uniform(0,1)
 		: 
-		\top
+		f(a) = f(a') + 1
 		\Rightarrow 
-		\rvalL_1 \leq u^1_1 \leq \rvalR_1 \imply 
-		\rvalL_2 \leq u^1_2 \leq \rvalR_2
+		\Phi
 	}~\textbf{Conseq}
 	\and
 	\inferrule
@@ -1358,17 +1286,18 @@ Then we have following derivation for this case:
 		s_2 = \samplel \uniform\{-1, 1\}
 		: 
 		\Phi
+		\\\\
 		\Rightarrow 
-		\Phi \land s_1 \langle 1 \rangle) 
-		= s_2\langle 2 \rangle)
-	}~\textbf{null}
+		\Phi \land s_1^1 \langle 1 \rangle
+		= s_2^1\langle 2 \rangle
+	}~\textbf{Null}
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
 		\sim_{\epsilon(23 \eta B + 1)} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
-		\top \Rightarrow \Phi \land s_1\langle 1 \rangle) 
+		f(a) = f(a') + 1 \Rightarrow \Phi \land s_1\langle 1 \rangle) 
 		= s_2\langle 2 \rangle)
 	}~\textbf{Seq}
 \\
@@ -1387,18 +1316,20 @@ Then we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp_B (\vary_2)
 	: 
-	f(a) + 1 = f(a')
+	f(a) = f(a') + 1
 	\Rightarrow 
 	\varz_1\langle 1 \rangle = -B \imply \varz_2\langle 2 \rangle = -B
 }~\textbf{Seq}
 \\
 \Pi_R:
 \\
-\inferrule*[right = Seq]
+\inferrule
 {
-\inferrule*[right = ConSeq]
+\inferrule
 {	
-\inferrule*[right = Assn]
+	\Phi \Rightarrow \Phi'
+	\and
+	\inferrule
 	{
 		\empty
 	}
@@ -1409,22 +1340,27 @@ Then we have following derivation for this case:
 		\varx_2 =
 		f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 		:
-		\Phi \land s_1\langle 1 \rangle) = s_2\langle 2 \rangle)
+		\Phi' \land s^1_1\langle 1 \rangle = s^1_2\langle 2 \rangle)
 		\Rightarrow
-		\Phi'
-	}
-\and
-\Phi' \Rightarrow \varx_1\langle 1 \rangle) \lameq \varx_2\langle 2 \rangle) 
+		0 < \Big(\varx_1\langle 1 \rangle\Big)^1 < -(b + \frac{\Lambda}{2} )
+		\imply 
+		0 < \Big(\varx_2\langle 2 \rangle \Big)^1 < -(b + \frac{\Lambda}{2} )
+	}~\textbf{Assn}
+	\and
+	\Phi' \Rightarrow  \Phi'
 }
 {
 	\varx_1 = f(a) + \frac{1}{\epsilon} \times s_1 \times \ln (\varu_1)
 	\sim_{0} 
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	:
-	f(a) + 1 = f(a') \land \Phi 
-	\land s_1\langle 1 \rangle) = s_2\langle 2 \rangle)
-	\Rightarrow \varx_1\langle 1 \rangle) \lameq \varx_2\langle 2 \rangle)
-}
+	\Phi 
+	\land s^1_1\langle 1 \rangle = s^1_2\langle 2 \rangle)
+	\Rightarrow 
+	0 < \Big(\varx_1\langle 1 \rangle\Big)^1 < - (b + \frac{\Lambda}{2} )
+		\imply 
+		0 < \Big(\varx_2\langle 2 \rangle \Big)^1 < - (b + \frac{\Lambda}{2})
+}~\textbf{Conseq}
 \and
 \Delta_R
 }
@@ -1437,15 +1373,17 @@ Then we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp_B(\vary_2)
 	:
-	f(a) + 1 = f(a') \land \Phi \land s_1\langle 1 \rangle) = s_2\langle 2 \rangle)
-	\Rightarrow \varx_1\langle 1 \rangle) = \varx_2\langle 2 \rangle)
-}
+	f(a) = f(a') + 1 \land \Phi \land s_1\langle 1 \rangle) = s_2\langle 2 \rangle)
+	\Rightarrow 
+	\varz^1_1\langle 1 \rangle = -B
+	\imply  = \varz_2^1\langle 2 \rangle) = -B
+}~\textbf{Seq}
 \\
 \Delta_R:
 \\
-\inferrule*[right = Seq]
+\inferrule
 {
-	\inferrule*[right = round]
+	\inferrule
 	{
 		\empty
 	}
@@ -1453,9 +1391,16 @@ Then we have following derivation for this case:
 		\vary_1 = \round{\varx_1}_{\Lambda}
 		\sim_{0}
 		\vary_2 = \round{\varx_2}_{\Lambda}
-		: \varx_1\langle 1 \rangle) \lameq \varx_2\langle 2 \rangle) 
-		\Rightarrow \varx_1\langle 1 \rangle) = \varx_2\langle 2 \rangle)
-	}
+		: 
+				0 < \Big(\varx_1\langle 1 \rangle\Big)^1 < - (b + \frac{\Lambda}{2} )
+		\imply 
+		0 < \Big(\varx_2\langle 2 \rangle \Big)^1 < - (b + \frac{\Lambda}{2})
+		\\\\
+		\Rightarrow 
+		\vary^1_1\langle 1 \rangle < - (b + \Lambda) 
+		\imply 
+		\vary^1_2\langle 2 \rangle < - (b + \Lambda) 
+	}~\textbf{Round}
 	\and
 	\inferrule
 	{
@@ -1465,9 +1410,15 @@ Then we have following derivation for this case:
 		\varz_1 = \clamp_B(\vary_1)
 		\sim_{0}
 		\varz_2 = \clamp_B(\vary_2)
-		: \varx_1\langle 1 \rangle) = \varx_2\langle 2 \rangle) 
-		\Rightarrow \varx_1\langle 1 \rangle) = \varx_2\langle 2 \rangle)
-	}~\textbf{null}
+		: 
+		\vary^1_1\langle 1 \rangle < - (b + \Lambda) 
+		\imply 
+		\vary^1_2\langle 2 \rangle < - (b + \Lambda)
+		\\\\  
+		\Rightarrow 
+			\varz^1_1\langle 1 \rangle = -B
+	\imply  = \varz_2^1\langle 2 \rangle = -B
+	}~\textbf{Null}
 }
 {
 	\vary_1 = \round{\varx_1}_{\Lambda};
@@ -1476,12 +1427,26 @@ Then we have following derivation for this case:
 	\vary_2 = \round{\varx_2}_{\Lambda};
 	\varz_2 = \clamp_B(\vary_2)
 	:
-	\varx_1\langle 1 \rangle) \lameq \varx_2\langle 2 \rangle)
-	\Rightarrow \varx_1\langle 1 \rangle) = \varx_2\langle 2 \rangle)
+		0 < \Big(\varx_1\langle 1 \rangle\Big)^1 < - (b + \frac{\Lambda}{2} )
+		\imply 
+		0 < \Big(\varx_2\langle 2 \rangle \Big)^1 < - (b + \frac{\Lambda}{2})
+	\Rightarrow 
+	\varz^1_1\langle 1 \rangle = -B
+	\imply  = \varz_2^1\langle 2 \rangle = -B
 }
 \end{mathpar}
 }
 %
+The assertion in the derivation is defined as:
+\\
+$\Phi \triangleq \rvalL_1 \leq u^1_1\langle 1 \rangle \leq \rvalR_1 \imply 
+		\rvalL_2 \leq u^1_2\langle 2 \rangle \leq \rvalR_2$
+\\
+$\Phi' \triangleq 0 \leq \Big(f(a) + \frac{1}{\epsilon}\ln(u_1)\Big)^1 \leq b + \frac{\Lambda}{2} 
+\imply 
+0 \leq \Big(f(a') + \frac{1}{\epsilon}\ln(u_2) \Big)^1 \leq b + \frac{\Lambda}{2} $
+%
+\\
 The $\Phi' \Rightarrow \varx_1) \lameq \varx_2)$ is proved as following:
 %
 \\
