@@ -1969,10 +1969,135 @@ Then, we have the following derivation exactly the same as previous cases.
 	%
 	\caseL{$\boldsymbol{\valv \in  (\round{f(a)}_{\Lambda}, B)}$}
 	%
+	%
 	\subcaseL{
 	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \lor \round{f(a)}_{\Lambda} < 0 \land \valv \in  (0, B)}$}
 	%
+	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
+		we know $\valv_1 > 0$, $\valv_2 > 0$.
+	\\
+	Let $\rvalL_1 = e^{\epsilon 
+			(\frac{f(a)}{(1 + \eta)^2} - \frac{\valv_1}{1 + \eta})}$,
+	$\rvalL_2 = e^{\epsilon 
+			(\frac{f(a')}{(1 + \eta)^2} - \frac{\valv_1}{1 + \eta})}$, 
+	$\rvalR_1 = e^{\epsilon 
+					\big( f(a) (1 + \eta)^2 - \valv_2(1 + \eta) \big)}$
+	and $\rvalR_2 = e^{\epsilon 
+					\big( f(a') (1 + \eta)^2 - \valv_2(1 + \eta) \big)}$.
+		By the calculation in the Flopt Version proof, we have:
+		\[
+			e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+			\leq e^{\epsilon(12 \eta B + 1)}.
+		\]
+	Then, we can instantiate the $\textbf{unif-}$ rule as:
+	{\scriptsize
+	\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				\forall \rvalL, \rvalR \in (0, 1]
+			}
+			{	\varu_1 \samplel \uniform(0,1)
+				\sim_{\epsilon(12 \eta B + 1)} 
+				\varu_2 \samplel \uniform(0,1)
+				: 
+				f(a) = f(a') + 1
+				\Rightarrow 
+				\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+				e^{-\epsilon(12 \eta B + 1)} \rvalL \leq u^1_2\langle 2 \rangle \leq e^{-\epsilon(12 \eta B + 1)}\rvalR
+			}~\textbf{Unif-}
+			\\ 
+			f(a) = f(a') + 1 \Rightarrow f(a) = f(a') + 1
+			\and
+			\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+			\Big(e^{-\epsilon(12 \eta B + 1)}\rvalL \leq u^1_2\langle 2 \rangle \leq e^{-\epsilon(12 \eta B + 1)}\rvalR \Big)
+			\Rightarrow
+			\rvalL_1 < 
+	u^1_1\langle 1 \rangle < \rvalR_1 \imply 
+			\rvalL_2 < u^1_2\langle 2 \rangle < \rvalR_2
+		}
+		{
+			\varu_1 \samplel \uniform(0,1)
+			\sim_{\epsilon(12 \eta B + 1)} 
+			\varu_2 \samplel \uniform(0,1)
+			: 
+			f(a) = f(a') + 1
+			\Rightarrow 
+			\rvalL_1 < 
+			u^1_1\langle 1 \rangle < \rvalR_1 \imply 
+			\rvalL_2 < u^1_2\langle 2 \rangle < \rvalR_2
+		}~\textbf{Conseq}
+	\end{mathpar}
+	}
+	Then, we have the rest derivation exactly the same as previous cases.
+	%
+	%
+	%
 	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} < 0 \land \valv \in  (\round{f(a)}_{\Lambda}, 0)}$}
+	%
+	%
+	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
+		we know $\valv_1 < 0$, $\valv_2 < 0$.
+	\\
+	Let $\rvalL_1 = e^{\epsilon 
+			(\frac{f(a)}{(1 + \eta)^2} - \frac{\valv_1}{(1 + \eta)^3})}$,
+	$\rvalL_2 = e^{\epsilon 
+			(\frac{f(a')}{(1 + \eta)^2} - \frac{\valv_1}{(1 + \eta)^3})}$, 
+	$\rvalR_1 = e^{\epsilon 
+					\big(f(a) (1 + \eta)^2 - \valv_2(1 + \eta)^3 \big)}$
+	and $\rvalR_2 = e^{\epsilon 
+					\big(f(a') (1 + \eta)^2 - \valv_2(1 + \eta)^3\big)}$.
+		By the calculation in the Flopt Version proof, we have:
+		\[
+			e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+			\leq e^{\epsilon(12 \eta B + 1)}.
+		\]
+	Then, we can instantiate the $\textbf{unif-}$ rule as:
+	{\scriptsize
+	\begin{mathpar}
+		\inferrule
+		{
+			\inferrule
+			{
+				\forall \rvalL, \rvalR \in (0, 1]
+			}
+			{	\varu_1 \samplel \uniform(0,1)
+				\sim_{\epsilon(12 \eta B + 1)} 
+				\varu_2 \samplel \uniform(0,1)
+				: 
+				f(a) = f(a') + 1
+				\Rightarrow 
+				\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+				e^{-\epsilon(12 \eta B + 1)} \rvalL \leq u^1_2\langle 2 \rangle \leq e^{-\epsilon(12 \eta B + 1)}\rvalR
+			}~\textbf{Unif-}
+			\\ 
+			f(a) = f(a') + 1 \Rightarrow f(a) = f(a') + 1
+			\and
+			\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+			\Big(e^{-\epsilon(12 \eta B + 1)}\rvalL \leq u^1_2\langle 2 \rangle \leq e^{-\epsilon(12 \eta B + 1)}\rvalR \Big)
+			\Rightarrow
+			\rvalL_1 < 
+	u^1_1\langle 1 \rangle < \rvalR_1 \imply 
+			\rvalL_2 < u^1_2\langle 2 \rangle < \rvalR_2
+		}
+		{
+			\varu_1 \samplel \uniform(0,1)
+			\sim_{\epsilon(12 \eta B + 1)} 
+			\varu_2 \samplel \uniform(0,1)
+			: 
+			f(a) = f(a') + 1
+			\Rightarrow 
+			\rvalL_1 < 
+			u^1_1\langle 1 \rangle < \rvalR_1 \imply 
+			\rvalL_2 < u^1_2\langle 2 \rangle < \rvalR_2
+		}~\textbf{Conseq}
+	\end{mathpar}
+	}
+	Then, we have the rest derivation exactly the same as previous cases.
+	%
 	%
 	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} < 0 \land \valv = 0}$}
 	%
