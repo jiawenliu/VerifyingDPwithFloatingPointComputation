@@ -486,7 +486,7 @@ By induction on the judgment $\vdash \prog_1
 	~ \left \vert ~
 	\rvalL \leq \sem{\varx}_{\trsmem_1}^1 \leq \rvalR
 	\imply
-	(e^{-\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
+	(e^{\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
 		\land \sem{\vary}_{\trsmem_2}^1 \leq 1)
 	\right.
 	\right \}
@@ -508,7 +508,7 @@ By induction on the judgment $\vdash \prog_1
 	\\
 	\rvalL \leq \fvalv \leq \rvalR
 	\imply
-	(e^{-\epsilon} \rvalL \leq 
+	(e^{\epsilon} \rvalL \leq 
 		\fvalw \leq e^{\epsilon}\rvalR
 		\land \fvalw \leq 1)
 	\end{array}
@@ -565,7 +565,7 @@ By induction on the judgment $\vdash \prog_1
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
-		(e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
 		\land \fval_2 \leq 1)
 		\right \}.
 	\]
@@ -687,7 +687,7 @@ By induction on the judgment $\vdash \prog_1
 		~|~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
-		(e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
 		\land \fval_2 \leq 1)
 		\right \}.
 	\]	%
@@ -730,12 +730,12 @@ $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
 where
 	$	R = 
-		\left \{(\fval_1, \fval_2) \in (0,1]^{\float} \times (0,1]^{\float} 
+		\left \{(\varx, \vary) \in (0,1]^{\float} \times (0,1]^{\float} 
 		~|~
-		\rvalL \leq \fval_1 \leq \rvalR
+		\rvalL \leq \varx \leq \rvalR
 		\imply
-		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
-		\land \fval_2 \leq 1)
+		(e^{\epsilon} \rvalL \leq \vary \leq 	e^{\epsilon} \rvalR
+		\land \vary \leq 1)
 		\right \}
 		$.
 	%
@@ -766,18 +766,19 @@ where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $
 \]
 %
 Let $R' =
-		\left \{(\fval_1, \fval_2) \in (0, 1]^{\float} \times (0, 1]^{\float} 
+		\left \{(\varx, \vary) \in (0, 1]^{\float} \times (0, 1]^{\float} 
 		~|~
-		(\fval_1 \in (0, e^{-\epsilon}) \imply \fval_2 =  e^{\epsilon}  \fval_1)
+		(\varx \in (0, e^{-\epsilon}) \imply \vary =  e^{\epsilon}  \varx)
 		\land
-		(\fval_1 \in [e^{-\epsilon}, 1] \imply \fval_2 = 1 )
+		(\varx \in [e^{-\epsilon}, 1] \imply \vary = 1 )
 		\right \}$.
 \\
 Since this can implies $
 \forall \rvalL, \rvalR \in (0,1]^{\real}. (
-\rvalL \leq \fval_1 \leq \rvalR
-\imply
-(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR \land \fval_2 \leq 1))$,
+\rvalL \leq \varx \leq \rvalR
+		\imply
+		(e^{\epsilon} \rvalL \leq \vary \leq 	e^{\epsilon} \rvalR
+		\land \vary \leq 1)$,
  we have $R' \implies R$.
 %
 \\
@@ -788,7 +789,7 @@ Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
 %
 \\
 %
-Let $\mu_L, \mu_R \in \distr((0,1]^{\float} \times (0,1]^{\float})$ 
+Let $\mu_L, \mu_R \in \distr\left((0,1]^{\float} \times (0,1]^{\float}\right)$ 
 be the two witness distribution s.t.
 % \[
 % 	{\mu_L}(x, y) = 
