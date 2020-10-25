@@ -1294,7 +1294,7 @@ Then we have following derivation for this case:
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{\epsilon(23 \eta B + 1)} 
+		\sim_{\epsilon(\eta + 1)^2} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
 		f(a) = f(a') + 1 \Rightarrow \Phi \land s_1\langle 1 \rangle) 
@@ -1310,7 +1310,7 @@ Then we have following derivation for this case:
 	\vary_1 = \round{\varx_1}_{\Lambda};
 	\varz_1 = \clamp_B (\vary_1)
 	\\
-	\sim_{\epsilon(23 \eta B + 1)} 
+	\sim_{\epsilon(\eta + 1)^2} 
 	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	\vary_2 = \round{\varx_2}_{\Lambda};
@@ -1573,18 +1573,13 @@ Then, we have $\Phi' \Rightarrow  0 < \Big(\varx_1\langle 1 \rangle\Big)^1 < -(b
 		we know $\valv_1 < 0$, $\valv_2 < 0$.
 \\
 Let $\rvalL_1 = e^{\epsilon
-				\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+		(\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2})}$,
 $\rvalL_2 = e^{\epsilon
-				\big( (\valv_1(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$, 
+		(\frac{(\frac{\valv_1}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$, 
 $\rvalR_1 = e^{\epsilon
-		(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
+				\big( (\valv_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$
 and $\rvalR_2 = e^{\epsilon
-		(\frac{(\frac{\valv_2}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$.
-By the calculation in the Flopt Version proof, we have:
-\[
-	e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
-	< e^{\epsilon(23 \eta B + 1)}.
-\]
+				\big( (\valv_2(1 + \eta) - f(a')) (1 + \eta)^2) \big)}$.
 \\
 Then, we have following derivation for this case:
 %
@@ -1645,7 +1640,7 @@ Then, we have following derivation for this case:
 	}
 	{
 		\varu_1 \samplel \uniform(0,1); s_1 = \samplel \uniform\{-1, 1\}
-		\sim_{\epsilon(23 \eta B + 1)} 
+		\sim_{\epsilon(\eta + 1)^2} 
 		\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\}
 		: 
 		f(a) = f(a') + 1 \Rightarrow \Phi \land s_1\langle 1 \rangle) 
@@ -1661,7 +1656,7 @@ Then, we have following derivation for this case:
 	\vary_1 = \round{\varx_1}_{\Lambda};
 	\varz_1 = \clamp_B (\vary_1)
 	\\
-	\sim_{\epsilon(23 \eta B + 1)} 
+	\sim_{\epsilon(\eta + 1)^2} 
 	\varu_2 \samplel \uniform(0,1); s_2 = \samplel \uniform\{-1, 1\};
 	\varx_2 = f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)
 	\vary_2 = \round{\varx_2}_{\Lambda};
@@ -1669,7 +1664,7 @@ Then, we have following derivation for this case:
 	: 
 	f(a) = f(a') + 1
 	\Rightarrow 
-	\varz_1\langle 1 \rangle = -B \imply \varz_2\langle 2 \rangle = -B
+	\varz_1\langle 1 \rangle = v \imply \varz_2\langle 2 \rangle = v
 }~\textbf{Seq}
 \\
 \Pi_R:
@@ -1726,8 +1721,8 @@ Then, we have following derivation for this case:
 	:
 	f(a) = f(a') + 1 \land \Phi \land s_1\langle 1 \rangle) = s_2\langle 2 \rangle)
 	\Rightarrow 
-	\varz^1_1\langle 1 \rangle = -B
-	\imply  = \varz_2^1\langle 2 \rangle) = -B
+	\varz^1_1\langle 1 \rangle = v
+	\imply  = \varz_2^1\langle 2 \rangle) = v
 }~\textbf{Seq}
 \\
 \Delta_R:
@@ -1767,8 +1762,8 @@ Then, we have following derivation for this case:
 		\vary^1_2\langle 2 \rangle < - (b + \Lambda)
 		\\\\  
 		\Rightarrow 
-			\varz^1_1\langle 1 \rangle = -B
-	\imply  = \varz_2^1\langle 2 \rangle = -B
+			\varz^1_1\langle 1 \rangle = v
+	\imply  = \varz_2^1\langle 2 \rangle = v
 	}~\textbf{Null}
 }
 {
@@ -1782,8 +1777,8 @@ Then, we have following derivation for this case:
 		\imply 
 		0 < \Big(\varx_2\langle 2 \rangle \Big)^1 < - (b + \frac{\Lambda}{2})
 	\Rightarrow 
-	\varz^1_1\langle 1 \rangle = -B
-	\imply  = \varz_2^1\langle 2 \rangle = -B
+	\varz^1_1\langle 1 \rangle = v
+	\imply  = \varz_2^1\langle 2 \rangle = v
 }
 \end{mathpar}
 }
@@ -1796,6 +1791,7 @@ u^1_1\langle 1 \rangle < \rvalR_1 \imply
 \\
 $\Phi' \triangleq 
 \Phi[\varx_1/f(a) + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_1), \varx_2/f(a') + \frac{1}{\epsilon} \times s_2 \times \ln (\varu_2)] $
+%
 %
 	\subcaseL{
 	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } ~ (\star_1)$}
