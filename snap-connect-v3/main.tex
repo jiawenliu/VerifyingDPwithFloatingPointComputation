@@ -712,9 +712,11 @@ By induction on the judgment $\vdash \prog_1
 	Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved.
 	%
 	\caseL{[\textsc{Null}] }
-	\caseL{[\textsc{Assn}] }
-	\caseL{[\textsc{Seq}] }
-	\caseL{[\textsc{ConSeq}] }
+	%
+	This case is obviously proved by picking the witnesses be the joint distribution of two $\muniform(0, 1)$s.
+	%
+	The support of witnesses are on the relation of equality.
+	%
 	\end{itemize}
 \end{proof}
 %
@@ -1560,12 +1562,12 @@ Then, we have $\Phi' \Rightarrow  0 < \Big(\varx_1\langle 1 \rangle\Big)^1 < -(b
 %
 %
 \caseL{
-	$\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
+	$\boldsymbol{\valv \in (-B, \round{f(a')}_{\Lambda})} ~ (\star) $
 	}
 	%
 	\subcaseL{
-	$\boldsymbol{\round{f(a)}_{\Lambda} \leq 0 
-	\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1)$
+	$\boldsymbol{\round{f(a')}_{\Lambda} \leq 0 
+	\lor \bigg( \round{f(a')}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1)$
 	}
 	%
 	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
@@ -1794,7 +1796,7 @@ $\Phi' \triangleq
 %
 %
 \subcaseL{
-	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv \in (0, \round{f(a)}_{\Lambda}) } ~ (\star_1)$}
+	$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \land \valv \in (0, \round{f(a')}_{\Lambda}) } ~ (\star_1)$}
 %
 	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
 		$\valv_2 = \valv + (\frac{\Lambda}{2})$, 
@@ -1857,7 +1859,7 @@ u^1_1\langle 1 \rangle < \rvalR_1 \imply
 Then, we have the following derivation exactly the same as previous cases.
 %
 %
-\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \land \valv = 0 } $}
+\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \land \valv = 0 } $}
 	%
 	Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
 	$\valv_2 = \valv  + (\frac{\Lambda}{2})$,
@@ -1922,68 +1924,113 @@ u^1_1\langle 1 \rangle < \rvalR_1 \imply
 }
 Then, we have the following derivation exactly the same as previous cases.
 	%
-	\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
+	\caseL{$\boldsymbol{\valv = \round{f(a')}_{\Lambda}}$}
 	%
-	There are 3 subcases by induction on $\round{f(a)}_{\Lambda}$:
-		$\round{f(a)}_{\Lambda} < 0$, $\round{f(a)}_{\Lambda} = 0$ and $\round{f(a)}_{\Lambda} > 0$. 
+	There are 3 subcases by induction on $\round{f(a')}_{\Lambda}$:
+	$\round{f(a')}_{\Lambda} < 0$, $\round{f(a')}_{\Lambda} = 0$ and $\round{f(a')}_{\Lambda} > 0$. 
+		\\
+		%
+	Without loss of generalization, 
+	we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a')}_{\Lambda} < 0$.
 		%
 		\\
 		%
-		Without loss of generalization, we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.
+	Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$, we know $\valv_1 < 0$, $\valv_2 < 0$.
 		%
-		\\
-		%
-		Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$, we know $\valv_1 < 0$, $\valv_2 < 0$.
-		%
-		For input $a$, by \textbf{ Lemma. 3}, \textbf{ Lemma. 7 and  8} from the Flopt Version, we have:
-		 $s = 1$ or $-1$ and $\rvalR_1 = \rvalR_2 = 1$.
+	By \textbf{ Lemma. 3}, \textbf{ Lemma. 7 and  8} from the Flopt Version, we have:
+	$s = 1$ or $-1$ and $\rvalR_2 = 1$.
 	%
-	\subcaseL{$s = 1$}
+	\\
 	%
 	Let $\rvalL_1 = e^{\epsilon 
-					\big( (\valv_1(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$,
+			(\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2})}$,
 	$\rvalL_2 = e^{\epsilon 
-					\big((f(a') - \valv_1(1 + \eta)) (1 + \eta)^2) \big)}$, 
+			(\frac{(\frac{\valv_1}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$, 
 	$\rvalR_1 = e^{\epsilon 
-			(\frac{(\frac{\valv_2}{1 + \eta} - f(a))}{(1 + \eta)^2})}$
-	and $\rvalR_2 = e^{\epsilon 
-			(\frac{ f(a') - \frac{\valv_2}{1 + \eta}}{(1 + \eta)^2})}$.
+					\big((f(a) - \valv_2(1 + \eta)) (1 + \eta)^2) \big)}$
+	and $\rvalR_2 = 1$.
 	By the calculation in the Flopt Version proof, we have:
 	\[
 		e^0 < \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
 		\leq e^{\epsilon(12 \eta B + 1)} .
 	\]
 	%
-	We also have:
-	$e^0 < \frac{\rvalR_2}{\rvalL_2} \leq e^{3\epsilon \eta B}$.
-	\\
-	Since $ \epsilon(12 \eta B + 1) + 3 \epsilon \eta B < e^{\epsilon(23 \eta B + 1)}$, 
+	\\	
 	%
-	we have the derivation exactly the same as previous cases.
+	Then we have the derivation exactly the same as previous cases.
 	%
-	\subcaseL{$s = -1$}
 	%
 	\caseL{
-	$\boldsymbol{\valv \in (\round{f(a)}_{\Lambda}, \round{f(a')}_{\Lambda})}$
+	$\boldsymbol{\valv \in (\round{f(a')}_{\Lambda}, \round{f(a)}_{\Lambda})}$
 	}
 	%
-	\caseL{$\boldsymbol{\valv = \round{f(a')}_{\Lambda}}$}
+	\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
 	%
 	\subcaseL{$s = 1$}
 	%
 	\subcaseL{$s = -1$}
 	%
-	\caseL{$\boldsymbol{\valv \in  (\round{f(a')}_{\Lambda}, B)}$}
+	\caseL{$\boldsymbol{\valv \in  (\round{f(a)}_{\Lambda}, B)}$}
 	%
 	\subcaseL{
-	$\boldsymbol{\round{f(a')}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land \valv \in  (0, B)}$}
+	$\boldsymbol{\round{f(a)}_{\Lambda} > 0 \lor \round{f(a')}_{\Lambda} < 0 \land \valv \in  (0, B)}$}
 	%
-	\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land \valv \in  (\round{f(a')}_{\Lambda}, 0)}$}
+	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} < 0 \land \valv \in  (\round{f(a)}_{\Lambda}, 0)}$}
 	%
-	\subcaseL{$\boldsymbol{\round{f(a')}_{\Lambda} < 0 \land \valv = 0}$}
+	\subcaseL{$\boldsymbol{\round{f(a)}_{\Lambda} < 0 \land \valv = 0}$}
 	%
 	\caseL{$\boldsymbol{\valv = B}$}
 	%
+	Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$.
+%
+\\
+Let $\rvalL_1 = \rvalL_2 = 0$, 
+$\rvalR_1 = e^{\epsilon 
+		(f(a) - (b + \Lambda / 2)/(1 + \eta))(1 + \eta)^2}$
+and $\rvalR_2 = e^{\epsilon 
+		(f(a') - (b + \Lambda / 2)/(1 + \eta))(1 + \eta)^2}$.
+		\\
+Then we have following derivation for this case:
+
+{\tiny
+\begin{mathpar}
+	\inferrule
+	{
+		\inferrule
+		{
+			\forall \rvalL, \rvalR \in (0, 1]
+		}
+		{	\varu_1 \samplel \uniform(0,1)
+			\sim_{\epsilon(1 + \eta)^2} 
+			\varu_2 \samplel \uniform(0,1)
+			: 
+			f(a) = f(a') + 1
+			\Rightarrow 
+			\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR \imply 
+			\Big(e^{-\epsilon(1 + \eta)^2}\rvalL \leq u^1_2\langle 2 \rangle \leq e^{-\epsilon(1 + \eta)^2} \land u^1_2\langle 2 \rangle \leq \rvalR \Big)
+		}~\textbf{Unif+}
+		\\ 
+		f(a) = f(a') + 1 \Rightarrow f(a) = f(a') + 1
+		\and
+		\rvalL \leq u^1_1\langle 1 \rangle \leq \rvalR 
+		\imply 
+		\Big(e^{-\epsilon(1 + \eta)^2}\rvalL \leq u^1_2\langle 2 \rangle \leq e^{-\epsilon(1 + \eta)^2} \land u^1_2\langle 2 \rangle \leq \rvalR \Big)
+		\Rightarrow
+		0 < u^1_1\langle 1 \rangle < \rvalR_1 \imply 
+		0 < u^1_2\langle 2 \rangle < \rvalR_2
+	}
+	{
+		\varu_1 \samplel \uniform(0,1)
+		\sim_{\epsilon(1 + \eta)^2} 
+		\varu_2 \samplel \uniform(0,1)
+		: 
+		f(a) = f(a') + 1
+		\Rightarrow 
+		0 < u^1_1\langle 1 \rangle < \rvalR_1 \imply 
+		0 < u^1_2\langle 2 \rangle < \rvalR_2
+	}~\textbf{Conseq}
+\end{mathpar}
+}
 \end{itemize}
 
 
