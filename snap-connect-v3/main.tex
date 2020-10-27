@@ -132,14 +132,14 @@ $\trsmem, \prog \trsto \trsmem'$ represents given and environment $\trsmem$,
 %
 the program $\prog$ is transited to a new environment $\trsmem'$.
 %
-The $\muniform(0, 1] \in \distr(\float)$ is the uniform distribution over floating point values ranging over $(0, 1]$.
+The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution over floating point values ranging over $(0, 1]$.
 %
 %
 \section{Judgement and Validity}
 %
 \begin{defn}
 [$\epsilon-$lifting \cite{barthe2016proving}]
-Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$ are related by the $\epsilon-$lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
+Two sub-distributions $\mu_1 \in \distr(\mathcal{D}_1)$, $\mu_2 \in \distr(\mathcal{D}_2)$ are related by the $\epsilon-$lifting of $\Psi \subseteq \mathcal{D}_1 \times \mathcal{D}_2$, written $\mu_1 \Psi^{\#(\epsilon)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(\mathcal{D}_1 \times \mathcal{D}_2)$ and $\mu_R \in \distr(\mathcal{D}_1 \times \mathcal{D}_2)$ s.t.:
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
 	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
@@ -178,22 +178,22 @@ where $\mathcal{X}$ is a finite set of variable names.
 \[
 \begin{array}{llll}
 %
-\mbox{Bool Expression} & \bexp & :: = & 
-\expr^{i}\langle 1 / 2 \rangle = \expr^i\langle 1 / 2 \rangle 
- ~|~ \expr^i\langle 1 / 2 \rangle < \expr^i\langle 1 / 2 \rangle) \\
- & & &
+	%
+%
+\mbox{Assert.} & \mathcal{A} & ::= & 
+\expr^{i} \langle 1 / 2 \rangle = \expr^i\langle 1 / 2 \rangle 
+ ~|~ \expr^i\langle 1 / 2 \rangle < \expr^i\langle 1 / 2 \rangle) 
+%  \\
+% & & &
  ~|~ \expr^i\langle 1 / 2 \rangle \leq \expr^i\langle 1 / 2 \rangle
  ~|~ \expr^i\langle 1 / 2 \rangle \lameq \expr^i\langle 1 / 2 \rangle
 	\\
-	%
-& & &
- ~|~ \expr^i\langle 1 / 2 \rangle = \expr^i\langle 1 / 2 \rangle
- ~|~ \expr^i\langle 1 / 2 \rangle \neq \expr^i\langle 1 / 2 \rangle
-	\\
-%
-\mbox{Assert.} & \mathcal{A} & ::= & \top ~|~ \bot ~|~ \bexp 
-	~|~ \bexp \land \bexp ~|~ \bexp \lor \bexp ~|~ \neg \bexp
+ & & &
+~|~  \top ~|~ \bot
+	~|~ \mathcal{A} \land \mathcal{A} ~|~ \mathcal{A} \lor \mathcal{A} ~|~ \neg \mathcal{A}
 	~|~ \mathcal{A} \imply \mathcal{A}
+	~|~ \forall L \in \mathcal{D}. ~ \mathcal{A}
+	~|~ \exists L \in \mathcal{D}. ~ \mathcal{A}
 \end{array}
 \]
 %
@@ -201,47 +201,43 @@ We typically use capital Greek letters ($\Phi, \Psi, \cdots$) for predicates.
 %
 $\expr\langle 1 / 2 \rangle$ denotes an expression where program variables are tagged with $\langle 1 \rangle$ or $\langle 2 \rangle$.
 %
-$\expr^i\langle 1 / 2 \rangle$ represents an expression where program variables are projected to the $i^{th}$ value from its triples, where $i \in \{1, 2, 3\}$.
+$\expr^i\langle 1 / 2 \rangle$ represents an expression where program variables are projected to the $i^{th}$ value from its triples, where $i \in \{1, 2, 3\}$. $\mathcal{D}$ is a specfic domain, it could be integers, $\real$, $\float$ or range of intergers, $\real$, $\float$, etc.
+%
 %
 \paragraph{Assertion Interpretation.} Assertions are interpreted as relations between environments, i.e., set of paired environments. Let $\Phi$ be an assertion,
 %
-by the definition of $\mathcal{A}$, we have $\sem{\bexp}$ as:
+by the definition of $\mathcal{A}$, we have $\sem{\mathcal{A}}$ as:
 \\
 $\sem{\expr^i\langle 1 \rangle 
 = \expr^i\langle 2 \rangle} = 
 \{(\trsmem_1, \trsmem_2) 
 ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-= \sem{\expr}_{\trsmem_2})^i \};
+= (\sem{\expr}_{\trsmem_2})^i \};
 %
 ~~~~~~~
-\sem{\expr^i\langle 1 \rangle) 
-< \expr^i\langle 2 \rangle)} = 
+\sem{\expr^i\langle 1 \rangle 
+< \expr^i\langle 2 \rangle} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-< \sem{\expr}_{\trsmem_2})^i \}$;
+< (\sem{\expr}_{\trsmem_2})^i \}$;
 %
 \\
-$\sem{\expr^i\langle 1 \rangle) 
-\leq \expr^i\langle 2 \rangle)} = 
+$\sem{\expr^i\langle 1 \rangle 
+\leq \expr^i\langle 2 \rangle} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-\leq \sem{\expr}_{\trsmem_2})^i \};
+\leq (\sem{\expr}_{\trsmem_2})^i \};
 %
-~~~~~
-\sem{\expr^i\langle 1 \rangle) 
-\lameq \expr^i\langle 2 \rangle)} = 
+~~~~~~~
+\sem{\expr^i\langle 1 \rangle 
+\lameq \expr^i\langle 2 \rangle} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-\lameq \sem{\expr}_{\trsmem_2})^i \}$
-%
-\\
-$\sem{\expr^i\langle 1 \rangle) 
-\neq \expr^i\langle 2 \rangle)} = 
-\{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-\neq \sem{\expr}_{\trsmem_2})^i \}$
+\lameq (\sem{\expr}_{\trsmem_2})^i \};$
 %
 \\
-$\sem{\expr^i\langle 1 \rangle) 
-= \expr^i\langle 2 \rangle)} = 
+$\sem{\expr^i\langle 1 \rangle
+\neq \expr^i\langle 2 \rangle} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-= \sem{\expr}_{\trsmem_2})^i \}$
+\neq (\sem{\expr}_{\trsmem_2})^i \};$
+%
 %
 \\
 $\sem{\top} = \{(\trsmem_1, \trsmem_2)\}$
@@ -250,18 +246,31 @@ $\sem{\top} = \{(\trsmem_1, \trsmem_2)\}$
 $\sem{\bot} = \{\}$
 %
 \\
-$\sem{\bexp_1 \land \bexp_2} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \in \sem{\bexp_1} \land 
-	(\trsmem_1, \trsmem_2) \in \sem{\bexp_2} \big\}$
+$\sem{\mathcal{A}_1 \land \mathcal{A}_2} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1} \land 
+	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2} \big\}$
 %
 \\
-$\sem{\bexp_1 \lor \bexp_2} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \in \sem{\bexp_1} \lor 
-	(\trsmem_1, \trsmem_2) \in \sem{\bexp_2} \big\}$
+$\sem{\mathcal{A}_1 \lor \mathcal{A}_2} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1} \lor 
+	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2} \big\}$
 %
 \\
-$\sem{\neg \bexp} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \notin \sem{\bexp} \big\}$
+$\sem{\neg \mathcal{A}} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \notin \sem{\mathcal{A}} \big\}$
+%
+\\
+$\sem{\mathcal{A}_1 \imply \mathcal{A}_2} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1} \imply 
+	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2} \big\}$
+%
+\\
+$\sem{\forall L \in \mathcal{D}. ~\mathcal{A}} = \big\{(\trsmem_1, \trsmem_2)
+~|~ \forall L \in \mathcal{D}. ~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}} \big\}$
+%
+\\
+$\sem{\exists L \in \mathcal{D}. ~\mathcal{A}} = \big\{(\trsmem_1, \trsmem_2)
+~|~ \exists L \in \mathcal{D}. ~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}} \big\}$
 %
 %
 %
@@ -287,8 +296,7 @@ Fig. \ref{fig:aprhl} presents the main rules from apRHL+ \cite{barthe2016proving
 The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness theorem.
 %
 \begin{figure}[ht]
-\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert, ~~ \Phi: Env \times Env \to bool}\\
-\boxed{ Value \times Value \times Value \to Value, ~~ i = 1, 2, 3}
+\boxed{\vdash: prog \times prog \times \real \times Assert \times Assert}
 \begin{mathpar}
 \inferrule
 {
@@ -345,17 +353,19 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \and
 \inferrule
 {
-\empty
+\forall \valv. \text{ a multiple of } \Lambda
 }
 {
 	\vdash 
 	\varx_1 = \round{\vary_1}_{\Lambda}	
 	\sim_{0} 
 	\varx_2 = \round{\vary_2}_{\Lambda}
-	: \vary_1 \langle 1 \rangle) \lameq 
-	(\vary_2 \langle 2 \rangle)
+	: \vary_1^1 \langle 1 \rangle \lameq \valv
+	\imply
+	\vary_2^1 \langle 2 \rangle \lameq \valv
 	\Rightarrow 
-	(\varx_2 \langle 2 \rangle) = (\varx_1 \langle 1 \rangle)
+	(\varx^1_1 \langle 1 \rangle = \valv) 
+	\imply (\varx^1_2 \langle 2 \rangle = \valv)
 }~\textbf{Round}
 \end{mathpar}
 \caption{Rules Extended from apRHL+}
@@ -986,7 +996,7 @@ where
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
 		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR
-		\right \}
+		\right \}	
 		$.
 	%
 \end{thm}
