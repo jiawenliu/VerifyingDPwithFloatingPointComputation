@@ -1063,33 +1063,28 @@ e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR)$,
  we have $R' \implies R$.
 %
 \\
-Then, we know ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2
-\implies {\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
-% \\
-Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
-%
-\\
 %
 Let $\mu_L, \mu_R \in \distr(\float \times \float)$ 
 be the two witness distribution s.t.:
-\[
-	{\mu_L}(x, y) = 
-	\begin{cases}
-	\edistr_1(\varx)
-	& x \cdot e^{-\epsilon} = y  \land x \in (0, 1]\\
-	0       & o.w.
-	\end{cases},
-~~~
-	{\mu_R}(x, y) = 
-	\begin{cases}
-	\edistr_2(y)
-	& x \cdot e^{-\epsilon} = y \land y \in (0, 1]\\
-	0       & o.w.
-	\end{cases},
-\]
-%
-%
-and their $\pdf.$ are defined as:
+% \[
+% 	{\mu_L}(x, y) = 
+% 	\begin{cases}
+% 	\edistr_1(\varx)
+% 	& x \cdot e^{-\epsilon} = y  \land x \in (0, 1]\\
+% 	0       & o.w.
+% 	\end{cases},
+% ~~~
+% 	{\mu_R}(x, y) = 
+% 	\begin{cases}
+% 	\edistr_2(y)
+% 	& x \cdot e^{-\epsilon} = y \land y \in (0, 1]\\
+% 	0       & o.w.
+% 	\end{cases},
+% \]
+% %
+% %
+% and 
+their $\pdf.$ are defined as:
 \[
 	\pdf_{\mu_L}(x, y) = 
 	\begin{cases}
@@ -1105,34 +1100,44 @@ and their $\pdf.$ are defined as:
 \]
 It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
 \begin{itemize}
-	\item $\supp(\mu_L) \in R' \land \supp(\mu_R) \in R'$
-
+	\item $\supp(\mu_L) \subseteq R \land \supp(\mu_R) \subseteq R$
+%
 	\begin{itemize}
-		\item $\supp(\mu_L) \subseteq R'$ 
+		\item $\supp(\mu_L) \subseteq R$ 
 		%
 		\\
 		% 
 		By definition of the $\pdf$ of $\mu_L$, 
-		$\forall \pdf_{\mu_R}(x, y) > 0$,
-		we have 
-		$x \cdot e^{-\epsilon} = y  \in R'$ 
+		$\supp(\mu_L) = \{(x, y) ~\vert~ \pdf_{\mu_L}(x, y) > 0\}$,
+		we have: 
+		\\
+		$\supp(\mu_L) = \{(x, y) ~\vert~ 
+		x = y \cdot e^{-\epsilon} \land x \in (0, 1]\}$.
+		\\  
+		Then we know $\supp(\mu_L) \subseteq R'$.
 		%
-		\\%
 		%
-		Then we can derive $\supp(\mu_L) \in R'$
+		Since $R' \subseteq R$, 
 		%
-		\item $\supp(\mu_R) \subseteq R'$
+		we can then derive $\supp(\mu_L) \subseteq R$.
+		%
+		\item $\supp(\mu_R) \subseteq R$
 		%
 		\\
 		%
-		By definition of the $\pdf$ of $\mu_L$, 
-		$\forall \pdf_{\mu_L}(x, y) > 0$,
-		we have
-		$x \cdot e^{-\epsilon} = y \in R'$ 
-		%
+		By definition of the $\pdf$ of $\mu_R$, 
+		$\supp(\mu_R) = \{(x, y) ~\vert~ \pdf_{\mu_R}(x, y) > 0\}$,
+		we have: 
 		\\
+		$\supp(\mu_R) = \{(x, y) ~\vert~ 
+		x = y \cdot e^{-\epsilon} \land y \in (0, 1]\}$
+		\\  
+		Then we know $\supp(\mu_R) \subseteq R'$. 
 		%
-		Then we can derive $\supp(\mu_L) \in R'$
+		%
+		Since $R' \subseteq R$, 
+		%
+		we can then derive $\supp(\mu_R) \subseteq R$.
 		%
 	\end{itemize}		
 %
@@ -1147,14 +1152,14 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\[
 			\pdf_{\projl(\mu_L)}(x) = 
 			\begin{cases}
-			\sum_{y}\pdf_{\uniform}(x) 
+			\sum_{y}\pdf_{\edistr_1}(x) 
 			& x \cdot e^{-\epsilon}  = y 
 			\land x \in [0, 1)\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(x) & \fvarx \in [0, 1)\\
+			\pdf_{\edistr_1}(x) & \fvarx \in [0, 1)\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -1169,14 +1174,14 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		\[
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
-			\sum_{x}\pdf_{\uniform}(y) 
+			\sum_{x}\pdf_{\edistr_2}(y) 
 			& x \cdot e^{-\epsilon} = y 
 			\land y \in (0, 1]\\
 			0       & o.w.
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\uniform}(y) & y \in (0, 1]\\
+			\pdf_{\edistr_2}(y) & y \in (0, 1]\\
 			0       & o.w.
 			\end{cases}
 			=
@@ -1210,11 +1215,11 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		 \begin{array}{ll}
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 & = 
-		 \sum_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\uniform}(y)\\
+		 \sum_{(x,y) \in S} \pdf_{\edistr_1}(x) - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\edistr_2}(y)\\
 		 & = 
-		 \sum_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon})\\ 
+		 \sum_{(x,y) \in S} \pdf_{\edistr_1}(x) - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\edistr_2}(x * e^{-\epsilon})\\ 
 		 & = 
-		 \sum_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \sum_{(x,y) \in S} \pdf_{\uniform}(x) 
+		 \sum_{(x,y) \in S} \pdf_{\edistr_1}(x) - e^{\epsilon}* e^{-\epsilon} \sum_{(x,y) \in S} \pdf_{\edistr_1}(x) 
 		 = 0 
 		 \end{array}
 		 \]
@@ -1226,7 +1231,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		 \[
 		 \Delta_{\epsilon}(\mu_L, \mu_R) 
 		 = 
-		 0 - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\uniform}(y) <0
+		 0 - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\edistr_2}(y) <0
 		 \]
 	 	\item[{\bf case}] o.w.:
 	 	%
