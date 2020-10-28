@@ -178,7 +178,16 @@ where $\mathcal{X}$ is a finite set of variable names.
 \[
 \begin{array}{llll}
 %
-	%
+%
+\mbox{Logic Expr.} & \mathcal{E} & ::= & \mathcal{L}
+	~|~ \mathcal{V}
+ 	~|~ \mathcal{E} + \mathcal{E}
+%  \\
+% & & &
+ ~|~ \mathcal{E} - \mathcal{E}
+ ~|~ \mathcal{E} \cdot \mathcal{E}
+ ~|~ \ln(\mathcal{E}) ~|~ -\mathcal{E} ~|~ e^{\mathcal{E}}
+	\\
 %
 \mbox{Assert.} & \mathcal{A} & ::= & 
 \expr^{i} \langle 1 / 2 \rangle = \expr^i\langle 1 / 2 \rangle 
@@ -187,6 +196,11 @@ where $\mathcal{X}$ is a finite set of variable names.
 % & & &
  ~|~ \expr^i\langle 1 / 2 \rangle \leq \expr^i\langle 1 / 2 \rangle
  ~|~ \expr^i\langle 1 / 2 \rangle \lameq \expr^i\langle 1 / 2 \rangle
+	\\
+ & & &
+~|~  \mathcal{E} = \mathcal{E} ~|~ \cdots
+~|~ \mathcal{E} =  \expr^{i} \langle 1 / 2 \rangle ~|~ \cdots
+~|~ \expr^{i} \langle 1 / 2 \rangle =  \mathcal{E} ~|~ \cdots
 	\\
  & & &
 ~|~  \top ~|~ \bot
@@ -202,6 +216,10 @@ We typically use capital Greek letters ($\Phi, \Psi, \cdots$) for predicates.
 $\expr\langle 1 / 2 \rangle$ denotes an expression where program variables are tagged with $\langle 1 \rangle$ or $\langle 2 \rangle$.
 %
 $\expr^i\langle 1 / 2 \rangle$ represents an expression where program variables are projected to the $i^{th}$ value from its triples, where $i \in \{1, 2, 3\}$. $\mathcal{D}$ is a specfic domain, it could be integers, $\real$, $\float$ or range of intergers, $\real$, $\float$, etc.
+\\
+The logic context are maps $\mathcal{L} \to \mathcal{V}$; usually written $\lmem$. The logic expression $\mathcal{E}$ is interpreted in a real computation way, such as:
+%
+$\sem{\mathcal{E}_1 + \mathcal{E}_2}_{\lmem} = \sem{\mathcal{E}_1}_{\lmem} + \sem{\mathcal{E}_2}_{\lmem}$, etc.
 %
 %
 \paragraph{Assertion Interpretation.} Assertions are interpreted as relations between environments, i.e., set of paired environments. Let $\Phi$ be an assertion,
@@ -209,68 +227,69 @@ $\expr^i\langle 1 / 2 \rangle$ represents an expression where program variables 
 by the definition of $\mathcal{A}$, we have $\sem{\mathcal{A}}$ as:
 \\
 $\sem{\expr^i\langle 1 \rangle 
-= \expr^i\langle 2 \rangle} = 
+= \expr^i\langle 2 \rangle}_{\lmem} = 
 \{(\trsmem_1, \trsmem_2) 
 ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
 = (\sem{\expr}_{\trsmem_2})^i \};
+~ \cdots; 
 %
-~~~~~~~
-\sem{\expr^i\langle 1 \rangle 
-< \expr^i\langle 2 \rangle} = 
-\{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-< (\sem{\expr}_{\trsmem_2})^i \}$;
+~~~~
 %
+\sem{\mathcal{E}_1
+= \mathcal{E}_2}_{\lmem} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \sem{\mathcal{E}_1}_{\lmem} 
+< \sem{\mathcal{E}_2}_{\lmem} \};
+~\cdots;
+%
+$
 \\
-$\sem{\expr^i\langle 1 \rangle 
-\leq \expr^i\langle 2 \rangle} = 
+$
+%
+\sem{\expr^i\langle 1 \rangle 
+< \mathcal{E}}_{\lmem} = 
 \{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
+< \sem{\mathcal{E}}_{\lmem} \};
+~\cdots;
+%
+~~~~~~~~~~~~~~
+\sem{\mathcal{E} 
+\leq \expr^i\langle 2 \rangle}_{\lmem} = 
+\{(\trsmem_1, \trsmem_2) ~|~ \sem{\mathcal{E}}_{\lmem}
 \leq (\sem{\expr}_{\trsmem_2})^i \};
 %
+~\cdots;$
+%
+\\
+$
+\sem{\mathcal{A}_1 \land \mathcal{A}_2}_{\lmem} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1}_{\lmem} \land 
+	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2}_{\lmem} \big\};
 ~~~~~~~
-\sem{\expr^i\langle 1 \rangle 
-\lameq \expr^i\langle 2 \rangle} = 
-\{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-\lameq (\sem{\expr}_{\trsmem_2})^i \};$
+\sem{\top}_{\lmem} = \{(\trsmem_1, \trsmem_2)\};
+~~~~~~~~~~
+\sem{\bot}_{\lmem}  = \{\};
+$
 %
 \\
-$\sem{\expr^i\langle 1 \rangle
-\neq \expr^i\langle 2 \rangle} = 
-\{(\trsmem_1, \trsmem_2) ~|~ (\sem{\expr}_{\trsmem_{1}})^i 
-\neq (\sem{\expr}_{\trsmem_2})^i \};$
-%
-%
-\\
-$\sem{\top} = \{(\trsmem_1, \trsmem_2)\}$
+$\sem{\mathcal{A}_1 \lor \mathcal{A}_2}_{\lmem} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1}_{\lmem} \lor 
+	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2}_{\lmem} \big\};
+	~~~~~~~
+\sem{\neg \mathcal{A}}_{\lmem} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \notin \sem{\mathcal{A}}_{\lmem} \big\};$
 %
 \\
-$\sem{\bot} = \{\}$
+$\sem{\mathcal{A}_1 \imply \mathcal{A}_2}_{\lmem} = \big\{(\trsmem_1, \trsmem_2)
+~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1}_{\lmem} \imply 
+	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2}_{\lmem} \big\};$
 %
 \\
-$\sem{\mathcal{A}_1 \land \mathcal{A}_2} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1} \land 
-	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2} \big\}$
+$\sem{\forall L \in \mathcal{D}. ~\mathcal{A}}_{\lmem} = \big\{(\trsmem_1, \trsmem_2)
+~|~ \forall v \in \mathcal{D}. ~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}}_{\lmem[L \to v]} \big\};$
 %
 \\
-$\sem{\mathcal{A}_1 \lor \mathcal{A}_2} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1} \lor 
-	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2} \big\}$
-%
-\\
-$\sem{\neg \mathcal{A}} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \notin \sem{\mathcal{A}} \big\}$
-%
-\\
-$\sem{\mathcal{A}_1 \imply \mathcal{A}_2} = \big\{(\trsmem_1, \trsmem_2)
-~|~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_1} \imply 
-	(\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}_2} \big\}$
-%
-\\
-$\sem{\forall L \in \mathcal{D}. ~\mathcal{A}} = \big\{(\trsmem_1, \trsmem_2)
-~|~ \forall L \in \mathcal{D}. ~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}} \big\}$
-%
-\\
-$\sem{\exists L \in \mathcal{D}. ~\mathcal{A}} = \big\{(\trsmem_1, \trsmem_2)
-~|~ \exists L \in \mathcal{D}. ~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}} \big\}$
+$\sem{\exists L \in \mathcal{D}. ~\mathcal{A}}_{\lmem} = \big\{(\trsmem_1, \trsmem_2)
+~|~ \exists v \in \mathcal{D}. ~ (\trsmem_1, \trsmem_2) \in \sem{\mathcal{A}}_{\lmem[L \to v]} \big\}.$
 %
 %
 %
@@ -297,10 +316,11 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 %
 \begin{figure}[ht]
 \boxed{\vdash: prog \times prog \times \real \times Assert \times Assert}
+{\small
 \begin{mathpar}
 \inferrule
 {
-	\forall \rvalL, \rvalR \in [0,1]^{\real}
+	\empty
 }
 {
 	\vdash
@@ -310,6 +330,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	:
 	\top
 	\Rightarrow
+	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
 	\imply
 	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
@@ -368,6 +389,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	\imply (\varx^1_2 \langle 2 \rangle = \valv)
 }~\textbf{Round}
 \end{mathpar}
+}
 \caption{Rules Extended from apRHL+}
 \label{fig:aprhlplus}
 \end{figure}
@@ -446,10 +468,10 @@ By induction on the judgment $\vdash \prog_1
 \prog_2 :
 \Phi_0 \Rightarrow \Phi $, we have following cases:
 \begin{itemize}
-\caseL{\[
+\caseL{{\small\[
 \inferrule
 {
-	\forall \rvalL, \rvalR \in (0,1]^{\real}
+	\empty
 }
 {
 	\vdash
@@ -459,12 +481,13 @@ By induction on the judgment $\vdash \prog_1
 	:
 	\top
 	\Rightarrow
+	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
 			\imply
 	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon} \rvalR
 	\land \vary^1 \langle 2 \rangle \leq 1)	
 }~\textbf{unif+}
-\]}
+\]}}
 	In this case, 
 	assume $m_1, m_2$, $\rvalL, \rvalR \in (0,1]^{\real}$, s.t.,
 	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition
@@ -494,6 +517,7 @@ By induction on the judgment $\vdash \prog_1
 	\left \{
 	(m_1, m_2)
 	~ \left \vert ~
+	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 	\rvalL \leq \sem{\varx}_{\trsmem_1}^1 \leq \rvalR
 	\imply
 	(e^{\epsilon} \rvalL \leq \sem{\vary}_{\trsmem_2}^1 \leq e^{\epsilon}\rvalR
@@ -516,6 +540,7 @@ By induction on the judgment $\vdash \prog_1
 	(\fvalw_{(\rvalw_{l}, \rvalw_{u})}) = \sem{y}_{m_2}
 	\land
 	\\
+	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 	\rvalL \leq \fvalv \leq \rvalR
 	\imply
 	(e^{\epsilon} \rvalL \leq 
@@ -572,7 +597,8 @@ By induction on the judgment $\vdash \prog_1
 	\[
 		R = 
 		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
-		~|~
+		~\vert~
+		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
 		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
@@ -695,6 +721,7 @@ By induction on the judgment $\vdash \prog_1
 		R = 
 		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
 		~|~
+		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
 		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
@@ -713,6 +740,7 @@ By induction on the judgment $\vdash \prog_1
 		R = 
 		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
 		~|~
+		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \fval_1 \leq \rvalR
 		\imply
 		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR
@@ -742,6 +770,7 @@ where
 	$	R = 
 		\left \{(\varx, \vary) \in (0,1]^{\float} \times (0,1]^{\float} 
 		~|~
+		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \varx \leq \rvalR
 		\imply
 		(e^{\epsilon} \rvalL \leq \vary \leq 	e^{\epsilon} \rvalR
@@ -754,48 +783,9 @@ where
 \begin{proof}[Proof of Theorem \ref{thm:unif+_coupling}]
 %
 Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is equivalent to show 
-${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$
+${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
 %
-where $\edistr_1$ and $\edistr_2$ are uniform distribution over $(0, 1]$ whoes $\pdf.$ is defined as:
-\[
-	\pdf_{\edistr_1}(x) = 
-	\begin{cases}
-	1 & x \in (0, 1]^{\float} 
-	%\land \fvarx = \rvarx_1 = \rvarx_2
-	\\
-	0       & o.w.
-	\end{cases},
-	~~
-	\pdf_{\edistr_2}(y) = 
-	\begin{cases}
-	1 & y \in (0, 1]^{\float}
-	% \land \fvary = \rvary_1 = \rvary_2
-	\\
-	0       & o.w.
-	\end{cases},
-\]
 %
-Let $R' =
-		\left \{(\varx, \vary) \in (0, 1]^{\float} \times (0, 1]^{\float} 
-		~|~
-		(\varx \in (0, e^{-\epsilon}) \imply \vary =  e^{\epsilon}  \varx)
-		\land
-		(\varx \in [e^{-\epsilon}, 1] \imply \vary = 1 )
-		\right \}$.
-\\
-Since this can implies $
-\forall \rvalL, \rvalR \in (0,1]^{\real}. (
-\rvalL \leq \varx \leq \rvalR
-		\imply
-		(e^{\epsilon} \rvalL \leq \vary \leq 	e^{\epsilon} \rvalR
-		\land \vary \leq 1)$,
- we have $R' \implies R$.
-%
-\\
-Then, we know ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2
-\implies {\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
-% \\
-Then, it is enough to show ${\edistr_1} ~ {R'}^{\#(\epsilon)} ~ \edistr_2$.
 %
 \\
 %
@@ -839,30 +829,51 @@ their $\pdf.$ are defined as:
 It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
 \begin{itemize}
 	\item $\supp(\mu_L) \in R' \land \supp(\mu_R) \in R'$
-
+%
+\\
+%
+Let $R' =
+		\left \{(\varx, \vary) \in (0, 1]^{\float} \times (0, 1]^{\float} 
+		~|~
+		(\varx \in (0, e^{-\epsilon}) \imply \vary =  e^{\epsilon}  \varx)
+		\land
+		(\varx \in [e^{-\epsilon}, 1] \imply \vary = 1 )
+		\right \}$.
+		\\
+		Since this implies $
+		\forall \rvalL, \rvalR \in (0,1]^{\real}. (
+		\rvalL \leq \varx \leq \rvalR
+		\imply
+		(e^{\epsilon} \rvalL \leq \vary \leq 	e^{\epsilon} \rvalR
+		\land \vary \leq 1)$,
+ we have $R' \subseteq R$.
+%
+%
 	\begin{itemize}
-		\item $\supp(\mu_L) \subseteq R'$ 
+		\item $\supp(\mu_L) \subseteq R$ 
 		%
 		\\
 		% 
 		By definition of the $\pdf$ of $\mu_L$, 
-		$\forall \pdf_{\mu_R}(x, y) > 0$,
+		$\forall \pdf_{\mu_L}(x, y) > 0$,
 		we have: 
 		\\
 		$x = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon})\in R'$ 
 		and 
 		$x \in [e^{-\epsilon}, 1] \land y = 1 \in R'$
 		%
-		\\%
+		\\
 		%
-		Then we can derive $\supp(\mu_L) \in R'$
+		Since $R' \subseteq R$, 
 		%
-		\item $\supp(\mu_R) \subseteq R'$
+		we can then derive $\supp(\mu_L) \in R$
+		%
+		\item $\supp(\mu_R) \subseteq R$
 		%
 		\\
 		%
 		By definition of the $\pdf$ of $\mu_L$, 
-		$\forall \pdf_{\mu_L}(x, y) > 0$,
+		$\forall \pdf_{\mu_R}(x, y) > 0$,
 		we have
 		\\
 		$x = y \cdot e^{-\epsilon} \land y \in (0, 1)\in R'$ 
@@ -871,7 +882,9 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 		%
 		\\
 		%
-		Then we can derive $\supp(\mu_L) \in R'$
+		Since $R' \subseteq R$, 
+		%
+		we can then derive $\supp(\mu_L) \in R$
 		%
 	\end{itemize}		
 %
