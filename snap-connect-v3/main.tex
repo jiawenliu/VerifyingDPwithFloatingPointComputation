@@ -339,7 +339,7 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \and
 \inferrule
 {
-	\forall \rvalL, \rvalR \in [0,1]^{\real}
+	\empty
 }
 {
 	\vdash
@@ -349,9 +349,10 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	:
 	\top
 	\Rightarrow
-	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
-	\imply
-	e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR 	
+	\forall \rvalL, \rvalR \in [0,1]^{\real}.
+	(\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	 		\imply
+	 		e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR) 	
 }
 ~\textbf{Unif-}
 \and
@@ -762,7 +763,6 @@ By induction on the judgment $\vdash \prog_1
 \newpage
 \begin{thm}
 \label{thm:unif+_coupling}
-for any $\rvalL, \rvalR \in (0,1]^{\real}$, 
 %
 $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
@@ -1027,17 +1027,16 @@ Let $R' =
 %
 \begin{thm}
 \label{thm:unif-_coupling}
-for any $\rvalL, \rvalR \in (0,1]^{\real}$, 
-%
 $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
 where
-	$	R = 
+	$R = 
 		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
 		~|~
-		\rvalL \leq \fval_1 \leq \rvalR
-		\imply
-		e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR
+		\forall \rvalL, \rvalR \in (0,1]^{\real}.
+		(\rvalL \leq \fval_1 \leq \rvalR
+				\imply
+				e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR)
 		\right \}	
 		$.
 	%
@@ -1048,6 +1047,7 @@ where
 Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is equivalent to show 
 ${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
 %
+\\
 %
 Let $R' =
 		\left \{(\fval_1, \fval_2) \in {\float} \times {\float} 
@@ -1159,7 +1159,7 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 			\end{cases} 
 			= 
 			\begin{cases}
-			\pdf_{\edistr_1}(x) & \fvarx \in [0, 1)\\
+			\pdf_{\edistr_1}(x) & \varx \in [0, 1)\\
 			0       & o.w.
 			\end{cases}
 			=
