@@ -27,9 +27,10 @@ From Snapv
   Will ease reasoning about different instantiations later.
 **)
 Inductive command (V: Type) : Type :=
-  Assign : expr V -> expr V -> command V
-  | conq : command V -> command V -> command V
-  | sample : expr V -> expr V -> command V.
+    ASGN : expr V -> expr V -> command V
+  | SEQ : command V -> command V -> command V
+  | SAMPLE : expr V -> expr V -> command V
+  | SKIP : command V.
 
 
 

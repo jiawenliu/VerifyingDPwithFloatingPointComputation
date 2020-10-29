@@ -1,22 +1,3 @@
-(** * HoareAsLogic: Hoare Logic as a Logic *)
-
-(** The presentation of Hoare logic in chapter [Hoare] could be
-    described as "model-theoretic": the proof rules for each of the
-    constructors were presented as _theorems_ about the evaluation
-    behavior of programs, and proofs of program correctness (validity
-    of Hoare triples) were constructed by combining these theorems
-    directly in Coq.
-
-    Another way of presenting Hoare logic is to define a completely
-    separate proof system -- a set of axioms and inference rules that
-    talk about commands, Hoare triples, etc. -- and then say that a
-    proof of a Hoare triple is a valid derivation in _that_ logic.  We
-    can do this by giving an inductive definition of _valid
-    derivations_ in this new logic.
-
-    This chapter is optional.  Before reading it, you'll want to read
-    the [ProofObjects] chapter in _Logical
-    Foundations_ (_Software Foundations_, volume 1). *)
 
 
 From Coq
@@ -28,35 +9,40 @@ From Snapv
      Infra.RealSimps Infra.Ltacs Environments ErrorAnalysis ErrorBounds
      IntervalArithQ  TypeValidator.
 
+From Snapv
+     Require Import Command CommandSemantics
+
 From Snapv Require Import Hoare.
 From Snapv Require Import Imp.
 
 (* ################################################################# *)
 (** * Definitions *)
 
-Inductive hoare_proof : Assertion -> com -> com -> Assertion -> Type :=
+Inductive hoare_proof : Assertion -> command -> R -> command -> Assertion -> Type :=
   | H_Skip : forall P,
-      hoare_proof P (SKIP) P
-  | H_Asgn : forall Q V a,
-      hoare_proof (assn_sub V a Q) (V ::= a) Q
-  | H_Seq  : forall P c Q d R,
-      hoare_proof P c Q -> hoare_proof Q d R -> hoare_proof P (c;;d) R
-  | H_If : forall P Q b c1 c2,
-    hoare_proof (fun st => P st /\ bassn b st) c1 Q ->
-    hoare_proof (fun st => P st /\ ~(bassn b st)) c2 Q ->
-    hoare_proof P (IFB b THEN c1 ELSE c2 FI) Q
-  | H_While : forall P b c,
-    hoare_proof (fun st => P st /\ bassn b st) c P ->
-    hoare_proof P (WHILE b DO c END) (fun st => P st /\ ~ (bassn b st))
+      hoare_proof P (SKIP) 0 (SKIP) P
+  | H_Asgn : forall Q V1 a1 V2 a2,
+      hoare_proof (assn_sub V1 V2 a1 a2 Q) (ASGN V1 a1) 0 (ASGN V2 a2) Q
+  | H_Seq  : forall P c1 c2 Q d1 d2 R r1 r2,
+      hoare_proof P c1 r1 d1 Q -> hoare_proof Q c2 r2 d2 R 
+    -> hoare_proof P (SEQ c1 c2) (r1 + r2) (SEQ d1 d2) R
   | H_Consequence  : forall (P Q P' Q' : Assertion) c,
     hoare_proof P' c Q' ->
     (forall st, P st -> P' st) ->
     (forall st, Q' st -> Q st) ->
-    hoare_proof P c Q.
+    hoare_proof P c Q
+  | H_UnifP : forall V1 V2 eps,
+hoare_proof True (SAMPLE V1 (UNIF (0, 1))) eps (SAMPLE V2 (UNIF (0, 1)))
+ (forall l r, l < V1 < r -> eps * l < V2 < eps * r)
+  | H_UnifN : forall V1 V2 eps,
+hoare_proof True (SAMPLE V1 (UNIF (0, 1))) eps (SAMPLE V2 (UNIF (0, 1)))
+ (forall l r, l < V1 < r -> (-eps * l) < V2 < (-eps * r))
+  | H_Null : forall V1 V2 eps,
+hoare_proof True (SAMPLE V1 (UNIF (0, 1))) eps (SAMPLE V2 (UNIF (0, 1)))
+ ( V1 =  V2 )
+    .
 
-(** We don't need to include axioms corresponding to
-    [hoare_consequence_pre] or [hoare_consequence_post], because 
-    these can be proven easily from [H_Consequence]. *)
+
 
 Lemma H_Consequence_pre : forall (P Q P': Assertion) c,
     hoare_proof P' c Q ->
@@ -74,14 +60,7 @@ Proof.
   intros. eapply H_Consequence.
     apply X. intros. apply H0.  apply H. Qed.
 
-(** As an example, let's construct a proof object representing a
-    derivation for the hoare triple
 
-      {{(X=3) [X |-> X + 2] [X |-> X + 1]}}
-      X::=X+1 ;; X::=X+2 
-      {{X=3}}.
-
-    We can use Coq's tactics to help us construct the proof object. *)
 
 Example sample_proof :
   hoare_proof
@@ -92,29 +71,7 @@ Proof.
   eapply H_Seq; apply H_Asgn.
 Qed.
 
-(*
-Print sample_proof.
 
-====>
-  H_Seq
-  (((fun st : state => st X = 3) [X |-> X + 2]) [X |-> X + 1])
-  (X ::= X + 1)
-  ((fun st : state => st X = 3) [X |-> X + 2]) 
-  (X ::= X + 2)
-  (fun st : state => st X = 3)
-  (H_Asgn
-     ((fun st : state => st X = 3) [X |-> X + 2])
-     X (X + 1))
-  (H_Asgn
-     (fun st : state => st X = 3)
-     X (X + 2))
-*)
-
-(* ################################################################# *)
-(** * Properties *)
-
-(** **** Exercise: 2 stars (hoare_proof_sound)  *)
-(** Prove that such proof objects represent true claims. *)
 
 Theorem hoare_proof_sound : forall P c Q,
   hoare_proof P c Q -> {{P}} c {{Q}}.
@@ -129,19 +86,7 @@ induction X; subst.
 - apply hoare_while; try assumption.
 - apply hoare_consequence with P' Q'; try assumption.
 Qed.
-(** [] *)
 
-(** We can also use Coq's reasoning facilities to prove metatheorems
-    about Hoare Logic.  For example, here are the analogs of two
-    theorems we saw in chapter [Hoare] -- this time expressed in terms
-    of the syntax of Hoare Logic derivations (provability) rather than
-    directly in terms of the semantics of Hoare triples.
-
-    The first one says that, for every [P] and [c], the assertion
-    [{{P}} c {{True}}] is _provable_ in Hoare Logic.  Note that the
-    proof is more complex than the semantic proof in [Hoare]: we
-    actually need to perform an induction over the structure of the
-    command [c]. *)
 
 Theorem H_Post_True_deriv:
   forall c P, hoare_proof P c (fun _ => True).
@@ -213,21 +158,6 @@ Proof.
     intro. simpl. eapply False_and_P_imp.
 Qed.
 
-(** As a last step, we can show that the set of [hoare_proof] axioms
-    is sufficient to prove any true fact about (partial) correctness.
-    More precisely, any semantic Hoare triple that we can prove can
-    also be proved from these axioms.  Such a set of axioms is said to
-    be _relatively complete_.  Our proof is inspired by this one:
-
-      http://www.ps.uni-saarland.de/courses/sem-ws11/script/Hoare.html
-
-    To carry out the proof, we need to invent some intermediate
-    assertions using a technical device known as _weakest
-    preconditions_.  Given a command [c] and a desired postcondition
-    assertion [Q], the weakest precondition [wp c Q] is an assertion
-    [P] such that [{{P}} c {{Q}}] holds, and moreover, for any other
-    assertion [P'], if [{{P'}} c {{Q}}] holds then [P' -> P].  We can
-    more directly define this as follows: *)
 
 Definition wp (c:com) (Q:Assertion) : Assertion :=
   fun s => forall s', c / s \\ s' -> Q s'.
@@ -297,27 +227,3 @@ Proof.
      eapply IHc2. intros st st' E1 H. apply H; assumption.
   (* FILL IN HERE *) Admitted.
 (** [] *)
-
-(** Finally, we might hope that our axiomatic Hoare logic is
-    _decidable_; that is, that there is an (terminating) algorithm (a
-    _decision procedure_) that can determine whether or not a given
-    Hoare triple is valid (derivable).  But such a decision procedure
-    cannot exist!
-
-    Consider the triple [{{True}} c {{False}}]. This triple is valid
-    if and only if [c] is non-terminating.  So any algorithm that
-    could determine validity of arbitrary triples could solve the
-    Halting Problem.
-
-    Similarly, the triple [{{True}} SKIP {{P}}] is valid if and only if
-    [forall s, P s] is valid, where [P] is an arbitrary assertion of
-    Coq's logic. But it is known that there can be no decision
-    procedure for this logic. 
-
-    Overall, this axiomatic style of presentation gives a clearer
-    picture of what it means to "give a proof in Hoare logic."
-    However, it is not entirely satisfactory from the point of view of
-    writing down such proofs in practice: it is quite verbose.  The
-    section of chapter [Hoare2] on formalizing decorated programs
-    shows how we can do even better. *)
-
