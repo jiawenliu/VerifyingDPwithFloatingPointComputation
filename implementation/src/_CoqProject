@@ -11,6 +11,8 @@
 ./ErrorValidation.v
 ./OrderedExpressions.v
 ./IntervalArithQ.v
+./Imp.v
+./Hoare.v
 ./Infra/RealSimps.v
 ./Infra/Ltacs.v
 ./Infra/ExpressionAbbrevs.v

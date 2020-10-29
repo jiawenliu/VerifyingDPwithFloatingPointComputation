@@ -28,7 +28,6 @@ Definition binopEq (b1:binop) (b2:binop) :=
   | Div,  Div  => true
   | Round, Round => true
   | Clamp, Clamp => true
-                     
   | _,_ => false
   end.
 
@@ -233,10 +232,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
                  | Round, Clamp => Lt                                    
                  | Round, _ => Gt
                  | Clamp, Clamp => Eq
-                 | Clamp, _ => Gt
-                                
-                                    
-                               
+                 | Clamp, _ => Gt                               
                  end
       in
       match res with
@@ -320,8 +316,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
         destruct b1; try congruence;
           destruct (exprCompare e1_1 e2_1) eqn:?;
                    destruct (exprCompare e2_1 e3_1) eqn:?;
-                   try congruence; try erewrite IHe1_1; eauto.
-      
+                   try congruence; try erewrite IHe1_1; eauto.      
    (*  - destruct (exprCompare e1_1 e2_1) eqn:?;
         destruct (exprCompare e2_1 e3_1) eqn:?;
       destruct (exprCompare e1_2 e2_2) eqn:?;
@@ -448,8 +443,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
       rewrite IHe1_1 in *; simpl in *;
         rewrite CompOpp_iff in first_comp;
         rewrite first_comp; simpl; try auto.
-  Qed.
-  
+  Qed. 
  (*    - destruct (exprCompare e1_1 e2_1) eqn:first_comp;
       destruct (exprCompare e1_2 e2_2) eqn:second_comp;
       rewrite IHe1_1, IHe1_2 in *; simpl in *;
