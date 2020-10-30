@@ -15,7 +15,7 @@ From Snapv.Infra
      Require Export Abbrevs NatSet MachineType.
 
 From Snapv
-      Require Export Expression
+      Require Export Expressions.
 
 (**
   Expressions will use binary operators.
