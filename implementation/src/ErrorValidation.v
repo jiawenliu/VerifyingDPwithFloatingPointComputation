@@ -73,11 +73,17 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
                    (upperBoundE1 * errInv + upperBoundInvE2 * err1 + err1 * errInv) in
                Qleb (eProp + computeErrorQ mAbs m) err
              else false
+           | Round =>
+             let mAbs := (maxAbs (addIntv errIve1 errIve2)) in
+             Qleb (err1 + err2 + computeErrorQ mAbs m) err
+           | Clamp =>
+             let mAbs := (maxAbs (addIntv errIve1 errIve2)) in
+             Qleb (err1 + err2 + computeErrorQ mAbs m) err
            end
          | _, _ => false
          end
        else false
-      | Fma e1 e2 e3 =>
+(*      | Fma e1 e2 e3 =>
         if ((validErrorbound e1 typeMap A dVars)
               && (validErrorbound e2 typeMap A dVars)
               && (validErrorbound e3 typeMap A dVars))
@@ -125,7 +131,7 @@ Fixpoint validErrorbound (e:expr Q) (* analyzed exprression *)
             else false
           | _,_ => false
           end
-        else false
+        else false*)
       (* | Cond e1 e2 e3 => false *)
       end
     else false

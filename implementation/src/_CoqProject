@@ -13,6 +13,7 @@
 ./IntervalArithQ.v
 ./Imp.v
 ./Hoare.v
+./Maps.v
 ./Infra/RealSimps.v
 ./Infra/Ltacs.v
 ./Infra/ExpressionAbbrevs.v

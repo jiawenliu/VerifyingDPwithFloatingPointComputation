@@ -7,9 +7,10 @@ From Snapv
 
 Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
   (match e with
-   | Unop Inv e => False
+   | Unop Ln e => False
    | Unop Neg e => validErrorBoundsRec e E1 E2 A Gamma DeltaMap
-  | Downcast m e => validErrorBoundsRec e E1 E2 A Gamma DeltaMap
+(*  | Downcast m e => validErrorBoundsRec e E1 E2 A Gamma DeltaMap
+*)  
   | Binop b e1 e2 =>
     (b = Div ->
      (forall iv2 err,
@@ -19,7 +20,7 @@ Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
          ((Qleb 0 (ivlo errIv2)) && (negb (Qeq_bool (ivlo errIv2) 0))) = true)) /\
     validErrorBoundsRec e1 E1 E2 A Gamma DeltaMap /\
     validErrorBoundsRec e2 E1 E2 A Gamma DeltaMap
-  | Fma e1 e2 e3 =>
+(*  | Fma e1 e2 e3 =>
     validErrorBoundsRec e1 E1 E2 A Gamma DeltaMap /\
     validErrorBoundsRec e2 E1 E2 A Gamma DeltaMap /\
     validErrorBoundsRec e3 E1 E2 A Gamma DeltaMap
@@ -35,7 +36,8 @@ Fixpoint validErrorBoundsRec (e:expr Q) E1 E2 A Gamma DeltaMap :Prop :=
         eval_expr E1 (toRTMap (toRExpMap Gamma)) DeltaMapR (toREval (toRExp e1)) v__R REAL ->
         eval_expr E2 (toRExpMap Gamma) DeltaMap (toRExp e1) v__FP m ->
         validErrorBoundsRec e2 (updEnv x v__R E1) (updEnv x v__FP E2) A Gamma DeltaMap)
-      (*
+*)      
+(*
   | Cond e1 e2 e3 =>
     validErrorBounds e1 E1 E2 A Gamma DeltaMap /\
     validErrorBounds e2 E1 E2 A Gamma DeltaMap /\

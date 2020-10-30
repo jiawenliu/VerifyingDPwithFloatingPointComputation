@@ -3,6 +3,7 @@
   If we would put them in the Abbrevs file, this would create a circular dependency which Coq cannot resolve.
 **)
 Require Import Coq.QArith.QArith Coq.Reals.Reals Coq.QArith.Qreals Coq.QArith.QOrderedType Coq.FSets.FMapAVL Coq.FSets.FMapFacts Coq.Reals.ROrderedType Recdef.
+
 Require Export Snapv.Infra.Abbrevs Snapv.AffineForm Snapv.Expressions Snapv.Infra.Ltacs Snapv.OrderedExpressions.
 
 Module Q_orderedExps := ExprOrderedType (Q_as_OT).
@@ -33,7 +34,7 @@ Proof.
     destruct e3; congruence.
   - unfold unopEq in e5.
     destruct u1, u2; congruence.
-  - simpl in e5.
+(*  - simpl in e5.
     apply andb_false_iff in e5.
     apply Ndec.Pcompare_Peqb in e8.
     rewrite Pos.eqb_eq in e8; subst.
@@ -58,7 +59,7 @@ Proof.
     rewrite Pos.eqb_compare in e3.
     rewrite N.eqb_compare in e3.
     rewrite Heq, e7 in e3.
-    discriminate.
+    discriminate.*)
 Qed.
 
 Lemma Qcompare_Rcompare q1 q2:
@@ -92,8 +93,8 @@ Proof.
   - rewrite e5, IHc; auto.
   - rewrite e5, e6; auto.
   - rewrite e5, e6; auto.
-  - rewrite <- IHc, <- IHc0, e4, e3; auto.
-  - rewrite <- IHc, e3, <- IHc0, e4; auto.
+(*  - rewrite <- IHc, <- IHc0, e4, e3; auto.
+*)(*  - rewrite <- IHc, e3, <- IHc0, e4; auto.
   - rewrite <- IHc, e3, <- IHc0, e4; auto.
   - rewrite <- IHc, e3; auto.
   - rewrite <- IHc, e3; auto.
@@ -106,7 +107,7 @@ Proof.
   - rewrite <- IHc, e5; auto.
   - rewrite e7; auto.
   - rewrite e7; auto.
-  - rewrite e7; auto.
+  - rewrite e7; auto.*)
     (*
   - rewrite <- IHc, <- IHc0, e3, e4; auto.
   - rewrite <- IHc, <- IHc0, e3, e4; auto.
@@ -163,7 +164,8 @@ Proof.
     apply NatSet.eq_leibniz in IHc0.
     simpl.
     now rewrite IHc, IHc0.
-  - specialize (IHc e3).
+    Admitted.
+(*  - specialize (IHc e3).
     specialize (IHc0 e4).
     specialize (IHc1 Heq).
     apply NatSet.eq_leibniz in IHc.
@@ -191,7 +193,7 @@ Proof.
     rewrite Pos.eqb_compare in e3.
     rewrite N.eqb_compare in e3.
     rewrite Heq, e7 in e3.
-    discriminate.
+    discriminate.*)
     (*
   - specialize (IHc e3).
     specialize (IHc0 e4).
@@ -202,15 +204,16 @@ Proof.
     simpl.
     now rewrite IHc, IHc0, IHc1.
 *)
-Qed.
-
+(*Qed.
+*)
 Lemma freeVars_toREval_toRExp_compat e:
   freeVars (toREval (toRExp e)) = freeVars e.
 Proof.
   induction e; simpl; set_tac.
   - now rewrite IHe1, IHe2.
-  - now rewrite IHe1, IHe2, IHe3.
+(*  - now rewrite IHe1, IHe2, IHe3.
   - now rewrite IHe1, IHe2.
+*)  
   (* - now rewrite IHe1, IHe2, IHe3. *)
 Qed.
 
@@ -219,8 +222,9 @@ Lemma freeVars_toRExp_compat e:
 Proof.
   induction e; simpl; set_tac.
   - now rewrite IHe1, IHe2.
-  - now rewrite IHe1, IHe2, IHe3.
+(*  - now rewrite IHe1, IHe2, IHe3.
   - now rewrite IHe1, IHe2.
+*)  
   (* - now rewrite IHe1, IHe2, IHe3. *)
 Qed.
 
@@ -465,7 +469,8 @@ Proof.
   - rewrite IHc, IHc0; auto.
   - rewrite IHc, IHc0; auto.
   - rewrite IHc, IHc0; auto.
-  - apply Pos.compare_eq in e8; subst.
+    Admitted.
+(*  - apply Pos.compare_eq in e8; subst.
     apply N.compare_eq in H; subst.
     rewrite Pos.eqb_refl, N.eqb_refl in e5; simpl in *; congruence.
   - rewrite e4, IHc, IHc0; auto.
@@ -473,10 +478,10 @@ Proof.
     rewrite Pos.eqb_compare in e3.
     rewrite N.eqb_compare in e3.
     rewrite H, e7 in e3.
-    discriminate.
+    discriminate.*)
   (* - rewrite IHc, IHc0; auto. *)
-Qed.
-
+(*Qed.
+*)
 Lemma no_cycle_unop e:
   forall u, Q_orderedExps.exprCompare e (Unop u e) <> Eq.
   induction e; intros *;  cbn in *; try congruence.
@@ -484,7 +489,7 @@ Lemma no_cycle_unop e:
   destruct (unopEq u Neg); congruence.
 Qed.
 
-Lemma no_cycle_cast e:
+(*Lemma no_cycle_cast e:
   forall m, Q_orderedExps.exprCompare e (Downcast m e) <> Eq.
   induction e; intros *;  cbn in *; try congruence.
   destruct (mTypeEq m m0) eqn:?; try auto.
@@ -493,7 +498,7 @@ Lemma no_cycle_cast e:
   destruct (w ?= w0)%positive eqn:?; try congruence.
   apply Pos.compare_eq in Heqc.
   apply N.compare_eq in H; subst; congruence.
-Qed.
+Qed.*)
 
 Lemma no_cycle_binop_left e1:
   forall b e2, Q_orderedExps.exprCompare e1 (Binop b e1 e2) <> Eq.
@@ -515,30 +520,31 @@ Lemma no_cycle_binop_right e2:
       destruct (Q_orderedExps.exprCompare e2_1 e1) eqn:?; congruence.
 Qed.
 
-Lemma no_cycle_fma_left e1:
+(*Lemma no_cycle_fma_left e1:
   forall e2 e3, Q_orderedExps.exprCompare e1 (Fma e1 e2 e3) <> Eq.
 Proof.
   induction e1; intros *; cbn in *; try congruence;
     destruct (Q_orderedExps.exprCompare e1_1 (Fma e1_1 e1_2 e1_3)) eqn:?; congruence.
 Qed.
-
-Lemma no_cycle_fma_center e2:
+*)
+(*Lemma no_cycle_fma_center e2:
   forall e1 e3, Q_orderedExps.exprCompare e2 (Fma e1 e2 e3) <> Eq.
 Proof.
   induction e2; intros *; cbn in *; try congruence.
   destruct (Q_orderedExps.exprCompare e2_1 e1) eqn:?; try congruence.
     destruct (Q_orderedExps.exprCompare e2_2 (Fma e2_1 e2_2 e2_3)) eqn:?; congruence.
 Qed.
-
-Lemma no_cycle_fma_right e3:
+*)
+(*Lemma no_cycle_fma_right e3:
   forall e1 e2, Q_orderedExps.exprCompare e3 (Fma e1 e2 e3) <> Eq.
 Proof.
   induction e3; intros *; cbn in *; try congruence.
   destruct (Q_orderedExps.exprCompare e3_1 e1) eqn:?; try congruence.
   destruct (Q_orderedExps.exprCompare e3_2 e2) eqn:?; try congruence.
 Qed.
-
-Lemma no_cycle_let_left e1:
+*)
+  
+(*Lemma no_cycle_let_left e1:
   forall e2 x m, Q_orderedExps.exprCompare e1 (Let m x e1 e2) <> Eq.
 Proof.
   induction e1; intros *; cbn in *; try congruence.
@@ -589,7 +595,7 @@ Proof.
       destruct (w ?= w0)%positive eqn:?; simpl; try congruence.
       rewrite N.eqb_compare in *.
       destruct (f ?= f0)%N eqn:?; simpl in *; congruence.
-Qed.
+Qed.*)
 
 (*
 Lemma toRExpMap_toRTMap e Gamma m:

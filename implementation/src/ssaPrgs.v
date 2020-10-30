@@ -15,33 +15,6 @@ Lemma validVars_add V (e:expr V) Vs n:
   NatSet.Subset (freeVars e) (NatSet.add n Vs).
 Proof.
   set_tac.
-  (*
-  induction e; try auto.
-  - intros valid_subset.
-    hnf. intros a in_singleton.
-    specialize (valid_subset a in_singleton).
-    rewrite NatSet.add_spec; right; auto.
-  - intros vars_binop.
-    simpl in *.
-    intros a in_empty.
-    inversion in_empty.
-  - simpl; intros in_vars.
-    intros a in_union.
-    rewrite NatSet.union_spec in in_union.
-    destruct in_union.
-    + apply IHe1; try auto.
-      hnf; intros.
-      apply in_vars.
-      rewrite NatSet.union_spec; auto.
-    + apply IHe2; try auto.
-      hnf; intros.
-      apply in_vars.
-      rewrite NatSet.union_spec; auto.
-  - intros vars_fma.
-    simpl in *.
-    intros a used_vars.
-    firstorder.
-*)
 Qed.
 
 (*
@@ -113,22 +86,24 @@ Inductive ssa (V:Type): (expr V) -> NatSet.t -> NatSet.t -> Prop :=
     ssa e2 inVars outVars2 ->
     NatSet.Subset (NatSet.union outVars1 outVars2) outVars3 ->
     ssa (Binop b e1 e2) inVars outVars3
-| ssaFma e1 e2 e3 inVars outVars1 outVars2 outVars3 outVars4:
+(*| ssaFma e1 e2 e3 inVars outVars1 outVars2 outVars3 outVars4:
     ssa e1 inVars outVars1 ->
     ssa e2 inVars outVars2 ->
     ssa e3 inVars outVars3 ->
     NatSet.Subset (NatSet.union outVars1 (NatSet.union outVars2 outVars3))
                   outVars4 ->
     ssa (Fma e1 e2 e3) inVars outVars4
-| ssaDowncast m e inVars outVars:
+*)
+(*  | ssaDowncast m e inVars outVars:
     ssa e inVars outVars ->
     ssa (Downcast m e) inVars outVars
-| ssaLet m x e s inVars outVars1 outVars2 outVars3:
+*)
+  (*| ssaLet m x e s inVars outVars1 outVars2 outVars3:
     NatSet.mem x inVars = false ->
     ssa e inVars outVars1 ->
     ssa s (NatSet.add x inVars) outVars2 ->
     NatSet.Subset (NatSet.union outVars1 outVars2) outVars3 ->
-    ssa (Let m x e s) inVars outVars3
+    ssa (Let m x e s) inVars outVars3*)
         (*
 | ssaCond e1 e2 e3 inVars outVars:
     ssa e1 inVars outVars ->
@@ -145,9 +120,10 @@ Proof.
   intros ssa_f; induction ssa_f; cbn; try now set_tac.
   - intros n ?. set_tac. now subst.
   - intros n. set_tac. intros [?|?]; auto.
-  - intros n. set_tac. intros [?|[?|?]]; auto.
+(*  - intros n. set_tac. intros [?|[?|?]]; auto.
   - intros n. set_tac. intros [?|[? ?]]; auto.
     eapply NatSetProps.Dec.F.add_3; eauto.
+*)  
   (* - intros n. set_tac. intros [?|[?|?]]; auto. *)
 Qed.
 
@@ -166,11 +142,12 @@ Proof.
     apply H. rewrite <- set_eq; auto.
   - hnf in *. intros.
     econstructor; eauto.
-  - hnf in *; intros. econstructor; eauto.
+(*  - hnf in *; intros. econstructor; eauto.
   - hnf in *; intros. econstructor; eauto.
     + apply NatSetProps.Dec.F.not_mem_iff. intros ?. set_tac. now apply H, set_eq.
     + apply IHssa_f2.
       split; set_tac; intros[?|Ha]; auto; apply set_eq in Ha; auto.
+*)
 Qed.
 
 Lemma ssa_subset_ext V (f:expr V):
@@ -194,7 +171,7 @@ Proof.
         by (split; set_tac).
     eapply ssaBinop;
       [ eapply IHf1; eauto | eapply IHf2; eauto | auto ].
-  - assert (NatSet.Subset (freeVars f1) inVars1 /\
+(*  - assert (NatSet.Subset (freeVars f1) inVars1 /\
             NatSet.Subset (freeVars f2) inVars1 /\
             NatSet.Subset (freeVars f3) inVars1)
       as (f1_subset & f2_subset & f3_subset)
@@ -217,7 +194,7 @@ Proof.
         { rewrite Nat.eqb_neq in case_mem.
           right; apply fVars_sub.
           set_tac. }
-    + auto.
+    + auto.*)
 Qed.
 
 Corollary ssa_is_fVars V (f:expr V) inVars outVars:
@@ -240,12 +217,12 @@ Proof.
     inversion ssa_e; subst; try constructor; try set_tac.
   - eapply IHe; eauto.
   - econstructor; try eauto. set_tac.
-  - econstructor; try eauto. set_tac.
+(*  - econstructor; try eauto. set_tac.
     destruct H; try auto. set_tac.
   - eapply IHe; eauto.
   - econstructor; try eauto.
     + rewrite <- NatSetProps.Dec.F.not_mem_iff; auto.
-    + set_tac.
+    + set_tac.*)
 Qed.
 
 
@@ -258,10 +235,11 @@ Fixpoint validSSA (f:expr Q) (inVars:NatSet.t) :=
   | Const _ _ => true
   | Unop _ e => validSSA e inVars
   | Binop _ e1 e2 => validSSA e1 inVars && validSSA e2 inVars
-  | Fma e1 e2 e3 => validSSA e1 inVars && validSSA e2 inVars && validSSA e3 inVars
+(*  | Fma e1 e2 e3 => validSSA e1 inVars && validSSA e2 inVars && validSSA e3 inVars
   | Downcast _ e => validSSA e inVars
   | Let m x e g =>
     (negb (NatSet.mem x inVars)) && validSSA e inVars && validSSA g (NatSet.add x inVars)
+*)  
   (* | Cond e1 e2 e3 => validSSA e1 inVars && validSSA e2 inVars && validSSA e3 inVars *)
   end.
 
@@ -279,7 +257,7 @@ Proof.
     edestruct IHf2 as [O2 ?]; eauto.
     exists (O1 ∪ O2).
     econstructor; try eauto. set_tac.
-  - andb_to_prop H.
+(*  - andb_to_prop H.
     edestruct IHf1 as [O1 ?]; eauto.
     edestruct IHf2 as [O2 ?]; eauto.
     edestruct IHf3 as [O3 ?]; eauto.
@@ -294,7 +272,7 @@ Proof.
     edestruct IHf2 as [O2 ?]; eauto.
     exists (O1 ∪ O2).
     econstructor; try eauto. set_tac.
-    (*
+*)    (*
   - andb_to_prop H.
     edestruct IHf1 as [O1 ?]; eauto.
     edestruct IHf2 as [O2 ?]; eauto.
@@ -313,7 +291,7 @@ Proof.
   - apply IHf; auto.
   - andb_to_prop validSSA_true.
     destruct H; [apply IHf1 | apply IHf2]; auto.
-  - andb_to_prop validSSA_true.
+(*  - andb_to_prop validSSA_true.
     destruct H; set_tac; [apply IHf1 | destruct H; [apply IHf2 | apply IHf3]]; auto.
   - apply IHf; auto.
   - andb_to_prop validSSA_true.
@@ -322,7 +300,7 @@ Proof.
     revert H. set_tac.
     intros [? ?].
     pose proof (H0 _ H).
-    set_tac. firstorder.
+    set_tac. firstorder.*)
     (*
   - andb_to_prop validSSA_true.
     destruct H; set_tac; [apply IHf1 | destruct H; [apply IHf2 | apply IHf3]]; auto.
@@ -337,7 +315,7 @@ Proof.
   - eapply IHf; eauto.
   - andb_to_prop H.
     erewrite IHf1, IHf2; eauto.
-  - andb_to_prop H.
+(*  - andb_to_prop H.
     erewrite IHf1, IHf2, IHf3; eauto.
   - eapply IHf; eauto.
   - andb_to_prop H.
@@ -348,7 +326,7 @@ Proof.
       set_tac.
       apply NatSetProps.FM.not_mem_iff.
       intros ?. apply L0. now apply sub.
-    + eapply IHf1; eauto.
+    + eapply IHf1; eauto.*)
       (*
     + apply NatSetProps.FM.subset_1.
       apply NatSetProps.FM.subset_2 in R0.
@@ -356,11 +334,11 @@ Proof.
       apply NatSetProps.subset_equal in sub.
       set_tac.
        *)
-    + eapply IHf2; eauto.
+(*    + eapply IHf2; eauto.
       assert (NatSet.Subset s' s) by now apply NatSetProps.subset_equal in sub.
       apply NatSetProps.equal_sym in sub.
       apply NatSetProps.subset_equal in sub.
-      split; set_tac; intuition.
+      split; set_tac; intuition.*)
       (*
   - andb_to_prop H.
     erewrite IHf1, IHf2, IHf3; eauto.
@@ -377,10 +355,10 @@ Proof.
   - eauto.
   - andb_to_prop H1.
     erewrite IHf1, IHf2; eauto; set_tac.
-  - andb_to_prop H1.
+(*  - andb_to_prop H1.
     erewrite IHf1, IHf2, IHf3; eauto; set_tac.
-  - eauto.
-  - andb_to_prop H1.
+  - eauto.*)
+(*  - andb_to_prop H1.
     apply andb_true_intro; split.
     apply andb_true_intro; split.
     + apply negb_true_iff.
@@ -388,23 +366,23 @@ Proof.
       set_tac.
       apply NatSetProps.FM.not_mem_iff.
       intros ?. apply L0. now apply H0.
-    + eapply IHf1; eauto. set_tac.
+    + eapply IHf1; eauto. set_tac.*)
       (*
     + apply NatSetProps.FM.subset_1.
       apply NatSetProps.FM.subset_2 in R0.
       set_tac.
        *)
-    + eapply IHf2; eauto.
+(*    + eapply IHf2; eauto.
       * set_tac.
         destruct (dec_eq_nat a n); [now left | right; set_tac].
-      * set_tac. intuition.
+      * set_tac. intuition.*)
         (*
   - andb_to_prop H1.
     erewrite IHf1, IHf2, IHf3; eauto; set_tac.
 *)
 Qed.
 
-Lemma ssa_shadowing_free m x y v v' e f inVars outVars E Gamma DeltaMap:
+(*Lemma ssa_shadowing_free m x y v v' e f inVars outVars E Gamma DeltaMap:
   ssa (Let m x (toREval (toRExp e)) (toREval (toRExp f))) inVars outVars ->
   NatSet.In y inVars ->
   eval_expr E Gamma DeltaMap (toREval (toRExp e)) v REAL ->
@@ -438,7 +416,8 @@ Proof.
   intros x_free.
   eapply ssa_subset_freeVars in x_free; eauto.
 Qed.
-
+*)
+  
 Lemma eval_expr_ssa_extension (e: expr R) E Gamma DeltaMap
       vR vR' m__e n fVars:
   NatSet.Subset (freeVars e) fVars ->
@@ -451,7 +430,7 @@ Proof.
   intros ?. apply Hnotin. set_tac.
 Qed.
 
-Lemma eval_expr_ssa_extension2 (e: expr R) (e' : expr Q) E Gamma DeltaMap
+(*Lemma eval_expr_ssa_extension2 (e: expr R) (e' : expr Q) E Gamma DeltaMap
       v v' m__e m n c fVars dVars outVars:
   ssa (Let m__e n e' c) (fVars ∪ dVars) outVars ->
   NatSet.Subset (freeVars e) (fVars ∪ dVars) ->
@@ -462,4 +441,4 @@ Proof.
   intros Hssa Hsub Hnotin Heval.
   eapply eval_expr_det_ignore_bind2; [eauto |].
   edestruct ssa_inv_let; eauto.
-Qed.
+Qed.*)

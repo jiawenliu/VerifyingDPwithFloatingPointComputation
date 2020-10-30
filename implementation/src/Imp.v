@@ -29,7 +29,7 @@ Require Import Coq.omega.Omega.
 Require Import Coq.Lists.List.
 Import ListNotations.
 
-From PLF Require Import Maps.
+From Snapv Require Import Maps.
 
 (* ################################################################# *)
 (** * Arithmetic and Boolean Expressions *)

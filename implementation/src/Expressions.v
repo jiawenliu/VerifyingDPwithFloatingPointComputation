@@ -14,6 +14,8 @@ From Snapv.Infra
 From Snapv.Infra
      Require Export Abbrevs NatSet MachineType.
 
+Require Import Omega.
+
 (**
   Expressions will use binary operators.
   Define them first

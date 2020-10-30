@@ -37,7 +37,7 @@ Fixpoint validTypes e (Gamma:SnapvMap.t mType): Prop :=
       exists m1 m2, SnapvMap.find e1 Gamma = Some m1 /\
                SnapvMap.find e2 Gamma = Some m2 /\
                isJoin m1 m2 mG = true
-    | Fma e1 e2 e3 =>
+(*    | Fma e1 e2 e3 =>
       validTypes e1 Gamma /\
       validTypes e2 Gamma /\
       validTypes e3 Gamma /\
@@ -55,7 +55,7 @@ Fixpoint validTypes e (Gamma:SnapvMap.t mType): Prop :=
       exists me,
         SnapvMap.find e1 Gamma = Some m /\ SnapvMap.find (Var Q x) Gamma = Some m /\
         SnapvMap.find e2 Gamma = Some me /\ me = mG
-     (*
+*)     (*
     | Cond e1 e2 e3 =>
       validTypes e1 Gamma /\
       validTypes e2 Gamma /\
@@ -117,7 +117,7 @@ Ltac validTypes_split :=
     assert (validTypes e2 Gamma)
       as n2
         by (destruct H as [? [? [[? [? ?]] ?]]]; auto)
-  | [ H: validTypes (Fma ?e1 ?e2 ?e3) ?Gamma |- _] =>
+(*  | [ H: validTypes (Fma ?e1 ?e2 ?e3) ?Gamma |- _] =>
     let n1 := fresh "valid_arg" in
     let n2 := fresh "valid_arg" in
     let n3 := fresh "valid_arg" in
@@ -145,6 +145,7 @@ Ltac validTypes_split :=
     assert (validTypes e2 Gamma)
       as n2
         by (destruct H as [? [? [[? [? ?]] ?]]]; auto)
+*)  
   end.
 
 Ltac validTypes_simp :=
@@ -233,7 +234,7 @@ Fixpoint getValidMap (Gamma:SnapvMap.t mType) (e:expr Q)
        end
     | _, _ => Fail _ "Could not compute type for arguments"
     end
-  | Fma e1 e2 e3 =>
+(*  | Fma e1 e2 e3 =>
     rlet akk1_map := getValidMap Gamma e1 akk in
     rlet akk2_map := getValidMap Gamma e2 akk1_map in
     rlet akk3 := getValidMap Gamma e3 akk2_map in
@@ -311,7 +312,7 @@ Fixpoint getValidMap (Gamma:SnapvMap.t mType) (e:expr Q)
         end
       else
         Fail _ "Incorrect type for let-bound variable"
-    end
+    end*)
       (*
   | Cond e1 e2 e3 =>
     rlet akk1_map := getValidMap Gamma e1 akk in
@@ -460,7 +461,7 @@ Proof.
     by_monotonicity find_akk Hmem.
   - destruct (isFixedPointB m0 && isFixedPointB m1) eqn:?;
              congruence.
-  - destruct (isFixedPointB m0 && isFixedPointB m1 && isFixedPointB m2) eqn:?;
+(*  - destruct (isFixedPointB m0 && isFixedPointB m1 && isFixedPointB m2) eqn:?;
              try congruence;
       [ destruct (morePrecise m0 m3 && morePrecise m1 m3 && morePrecise m2 m3) eqn:?;
                  try congruence
@@ -557,7 +558,7 @@ Proof.
   - destruct (mTypeEq m m1) eqn:?; congruence.
   - destruct (mTypeEq m m1) eqn:?; congruence.
   - destruct (mTypeEq m m1) eqn:?; congruence.
-  - destruct (mTypeEq m m1) eqn:?; congruence.
+  - destruct (mTypeEq m m1) eqn:?; congruence.*)
     (*
   - destruct (isFixedPointB m1 && isFixedPointB m2) eqn:?;
              try congruence;
@@ -598,7 +599,7 @@ Proof.
     pose proof (maps_mono e1 m1 find_m1) as find_m1_map2;
       pose proof (maps_mono e2 m2 find_m2) as find_m2_map2.
     eauto.
-  - destruct check_top as [valid_e1 [valid_e2  [valid_e3 validJoin]]];
+(*  - destruct check_top as [valid_e1 [valid_e2  [valid_e3 validJoin]]];
       repeat split; try eauto.
     destruct validJoin as [m1 [m2 [m3 [find_m1 [find_m2 [find_m3 join_true]]]]]].
     pose proof (maps_mono e1 m1 find_m1) as find_m1_map2;
@@ -613,7 +614,7 @@ Proof.
     pose proof (maps_mono e1 m find_m1) as find_m_map2;
       pose proof (maps_mono (Var Q n) m find_n) as find_mx_map2;
       pose proof (maps_mono e2 m2 find_m2) as find_m2_map2.
-    eauto.
+    eauto.*)
     (*
   - destruct check_top as [valid_e1 [valid_e2  [valid_e3 validJoin]]];
       repeat split; try eauto.
@@ -693,7 +694,7 @@ Proof.
     pose proof (expr_compare_eq_eval_compat (Binop b0 e1_1 e1_2) (Binop b0 e2_1 e2_2));
       simpl in *.
     rewrite <- H1 in H0; eauto.
-  - assert (Q_orderedExps.exprCompare e1_1 e2_1 = Eq)
+(*  - assert (Q_orderedExps.exprCompare e1_1 e2_1 = Eq)
       as eq_rec1
         by (destruct (Q_orderedExps.exprCompare e1_1 e2_1) eqn:?; try congruence).
     rewrite eq_rec1 in *.
@@ -737,7 +738,7 @@ Proof.
       * destruct (w ?= w0)%positive eqn:?; try congruence.
         destruct (f ?= f0)%N eqn:?; try congruence.
         apply Pos.compare_eq in Heqc; subst.
-        apply N.compare_eq in Heqc0; subst; congruence.
+        apply N.compare_eq in Heqc0; subst; congruence.*)
         (*
   - destruct (mTypeEq m m0) eqn:?; try congruence; type_conv; subst.
     + assert (Q_orderedExps.exprCompare e1_1 e2_1 = Eq)
@@ -762,7 +763,7 @@ Proof.
       pose proof (expr_compare_eq_eval_compat (Let _ _ e1_1 e1_2) (Let _ _ e2_1 e2_2)).
       simpl in *; rewrite <- H1 in H0; eauto.
          *)
-  - assert (m = m0) as types_eq.
+(*  - assert (m = m0) as types_eq.
     { simpl in eq_clone.
       destruct (mTypeEq m m0) eqn:?.
       - type_conv; auto.
@@ -797,7 +798,7 @@ Proof.
       cbn in *.
       rewrite mTypeEq_refl in *. rewrite Nat.compare_refl in *.
       rewrite eq_rec1 in *. rewrite eq_rec2 in *.
-      rewrite <- H2 in H1; eauto.
+      rewrite <- H2 in H1; eauto.*)
       (*
   - assert (Q_orderedExps.exprCompare e1_1 e2_1 = Eq)
       as eq_rec1
@@ -1061,372 +1062,7 @@ Proof.
         assert (toRExpMap Gamma2 (toRExp (Binop b e1 e2)) = Some m1)
           by (eapply toRExpMap_some; eauto).
         inversion eval_binop; subst; simpl in *; congruence.
-  - destruct (getValidMap Gamma e1 akk) eqn:?; cbn in *; try congruence.
-    destruct (getValidMap Gamma e2 t) eqn:?; cbn in *; try congruence.
-    destruct (getValidMap Gamma e3 t0) eqn:?; cbn in *; try congruence.
-    destruct (SnapvMap.find (elt:=mType) e1 t1) eqn:e1_find; try congruence.
-    destruct (SnapvMap.find (elt:=mType) e2 t1) eqn:e2_find; try congruence.
-    destruct (SnapvMap.find (elt:=mType) e3 t1) eqn:e3_find; try congruence.
-    assert (forall e, SnapvMap.mem e t = true -> validTypes e t).
-    { eapply IHe1; eauto. }
-    assert (forall e, SnapvMap.mem e t0 = true -> validTypes e t0).
-    { eapply IHe2; eauto. }
-    assert (forall e, SnapvMap.mem e t1 = true -> validTypes e t1).
-    { eapply IHe3; eauto. }
-    assert (validTypes e1 t1).
-    { assert (SnapvMap.mem e1 t1 = true)
-        by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite e1_find; eauto).
-      eauto. }
-    assert (validTypes e2 t1).
-    { assert (SnapvMap.mem e2 t1 = true)
-          by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite e2_find; eauto).
-         eauto. }
-    assert (validTypes e3 t1).
-    { assert (SnapvMap.mem e3 t1 = true)
-          by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite e3_find; eauto).
-         eauto. }
-    destruct (isFixedPointB m && isFixedPointB m0 && isFixedPointB m1) eqn:?.
-    + Snapv_compute.
-      destruct (morePrecise m m2 && morePrecise m0 m2 && morePrecise m1 m2) eqn:?;
-               try congruence.
-      unfold addMono in *; Snapv_compute.
-      inversion validMap_succ; subst.
-      assert (SnapvMap.mem (Fma e1 e2 e3) t1 = false)
-      by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo0; eauto).
-      intros * mem_add;
-        rewrite map_mem_add in mem_add.
-      destruct (Q_orderedExps.compare (Fma e1 e2 e3) e) eqn:?;
-               [ | eapply validTypes_mono with (map1 := t1); now eauto using map_find_mono
-                 | eapply validTypes_mono with (map1 := t1); now eauto using map_find_mono].
-      apply validTypes_eq_compat with (e1:=Fma e1 e2 e3); auto.
-      exists m2; repeat split; try auto using tMap_def.
-      * apply validTypes_mono with (map1:=t1); eauto using map_find_mono.
-      * apply validTypes_mono with (map1:=t1); eauto using map_find_mono.
-      * apply validTypes_mono with (map1:=t1); eauto using map_find_mono.
-      * exists m, m0, m1. repeat split.
-        { rewrite map_find_add.
-          pose proof (no_cycle_fma_left e1 e2 e3).
-          destruct (Q_orderedExps.compare (Fma e1 e2 e3) e1) eqn:?; try congruence.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction. }
-        { rewrite map_find_add.
-          pose proof (no_cycle_fma_center e2 e1 e3).
-          destruct (Q_orderedExps.compare (Fma e1 e2 e3) e2) eqn:?; try congruence.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction. }
-        { rewrite map_find_add.
-          pose proof (no_cycle_fma_right e3 e1 e2).
-          destruct (Q_orderedExps.compare (Fma e1 e2 e3) e3) eqn:?; try congruence.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction. }
-        { unfold isJoin3. rewrite L0, L1, R, R0, R1, R2. auto. }
-      * intros * map_mono eval_fma.
-        assert (SnapvMap.find (elt:=mType) (Fma e1 e2 e3)
-                               (SnapvMap.add (Fma e1 e2 e3) m2 t1) = Some m2)
-          as find_fma_t
-            by (eauto using tMap_def).
-        pose proof (map_mono _ _ find_fma_t).
-        assert (toRExpMap Gamma2 (toRExp (Fma e1 e2 e3)) = Some m2)
-          by (eapply toRExpMap_some; eauto).
-        inversion eval_fma; subst; simpl in *; congruence.
-    + destruct (join_fl3 m m0 m1) eqn:?; try congruence.
-      destruct (isMonotone (SnapvMap.find (elt:=mType) (Fma e1 e2 e3) Gamma) m2) eqn:?;
-               try congruence.
-      unfold addMono in *; Snapv_compute.
-      inversion validMap_succ.
-      assert (SnapvMap.mem (Fma e1 e2 e3) t1 = false)
-             by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo0; auto).
-      intros * mem_add;
-        rewrite map_mem_add in mem_add.
-      destruct (Q_orderedExps.compare (Fma e1 e2 e3) e) eqn:?;
-               [ | eapply validTypes_mono with (map1 := t1); now eauto using map_find_mono
-                 | eapply validTypes_mono with (map1 := t1); now eauto using map_find_mono].
-      apply validTypes_eq_compat with (e1:=Fma e1 e2 e3); auto.
-      exists m2; repeat split; try auto using tMap_def.
-      * apply validTypes_mono with (map1:=t1); eauto using map_find_mono.
-      * apply validTypes_mono with (map1:=t1); eauto using map_find_mono.
-      * apply validTypes_mono with (map1:=t1); eauto using map_find_mono.
-      * exists m, m0, m1. repeat split.
-        { rewrite map_find_add.
-          pose proof (no_cycle_fma_left e1 e2 e3).
-          destruct (Q_orderedExps.compare (Fma e1 e2 e3) e1) eqn:?; try congruence.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction. }
-        { rewrite map_find_add.
-          pose proof (no_cycle_fma_center e2 e1 e3).
-          destruct (Q_orderedExps.compare (Fma e1 e2 e3) e2) eqn:?; try congruence.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction. }
-        { rewrite map_find_add.
-          pose proof (no_cycle_fma_right e3 e1 e2).
-          destruct (Q_orderedExps.compare (Fma e1 e2 e3) e3) eqn:?; try congruence.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction. }
-        { unfold isJoin3.
-          unfold join_fl3 in *.
-          rewrite Heqb. destruct (join_fl m0 m1) eqn:?; simpl in *; try congruence.
-          rewrite Heqo. apply mTypeEq_refl. }
-      * intros * map_mono eval_fma.
-        assert (SnapvMap.find (elt:=mType) (Fma e1 e2 e3)
-                               (SnapvMap.add (Fma e1 e2 e3) m2 t1) = Some m2)
-          as find_fma_t
-            by (eauto using tMap_def).
-        pose proof (map_mono _ _ find_fma_t).
-        assert (toRExpMap Gamma2 (toRExp (Fma e1 e2 e3)) = Some m2)
-          by (eapply toRExpMap_some; eauto).
-        inversion eval_fma; subst; simpl in *; congruence.
-  - destruct (getValidMap Gamma e akk) eqn:?; cbn in validMap_succ; try congruence.
-    assert (forall e, SnapvMap.mem e t = true -> validTypes e t).
-    { eapply IHe; eauto. }
-    destruct (SnapvMap.find e t) eqn:e_find; try congruence.
-    assert (validTypes e t).
-    { assert (SnapvMap.mem e t = true)
-        by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite e_find; eauto).
-      eauto. }
-    destruct (isFixedPointB m0) eqn:?.
-    + Snapv_compute.
-      destruct (mTypeEq m m1 && morePrecise m0 m1) eqn:type_ok; try congruence;
-        andb_to_prop type_ok; type_conv; subst.
-      unfold addMono in *; Snapv_compute.
-      assert (SnapvMap.mem (Downcast m1 e) t = false)
-        by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo0; auto).
-      inversion validMap_succ; subst.
-      intros * mem_add. rewrite map_mem_add in mem_add.
-      destruct (Q_orderedExps.compare (Downcast m1 e) e0) eqn:?;
-               [ | eapply validTypes_mono with (map1:=t);
-                   now eauto using map_find_mono
-                 | eapply validTypes_mono with (map1:=t);
-                 now eauto using map_find_mono].
-      eapply validTypes_eq_compat; eauto.
-      exists m1; repeat split; auto using tMap_def.
-      * eapply validTypes_mono with (map1:=t); eauto using map_find_mono.
-      * exists m0. rewrite map_find_add.
-        pose proof (no_cycle_cast e m1).
-        rewrite isMorePrecise_morePrecise.
-        destruct (Q_orderedExps.compare (Downcast m1 e) e) eqn:?; split; try eauto.
-          pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-          hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-          contradiction.
-      * intros * map_mono eval_cast.
-        assert (SnapvMap.find (elt:=mType) (Downcast m1 e)
-                               (SnapvMap.add (Downcast m1 e) m1 t) = Some m1)
-          as find_cast_t
-            by (eauto using tMap_def).
-        pose proof (map_mono _ _ find_cast_t).
-        assert (toRExpMap Gamma2 (toRExp (Downcast m1 e)) = Some m1)
-          by (eapply toRExpMap_some; eauto).
-        inversion eval_cast; subst; simpl in *; congruence.
-    + destruct (morePrecise m0 m &&
-                            isMonotone (SnapvMap.find (Downcast m e) Gamma) m) eqn:?;
-               try congruence.
-      unfold addMono in *; Snapv_compute.
-      assert (SnapvMap.mem (Downcast m e) t = false)
-        by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo; auto).
-      inversion validMap_succ; subst.
-      intros * mem_add. rewrite map_mem_add in mem_add.
-      destruct (Q_orderedExps.compare (Downcast m e) e0) eqn:?;
-               [ | eapply validTypes_mono with (map1:=t);
-                   now eauto using map_find_mono
-                 | eapply validTypes_mono with (map1:=t);
-                 now eauto using map_find_mono].
-      eapply validTypes_eq_compat; eauto.
-      exists m; repeat split; auto using tMap_def.
-      * eapply validTypes_mono with (map1:=t); eauto using map_find_mono.
-      * exists m0. rewrite map_find_add.
-        pose proof (no_cycle_cast e m).
-        rewrite isMorePrecise_morePrecise,L.
-        destruct (Q_orderedExps.compare (Downcast m e) e) eqn:?; split; try eauto.
-        pose proof SnapvMapFacts.P.F.KeySetoid_Symmetric as cmp_sym.
-        hnf in cmp_sym. specialize (cmp_sym _ _ Heqc0).
-        contradiction.
-      * intros * map_mono eval_cast.
-        assert (SnapvMap.find (elt:=mType) (Downcast m e)
-                               (SnapvMap.add (Downcast m e) m t) = Some m)
-          as find_cast_t
-            by (eauto using tMap_def).
-        pose proof (map_mono _ _ find_cast_t).
-        assert (toRExpMap Gamma2 (toRExp (Downcast m e)) = Some m)
-          by (eapply toRExpMap_some; eauto).
-        inversion eval_cast; subst; simpl in *; congruence.
-  - destruct (getValidMap Gamma e1 akk) eqn:?; simpl in validMap_succ;
-      try congruence.
-    destruct (SnapvMap.find e1 t) eqn:?; try congruence.
-    destruct (mTypeEq m m0) eqn:?; try congruence.
-    type_conv; subst.
-    unfold addMono in validMap_succ.
-    destruct (SnapvMap.find (Var Q n) t) eqn:?; simpl in *; try congruence.
-    assert (SnapvMap.mem (Var Q n) t = false)
-      by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo0; auto).
-    destruct (getValidMap Gamma e2 (SnapvMap.add (Var Q n) m0 t)) eqn:?;
-             simpl in *; try congruence.
-    specialize (IHe1 _ _ _ akk_sound Heqr).
-    specialize (IHe2 Gamma (SnapvMap.add (Var Q n) m0 t) t0).
-    assert (forall e, SnapvMap.mem e t0 = true -> validTypes e t0).
-    { apply IHe2; try auto.
-      intros * mem_add.
-      apply mem_add_cases in mem_add.
-      destruct mem_add as [? | [? ?]].
-      - eapply validTypes_eq_compat with (e1 := Var Q n); try eauto.
-        + apply Q_orderedExps.eq_sym; auto.
-        + simpl. exists m0; split.
-          * rewrite map_find_add. unfold Q_orderedExps.compare.
-            now rewrite SnapvMap.E.eq_refl.
-          * split; [easy | ].
-            intros * map_sound eval_var.
-            inversion eval_var; subst.
-            specialize (map_sound (Var Q n) m0).
-            change (Var R n) with (toRExp (Var Q n)) in *.
-            eapply toRExpMap_find_map in H2.
-            rewrite map_sound in H2; try congruence.
-            rewrite map_find_add. unfold Q_orderedExps.compare.
-            now rewrite SnapvMap.E.eq_refl.
-    - apply validTypes_mono with (map1 := t) ; eauto.
-      intros * in_t.
-      rewrite map_find_add.
-      destruct (Q_orderedExps.compare (Var Q n) e0) eqn:?; try auto.
-      rewrite SnapvMapFacts.P.F.mem_find_b in *.
-      erewrite <- SnapvMapFacts.P.F.find_o in in_t; eauto.
-      congruence. }
-    destruct (SnapvMap.find e2 t0) eqn:?; simpl in *; try congruence.
-    assert (validTypes e1 t0) as valid_e1_t0.
-    { assert (SnapvMap.mem e1 t = true)
-        by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo; eauto).
-      assert (SnapvMap.mem e1 (SnapvMap.add (Var Q n) m0 t) = true).
-      { rewrite map_mem_add. destruct (Q_orderedExps.compare (Var Q n) e1); auto. }
-      pose proof (getValidMap_mono _ _ _ Heqr0).
-      apply H0.
-      rewrite SnapvMapFacts.P.F.mem_find_b in *.
-      destruct (SnapvMap.find e1 (SnapvMap.add (Var Q n) m0 t)) eqn:?; try congruence.
-      erewrite H3; eauto. }
-    assert (validTypes e2 t0) as valid_e2_t0.
-    { assert (SnapvMap.mem e2 t0 = true)
-          by (rewrite SnapvMapFacts.P.F.mem_find_b; rewrite Heqo1; eauto).
-         eauto. }
-    assert (isMonotone (SnapvMap.find (Let m0 n e1 e2) Gamma) m = true) as isMono.
-    { Snapv_compute; unfold isMonotone; try auto.
-      - destruct (mTypeEq m1 m); congruence.
-      - destruct (mTypeEq m1 m); congruence. }
-    rewrite isMono in *.
-    destruct (isFixedPointB m) eqn:?; simpl in *.
-    + Snapv_compute. inversion validMap_succ; subst.
-      intros. apply mem_add_cases in H1.
-      destruct H1 as [? | [? ?]].
-      * eapply validTypes_eq_compat with (e1 := (Let m0 n e1 e2)); try eauto.
-        { apply Q_orderedExps.eq_sym; auto. }
-        { simpl. exists m1; split.
-          - rewrite map_find_add. unfold Q_orderedExps.compare.
-            now rewrite SnapvMap.E.eq_refl.
-          - repeat split.
-            + eapply validTypes_mono with (map1 := t0); try auto.
-              intros; eapply map_find_mono; auto.
-              rewrite SnapvMapFacts.P.F.mem_find_b.
-              rewrite Heqo3; auto.
-            + eapply validTypes_mono with (map1 := t0).
-              * intros; eapply map_find_mono; try auto.
-                rewrite SnapvMapFacts.P.F.mem_find_b.
-                rewrite Heqo3; auto.
-              * apply H0.
-                eapply getValidMap_top_contained; eauto.
-            + exists m. repeat split; try auto.
-              * assert (SnapvMap.find e1 (SnapvMap.add (Var Q n) m0 t) = Some m0).
-                { rewrite map_find_add.
-                  destruct (Q_orderedExps.compare (Var Q n) e1); auto. }
-                eapply (getValidMap_mono _ _ _ Heqr0) in H2; eauto.
-                rewrite map_find_add.
-                rewrite Q_orderedExps.exprCompare_antisym.
-                pose proof (no_cycle_let_left e1 e2 n m0).
-                destruct (Q_orderedExps.exprCompare e1 (Let m0 n e1 e2)) eqn:?;
-                         simpl in *; try congruence.
-                contradiction.
-              * assert (SnapvMap.find (Var Q n) (SnapvMap.add (Var Q n) m0 t) = Some m0).
-                { rewrite map_find_add, Q_orderedExps.exprCompare_refl; auto. }
-                eapply (getValidMap_mono _ _ _ Heqr0) in H2; eauto.
-                rewrite map_find_add. cbn; auto.
-              * rewrite map_find_add.
-                pose proof (no_cycle_let_right e2 e1 n m0).
-                rewrite Q_orderedExps.exprCompare_antisym.
-                destruct (Q_orderedExps.exprCompare e2 (Let m0 n e1 e2)) eqn:?;
-                         simpl in *; try congruence.
-                contradiction.
-              * unfold isMonotone in *. type_conv.
-                unfold isCompat; destruct m; auto using morePrecise_refl.
-            + intros * map_sound eval_let.
-              inversion eval_let; subst.
-              specialize (map_sound (Let m0 n e1 e2) m1).
-              change (Let m0 n (toRExp e1) (toRExp e2))
-                with (toRExp (Let m0 n e1 e2)) in *.
-              eapply toRExpMap_find_map in H8.
-              rewrite map_sound in H8; try congruence.
-              rewrite map_find_add. unfold Q_orderedExps.compare.
-              now rewrite SnapvMap.E.eq_refl. }
-      * apply validTypes_mono with (map1 := t0) ; eauto.
-         { intros * in_t.
-           rewrite map_find_add.
-           destruct (Q_orderedExps.compare (Let m0 n e1 e2) e0) eqn:?; try auto.
-           - rewrite SnapvMapFacts.P.F.mem_find_b in *.
-             erewrite <- SnapvMapFacts.P.F.find_o in in_t; eauto.
-             congruence. }
-    + intros. Snapv_compute. inversion validMap_succ; subst.
-      apply mem_add_cases in H1.
-      destruct H1 as [? | [? ?]].
-      * eapply validTypes_eq_compat with (e1 := (Let m0 n e1 e2)); try eauto.
-        { apply Q_orderedExps.eq_sym; auto. }
-        { simpl. exists m; split.
-          - rewrite map_find_add. unfold Q_orderedExps.compare.
-            now rewrite SnapvMap.E.eq_refl.
-          - repeat split.
-            + eapply validTypes_mono with (map1 := t0); try auto.
-              intros; eapply map_find_mono; auto.
-              rewrite SnapvMapFacts.P.F.mem_find_b.
-              rewrite Heqo2; auto.
-            + eapply validTypes_mono with (map1 := t0).
-              * intros; eapply map_find_mono; try auto.
-                rewrite SnapvMapFacts.P.F.mem_find_b.
-                rewrite Heqo2; auto.
-              * apply H0.
-                eapply getValidMap_top_contained; eauto.
-            + exists m. repeat split; try auto.
-              * assert (SnapvMap.find e1 (SnapvMap.add (Var Q n) m0 t) = Some m0).
-                { rewrite map_find_add.
-                  destruct (Q_orderedExps.compare (Var Q n) e1); auto. }
-                eapply (getValidMap_mono _ _ _ Heqr0) in H2; eauto.
-                rewrite map_find_add.
-                rewrite Q_orderedExps.exprCompare_antisym.
-                pose proof (no_cycle_let_left e1 e2 n m0).
-                destruct (Q_orderedExps.exprCompare e1 (Let m0 n e1 e2)) eqn:?;
-                         simpl in *; try congruence.
-                contradiction.
-              * assert (SnapvMap.find (Var Q n) (SnapvMap.add (Var Q n) m0 t) = Some m0).
-                { rewrite map_find_add, Q_orderedExps.exprCompare_refl; auto. }
-                eapply (getValidMap_mono _ _ _ Heqr0) in H2; eauto.
-                rewrite map_find_add. cbn; auto.
-              * rewrite map_find_add.
-                pose proof (no_cycle_let_right e2 e1 n m0).
-                rewrite Q_orderedExps.exprCompare_antisym.
-                destruct (Q_orderedExps.exprCompare e2 (Let m0 n e1 e2)) eqn:?;
-                         simpl in *; try congruence.
-            + intros * map_sound eval_let.
-              inversion eval_let; subst.
-              specialize (map_sound (Let m0 n e1 e2) m).
-              change (Let m0 n (toRExp e1) (toRExp e2))
-                with (toRExp (Let m0 n e1 e2)) in *.
-              eapply toRExpMap_find_map in H8.
-              rewrite map_sound in H8; try congruence.
-              rewrite map_find_add. unfold Q_orderedExps.compare.
-              now rewrite SnapvMap.E.eq_refl. }
-      * apply validTypes_mono with (map1 := t0) ; eauto.
-         { intros * in_t.
-           rewrite map_find_add.
-           destruct (Q_orderedExps.compare (Let m0 n e1 e2) e0) eqn:?; try auto.
-           - rewrite SnapvMapFacts.P.F.mem_find_b in *.
-             erewrite <- SnapvMapFacts.P.F.find_o in in_t; eauto.
-             congruence. }
+(*  *)
 Qed.
 
 Corollary getValidMap_top_correct e:

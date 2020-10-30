@@ -5,8 +5,8 @@ Require Import Coq.Bool.Bool.
 Require Import Coq.Arith.Arith.
 Require Import Coq.Arith.EqNat.
 Require Import Coq.omega.Omega.
-From PLF Require Import Imp. 
-From PLF Require Import Maps.
+From Snapv Require Import Imp. 
+From Snapv Require Import Maps.
 
 
 Definition Assertion := state -> Prop.

@@ -285,78 +285,7 @@ Proof.
   all: eapply Rmult_le_compat_l; try auto using Rabs_pos.
 Qed.
 
-Lemma fma_abs_err_bounded (e1:expr Q) (e1R:R) (e1F:R) (e2:expr Q) (e2R:R) (e2F:R)
-      (e3:expr Q) (e3R:R) (e3F:R)
-      (vR:R) (vF:R) (E1 E2:env) (m m1 m2 m3:mType) defVars DeltaMap:
-  eval_expr E1 (toRTMap defVars) DeltaMapR (toREval (toRExp e1)) e1R REAL ->
-  eval_expr E2 defVars DeltaMap (toRExp e1) e1F m1->
-  eval_expr E1 (toRTMap defVars) DeltaMapR (toREval (toRExp e2)) e2R REAL ->
-  eval_expr E2 defVars DeltaMap (toRExp e2) e2F m2 ->
-  eval_expr E1 (toRTMap defVars) DeltaMapR (toREval (toRExp e3)) e3R REAL ->
-  eval_expr E2 defVars DeltaMap (toRExp e3) e3F m3->
-  eval_expr E1 (toRTMap defVars) DeltaMapR
-            (toREval (Fma (toRExp e1) (toRExp e2) (toRExp e3))) vR REAL ->
-  eval_expr (updEnv 3 e3F (updEnv 2 e2F (updEnv 1 e1F emptyEnv)))
-            (updDefVars (Fma (Var R 1) (Var R 2) (Var R 3)) m
-                        (updDefVars (Var R 3) m3
-                                    (updDefVars (Var R 2) m2 (updDefVars (Var R 1) m1 defVars))))
-            (fun x _ => if Req_dec_sum x (evalFma e1F e2F e3F)
-                     then DeltaMap (evalFma e1F e2F e3F) m
-                     else None)
-            (Fma (Var R 1) (Var R 2) (Var R 3)) vF m ->
-  (Rabs (vR - vF) <= Rabs ((e1R * e2R - e1F * e2F) + (e3R - e3F)) + computeErrorR (e1F * e2F + e3F ) m)%R.
-Proof.
-  intros e1_real e1_float e2_real e2_float e3_real e3_float fma_real fma_float.
-  inversion fma_real; subst;
-  assert (m0 = REAL) by (eapply toRTMap_eval_REAL; eauto).
-  assert (m4 = REAL) by (eapply toRTMap_eval_REAL; eauto).
-  assert (m5 = REAL) by (eapply toRTMap_eval_REAL; eauto).
-  subst; simpl in H3; auto.
-  rewrite delta_0_deterministic in fma_real; auto.
-  rewrite delta_0_deterministic; auto.
-  unfold evalFma in *; simpl in *.
-  rewrite (meps_0_deterministic (toRExp e1) H6 e1_real);
-    rewrite (meps_0_deterministic (toRExp e2) H9 e2_real);
-    rewrite (meps_0_deterministic (toRExp e3) H10 e3_real).
-  rewrite (meps_0_deterministic (toRExp e1) H6 e1_real) in fma_real.
-  rewrite (meps_0_deterministic (toRExp e2) H9 e2_real) in fma_real.
-  rewrite (meps_0_deterministic (toRExp e3) H10 e3_real) in fma_real.
-  inversion fma_float; subst.
-  unfold evalFma in *.
-  unfold perturb; simpl.
-  inversion H13; subst; inversion H16; subst; inversion H17; subst.
-  cbn in *.
-  inversion H0; inversion H1; inversion H14; inversion H15; inversion H18;
-    inversion H19; subst.
-  clear fma_float H7 fma_real e1_real e1_float e2_real e2_float e3_real e3_float H6 H1 H5 H9 H3 H0 H4 H8.
-  repeat rewrite Rmult_plus_distr_l.
-  rewrite Rmult_1_r.
-  rewrite Rsub_eq_Ropp_Rplus.
-  unfold computeErrorR.
-  destruct m; rewrite Ropp_plus_distr.
-  { rewrite Rplus_0_r; hnf; right; f_equal; lra. }
-  4: {
-    rewrite <- Rplus_assoc.
-    eapply Rle_trans.
-    eapply Rabs_triang.
-    rewrite Rabs_Ropp.
-    eapply Rplus_le_compat; try auto.
-    hnf; right; f_equal; lra. }
-  all: repeat rewrite <- Rplus_assoc.
-  all: setoid_rewrite <- Rsub_eq_Ropp_Rplus at 2.
-  all: repeat rewrite Rsub_eq_Ropp_Rplus.
-  all: rewrite <- Rplus_assoc.
-  all: setoid_rewrite Rplus_comm at 8.
-  all: try rewrite <- Rplus_assoc.
-  all: try setoid_rewrite Rplus_comm at 9.
-  all: eapply Rle_trans; try eapply Rabs_triang.
-  all: rewrite Rabs_Ropp.
-  all: repeat rewrite Rplus_assoc.
-  all: try rewrite <- Ropp_plus_distr.
-  all: apply Rplus_le_compat_l.
-  all: rewrite Rabs_mult; apply Rmult_le_compat_l; auto using Rabs_pos.
-Qed.
-
+(*
 Lemma round_abs_err_bounded (e:expr R) (nR nF1 nF:R) (E1 E2: env) (err:R)
       (mEps m:mType) defVars DeltaMap:
   eval_expr E1 (toRTMap defVars) DeltaMapR (toREval e) nR REAL ->
@@ -392,7 +321,7 @@ Proof.
     unfold Rminus.
     rewrite Ropp_plus_distr, <- Rplus_assoc.
     rewrite Rplus_opp_r, Rplus_0_l, Rabs_Ropp; auto.
-Qed.
+Qed.*)
 
 Lemma err_prop_inversion_pos_real nF nR err elo ehi
       (float_iv_pos : (0 < elo - err)%R)

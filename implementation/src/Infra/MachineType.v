@@ -4,6 +4,7 @@
   @author: Raphael Monat
   @maintainer: Heiko Becker
  **)
+
 From Coq.QArith
      Require Import Qpower.
 
@@ -18,6 +19,9 @@ From Snapv
    like Flocq, where f:positive specifies the fraction size and w: the width of
    the base field.
  **)
+
+Require Import Omega.
+
 Inductive mType: Type := REAL (* real valued computations *)
                        | M16 | M32 | M64 (* floating-point precisions *)
                        | F (w:positive) (f:N). (* fixed-point precisions *)
