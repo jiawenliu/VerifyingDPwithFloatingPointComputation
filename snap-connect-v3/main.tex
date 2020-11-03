@@ -597,7 +597,7 @@ By induction on the judgment $\vdash \prog_1
 	where
 	\[
 		R = 
-		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
 		~\vert~
 		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \fval_1 \leq \rvalR
@@ -605,7 +605,17 @@ By induction on the judgment $\vdash \prog_1
 		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
 		\land \fval_2 \leq 1)
 		\right \}.
-	\]
+	\]	% \[
+	% 	R = 
+	% 	\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
+	% 	~\vert~
+	% 	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
+	% 	\rvalL \leq \fval_1 \leq \rvalR
+	% 	\imply
+	% 	(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+	% 	\land \fval_2 \leq 1)
+	% 	\right \}.
+	% \]
 	%
 	\begin{subproof}
 	%
@@ -720,7 +730,7 @@ By induction on the judgment $\vdash \prog_1
 	where 
 	\[
 		R = 
-		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
 		~|~
 		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \fval_1 \leq \rvalR
@@ -739,7 +749,7 @@ By induction on the judgment $\vdash \prog_1
 	where 
 	\[
 		R = 
-		\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
 		~|~
 		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \fval_1 \leq \rvalR
@@ -768,7 +778,7 @@ $${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
 %
 where
 	$	R = 
-		\left \{(\varx, \vary) \in (0,1]^{\float} \times (0,1]^{\float} 
+		\left \{(\varx, \vary) \in {\float} \times {\float} 
 		~|~
 		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
 		\rvalL \leq \varx \leq \rvalR
@@ -789,7 +799,7 @@ ${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
 %
 \\
 %
-Let $\mu_L, \mu_R \in \distr\left((0,1]^{\float} \times (0,1]^{\float}\right)$ 
+Let $\mu_L, \mu_R \in \distr\left({\float} \times {\float}\right)$ 
 be the two witness distribution s.t.
 % \[
 % 	{\mu_L}(x, y) = 
@@ -834,7 +844,7 @@ their $\pdf.$ are defined as:
 }
 It is enough to show that $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
 \begin{itemize}
-	\item $\supp(\mu_L) \subseteq R' \land \supp(\mu_R) \subseteq R'$
+	\item $\supp(\mu_L) \subseteq R \land \supp(\mu_R) \subseteq R$
 %
 \\
 %
@@ -901,12 +911,12 @@ Let $R' =
 	\end{itemize}		
 %
 	\item $\projl(\mu_L) = \mu_1 \land \projr(\mu_R) = \mu_2$
-	
+	%
 	\begin{itemize}
 		\item $\projl(\mu_L) = \mu_1$ 
-
+		\\
 		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
-
+%
 		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x  \in \float$:
 		\[
 			\pdf_{\projl(\mu_L)}(x) = 
@@ -930,10 +940,13 @@ Let $R' =
 		\]
 
 		\item $\projr(\mu_R) = \mu_2$ 
-
+		%
+		\\
 		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
-
+		\\
+		%
 		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y \in \float$:
+		%
 		\[
 			\pdf_{\projr(\mu_R)}(y) = 
 			\begin{cases}
@@ -959,9 +972,10 @@ Let $R' =
 			\pdf_{\mu_2}(y)
 		\]
 	\end{itemize}	
-
+%
 	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq 0$
-
+%
+\\
 	By definition of $\epsilon-$DP divergence, we have:
 	 \[
 	 \begin{array}{ll}
@@ -1263,8 +1277,9 @@ where $f(a)$ represents a value that the query function $f$ be evaluated over in
 $\epsilon-$differentially private]
 \end{thm}
 \begin{proof}
-Induction on the output space of $\snap(a)$ mechanism, let $\valv$ be the output of $\snap(a)$, we have following cases:
-Let $a, a'$ be adjacent data base where $f(a) = f(a') + 1$
+Let $a, a'$ be two adjacent data bases, w.l.g., we consider the case where $f(a) = f(a') + 1$.
+\\
+Let $\valv$ be the identical output of $\snap(a)$ and $\snap(a')$, by inducting on the output space of $\snap(a)$ mechanism, we have following cases:
 \begin{itemize}
 	\caseL{$\boldsymbol{\varz = -B}$}
 %
@@ -1278,7 +1293,7 @@ and $\rvalR_2 = e^{\epsilon
 		(-(b + \Lambda / 2)(1 + \eta) - f(a'))(1 + \eta)^2}$.
 		\\
 Then we have following derivation for this case:
-
+%
 {\tiny
 \begin{mathpar}
 \inferrule
