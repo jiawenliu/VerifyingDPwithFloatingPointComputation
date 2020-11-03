@@ -17,6 +17,7 @@
 ./Maps.v
 ./Command.v
 ./CommandSemantics.v
+./SnapMech.v
 ./Infra/RealSimps.v
 ./Infra/Ltacs.v
 ./Infra/ExpressionAbbrevs.v

@@ -6,8 +6,10 @@ From Coq
      micromega.Psatz Reals.Reals.
 
 From Snapv
-     Require Import Infra.Abbrevs Infra.RationalSimps Infra.RealRationalProps
+     Require Export Infra.Abbrevs Infra.RationalSimps Infra.RealRationalProps
      Infra.RealSimps Infra.Ltacs Environments ErrorAnalysis ErrorBounds
-     IntervalArithQ  TypeValidator.
+     IntervalArithQ  TypeValidator
+     Expressions Command ExpressionSemantics ExpressionTransitions
+     CommandTransitions Maps Imp Hoare SnapMech.
 
 (** Error bound validator **)
