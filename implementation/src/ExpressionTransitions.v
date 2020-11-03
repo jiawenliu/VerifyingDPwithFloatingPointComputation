@@ -1,3 +1,10 @@
+Require Import Coq.Bool.Bool.
+Require Import Coq.Arith.Arith.
+Require Import Coq.Arith.EqNat.
+Require Import Coq.omega.Omega.
+Require Import Coq.Lists.List.
+Import ListNotations.
+
 From Coq
      Require Import Reals.Reals.
 
@@ -8,12 +15,16 @@ From Snapv.Infra
      Require Export ExpressionAbbrevs.
 
 From Snapv
-      Require Export Expressions.
+    Require Export Expressions.
 
+
+From Snapv Require Import Maps.
 
 (**
   Define the Transition From the real computation to the Floating Point Computation with Floating point Relative Error
 **)
+Definition state := total_map (R * (R * R)).
+
 Open Scope R_scope.
 
 Inductive ptbdir : Type := Down | Up.
@@ -34,7 +45,7 @@ The result value exprresses float computations according to the IEEE standard,
 using a perturbation of the real valued computation by (1 + delta), where
 |delta| <= machine epsilon.
 **)
-Definition trs_env := fun (x : nat) => R * (R * R).
+Definition trs_env := state.
 
 Definition fl (r : R) := r
   .

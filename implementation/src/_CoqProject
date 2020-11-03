@@ -2,6 +2,7 @@
 
 ./Environments.v
 ./ExpressionSemantics.v
+./ExpressionTransitions.v
 ./ErrorBounds.v
 ./Expressions.v
 ./AffineForm.v
@@ -14,6 +15,8 @@
 ./Imp.v
 ./Hoare.v
 ./Maps.v
+./Command.v
+./CommandSemantics.v
 ./Infra/RealSimps.v
 ./Infra/Ltacs.v
 ./Infra/ExpressionAbbrevs.v

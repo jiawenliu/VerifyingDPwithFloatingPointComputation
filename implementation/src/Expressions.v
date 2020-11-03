@@ -1,6 +1,12 @@
 (**
   Formalization of the base exprression language for the flover framework
  **)
+Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega 
+      Coq.Arith.Arith Coq.Arith.EqNat Ascii Coq.Bool.Bool.
+
+
+Import ListNotations.
+
 From Coq
      Require Import  Structures.Orders Recdef.
 
@@ -121,8 +127,6 @@ Inductive expr (V:Type): Type :=
 | Const: mType -> V -> expr V
 | Unop: unop -> expr V -> expr V
 | Binop: binop -> expr V -> expr V -> expr V                                
-(* TODO: do we need mType in let-exprs? *)
-(* | Cond: expr V -> expr V -> expr V -> expr V.*)
 .
 
 Fixpoint toRExp (e:expr Q) :=
