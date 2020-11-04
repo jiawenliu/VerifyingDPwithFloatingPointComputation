@@ -15,11 +15,11 @@ From Coq.QArith
 
 From Coq
      Require Import Reals.Reals.
-     
+
 (*From Snapv.Infra
      Require Import RealRationalProps RationalSimps.
 *)
-From Snapv.Infra
+From Snapv
      Require Export MachineType.
 
 From Snapv

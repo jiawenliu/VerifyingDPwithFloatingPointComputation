@@ -7,4 +7,4 @@
 ./Maps.v
 ./Command.v
 ./CommandSemantics.v
-./Infra/MachineType.v
+./MachineType.v

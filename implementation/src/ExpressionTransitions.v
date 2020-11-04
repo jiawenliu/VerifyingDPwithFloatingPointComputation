@@ -10,8 +10,6 @@ Import ListNotations.
 From Coq
      Require Import Reals.Reals.
 
-From Snapv.Infra
-     Require Import RealRationalProps RationalSimps.
 
 From Snapv
     Require Export Expressions.

@@ -21,7 +21,7 @@ From Coq
 From Coq.QArith
      Require Export Qreals.
 
-From Snapv.Infra
+From Snapv
      Require Export  MachineType.
 
 Require Import Omega.
