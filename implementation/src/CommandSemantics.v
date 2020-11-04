@@ -11,10 +11,10 @@ From Coq
      Require Import QArith.QArith Structures.Orders Recdef.
 
 From Snapv.Infra
-     Require Import RealRationalProps RationalSimps Ltacs.
+     Require Import RealRationalProps RationalSimps.
 
 From Snapv.Infra
-     Require Export Abbrevs NatSet MachineType.
+     Require Export Abbrevs MachineType.
 
 From Snapv
      Require Import Command ExpressionTransitions.
@@ -51,7 +51,7 @@ Definition fl (r : R) := r
 
 Definition err : Type :=  (R * R).
 
-
+(* TO RENAME *)
 Inductive trans_com (E : trs_env) (delta : R)
   :(command R) -> (trs_env) -> Prop :=
 | Seq_trans c1 c2 E1 E2:

@@ -6,10 +6,8 @@ From Coq
      micromega.Psatz Reals.Reals.
 
 From Snapv
-     Require Import Infra.Abbrevs Infra.RationalSimps Infra.RealRationalProps
-     Infra.RealSimps Infra.Ltacs Environments ErrorAnalysis ErrorBounds
-     IntervalArithQ  TypeValidator
-     Expressions Command ExpressionSemantics ExpressionTransitions
+     Require Import 
+     Expressions Command ExpressionTransitions
      CommandSemantics Maps Imp Hoare.
 
 (** Error bound validator **)

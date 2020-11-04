@@ -1,17 +1,7 @@
 -R . Snapv
 
-./Environments.v
-./ExpressionSemantics.v
 ./ExpressionTransitions.v
-./ErrorBounds.v
 ./Expressions.v
-./AffineForm.v
-./TypeValidator.v
-./ssaPrgs.v
-./ErrorAnalysis.v
-./ErrorValidation.v
-./OrderedExpressions.v
-./IntervalArithQ.v
 ./Imp.v
 ./Hoare.v
 ./Maps.v
@@ -19,11 +9,6 @@
 ./CommandSemantics.v
 ./SnapMech.v
 ./Infra/RealSimps.v
-./Infra/Ltacs.v
-./Infra/ExpressionAbbrevs.v
-./Infra/NatSet.v
-./Infra/Results.v
-./Infra/DebugLtacs.v
 ./Infra/Abbrevs.v
 ./Infra/RealRationalProps.v
 ./Infra/MachineType.v

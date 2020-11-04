@@ -18,7 +18,7 @@ From Snapv Require Import Imp.
 (* ################################################################# *)
 (** * Definitions *)
 
-Inductive hoare_proof : Assertion -> command -> R -> command -> Assertion -> Type :=
+Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Type :=
   | H_Skip : forall P,
       hoare_proof P (SKIP) 0 (SKIP) P
   | H_Asgn : forall Q V1 a1 V2 a2,

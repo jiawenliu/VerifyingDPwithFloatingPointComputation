@@ -9,10 +9,10 @@ From Coq
      Require Import QArith.QArith Structures.Orders Recdef.
 
 From Snapv.Infra
-     Require Import RealRationalProps RationalSimps Ltacs.
+     Require Import RealRationalProps RationalSimps.
 
 From Snapv.Infra
-     Require Export Abbrevs NatSet MachineType.
+     Require Export Abbrevs MachineType.
 
 From Snapv
       Require Export Expressions.

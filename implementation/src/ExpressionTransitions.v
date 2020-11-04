@@ -11,10 +11,7 @@ From Coq
      Require Import Reals.Reals.
 
 From Snapv.Infra
-     Require Import RealRationalProps RationalSimps Ltacs.
-
-From Snapv.Infra
-     Require Export ExpressionAbbrevs.
+     Require Import RealRationalProps RationalSimps.
 
 From Snapv
     Require Export Expressions.
@@ -54,7 +51,7 @@ Definition fl (r : R) := r
 
 
 Definition err : Type :=  (R * R).
-
+(*TO RENAME*)
 Inductive trans_expr (E : trs_env) (delta : R)
   :(expr R) -> R * err -> Prop :=
 | Var_load x v er1 er2:
@@ -78,7 +75,7 @@ Inductive trans_expr (E : trs_env) (delta : R)
     (evalUnop op v) > 0 -> 
     trans_expr E delta e (v, (er1, er2)) ->
     trans_expr E delta (Unop Neg e) 
-    (evalUnop Neg v, 
+    (fl (evalUnop Neg v), 
       (perturb (evalUnop op er1) delta Down, 
         perturb (evalUnop op er2) delta Up)) 
 | Unop_lt_zero e v op er1 er2:
