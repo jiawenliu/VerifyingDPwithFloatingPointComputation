@@ -7,9 +7,4 @@
 ./Maps.v
 ./Command.v
 ./CommandSemantics.v
-./SnapMech.v
-./Infra/RealSimps.v
-./Infra/Abbrevs.v
-./Infra/RealRationalProps.v
 ./Infra/MachineType.v
-./Infra/RationalSimps.v

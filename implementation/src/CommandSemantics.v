@@ -10,11 +10,17 @@ From Coq
 From Coq
      Require Import QArith.QArith Structures.Orders Recdef.
 
-From Snapv.Infra
-     Require Import RealRationalProps RationalSimps.
+From Coq.QArith
+     Require Export Qreals.
 
+From Coq
+     Require Import Reals.Reals.
+     
+(*From Snapv.Infra
+     Require Import RealRationalProps RationalSimps.
+*)
 From Snapv.Infra
-     Require Export Abbrevs MachineType.
+     Require Export MachineType.
 
 From Snapv
      Require Import Command ExpressionTransitions.
@@ -48,7 +54,6 @@ Definition trs_env := state.
 Definition fl (r : R) := r
   .
 
-
 Definition err : Type :=  (R * R).
 
 (* TO RENAME *)
@@ -61,12 +66,14 @@ Inductive trans_com (E : trs_env) (delta : R)
 | Asgn_trans x e v er1 er2:
     trans_expr E delta e (v, (er1, er2)) ->
     trans_com E delta (ASGN (Var R x) e) ((t_update E (of_nat x) (v, (er1, er2)))) (*(E & {(of_nat x) --> (v, (er1, er2)) })*)
-| Sample_trans x e1 e2 v er1 er2:
-    trans_expr E delta e1 (v, (er1, er2)) ->
-    er1 = er2 -> v = er1 ->
-    trans_com E delta (SAMPLE e1 e2) (t_update E (of_nat x) (v, (er1, er2))) (*(E & { sx --> (v, (er1, er2))}) *)
 | Skip_trans:
   trans_com E delta (SKIP R) E
+| Unif01_trans x v er1 er2:
+    er1 = er2 -> v = er1 ->
+    trans_com E delta (UNIF01 (Var R x)) (t_update E (of_nat x) (v, (er1, er2))) (*(E & { sx --> (v, (er1, er2))}) *)
+| Sample_trans x v er1 er2:
+    er1 = er2 -> v = er1 ->
+    trans_com E delta (UNIF1 (Var R x)) (t_update E (of_nat x) (v, (er1, er2))) (*(E & { sx --> (v, (er1, er2))}) *)
 .
 
 

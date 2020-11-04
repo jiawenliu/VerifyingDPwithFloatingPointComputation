@@ -2,7 +2,11 @@
   Formalization of the base exprression language for the flover framework
  **)
 Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega 
-      Coq.Arith.Arith Coq.Arith.EqNat Ascii Coq.Bool.Bool.
+      Coq.Arith.Arith Coq.Arith.EqNat Ascii Coq.Bool.Bool
+      Coq.Sets.Ensembles
+      Coq.Lists.ListSet
+      Coq.Reals.Rpower.
+
 
 
 Import ListNotations.
@@ -14,11 +18,11 @@ From Coq
 From Coq
      Require Import QArith.QArith Structures.Orders Recdef.
 
-From Snapv.Infra
-     Require Import RealRationalProps RationalSimps Ltacs.
+From Coq.QArith
+     Require Export Qreals.
 
 From Snapv.Infra
-     Require Export Abbrevs NatSet MachineType.
+     Require Export  MachineType.
 
 Require Import Omega.
 
@@ -26,9 +30,16 @@ Require Import Omega.
   Expressions will use binary operators.
   Define them first
 **)
+
+Definition eq_nat_dec : forall (n m : nat), {n =  m} + {n <> m}.
+Proof.
+  intros.
+  Admitted.
+
+
 Inductive binop : Type := Plus | Sub | Mult | Div | Round | Clamp.
 
-Definition binopEq (b1:binop) (b2:binop) :=
+Definition binopEq (b1 : binop) (b2 : binop) :=
   match b1, b2 with
   | Plus, Plus => true
   | Sub,  Sub  => true
@@ -37,19 +48,33 @@ Definition binopEq (b1:binop) (b2:binop) :=
   | Round, Round => true
   | Clamp, Clamp => true
   | _,_ => false
-  end.
+end.
 
 (**
   Next define an evaluation function for binary operators on reals.
   Errors are added on the exprression evaluation level later.
  **)
+
+
+Definition RClamp (v1:R) (v2:R) : R := 0%R
+(*  match (Rle v1 v2) with
+  | true => v1
+  | false => v2
+  end*).
+  
+              
+Definition RRound (v1:R) (v2:R) := 0%R.
+
+
+
 Definition evalBinop (o:binop) (v1:R) (v2:R) :=
   match o with
   | Plus => Rplus v1 v2
   | Sub => Rminus v1 v2
   | Mult => Rmult v1 v2
   | Div => Rdiv v1 v2
-  | _ => Rplus v1 v2
+  | Clamp => RClamp v1 v2
+  | Round => RRound v1 v2                   
   end.
 
 Lemma binopEq_refl b:
@@ -112,12 +137,13 @@ Qed.
 Definition evalUnop (o:unop) (v:R):=
   match o with
   |Neg => (- v)%R
-  |Ln => (/ v)%R
+  |Ln => (ln v)
+  (* TODO *)
   end .
 
-Definition evalFma (v1:R) (v2:R) (v3:R):=
+(*Definition evalFma (v1:R) (v2:R) (v3:R):=
   evalBinop Plus (evalBinop Mult v1 v2) v3.
-
+*)
 (**
   Define exprressions parametric over some value type V.
   Will ease reasoning about different instantiations later.
@@ -129,56 +155,12 @@ Inductive expr (V:Type): Type :=
 | Binop: binop -> expr V -> expr V -> expr V                                
 .
 
-Fixpoint toRExp (e:expr Q) :=
+Fixpoint freeVars (V:Type) (e:expr V) :=
   match e with
-  | Var _ v => Var R v
-  | Const m n => Const m (Q2R n)
-  | Unop o e1 => Unop o (toRExp e1)
-  | Binop o e1 e2 => Binop o (toRExp e1) (toRExp e2)
-   (* | Cond e1 e2 e3 => Cond (toRExp e1) (toRExp e2) (toRExp e3)*)
-  end.
-
-Fixpoint toREval (e:expr R) :=
-  match e with
-  | Var _ v => Var R v
-  | Const _ n => Const REAL n
-  | Unop o e1 => Unop o (toREval e1)
-  | Binop o e1 e2 => Binop o (toREval e1) (toREval e2)
- (* | Cond e1 e2 e3 => Cond (toREval e1) (toREval e2) (toREval e3) *)
-  end.
-
-Definition toRMap (d:expr R -> option mType) (e: expr R) :=
-  match d e with
-  | Some m => Some REAL
-  | None => None
-  end.
-
-Arguments toRMap _ _/.
-
-(**
-  Define the set of "used" variables of an expression to be the set of variables
-  occuring in it
-**)
-(*
-Fixpoint usedVars (V:Type) (e:expr V) :NatSet.t :=
-  match e with
-  | Var _ x => NatSet.singleton x
-  | Const _ _ => NatSet.empty
-  | Unop u e1 => usedVars e1
-  | Binop b e1 e2 => NatSet.union (usedVars e1) (usedVars e2)
-  | Fma e1 e2 e3 => NatSet.union (usedVars e1) (NatSet.union (usedVars e2) (usedVars e3))
-  | Downcast _ e1 => usedVars e1
-  | Let _ x e1 e2 => NatSet.union (NatSet.singleton x) (NatSet.union (usedVars e1) (usedVars e2))
-  | Cond e1 e2 e3 => usedVars e1 ∪ usedVars e2 ∪ usedVars e3
-  end.
-*)
-
-Fixpoint freeVars (V:Type) (e:expr V) :NatSet.t :=
-  match e with
-  | Var _ x => NatSet.singleton x
-  | Const _ _ => NatSet.empty
+  | Var _ x => (set_add  eq_nat_dec x [])
+  | Const _ _ => (empty_set nat)
   | Unop u e1 => freeVars e1
-  | Binop b e1 e2 => NatSet.union (freeVars e1) (freeVars e2)
+  | Binop b e1 e2 => set_union eq_nat_dec (freeVars e1) (freeVars e2)
  (*  | Cond e1 e2 e3 => freeVars e1 ∪ freeVars e2 ∪ freeVars e3 *)
   end.
 
@@ -253,18 +235,6 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
     | Binop _ _ _, Var _ _ => Gt
     | Binop _ _ _, Const _ _ => Gt
     | Binop _ _ _, Unop _ _ => Gt
-    (*
-    | Let _ _ _ _, _ => Lt
-    | Cond e11 e12 e13, Cond e21 e22 e23 =>
-      match exprCompare e11 e21 with
-      | Eq => match exprCompare e12 e22 with
-             | Eq => exprCompare e13 e23
-             | r => r
-             end
-      | r => r
-      end
-    | Cond _ _ _, _ => Gt
-     *)
     end.
 
   Lemma exprCompare_refl e: exprCompare e e = Eq.
@@ -322,84 +292,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
         destruct b1; try congruence;
           destruct (exprCompare e1_1 e2_1) eqn:?;
                    destruct (exprCompare e2_1 e3_1) eqn:?;
-                   try congruence; try erewrite IHe1_1; eauto.      
-   (*  - destruct (exprCompare e1_1 e2_1) eqn:?;
-        destruct (exprCompare e2_1 e3_1) eqn:?;
-      destruct (exprCompare e1_2 e2_2) eqn:?;
-        destruct (exprCompare e2_2 e3_2) eqn:?;
-      try congruence; try erewrite IHe1_1, IHe1_2; eauto.
-    - destruct (mTypeEq m m0) eqn:?;
-               destruct (mTypeEq m0 m1) eqn:?;
-               type_conv;
-        try rewrite mTypeEq_refl.
-      + eapply IHe1; eauto.
-      + destruct (mTypeEq m0 m1) eqn:?; type_conv; congruence.
-      + destruct (mTypeEq m m1) eqn:?; type_conv; congruence.
-      + destruct (mTypeEq m m1) eqn:?; type_conv; try congruence;
-          destruct (morePrecise _ m0); try congruence;
-            destruct m0,m1;
-            cbn in *; try congruence.
-        * destruct (w0 ?= w) eqn:?; destruct (f0 ?= f)%N eqn:?; try congruence.
-          apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in Heqc0;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        * destruct (w0 ?= w) eqn:?; destruct (f0 ?= f)%N eqn:?; try congruence.
-          apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in Heqc0;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        * destruct m; try congruence.
-          destruct (w1 ?= w) eqn:?; destruct (f1 ?= f)%N eqn:?; try congruence.
-          apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in Heqc0;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        * destruct m; try congruence.
-          destruct (w1 ?= w) eqn:?; destruct (f1 ?= f)%N eqn:?; try congruence.
-          apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in Heqc0;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-    - destruct (mTypeEq m m0) eqn:?;
-               destruct (mTypeEq m0 m1) eqn:?;
-               type_conv;
-        try rewrite mTypeEq_refl.
-      + destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        apply nat_compare_eq in Hn. subst.
-        destruct (n0 ?= n1)%nat eqn:?;
-          destruct (exprCompare e1_1 e2_1) eqn:?;
-          destruct (exprCompare e2_1 e3_1) eqn:?; try discriminate.
-        erewrite IHe1_1; eauto.
-      + destruct (mTypeEq m0 m1) eqn:?; type_conv; try congruence.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        apply nat_compare_eq in Hn. subst.
-        destruct (n0 ?= n1)%nat eqn:?;
-          destruct (exprCompare e1_1 e2_1) eqn:?;
-          destruct (exprCompare e2_1 e3_1) eqn:?; congruence.
-      + destruct (mTypeEq m m1) eqn:?; type_conv; try congruence.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        apply nat_compare_eq in Hn. subst.
-        destruct (n0 ?= n1)%nat eqn:?; congruence.
-      + destruct (mTypeEq m m1) eqn:?; type_conv;
-          destruct (n ?= n0)%nat eqn:Hn; try discriminate;
-          apply nat_compare_eq in Hn; subst;
-          destruct (n0 ?= n1)%nat eqn:?; try congruence;
-          destruct m0,m1;
-          cbn in *; try congruence.
-        * destruct (w0 ?= w) eqn:?; destruct (f0 ?= f)%N eqn:?; try congruence.
-          apply Ndec.Pcompare_Peqb in Heqc0;
-            apply N.compare_eq in Heqc1.
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        * destruct m; try congruence.
-          destruct (w1 ?= w) eqn:?; destruct (f1 ?= f)%N eqn:?; try congruence.
-          apply Ndec.Pcompare_Peqb in Heqc0;
-            apply N.compare_eq in Heqc1.
-            rewrite Pos.eqb_eq in *; subst; congruence.
-            (*
-    - destruct (exprCompare e1_1 e2_1) eqn:?;
-        destruct (exprCompare e2_1 e3_1) eqn:?;
-      destruct (exprCompare e1_2 e2_2) eqn:?;
-        destruct (exprCompare e2_2 e3_2) eqn:?;
-      try congruence; try erewrite IHe1_1, IHe1_2; eauto.
-*)
-*)
+                   try congruence; try erewrite IHe1_1; eauto.
   Qed.
 
   Lemma exprCompare_antisym e1:
@@ -450,83 +343,6 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
         rewrite CompOpp_iff in first_comp;
         rewrite first_comp; simpl; try auto.
   Qed. 
- (*    - destruct (exprCompare e1_1 e2_1) eqn:first_comp;
-      destruct (exprCompare e1_2 e2_2) eqn:second_comp;
-      rewrite IHe1_1, IHe1_2 in *; simpl in *;
-        rewrite CompOpp_iff in first_comp;
-        rewrite CompOpp_iff in second_comp;
-        rewrite first_comp, second_comp; simpl; try auto.
-    - rewrite mTypeEq_sym.
-      destruct (mTypeEq m0 m) eqn:?;
-               type_conv; try auto.
-      + destruct (morePrecise m m0) eqn:?;
-                 destruct (morePrecise m0 m) eqn:?;
-                 try (split; auto; fail).
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                  destruct (f ?= f0)%N eqn:?; simpl; auto.
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-    - rewrite mTypeEq_sym.
-      destruct (mTypeEq m0 m) eqn:?;
-               type_conv; try auto.
-      + rewrite Nat.compare_antisym.
-        destruct (n0 ?= n)%nat; cbn; auto.
-        destruct (exprCompare e1_1 e2_1) eqn:first_comp;
-          destruct (exprCompare e1_2 e2_2) eqn:second_comp;
-          rewrite IHe1_1, IHe1_2 in *;
-          rewrite CompOpp_iff in first_comp;
-          rewrite CompOpp_iff in second_comp;
-          rewrite first_comp, second_comp; cbn; auto.
-      + rewrite Nat.compare_antisym.
-        destruct (n0 ?= n)%nat; cbn; auto.
-        destruct (morePrecise m m0) eqn:?;
-                 destruct (morePrecise m0 m) eqn:?;
-                 try (split; auto; fail).
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-        * destruct m, m0; simpl in *; try congruence.
-          setoid_rewrite N.compare_antisym at 2.
-          setoid_rewrite Pos.compare_antisym at 2.
-          destruct (w ?= w0) eqn:?;
-                   destruct (f ?= f0)%N eqn:?; simpl; auto.
-          (*
-    - destruct (exprCompare e1_1 e2_1) eqn:first_comp;
-      destruct (exprCompare e1_2 e2_2) eqn:second_comp;
-      rewrite IHe1_1, IHe1_2 in *; simpl in *;
-        rewrite CompOpp_iff in first_comp;
-        rewrite CompOpp_iff in second_comp;
-        rewrite first_comp, second_comp; simpl; try auto.
-*)
-  Qed.*)
 
   Lemma exprCompare_eq_sym e1 e2:
       exprCompare e1 e2 = Eq <-> exprCompare e2 e1 = Eq.
@@ -584,98 +400,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
           try erewrite exprCompare_eq_trans; eauto.
   Qed.
 
-(*  - destruct (exprCompare e1_1 e2_1) eqn:?;
-        destruct (exprCompare e2_1 e3_1) eqn:?;
-        try congruence;
-        try (erewrite IHe1_1; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-      destruct (exprCompare e1_2 e2_2) eqn:?;
-        destruct (exprCompare e2_2 e3_2) eqn:?;
-        try congruence;
-        try (erewrite IHe1_2; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-    - destruct (mTypeEq m m0) eqn:?;
-               destruct (mTypeEq m0 m1) eqn:?.
-      + type_conv; subst. rewrite mTypeEq_refl. eapply IHe1; eauto.
-      + rewrite mTypeEq_compat_eq in Heqb; subst.
-        rewrite Heqb0. type_conv; subst. destruct m0, m1; try congruence;
-        try destruct (morePrecise _ _) eqn:?; try congruence.
-        destruct (w ?= w0) eqn:?; try congruence;
-          apply Ndec.Pcompare_Peqb in Heqc;
-          apply N.compare_eq in compare_eq;
-          rewrite Pos.eqb_eq in *; subst; congruence.
-      + rewrite mTypeEq_compat_eq in Heqb0; subst.
-        rewrite Heqb; destruct (morePrecise m m1) eqn:?; congruence.
-      + destruct (mTypeEq m m1); type_conv.
-        * destruct (morePrecise m0 m1);  destruct m, m0, m1; try congruence;
-            destruct (w0 ?= w1) eqn:?; try congruence;
-            apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in compare_eq;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        * destruct (morePrecise m m1); destruct (morePrecise m0 m1);
-            destruct m, m0, m1; try congruence;
-            destruct (w0 ?= w1) eqn:?; try congruence;
-            apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in compare_eq;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-    - destruct (mTypeEq m m0) eqn:?;
-               destruct (mTypeEq m0 m1) eqn:?.
-      + type_conv; subst. rewrite mTypeEq_refl.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        * apply nat_compare_eq in Hn. subst.
-          destruct (n0 ?= n1)%nat eqn:?; try discriminate.
-          destruct (exprCompare e1_1 e2_1) eqn:?;
-            destruct (exprCompare e2_1 e3_1) eqn:?;
-            try congruence;
-            try (erewrite IHe1_1; eauto; fail "").
-          erewrite (exprCompare_eq_trans e1_1); eauto.
-        * destruct (n0 ?= n1)%nat eqn:Hn1; try discriminate.
-          apply nat_compare_eq in Hn1. subst.
-          now rewrite Hn.
-      + rewrite mTypeEq_compat_eq in Heqb; subst.
-        rewrite Heqb0. type_conv.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        * apply nat_compare_eq in Hn. subst.
-          destruct (n0 ?= n1)%nat eqn:?; try discriminate.
-          destruct m0, m1; try discriminate.
-          destruct (w ?= w0) eqn:?, (f ?= f0)%N eqn:?; try discriminate.
-          apply Ndec.Pcompare_Peqb in Heqc0;
-            apply N.compare_eq in Heqc1;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        * destruct (n0 ?= n1)%nat eqn:Hn1; try discriminate.
-          apply nat_compare_eq in Hn1. subst.
-          now rewrite Hn.
-      + rewrite mTypeEq_compat_eq in Heqb0; subst.
-        rewrite Heqb. type_conv.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        * apply nat_compare_eq in Hn. subst.
-          destruct (n0 ?= n1)%nat eqn:?; try discriminate.
-          auto.
-        * destruct (n0 ?= n1)%nat eqn:Hn1; try discriminate.
-          apply nat_compare_eq in Hn1. subst.
-          now rewrite Hn.
-      + destruct (mTypeEq m m1); type_conv;
-          destruct (n ?= n0)%nat eqn:Hn;
-          destruct (n0 ?= n1)%nat eqn:Hn1; try discriminate;
-          destruct m0, m1; try discriminate;
-          destruct (w ?= w0) eqn:?, (f ?= f0)%N eqn:?; try discriminate;
-          apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in Heqc0;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        (*
-    - destruct (exprCompare e1_1 e2_1) eqn:?;
-        destruct (exprCompare e2_1 e3_1) eqn:?;
-        try congruence;
-        try (erewrite IHe1_1; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-      destruct (exprCompare e1_2 e2_2) eqn:?;
-        destruct (exprCompare e2_2 e3_2) eqn:?;
-        try congruence;
-        try (erewrite IHe1_2; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-*)
-  Qed.
-  *)
+
     
   Lemma exprCompare_eq_lt_is_lt e1:
     forall e2 e3,
@@ -724,95 +449,25 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
           try (erewrite IHe1_1; eauto; fail "");
           try erewrite exprCompare_eq_trans; eauto.
   Qed.
-  (*- destruct (exprCompare e1_1 e2_1) eqn:?;
-        destruct (exprCompare e2_1 e3_1) eqn:?;
-        try congruence;
-        try (erewrite IHe1_1; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-      destruct (exprCompare e1_2 e2_2) eqn:?;
-        destruct (exprCompare e2_2 e3_2) eqn:?;
-        try congruence;
-        try (erewrite IHe1_2; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-    - destruct (mTypeEq m m0) eqn:?;
-               destruct (mTypeEq m0 m1) eqn:?.
-      + type_conv; subst. rewrite mTypeEq_refl. eapply IHe1; eauto.
-      + rewrite mTypeEq_compat_eq in Heqb; subst.
-        rewrite Heqb0.
-        destruct (morePrecise m0 m1); congruence.
-      + rewrite mTypeEq_compat_eq in Heqb0; subst.
-        rewrite Heqb; destruct m, m1; try (repeat destruct (morePrecise _ _)); try congruence.
-          destruct (w ?= w0) eqn:case1;
-                   destruct (f ?= f0)%N eqn:case2;
-                   try congruence;
-            apply Ndec.Pcompare_Peqb in case1;
-            apply N.compare_eq in case2;
-            rewrite Pos.eqb_eq in *; subst; cbn in *;
-              repeat rewrite Pos.eqb_refl in *; simpl in *; try congruence.
-          rewrite N.eqb_neq in *; congruence.
-      + type_conv; subst.
-        destruct (mTypeEq m m1); type_conv; destruct m, m0, m1; try congruence;
-          try (repeat destruct (morePrecise _ _)); try congruence;
-          destruct (w ?= w0) eqn:case1;
-                   destruct (f ?= f0)%N eqn:case2;
-                   try congruence;
-            apply Ndec.Pcompare_Peqb in case1;
-            apply N.compare_eq in case2;
-            rewrite Pos.eqb_eq in *; subst; cbn in *;
-              repeat rewrite Pos.eqb_refl in *; simpl in *; congruence.
-    - destruct (mTypeEq m m0) eqn:?;
-               destruct (mTypeEq m0 m1) eqn:?.
-      + type_conv; subst. rewrite mTypeEq_refl.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        * apply nat_compare_eq in Hn. subst.
-          destruct (n0 ?= n1)%nat eqn:?; try congruence.
-          destruct (exprCompare e1_1 e2_1) eqn:?;
-            destruct (exprCompare e2_1 e3_1) eqn:?;
-            try congruence;
-            try (erewrite IHe1_1; eauto; fail "").
-          erewrite (exprCompare_eq_trans e1_1); eauto.
-      + rewrite mTypeEq_compat_eq in Heqb; subst.
-        rewrite Heqb0. type_conv.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        apply nat_compare_eq in Hn; subst.
-          destruct (n0 ?= n1)%nat eqn:?; congruence.
-      + rewrite mTypeEq_compat_eq in Heqb0; subst.
-        rewrite Heqb. type_conv.
-        destruct (n ?= n0)%nat eqn:Hn; try discriminate.
-        destruct m, m1; try discriminate.
-        destruct (w ?= w0) eqn:?, (f ?= f0)%N eqn:?; try discriminate.
-        apply Ndec.Pcompare_Peqb in Heqc;
-          apply N.compare_eq in Heqc0;
-          rewrite Pos.eqb_eq in *; subst; congruence.
-      + destruct (mTypeEq m m1); type_conv;
-          destruct (n ?= n0)%nat eqn:Hn;
-          (* destruct (n0 ?= n1)%nat eqn:Hn1; try discriminate; *)
-          destruct m, m0; try discriminate;
-          destruct (w ?= w0) eqn:?, (f ?= f0)%N eqn:?; try discriminate;
-          apply Ndec.Pcompare_Peqb in Heqc;
-            apply N.compare_eq in Heqc0;
-            rewrite Pos.eqb_eq in *; subst; congruence.
-        (*
-    - destruct (exprCompare e1_1 e2_1) eqn:?;
-        destruct (exprCompare e2_1 e3_1) eqn:?;
-        try congruence;
-        try (erewrite IHe1_1; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-      destruct (exprCompare e1_2 e2_2) eqn:?;
-        destruct (exprCompare e2_2 e3_2) eqn:?;
-        try congruence;
-        try (erewrite IHe1_2; eauto; fail "");
-        try erewrite exprCompare_eq_trans; eauto.
-*)
-  Qed.
-*)
+  
   Definition eq e1 e2 :=
     exprCompare e1 e2 = Eq.
 
   Definition lt (e1:expr V) (e2: expr V):=
     exprCompare e1 e2 = Lt.
+ 
+  
+  Instance eq_equiv: Equivalence eq.
+  Proof.
+    split; unfold Reflexive, Symmetric, Transitive, eq.
+    - apply exprCompare_refl.
+    - intros. rewrite exprCompare_antisym in * |-.
+      rewrite CompOpp_iff in * |- .
+      auto.
+    - apply exprCompare_eq_trans.
+  Defined.
 
-  Instance lt_strorder : StrictOrder lt.
+ Instance lt_strorder : StrictOrder lt.
   Proof.
     split.
     - unfold Irreflexive.
@@ -827,18 +482,6 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
         apply IHx; auto.
       + destruct b;
           destruct (exprCompare x1 x1) eqn:?; try congruence.
-(*      + destruct (exprCompare x1 x1) eqn:?; destruct (exprCompare x2 x2) eqn:?; try congruence.
-      + rewrite mTypeEq_refl in lt_x.
-        apply IHx; auto.
-      + rewrite mTypeEq_refl in *.
-        rewrite Nat.compare_refl in *.
-        destruct (exprCompare x1 x1) eqn:?;
-                 destruct (exprCompare x2 x2) eqn:?; congruence.
-        (*
-      + destruct (exprCompare x1 x1) eqn:?;
-                 destruct (exprCompare x2 x2) eqn:?;
-                 destruct (exprCompare x3 x3) eqn:?; congruence.
-*)*)
     - unfold Transitive.
       intros e1. unfold lt.
       induction e1; intros * lt_e1_e2 lt_e2_e3;
@@ -965,202 +608,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
           try (erewrite IHe1_1; eauto).
   Qed.
 
-  (*+ destruct (exprCompare e1_1 y1) eqn:?; try congruence;
-          destruct (exprCompare y1 z1) eqn:?; try congruence;
-          try (erewrite exprCompare_eq_lt_is_lt; eauto; fail);
-          try (erewrite exprCompare_lt_eq_is_lt; eauto; fail);
-          try (erewrite IHe1_1; eauto; fail).
-        apply (exprCompare_eq_trans _ _ _ Heqc) in Heqc0;
-          rewrite Heqc0.
-        destruct (exprCompare e1_2 y2) eqn:?; try congruence;
-          destruct (exprCompare y2 z2) eqn:?; try congruence;
-          try (erewrite exprCompare_eq_trans; eauto; fail);
-          try (erewrite exprCompare_eq_lt_is_lt; eauto; fail);
-          try (erewrite exprCompare_lt_eq_is_lt; eauto; fail);
-          try (erewrite IHe1_2; eauto).
-      + destruct (mTypeEq m m0) eqn:?;
-                 destruct (mTypeEq m0 m1) eqn:?;
-                 [type_conv; subst; rewrite mTypeEq_refl | | | ].
-        * eapply IHe1; eauto.
-        * rewrite mTypeEq_compat_eq in Heqb; subst.
-          rewrite Heqb0; destruct (morePrecise m0 m1); congruence.
-        * rewrite mTypeEq_compat_eq in Heqb0; subst.
-          rewrite Heqb. destruct (morePrecise m m1); congruence.
-        * destruct (mTypeEq m m1) eqn:?.
-          { rewrite mTypeEq_compat_eq in Heqb1; subst.
-            destruct (morePrecise m1 m0) eqn:prec1;
-                     destruct (morePrecise m0 m1) eqn:prec2;
-                     destruct m1, m0;
-                     try rewrite mTypeEq_refl in *; try congruence;
-                       try pose proof (morePrecise_antisym _ _ prec1 prec2);
-                       type_conv; try congruence;
-                         simpl in *; try congruence;
-            rewrite Pos.compare_antisym in lt_e2_e3;
-            rewrite N.compare_antisym in lt_e2_e3;
-            destruct (w ?= w0) eqn:?; destruct (f ?= f0)%N eqn:?;
-                     cbn in *; try congruence. }
-          { type_conv; subst.
-            destruct (morePrecise m1 m0) eqn:prec1;
-                     destruct (morePrecise m0 m1) eqn:prec2;
-                     destruct m, m0, m1; simpl in *; try congruence; try auto;
-                       try rewrite prec1 in *; try rewrite prec2 in *; try congruence;
-                         destruct (w ?= w0) eqn:case_w0; destruct (w0 ?= w1) eqn:case_w1;
-                try (apply Ndec.Pcompare_Peqb in case_w0);
-                try (apply Ndec.Pcompare_Peqb in case_w1);
-                try rewrite Pos.eqb_eq in *;
-                try rewrite N.eqb_eq in *;
-                subst;
-                try congruence;
-                try rewrite case_w0;
-                try rewrite case_w1; try auto;
-                try rewrite Pos.compare_refl;
-                try (rewrite N.compare_lt_iff in *; eapply N.lt_trans; eauto);
-                assert (w ?= w1 = Lt) as G
-                    by (rewrite Pos.compare_lt_iff in *;
-                        eapply Pos.lt_trans; eauto);
-                rewrite G; auto. }
-      + destruct (mTypeEq m m0) eqn:?;
-                 destruct (mTypeEq m0 m1) eqn:?;
-                 [type_conv; subst; rewrite mTypeEq_refl | | | ].
-        { destruct (n ?= n0)%nat eqn:c1; destruct (n0 ?= n1)%nat eqn:c2; try congruence.
-          - apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-            rewrite Nat.compare_refl.
-            destruct (exprCompare e1_1 y1) eqn:?;
-                     destruct (exprCompare y1 z1) eqn:?; try congruence.
-            + erewrite exprCompare_eq_trans; eauto.
-            + erewrite exprCompare_eq_lt_is_lt; eauto.
-            + erewrite exprCompare_lt_eq_is_lt; eauto.
-            + erewrite IHe1_1; eauto.
-          - apply Nat.compare_eq in c1. subst.
-            now rewrite c2.
-          - apply Nat.compare_eq in c2. subst.
-            now rewrite c1.
-          - apply nat_compare_lt in c1. apply nat_compare_lt in c2.
-            assert (c3: (n ?= n1)%nat = Lt) by (apply nat_compare_lt; omega).
-            now rewrite c3. }
-        { destruct (n ?= n0)%nat eqn:c1; destruct (n0 ?= n1)%nat eqn:c2; try congruence.
-          - apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-            rewrite Nat.compare_refl.
-            apply mTypeEq_compat_eq in Heqb. subst.
-            rewrite Heqb0. auto.
-          - apply Nat.compare_eq in c1. subst.
-            rewrite c2. now destruct (mTypeEq m m1).
-          - apply Nat.compare_eq in c2. subst.
-            rewrite c1. now destruct (mTypeEq m m1).
-          - apply nat_compare_lt in c1. apply nat_compare_lt in c2.
-            assert (c3: (n ?= n1)%nat = Lt) by (apply nat_compare_lt; omega).
-            rewrite c3. now destruct (mTypeEq m m1). }
-        { destruct (n ?= n0)%nat eqn:c1; destruct (n0 ?= n1)%nat eqn:c2; try congruence.
-          - apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-            rewrite Nat.compare_refl.
-            apply mTypeEq_compat_eq in Heqb0. subst.
-            rewrite Heqb. auto.
-          - apply Nat.compare_eq in c1. subst.
-            rewrite c2. now destruct (mTypeEq m m1).
-          - apply Nat.compare_eq in c2. subst.
-            rewrite c1. now destruct (mTypeEq m m1).
-          - apply nat_compare_lt in c1. apply nat_compare_lt in c2.
-            assert (c3: (n ?= n1)%nat = Lt) by (apply nat_compare_lt; omega).
-            rewrite c3. now destruct (mTypeEq m m1). }
-        { destruct (n ?= n0)%nat eqn:c1; destruct (n0 ?= n1)%nat eqn:c2; try congruence.
-          - apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-            rewrite Nat.compare_refl.
-            destruct (mTypeEq m m1) eqn:?.
-            + type_conv.
-              destruct (morePrecise m1 m0) eqn:prec1;
-                destruct (morePrecise m0 m1) eqn:prec2;
-                destruct m0, m1; simpl in *; try congruence; try auto;
-                  destruct (w ?= w0) eqn:case_w0; rewrite Pos.compare_antisym in lt_e1_e2;
-                    rewrite case_w0 in *; cbn in *; try congruence;
-                      rewrite N.compare_antisym, lt_e2_e3 in lt_e1_e2; cbn in *; congruence.
-            + type_conv; subst.
-              destruct (morePrecise m1 m0) eqn:prec1;
-                destruct (morePrecise m0 m1) eqn:prec2;
-                destruct m, m0, m1; simpl in *; try congruence; try auto;
-                  destruct (w ?= w0) eqn:case_w0; destruct (w0 ?= w1) eqn:case_w1;
-                    try (apply Ndec.Pcompare_Peqb in case_w0);
-                    try (apply Ndec.Pcompare_Peqb in case_w1);
-                    try rewrite Pos.eqb_eq in *;
-                    try rewrite N.eqb_eq in *;
-                    subst;
-                    try congruence;
-                    try rewrite case_w0;
-                    try rewrite case_w1; try auto;
-                      try rewrite Pos.compare_refl;
-                      try (rewrite N.compare_lt_iff in *; eapply N.lt_trans; eauto);
-                      assert (w ?= w1 = Lt) as G
-                          by (rewrite Pos.compare_lt_iff in *;
-                              eapply Pos.lt_trans; eauto);
-                      rewrite G; auto.
-          - apply Nat.compare_eq in c1. subst.
-            rewrite c2. now destruct (mTypeEq m m1).
-          - apply Nat.compare_eq in c2. subst.
-            rewrite c1. now destruct (mTypeEq m m1).
-          - apply nat_compare_lt in c1. apply nat_compare_lt in c2.
-            assert (c3: (n ?= n1)%nat = Lt) by (apply nat_compare_lt; omega).
-            rewrite c3. now destruct (mTypeEq m m1). }
-
-        (*
-         destruct (morePrecise m m0); destruct m, m0; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-        * rewrite mTypeEq_compat_eq in Heqb; subst.
-          rewrite Heqb0; destruct (morePrecise m0 m1); congruence.
-        * rewrite mTypeEq_compat_eq in Heqb0; subst.
-          rewrite Heqb. destruct (morePrecise m m1); congruence.
-        * destruct (mTypeEq m m1) eqn:?.
-          { rewrite mTypeEq_compat_eq in Heqb1; subst.
-            destruct (morePrecise m1 m0) eqn:prec1;
-                     destruct (morePrecise m0 m1) eqn:prec2;
-                     destruct m1, m0;
-                     try rewrite mTypeEq_refl in *; try congruence;
-                       try pose proof (morePrecise_antisym _ _ prec1 prec2);
-                       type_conv; try congruence;
-                         simpl in *; try congruence;
-            rewrite Pos.compare_antisym in lt_e2_e3;
-            rewrite N.compare_antisym in lt_e2_e3;
-            destruct (w ?= w0) eqn:?; destruct (f ?= f0)%N eqn:?;
-                     cbn in *; try congruence. }
-          { type_conv; subst.
-            destruct (morePrecise m1 m0) eqn:prec1;
-                     destruct (morePrecise m0 m1) eqn:prec2;
-                     destruct m, m0, m1; simpl in *; try congruence; try auto;
-                       try rewrite prec1 in *; try rewrite prec2 in *; try congruence;
-                         destruct (w ?= w0) eqn:case_w0; destruct (w0 ?= w1) eqn:case_w1;
-                try (apply Ndec.Pcompare_Peqb in case_w0);
-                try (apply Ndec.Pcompare_Peqb in case_w1);
-                try rewrite Pos.eqb_eq in *;
-                try rewrite N.eqb_eq in *;
-                subst;
-                try congruence;
-                try rewrite case_w0;
-                try rewrite case_w1; try auto;
-                try rewrite Pos.compare_refl;
-                try (rewrite N.compare_lt_iff in *; eapply N.lt_trans; eauto);
-                assert (w ?= w1 = Lt) as G
-                    by (rewrite Pos.compare_lt_iff in *;
-                        eapply Pos.lt_trans; eauto);
-                rewrite G; auto. }
-*)
-        (* case for Cond
-      + destruct (exprCompare e1_1 y1) eqn:?; try congruence;
-          destruct (exprCompare y1 z1) eqn:?; try congruence;
-          try (erewrite exprCompare_eq_lt_is_lt; eauto; fail);
-          try (erewrite exprCompare_lt_eq_is_lt; eauto; fail);
-          try (erewrite IHe1_1; eauto; fail).
-        apply (exprCompare_eq_trans _ _ _ Heqc) in Heqc0;
-          rewrite Heqc0.
-        destruct (exprCompare e1_2 y2) eqn:?; try congruence;
-          destruct (exprCompare y2 z2) eqn:?; try congruence;
-          try (erewrite exprCompare_eq_trans; eauto; fail);
-          try (erewrite exprCompare_eq_lt_is_lt; eauto; fail);
-          try (erewrite exprCompare_lt_eq_is_lt; eauto; fail);
-          try (erewrite IHe1_2; eauto).
-*)
-  Qed.*)
-
-  Instance eq_compat: Proper (eq ==> eq ==> iff) eq.
+    Instance eq_compat: Proper (eq ==> eq ==> iff) eq.
   Proof.
     unfold Proper; hnf.
     intros e1; induction e1;
@@ -1206,101 +654,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
       try (specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *; rewrite IHe1_1 in *; congruence);
       try (specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *; rewrite <- IHe1_1 in *; congruence).
   Qed.
-
   
-(*
-    - try (split; auto; fail);
-        destruct (exprCompare e1_1 e2_1) eqn:?;
-                 destruct (exprCompare e3_1 e4_1) eqn:?;
-                 try congruence;
-        destruct (exprCompare e1_1 e3_1) eqn:?;
-                 destruct (exprCompare e2_1 e4_1) eqn:?;
-                 try (split; congruence);
-        try (specialize (IHe1_2 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *; rewrite IHe1_2 in *; split; auto; fail);
-        try (split; try congruence; intros);
-        try (specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *; rewrite IHe1_1 in *; congruence);
-        try (specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *; rewrite <- IHe1_1 in *; congruence);
-        try (split; auto; fail);
-        destruct (exprCompare e1_2 e2_2) eqn:?;
-                 destruct (exprCompare e3_2 e4_2) eqn:?;
-                 try congruence;
-        destruct (exprCompare e1_2 e3_2) eqn:?;
-                 destruct (exprCompare e2_2 e4_2) eqn:?;
-                 try (split; congruence);
-        try (split; try congruence; intros);
-        try (specialize (IHe1_2 _ Heqc3 _ _ Heqc4); simpl in *; rewrite IHe1_2 in *; congruence);
-        try (specialize (IHe1_2 _ Heqc3 _ _ Heqc4); simpl in *; rewrite <- IHe1_2 in *; congruence);
-        try congruence;
-        erewrite exprCompare_eq_trans; eauto;
-        erewrite exprCompare_eq_trans; eauto;
-        rewrite exprCompare_antisym;
-        now (try rewrite e3_eq_e4; try rewrite e1_eq_e2).
-    -  destruct (mTypeEq m m0) eqn:?; destruct (mTypeEq m1 m2) eqn:?;
-               [type_conv | | |].
-       + specialize (IHe1 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *.
-         destruct (mTypeEq m0 m2); try congruence.
-         split; auto.
-      + destruct (morePrecise m1 m2); destruct m1, m2; try congruence;
-        destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-          apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-        rewrite Pos.eqb_eq in *; subst; rewrite mTypeEq_refl in *; congruence.
-      + destruct (morePrecise m m0); destruct m, m0; try congruence;
-        destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-          apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-        rewrite Pos.eqb_eq in *; subst; rewrite mTypeEq_refl in *; congruence.
-      + destruct (morePrecise m m0); destruct m, m0; try congruence;
-        destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-          apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-        rewrite Pos.eqb_eq in *; subst; rewrite mTypeEq_refl in *; congruence.
-    -  destruct (mTypeEq m m0) eqn:?; destruct (mTypeEq m1 m2) eqn:?;
-               [type_conv | | |].
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         destruct (mTypeEq m0 m2); try reflexivity; try congruence.
-         destruct (exprCompare e1_1 e2_1) eqn:?;
-                  destruct (exprCompare e3_1 e4_1) eqn:?;
-                  try congruence.
-         destruct (n0 ?= n2)%nat; try tauto.
-         destruct (exprCompare e1_1 e3_1) eqn:?;
-                  destruct (exprCompare e2_1 e4_1) eqn:?;
-                  try (split; congruence).
-         * now specialize (IHe1_2 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *.
-         * split; try congruence. intros H.
-           specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite <- Heqc2. tauto.
-         * split; try congruence. intros H.
-           specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite <- Heqc2. tauto.
-         * split; try congruence. intros H.
-           specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite <- Heqc1. tauto.
-         * split; try congruence. intros H.
-           specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite <- Heqc1. tauto.
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         type_conv.
-         destruct (morePrecise m1 m2); destruct m1, m2; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         type_conv.
-         destruct (morePrecise m m0); destruct m, m0; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         type_conv.
-         destruct (morePrecise m m0); destruct m, m0; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-  
-  Qed. *)
-
   Instance lt_compat: Proper (eq ==> eq ==> iff) lt.
   Proof.
     unfold Proper; hnf.
@@ -1359,120 +713,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
         try (rewrite <- (eq_comp _ _ Heqc _ _ Heqc0) in *; congruence).
   Qed.
 
- (* - pose proof eq_compat as eq_comp. unfold Proper, eq in eq_comp.
-      destruct (exprCompare e1_1 e2_1) eqn:?;
-               destruct (exprCompare e3_1 e4_1) eqn:?;
-               try congruence;
-        destruct (exprCompare e1_1 e3_1) eqn:?;
-                 destruct (exprCompare e2_1 e4_1) eqn:?;
-                 try (split; congruence);
-        try (specialize (IHe1_2 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *; rewrite IHe1_2 in *; split; auto; fail);
-        try (split; try congruence; intros);
-        try (specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *; rewrite IHe1_1 in *; congruence);
-        try (specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *; rewrite <- IHe1_1 in *; congruence);
-        try (rewrite (eq_comp _ _ Heqc _ _ Heqc0) in *; congruence);
-        try (rewrite <- (eq_comp _ _ Heqc _ _ Heqc0) in *; congruence);
-        destruct (exprCompare e1_2 e2_2) eqn:?;
-               destruct (exprCompare e3_2 e4_2) eqn:?;
-               try congruence;
-        destruct (exprCompare e1_2 e3_2) eqn:?;
-                 destruct (exprCompare e2_2 e4_2) eqn:?;
-                 try (split; congruence);
-        try (specialize (IHe1_3 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *; rewrite IHe1_3 in *; split; auto; fail);
-        try (split; try congruence; intros);
-        try (specialize (IHe1_2 _ Heqc3 _ _ Heqc4); simpl in *; rewrite IHe1_2 in *; congruence);
-        try (specialize (IHe1_2 _ Heqc3 _ _ Heqc4); simpl in *; rewrite <- IHe1_2 in *; congruence);
-        try (rewrite (eq_comp _ _ Heqc3 _ _ Heqc4) in *; congruence);
-        try (rewrite <- (eq_comp _ _ Heqc3 _ _ Heqc4) in *; congruence);
-        try congruence.
-      + apply (exprCompare_lt_eq_is_lt _ _ _ H) in e3_eq_e4;
-        rewrite exprCompare_eq_sym in e1_eq_e2;
-        now apply (exprCompare_eq_lt_is_lt _ _ _ e1_eq_e2).
-      + rewrite exprCompare_eq_sym in e3_eq_e4;
-        apply (exprCompare_lt_eq_is_lt _ _ _ H) in e3_eq_e4;
-        now apply (exprCompare_eq_lt_is_lt _ _ _ e1_eq_e2).
-    -  destruct (mTypeEq m m0) eqn:?; destruct (mTypeEq m1 m2) eqn:?;
-               [type_conv | | |].
-       + specialize (IHe1 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *.
-         destruct (mTypeEq m0 m2); try congruence.
-         split; auto.
-      + destruct (morePrecise m1 m2); destruct m1, m2; try congruence;
-        destruct (w ?= w0) eqn:case1; destruct (f ?= f0)%N eqn:case2;
-          try congruence;
-          apply Ndec.Pcompare_Peqb in case1;
-          apply N.compare_eq in case2;
-          rewrite Pos.eqb_eq in *; subst; cbn in *;
-            repeat rewrite N.eqb_refl, Pos.eqb_refl in *; simpl in *; try congruence.
-      + destruct (morePrecise m m0); destruct m, m0; try congruence;
-        destruct (w ?= w0) eqn:case1; destruct (f ?= f0)%N eqn:case2;
-          try congruence;
-          apply Ndec.Pcompare_Peqb in case1;
-          apply N.compare_eq in case2;
-          rewrite Pos.eqb_eq in *; subst; cbn in *;
-            repeat rewrite Pos.eqb_refl, N.eqb_refl in *; simpl in *; try congruence.
-      + destruct (morePrecise m m0); destruct m, m0; try congruence;
-        destruct (w ?= w0) eqn:case1; destruct (f ?= f0)%N eqn:case2;
-          try congruence;
-          apply Ndec.Pcompare_Peqb in case1;
-          apply N.compare_eq in case2;
-          rewrite Pos.eqb_eq in *; subst; cbn in *;
-            repeat rewrite N.eqb_refl, Pos.eqb_refl in *; simpl in *; try congruence.
-    - pose proof eq_compat as eq_comp. unfold Proper, eq in eq_comp.
-       destruct (mTypeEq m m0) eqn:?; destruct (mTypeEq m1 m2) eqn:?;
-               [type_conv | | |].
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         destruct (mTypeEq m0 m2); try reflexivity; try congruence.
-         destruct (exprCompare e1_1 e2_1) eqn:?;
-                  destruct (exprCompare e3_1 e4_1) eqn:?;
-                  try congruence.
-         destruct (n0 ?= n2)%nat; try tauto.
-         destruct (exprCompare e1_1 e3_1) eqn:?;
-                  destruct (exprCompare e2_1 e4_1) eqn:?;
-                  try (split; congruence).
-         * now specialize (IHe1_2 _ e1_eq_e2 _ _ e3_eq_e4); simpl in *.
-         * specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite <- IHe1_1 in *. congruence.
-         * pose proof (exprCompare_eq_trans _ _ _ Heqc1 Heqc0).
-           apply exprCompare_eq_sym in Heqc.
-           pose proof (exprCompare_eq_trans _ _ _ Heqc H).
-           congruence.
-         * specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite IHe1_1 in *. congruence.
-         * specialize (IHe1_1 _ Heqc _ _ Heqc0); simpl in *.
-           rewrite IHe1_1 in *. congruence.
-         * pose proof (exprCompare_eq_trans _ _ _ Heqc Heqc2).
-           apply exprCompare_eq_sym in Heqc0.
-           pose proof (exprCompare_eq_trans _ _ _ H Heqc0).
-           congruence.
-         * pose proof (exprCompare_eq_lt_is_lt _ _ _ Heqc Heqc2).
-           apply exprCompare_eq_sym in Heqc0.
-           pose proof (exprCompare_lt_eq_is_lt _ _ _ H Heqc0).
-           congruence.
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         type_conv.
-         destruct (morePrecise m1 m2); destruct m1, m2; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-       + destruct (n ?= n0)%nat; try congruence.
-         type_conv.
-         destruct (morePrecise m m0); destruct m, m0; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-       + destruct (n ?= n0)%nat eqn:c1; destruct (n1 ?= n2)%nat eqn:c2; try congruence.
-         apply Nat.compare_eq in c1. apply Nat.compare_eq in c2. subst.
-         type_conv.
-         destruct (morePrecise m m0); destruct m, m0; try congruence;
-           destruct (w ?= w0) eqn:c1; destruct (f ?= f0)%N eqn:c2; try congruence;
-             apply Ndec.Pcompare_Peqb in c1; apply N.compare_eq in c2;
-               rewrite Pos.eqb_eq in *; subst; congruence.
-  
-  Qed. *)
-
-  Lemma compare_spec : forall x y, CompSpec eq lt x y (exprCompare x y).
+    Lemma compare_spec : forall x y, CompSpec eq lt x y (exprCompare x y).
   Proof.
     intros e1 e2.
     destruct (exprCompare e1 e2) eqn:?.
@@ -1485,17 +726,8 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
       simpl in *; auto.
   Qed.
 
-  Instance eq_equiv: Equivalence eq.
-  Proof.
-    split; unfold Reflexive, Symmetric, Transitive, eq.
-    - apply exprCompare_refl.
-    - intros. rewrite exprCompare_antisym in * |-.
-      rewrite CompOpp_iff in * |- .
-      auto.
-    - apply exprCompare_eq_trans.
-  Defined.
 
-  Definition eq_dec : forall x y, { eq x y } + { ~ eq x y }.
+    Definition eq_dec : forall x y, { eq x y } + { ~ eq x y }.
   Proof.
     intros. unfold eq. destruct (exprCompare x y) eqn:?; try auto.
     - right; hnf; intros; congruence.
@@ -1531,9 +763,10 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
     intros. unfold lt,eq in *. hnf; intros; congruence.
   Defined.
 
-  Definition compare e1 e2:= exprCompare e1 e2.
+    Definition compare e1 e2:= exprCompare e1 e2.
 
-  Close Scope positive_scope.
+
+    Close Scope positive_scope.
 
 End ExprOrderedType.
 

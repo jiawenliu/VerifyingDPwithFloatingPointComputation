@@ -8,12 +8,6 @@ From Coq
 From Coq
      Require Import QArith.QArith Structures.Orders Recdef.
 
-From Snapv.Infra
-     Require Import RealRationalProps RationalSimps.
-
-From Snapv.Infra
-     Require Export Abbrevs MachineType.
-
 From Snapv
       Require Export Expressions.
 
@@ -29,7 +23,8 @@ From Snapv
 Inductive command (V: Type) : Type :=
     ASGN : expr V -> expr V -> command V
   | SEQ : command V -> command V -> command V
-  | SAMPLE : expr V -> expr V -> command V
+  | UNIF01 : expr V -> command V
+  | UNIF1 : expr V -> command V
   | SKIP : command V.
 
 
