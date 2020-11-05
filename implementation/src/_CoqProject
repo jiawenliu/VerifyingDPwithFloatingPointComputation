@@ -8,3 +8,10 @@
 ./Command.v
 ./CommandSemantics.v
 ./MachineType.v
+./Infra/RealRationalProps.v
+./Infra/RationalSimps.v
+./Infra/RealSimps.v
+./Infra/Ltacs.v
+./Infra/Results.v
+./aprhl/Extra.v
+./aprhl/Prob.v

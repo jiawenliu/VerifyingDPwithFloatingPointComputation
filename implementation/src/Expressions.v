@@ -5,7 +5,8 @@ Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega
       Coq.Arith.Arith Coq.Arith.EqNat Ascii Coq.Bool.Bool
       Coq.Sets.Ensembles
       Coq.Lists.ListSet
-      Coq.Reals.Rpower.
+      Coq.Reals.Rpower
+      Coq.Reals.Rdefinitions.
 
 
 
@@ -22,9 +23,18 @@ From Coq.QArith
      Require Export Qreals.
 
 From Snapv
-     Require Export  MachineType.
+     Require Export MachineType.
 
 Require Import Omega.
+
+(*Module Type OrderType := Coq.Structures.Orders.OrderedType.
+
+Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
+Module V_orderedFacts := OrdersFacts.OrderedTypeFacts (V_ordered).
+*)(*
+  Definition V := V_ordered.t.
+ *)
+
 
 (**
   Expressions will use binary operators.
@@ -56,14 +66,23 @@ end.
  **)
 
 
-Definition RClamp (v1:R) (v2:R) : R := 0%R
-(*  match (Rle v1 v2) with
-  | true => v1
-  | false => v2
-  end*).
+Definition RClamp (v: R) (B: R) : R := v
+(*  if (B <? v)
+       then B else v.
+  match V_ordered.compare B v with
+  | Lt => B
+  | Eq => B
+  | Gt => match (V_ordered.compare v (B)%R) with
+  		| Lt =>  (Ropp B)
+  		| Eq =>  (Ropp B)
+  		| Gt => v
+  		end
+  end
+*)
+.
   
               
-Definition RRound (v1:R) (v2:R) := 0%R.
+Definition RRound (v1:R) (v2:R) := v1.
 
 
 
@@ -163,14 +182,10 @@ Fixpoint freeVars (V:Type) (e:expr V) :=
   | Binop b e1 e2 => set_union eq_nat_dec (freeVars e1) (freeVars e2)
  (*  | Cond e1 e2 e3 => freeVars e1 ∪ freeVars e2 ∪ freeVars e3 *)
   end.
-
-Module Type OrderType := Coq.Structures.Orders.OrderedType.
-
-Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
-  Module V_orderedFacts := OrdersFacts.OrderedTypeFacts (V_ordered).
-
+(*
   Definition V := V_ordered.t.
   Definition t := expr V.
+
 
   Open Scope positive_scope.
 
@@ -237,6 +252,7 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
     | Binop _ _ _, Unop _ _ => Gt
     end.
 
+  
   Lemma exprCompare_refl e: exprCompare e e = Eq.
   Proof.
     induction e; simpl.
@@ -768,5 +784,5 @@ Module ExprOrderedType (V_ordered:OrderType) <: OrderType.
 
     Close Scope positive_scope.
 
-End ExprOrderedType.
+End ExprOrderedType.*)
 

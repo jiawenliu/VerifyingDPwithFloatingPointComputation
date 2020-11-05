@@ -16,9 +16,11 @@ From Coq.QArith
 From Coq
      Require Import Reals.Reals.
 
-(*From Snapv.Infra
-     Require Import RealRationalProps RationalSimps.
-*)
+From mathcomp Require Import
+     ssreflect ssrfun ssrbool eqtype ssrnat choice seq
+     bigop path   .
+
+
 From Snapv
      Require Export MachineType.
 
