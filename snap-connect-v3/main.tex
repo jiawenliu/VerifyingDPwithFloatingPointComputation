@@ -2019,7 +2019,64 @@ Then, we have the following derivation exactly the same as previous cases.
 	$\boldsymbol{\valv \in (\round{f(a')}_{\Lambda}, \round{f(a)}_{\Lambda})}$
 	}
 	%
+	Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$. 
+	\\
+	According to the computation in the floating point version, let 
+	%
+	 $\rvalL_1 = e^{\epsilon 
+			(\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2})}$,
+	$\rvalL_2 = e^{\epsilon 
+			(\frac{(f(a') - \frac{\valv_1}{1 + \eta})}{(1 + \eta)^2})}$, 
+	$\rvalR_1 = e^{\epsilon 
+					\big((\valv_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$
+	and $\rvalR_2 = e^{\epsilon 
+					\big((f(a') - \valv_2(1 + \eta)) (1 + \eta)^2) \big)}$.
+	we have:
+	\[
+		e^0 > \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+		\geq e^{-\epsilon(23 \eta B + 1)} .
+	\]
+	%
+	\\	
+	%
+	Then we have the derivation exactly the same as previous cases.
+	%
+	%
 	\caseL{$\boldsymbol{\valv = \round{f(a)}_{\Lambda}}$}
+	%
+	%
+	There are 3 subcases by induction on $\round{f(a')}_{\Lambda}$:
+	$\round{f(a)}_{\Lambda} < 0$, $\round{f(a)}_{\Lambda} = 0$ and $\round{f(a)}_{\Lambda} > 0$. 
+		\\
+		%
+	Without loss of generalization, 
+	we consider the worst case where the error propagate in the same direction, i.e. $\round{f(a)}_{\Lambda} < 0$.
+		%
+		\\
+		%
+	Let $\valv_1 = \valv - \frac{\Lambda}{2}$, $\valv_2 = \valv + \frac{\Lambda}{2}$, we know $\valv_1 < 0$, $\valv_2 < 0$.
+		%
+	By \textbf{ Lemma. 3}, \textbf{ Lemma. 7 and  8} from the Flopt Version, we have:
+	$s = 1$ or $-1$ and $\rvalR_2 = 1$.
+	%
+	\\
+	%
+	Let $\rvalL_1 = e^{\epsilon 
+			(\frac{(\frac{\valv_1}{1 + \eta} - f(a))}{(1 + \eta)^2})}$,
+	$\rvalL_2 = e^{\epsilon 
+			(\frac{(\frac{\valv_1}{1 + \eta} - f(a'))}{(1 + \eta)^2})}$, 
+	$\rvalR_1 = e^{\epsilon 
+					\big((\valv_2(1 + \eta) - f(a)) (1 + \eta)^2) \big)}$
+	and $\rvalR_2 = 1$.
+	By the calculation in the Flopt Version proof, we have:
+	\[
+		e^0 > \frac{\rvalR_1 - \rvalL_1}{\rvalR_2 - \rvalL_2}
+		\geq e^{-\epsilon(24 \eta B + 1)} .
+	\]
+	%
+	\\	
+	%
+	Then we have the derivation exactly the same as previous cases.
 	%
 	%
 	\caseL{$\boldsymbol{\valv \in  (\round{f(a)}_{\Lambda}, B)}$}
