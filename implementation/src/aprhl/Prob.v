@@ -50,7 +50,7 @@ Definition distr_choiceMixin := [choiceMixin of distr by <:].
 Canonical distr_choiceType := Eval hnf in ChoiceType distr distr_choiceMixin.
 Definition distr_ordMixin := [ordMixin of distr by <:].
 Canonical distr_ordType := Eval hnf in OrdType distr distr_ordMixin.
-
+ 
 Canonical distr_of_newType := [subType of {distr T}].
 Canonical distr_of_eqType  := [eqType of {distr T}].
 Canonical distr_of_choiceType := [choiceType of {distr T}].

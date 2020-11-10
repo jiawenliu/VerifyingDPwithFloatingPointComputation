@@ -29,21 +29,16 @@ From Snapv
 
 From Snapv Require Import Maps.
 
+
+From Snapv.aprhl Require Import Extra Prob.
+
+
 Definition state := total_map (R * (R * R)).
 
 Open Scope R_scope.
 
 Inductive ptbdir : Type := Down | Up.
 
-Definition perturb (e: R) (delta: R) (dir: ptbdir) :  R :=
-  match dir with
-  (* The Real-type has no error *)
-  |Down =>  ( e * (1 + delta))
-  (* Fixed-point numbers have an absolute error *)
-  |Up => ( e / (1 + delta))
-  end.
-
-Hint Unfold perturb.
 
 (**
 Define expression evaluation relation parametric by an "error" epsilon.
@@ -60,7 +55,7 @@ Definition err : Type :=  (R * R).
 
 (* TO RENAME *)
 Inductive trans_com (E : trs_env) (delta : R)
-  :(command R) -> (trs_env) -> Prop :=
+  :(command R) -> ({distr trs_env}) -> Prop :=
 | Seq_trans c1 c2 E1 E2:
     trans_com E delta c1 E1 -> 
     trans_com E1 delta c2 E2 -> 
