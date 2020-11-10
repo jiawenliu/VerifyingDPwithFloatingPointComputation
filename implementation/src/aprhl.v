@@ -10,20 +10,22 @@ From Snapv
      IntervalArithQ  TypeValidator.
 
 From Snapv
-     Require Import Command CommandSemantics
+     Require Import Command CommandSemantics.
 
-From Snapv Require Import Hoare.
-From Snapv Require Import Imp.
+From Snapv 
+    Require Import Hoare Imp Maps.
+From Snapv.aprhl Require Import Extra Prob.
 
 (* ################################################################# *)
 (** * Definitions *)
+Definition Assertion := state -> Prop.
 
-Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Type :=
-  | H_Skip : forall P,
+Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Prop :=
+  | H_Skip  P:
       hoare_proof P (SKIP) 0 (SKIP) P
-  | H_Asgn : forall Q V1 a1 V2 a2,
-      hoare_proof (assn_sub V1 V2 a1 a2 Q) (ASGN V1 a1) 0 (ASGN V2 a2) Q
-  | H_Seq  : forall P c1 c2 Q d1 d2 R r1 r2,
+  | H_Asgn Q x1 a1 x2 a2 :,
+      hoare_proof (assn_sub x1 x2 a1 a2 Q) (ASGN (Var R x1) a1) 0 (ASGN (Var R x12) a2) Q
+  | H_Seq  P c1 c2 Q d1 d2 R r1 r2:
       hoare_proof P c1 r1 d1 Q -> hoare_proof Q c2 r2 d2 R 
     -> hoare_proof P (SEQ c1 c2) (r1 + r2) (SEQ d1 d2) R
   | H_Consequence  : forall (P Q P' Q' : Assertion) c,
@@ -31,15 +33,15 @@ Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Type
     (forall st, P st -> P' st) ->
     (forall st, Q' st -> Q st) ->
     hoare_proof P c Q
-  | H_UnifP : forall V1 V2 eps,
-hoare_proof True (SAMPLE V1 (UNIF (0, 1))) eps (SAMPLE V2 (UNIF (0, 1)))
- (forall l r, l < V1 < r -> eps * l < V2 < eps * r)
-  | H_UnifN : forall V1 V2 eps,
-hoare_proof True (SAMPLE V1 (UNIF (0, 1))) eps (SAMPLE V2 (UNIF (0, 1)))
- (forall l r, l < V1 < r -> (-eps * l) < V2 < (-eps * r))
-  | H_Null : forall V1 V2 eps,
-hoare_proof True (SAMPLE V1 (UNIF (0, 1))) eps (SAMPLE V2 (UNIF (0, 1)))
- ( V1 =  V2 )
+  | H_UnifP x1 x2 eps:
+hoare_proof True (UNIF1 (Var R x1)) eps (UNIF1 (Var R x2))
+ (forall l r, l < x1 < r -> eps * l < x2 < eps * r)
+  | H_UnifN x1 x2 eps:
+hoare_proof True (UNIF1 (Var R x1)) eps (UNIF1 (Var R x2))
+ (forall l r, l < x1 < r -> (-eps * l) < x2 < (-eps * r))
+  | H_Null  x1 x2 eps:
+hoare_proof True (UNIF2 (Var R x1)) 0 (UNIF2 (Var R x2))
+ ( x1 =  x2 )
     .
 
 
