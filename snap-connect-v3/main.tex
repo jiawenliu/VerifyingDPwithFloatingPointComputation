@@ -444,6 +444,130 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 \end{figure}
 %
 %
+\begin{lem}[Discrete Support of Distribution]
+ $\forall \prog, \trsmem, \edistr$,  s.t. $\edistr \in \distr(Env)$ and $\sem{\prog}_{\trsmem} = \edistr$. Then $\supp{(\edistr)}$ is discrete.
+\end{lem}
+%
+%
+\begin{proof}
+By induction on $\prog$, we have following cases:
+\begin{itemize}
+	\caseL{$\varx \samplel \edistr$}
+	Given the porgam as $\varx \samplel \edistr$ and $\trsmem$, 
+	we have $\edistr$ in this case as:
+	\\
+	%
+	$\elet \fval_{(\rval_{l}, \rval_{u})} = \sem{\edistr}_{\trsmem}
+	\ein 
+	\unit{\trsmem[\varx \mapsto \fval_{(\rval_{l}, \rval_{u})}]}
+	$
+	%
+	\\
+	%
+	Since $\trsmem$ is given and will not change, then it is equivalent to show the support of following distribution is discrete:
+	\\ 
+	$\elet \fval_{(\rval_{l}, \rval_{u})} = \sem{\edistr}_{\trsmem}
+	\ein 
+	\unit{\fval_{(\rval_{l}, \rval_{u})}}$.
+	%
+	\\
+	By the Monad Law, it is equivalent to show support of $\sem{\edistr}_{\trsmem}$ is discrete given $\trsmem$.
+	\\
+	By induction on $\edistr$ we have following two subcases:
+	%
+	\subcaseL{$\uniform(0,1]$}
+	%
+	We have 
+	$\sem{\uniform(0,1]}_{\trsmem} \in 
+	\big\{
+	(\fval_{(\rval_{l}, \rval_{u})}) ~|~
+	\fval \leftarrow \muniform(0, 1]
+	\land \rval_{l} = \rval_{u} = \fval
+	\big\}$.
+	\\
+	Since $\supp(\muniform(0, 1]) \in (0, 1]^{\float}$ and $\rval_{l} = \rval_{u} = \fval$, we have:
+	\\ 
+	$\left \vert\big\{
+		(\fval_{(\rval_{l}, \rval_{u})}) ~|~
+		\fval \leftarrow \muniform(0, 1]
+		\land \rval_{l} = \rval_{u} = \fval
+		\big\} \right \vert
+	= \left \vert (0, 1]^{\float} \right \vert$,
+	 %
+	i.e., $\left \vert \supp(\sem{\uniform(0,1]}_{\trsmem}) \right\vert = \left \vert (0, 1]^{\float} \right \vert$.
+	\\
+	Then $\supp(\sem{\uniform(0,1]}_{\trsmem})$ is obviously discrete.
+	%
+	\subcaseL{$\uniform\{-1, 1\}$}
+	%
+	We have $\sem{\uniform\{-1, 1\}}_{\trsmem} \in  
+	\big\{
+	(-1_{(-1, -1)}), (1_{(1, 1)}) ~|~
+	each ~ w.p. ~ 0.5 
+	\big\}$ by the interpretation of distributions.
+	\\
+	Since $\left \vert \supp(\sem{\uniform(0,1]}_{\trsmem}) \right\vert = \left \vert \big\{
+	(-1_{(-1, -1)}), (1_{(1, 1)}) ~|~
+	each ~ w.p. ~ 0.5 
+	\big\} \right \vert = 2$.
+	%
+	\\
+	%
+	Then, it is obviously that $\supp(\sem{\uniform(0,1]}_{\trsmem})$ is discrete.
+	%
+	%
+	\caseL{$\varx = \expr$}
+	Given the porgam as $\varx = \expr$ and $\trsmem$, 
+	we have $\edistr$ in this case as:
+	\\
+	$\unit{\trsmem[\varx \mapsto \sem{\expr}_{\trsmem}]}$.
+	\\
+	Given $\trsmem$ will not change, it is equivalent to show 
+	$\supp(\unit{\sem{\expr}_{\trsmem}})$ is discrete.
+	%
+	\\
+	%
+	By interpretation of $\expr$, we have: 
+	$\sem{\expr}_{\trsmem} \in  
+	\big\{\fval_{(\rval_{l}, \rval_{u})} ~|~
+	\trsmem,  
+	\expr \trsto (\fvalv_{(\rval_{l}, \rval_{u})})\big\}$.
+	\\
+	%
+	Given $\expr$ and $\trsmem$, 
+	there is one and only one $\fvalv$ deterministically evaluated in floating point computation, and one and only one $(\rval_{l}, \rval_{u})$ deterministically computed from $\expr$, $\trsmem$ and $\fvalv$, we know:
+	\\
+	$\left \vert \supp(\unit{\sem{\expr}_{\trsmem}}) \right \vert  
+	= 
+	\left \vert \big\{\fval_{(\rval_{l}, \rval_{u})} ~|~
+		\trsmem,  
+		\expr \trsto (\fvalv_{(\rval_{l}, \rval_{u})})\big\} \right \vert  = 1$.
+	%
+	\\
+		Then, it is obviously that $\supp(\unit{\trsmem[\varx \mapsto \sem{\expr}_{\trsmem}]})$ is discrete.
+	%
+	\caseL{$\prog_1; \prog_2$}
+	Given the porgam as $\varx = \expr$ and $\trsmem$, 
+	we have $\edistr$ in this case as:
+	\\
+	$\elet  \trsmem_1 = 
+	 	\sem{\prog_1}_{\trsmem} \ein
+	 	\sem{\prog_2}_{\trsmem_1}$ 
+	 %
+	 \\
+	 By induction hypothesis, we have:
+	 \\
+	 $\supp(\sem{\prog_1}_{\trsmem})$ is discrete $~(1)$; and 
+	 $\forall \trsmem_1 \in \supp(\sem{\prog_1}_{\trsmem})$, $\supp(\sem{\prog_2}_{\trsmem_1})$ are all discrete.
+	 %
+	 \\
+	 Then we have: $\left \vert \supp(\edistr) \right \vert = \sum_{\trsmem_1 \in \supp(\sem{\prog_1}_{\trsmem})} \left \vert \supp(\sem{\prog_2}_{\trsmem_1}) \right \vert$ is also finite.
+	 \\
+	 We can then conclude that $\supp(\edistr)$ is discrete.
+	 %
+	 %
+\end{itemize}
+\end{proof}
 %
 \clearpage
 \begin{thm}[Soundness]
@@ -1257,6 +1381,9 @@ It is enough to show the 2 witnesses $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are
 
 \end{itemize}
 \end{proof}
+%
+%
+%
 %
 \newpage
 \section{Snapping Mechanism}
