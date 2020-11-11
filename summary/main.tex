@@ -9,7 +9,7 @@
 \usepackage{hyperref}
 \begin{document}
 
-\title{Verifying Differential Privacy in Floating Point computation}
+\title{Verifying Differential Privacy in Floating-Point Computation}
 \author{}
 
 \date{}
@@ -17,16 +17,16 @@
 \maketitle
 \section{Introduction}
 The programs of differentially private algorithms can be formally verified via existing logics and tools\cite{barthe2016proving}. 
-However, these verifications are under the assumption that implementation of these algorithms are over real computing without computation error.
-While in reality, these algorithms are mostly implemented in floating point computation with computation errors.
-These computation errors can cause severs failure in preserving differential privacy.
+However, these verifications are under the assumption that the implementations of these algorithms are over real computing without computation error.
+While in reality, these algorithms are mostly implemented in floating-point computation with computation errors.
+These computation errors can cause critical failure in preserving differential privacy, which is identified in several literatures \cite{balcer2017differential, gazeau2016preserving, mckenna2020permute, mironov2012significance}.
 %
 
-In order to verify the differential privacy property of
-the algorithms implemented in floating point computation such as snapping mechanism \cite{mironov2012significance},
+To verify the differential privacy property of
+the algorithms implemented in floating-point computation such as snapping mechanism \cite{mironov2012significance},
 we follow the logic rules designed from
 \cite{barthe2016proving} and connecting 
-it with the floating point computation semantics.
+it with the floating-point computation.
 
 \section{Syntax}
 \[\begin{array}{llll}
