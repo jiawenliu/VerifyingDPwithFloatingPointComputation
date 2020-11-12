@@ -13,22 +13,54 @@
 \author{}
 
 \date{}
-
 \maketitle
-\section{Introduction}
+\begin{abstract}
 The programs of differentially private algorithms can be formally verified via existing logics and tools\cite{barthe2016proving}. 
 However, these verifications are under the assumption that the implementations of these algorithms are over real computing without computation error.
 While in reality, these algorithms are mostly implemented in floating-point computation with computation errors.
-These computation errors can cause critical failure in preserving differential privacy, which is identified in several literatures \cite{balcer2017differential, gazeau2016preserving, mckenna2020permute, mironov2012significance}.
+These computation errors can cause critical failure in preserving differential privacy. 
+
+We develop methods for formally verifying differential privacy of algorithms implemented in floating-point computation. Our methods are based on an extension of the relational program logic $\mathsf{apRHL}^+$\cite{barthe2016proving} and an operational semantics over floating-point computation.
+
+We demonstrate our methods on an algorithm: the \emph{Snapping mechanism}. This is an algorithm proposed in \cite{mironov2012significance}, where it is theoretically proved that even in floating-point computation it still preserves differential privacy.
+We implement our logic and example verifications in Coq.
+\end{abstract}
+
+\section{Introduction}
+The programs of differentially private algorithms can be formally verified via existing logics and tools\cite{barthe2016proving}. 
+However, these verifications are under the assumption that the implementations of these algorithms are over real computing without computation error.
+While in reality, these algorithms are implemented in floating-point computation with computation errors.
+These computation errors can cause critical failure in preserving differential privacy, which is identified in several literatures \cite{balcer2017differential, gazeau2016preserving, mckenna2020permute, mironov2012significance, ilvento2020implementing}.
 %
+In the meantime, some algorithms are proposed claiming ability of preserving differential privacy even in floating-point computation, for instance:
+\begin{itemize}
+	\item The \emph{Snapping mechanism}, which is an improved version of the implementation of Laplace mechanism in floating-point computation, by adding extra rounding and clamping operations. (See \cite{mironov2012significance}.)
+
+	\item The \emph{Base-2 Exponential mechanism}, which is a revised version of the Exponential mechanism, by altering the base in Exponential mechanism from $e$ into $2$. (See \cite{ilvento2020implementing}.)
+
+	\item The \emph{Discrete Gaussian mechanism}, which is a discrete version of the Gaussian mechanism. (See \cite{canonne2020discrete}.)
+\end{itemize}
+%
+Unfortunately, existing pen-and-paper proofs of these algorithms are based on complex floating-point error approximation, which is hard to understand and error-prone.
+
+This gives are the motivation that can we develop methods for formally and automatically verifying these algorithms by considering the error arose during the floating-point computation.
 
 To verify the differential privacy property of
-the algorithms implemented in floating-point computation such as snapping mechanism \cite{mironov2012significance},
-we follow the logic rules designed from
-\cite{barthe2016proving} and connecting 
-it with the floating-point computation.
-
+the algorithms implemented in floating-point computation,
+we firstly extend the relational program logic $\mathsf{apRHL}^+$ from
+\cite{barthe2016proving}. 
+Then we compose 
+it with an operational semantics designed for approximating the floating-point computation error.
+%
+We prove the soundness of the logic via methodology of probabilistic coupling and approximate lifting shown by Barth et al in \cite{barthe2016proving}.
+%
 \section{Syntax}
+The language is defined as follows.
+\\
+In the language, $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. 
+Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation. The type $\float_{\real \times \real}$ represents the base type of expressions. 
+In environment., the variables are mapped to $(\fval_{(\rval, \rval)}$ of the type $\float_{\real \times \real}$.
+%
 \[\begin{array}{llll}
 \mbox{Programs} & \prog & ::= & 
 	%
@@ -36,7 +68,7 @@ it with the floating-point computation.
 	%
 	~|~ \prog ; \prog \\
 
-\mbox{Expr} & \expr & ::= & \rval^{\mathbb{R}}
+\mbox{Expr} & \expr & ::= & \rval
 	%
 	~|~ \varx  ~|~ \expr \bop \expr
 	%
@@ -48,24 +80,24 @@ it with the floating-point computation.
 	%
 	~|~ \clamp_B(\cdot) \\
 %
-\mbox{Value} & \valv & ::= & \fval^{\mathbb{F}}_{(\rval^{\mathbb{R}}, \rval^{\mathbb{R}})}\\
+\mbox{Value} & \valv & ::= & \fval_{(\rval, \rval)}\\
 %
 \mbox{Distr} & \edistr & ::= & \uniform(0, 1]
 %
 	~|~ \uniform\{-1, 1\}\\ 
 %
-\mbox{Error} & \err & ::= & {(\rval^{\mathbb{R}}, \rval^{\mathbb{R}})} \\
+\mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
-\mbox{Env} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval^{\mathbb{F}}_{(\rval^{\mathbb{R}}, \rval^{\mathbb{R}})})]\\
+\mbox{Env} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval_{(\rval, \rval)})]\\
 %
 \mbox{Type} & \tau & ::= & \float ~|~ \real ~|~ \float_{\real \times \real}
 \end{array}
 \]
-where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation. The type $\float_{\real \times \real}$ represents the base type of expressions. In Env., the variables are mapped to $(\fval_{\err})$ of the type $\float_{\real \times \real}$.
 
 
 %
-\paragraph{Semantics.}
+\paragraph{Semantics.} The denotational semantics are defined as follows.
+\\
 $\boxed{Env \times Expr \to Value }$
 %
 \[
@@ -143,7 +175,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 %
 \begin{figure}
-\boxed{\trsenv, \expr \trsto \fval^{\mathbb{F}}_{(\rval^{\mathbb{R}}, \rval^{\mathbb{R}})}
+\boxed{\trsenv, \expr \trsto \fval_{(\rval, \rval)}
 : Env \times Expr \trsto Value}
 \begin{mathpar}
 \inferrule*[right = var]
@@ -208,15 +240,15 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-pp]
 {
-	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\fval^1 \geq 0
+	\fval_1 \geq 0
 	~~~~
-	\fval^2 \geq 0
+	\fval_2 \geq 0
 	~~~~
-	\fval = \floaten(\fval^1 * \fval^2)
+	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -225,8 +257,8 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
     \trsto
     \big(
     \fval,
-    (\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
-        (\bar{\rval^1} * \bar{\rval^2})(1 + \eta))
+    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
     \big)
 }
 %
@@ -234,15 +266,15 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-nn]
 {
-	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\fval^1 < 0
+	\fval_1 < 0
 	~~~~
-	\fval^2 < 0
+	\fval_2 < 0
 	~~~~
-	\fval = \floaten(\fval^1 * \fval^2)
+	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -251,8 +283,8 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
     \trsto
     \big(
     \fval,
-    (\frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)}, 
-        (\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta))
+    (\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}, 
+        (\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta))
     \big)
 }
 %
@@ -260,15 +292,15 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-pn]
 {
-	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\fval^1 \geq 0
+	\fval_1 \geq 0
 	~~~~
-	\fval^2 < 0
+	\fval_2 < 0
 	~~~~
-	\fval = \floaten(\fval^1 * \fval^2)
+	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -277,8 +309,8 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
     \trsto
     \big(
     \fval,
-    ((\bar{\rval^1} * \ubar{\rval^2})(1 + \eta),
-    \frac{\ubar{\rval^1} * \bar{\rval^2}}{(1 + \eta)})
+    ((\bar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+    \frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
     \big)
 }
 %
@@ -286,15 +318,15 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-np]
 {
-	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\fval^1 < 0
+	\fval_1 < 0
 	~~~~
-	\fval^2 \geq 0
+	\fval_2 \geq 0
 	~~~~
-	\fval = \floaten(\fval^1 * \fval^2)
+	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
 	* \in \{\times, \div \}
 }
@@ -303,8 +335,8 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
     \trsto
     \big(
     \fval,
-    ((\ubar{\rval^1} * \bar{\rval^2})(1 + \eta),
-    \frac{\bar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)})
+    ((\ubar{\rval_1} * \bar{\rval_2})(1 + \eta),
+    \frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)})
     \big)
 }
 %
@@ -312,11 +344,11 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-p]
 {
-	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\fval = \floaten(\fval^1 * \fval^2)
+	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
 	\fval \geq 0
 	~~~~
@@ -327,8 +359,8 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
     \trsto
     \big(
     \fval,
-    (\frac{\ubar{\rval^1} * \ubar{\rval^2}}{(1 + \eta)}, 
-        (\bar{\rval^1} * \bar{\rval^2})(1 + \eta))
+    (\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))
     \big)
 }
 %
@@ -336,11 +368,11 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-n]
 {
-	\trsenv, \expr_1 \trsto (\fval^1, (\ubar{\rval^1}, \bar{\rval^1}))
+	\trsenv, \expr_1 \trsto (\fval_1, (\ubar{\rval_1}, \bar{\rval_1}))
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval^2, (\ubar{\rval^2}, \bar{\rval^2}))
+	\trsenv, \expr_2 \trsto (\fval_2, (\ubar{\rval_2}, \bar{\rval_2}))
 	~~~~
-	\fval = \floaten(\fval^1 * \fval^2)
+	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
 	\fval < 0
 	~~~~
@@ -351,8 +383,8 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
     \trsto
     \big(
     \fval,
-    ((\ubar{\rval^1} * \ubar{\rval^2})(1 + \eta),
-        \frac{\bar{\rval^1} * \bar{\rval^2}}{(1 + \eta)})
+    ((\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+        \frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})
     \big)
 }
 %
@@ -360,9 +392,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = uop-p]
 {
-	\trsenv, \expr \trsto (\fval', (\ubar{\rval}, \bar{\rval}))
+	\trsenv, \expr \trsto (\fval_1, (\ubar{\rval}, \bar{\rval}))
 	~~~~
-	\fval = \floaten(\uop (\fval')) 
+	\fval = \floaten(\uop (\fval_1)) 
 	~~~~
 	\fval \geq 0
 }
@@ -381,9 +413,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = uop-n]
 {
-	\trsenv, \expr \trsto (\fval', (\ubar{\rval}, \bar{\rval}))
+	\trsenv, \expr \trsto (\fval_1, (\ubar{\rval}, \bar{\rval}))
 	~~~~
-	\fval = \floaten(\uop (\fval')) 
+	\fval = \floaten(\uop (\fval_1)) 
 	~~~~
 	\fval < 0
 }
@@ -597,10 +629,10 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	:
 	\top
 	\Rightarrow
-	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
-	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	\forall l, r \in [0,1]^{\real}. ~
+	l \leq \varx^1 \langle 1 \rangle \leq r 
 	\imply
-	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
+	(e^{\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}r \land \vary^1 \langle 2 \rangle \leq 1)	
 }
 ~\textbf{Unif+}
 \and
@@ -616,10 +648,10 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	:
 	\top
 	\Rightarrow
-	\forall \rvalL, \rvalR \in [0,1]^{\real}.
-	(\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
-	 		\imply
-	 		e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR) 	
+	\forall l, r \in [0,1]^{\real}. ~
+	l \leq \varx^1 \langle 1 \rangle \leq r 
+	\imply
+	(e^{-\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}r)
 }
 ~\textbf{Unif-}
 \and
