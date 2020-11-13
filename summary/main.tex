@@ -18,11 +18,11 @@
 The programs implementing differentially private algorithms can be formally verified via existing logics and tools, such as $\mathsf{apRHL}^+$\cite{barthe2016proving}. 
 These verifications rely on the assumption that these implementations whose underlining computation is real number based without computation error.
 However, in reality, these algorithms are mostly implemented under finite precision, which accounts for computation errors
-and cause critical failures in preserving differential privacy. 
+and causes critical failures in preserving differential privacy. 
 
-We develop a method for formally verifying differential privacy of algorithms implemented based on floating-point computation. Our method extends the relational program logic $\mathsf{apRHL}^+$, and provides an operational semantics over floating-point computation, which work together to provide the formal verification.
+We develop a method for formally verifying differential privacy of algorithms implemented based on floating-point computation. Our method extends the relational program logic $\mathsf{apRHL}^+$, and provides an operational semantics under floating-point computation, which work together to provide the formal verification.
 
-We demonstrate our method on an algorithm: the \emph{Snapping mechanism}, which proposed in \cite{mironov2012significance}, where its differential privacy is theoretically proved that even in floating-point computation.
+We demonstrate our method via an algorithm: the \emph{Snapping mechanism}  proposed in \cite{mironov2012significance}, where its  differential privacy is theoretically proved even with floating-point computation error.
 We implement our logic and example verifications in Coq.
 \end{abstract}
 
@@ -49,13 +49,108 @@ This gives us the motivation that can we develop methods for formally and automa
 
 To verify the differential privacy property of
 the algorithms implemented in floating-point computation,
-we firstly extend the relational program logic $\mathsf{apRHL}^+$ from
+we extend the relational program logic $\mathsf{apRHL}^+$ from
 \cite{barthe2016proving}. 
 Then we compose 
 it with an operational semantics designed for approximating the floating-point computation error.
 %
 We prove the soundness via the methodology of probabilistic coupling and approximate lifting shown by Barth et al. \cite{barthe2016proving}.
 %
+\section{System Overview}
+We propose a formal analysis of differentially private algorithms under finite computation, whose proof does not exclusively rely on the existing tools of differential privacy. The paper is composed of three main components.
+%
+\paragraph{The language and operational semantics}
+We firstly we design an operational semantics for approximating the floating-point computation errors on a standard imperative language with only the assignment, distribution sampling, and sequence commands.
+
+In this language, the expressions (in real number precision) are evaluated into floating-point values $\fval$ through floating-point computation with computation error arose during evaluation. 
+
+In order to track the computation error propagated in floating-point computation, we attach a pair of real values $(\rval_1, \rval_2)$ to approximate the computation error in the environment for every variable. 
+To be specific,
+a variable is mapped to $(\fval_{(\rval_1, \rval_2)})$, where $\fval$ is a value evaluated from some expressions in floating-point precision,
+and $\rval_1, \rval_2$ are lower and upper bounds of the floating-point computation error propagated when evaluating into $\fval$: 
+$\trsmem, \expr \trsto \fval_{(\rval_1, \rval_2)}$.
+%
+For example, $[], 1 + 1 \trsto 2_{(1.99, 2.01)}$, where $\pm 0.01$ are the relative computation errors relevant to the machine epsilon $\eta$.
+
+The operational semantics for programs takes an environment $\trsmem$ and a program $\prog$ and returns a distribution over environment $\trsmem'$: $\trsmem, \prog \trsto Distr(\trsmem')$. 
+For example, $[], x \samplel \uniform(0,1] \trsto 
+\elet 0.1_{(0.1, 0.1)} = \sem{\uniform(0,1]} \ein \unit{[x \mapsto 0.1_{(0.1, 0.1)}]}$, 
+where we assume the sample from discrete floating-point numbers produce no error, accounting for the $0.1_{(0.1, 0.1)}$ in the environment.
+
+%
+\paragraph{An extended $\mathsf{apRHL}^+$} 
+To verify the differential privacy, we adopt the proof principles of probabilistic coupling and approximate lifting and work with a relational program logic
+$\mathsf{apRHL}^+$.
+
+We conceive it as a floating-point computational variant of $\mathsf{apRHL}^+$ based on the new operational semantics, i.e., in the environments, variables are mapping to floating-point values together with their lower and upper bounds on computation errors, instead of a single real number.
+%
+The judgments are of form:
+$
+\prog_1 \sim_{\epsilon} \prog_2: \Phi \Rightarrow \Psi
+$,
+where $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of the newly defined environments.
+Different from $\mathsf{apRHL}^+$, each assertion can refer to any values which the variables are mapped to in environment through annotations on the top right of variables. 
+For example, $x^1$, $x^2$ and $x^3$ are refer to $\fval, \rval_1$ and $\rval_2$ respectively 
+if $x$ is mapped to $\fval_{(\rval_1, \rval_2)}$ in the environment.
+%
+
+Informally, a judgment of the above form is valid if the two distributions produced by the executions of 
+$\prog_1$ and $\prog_2$ on any two initial memories satisfying the precondition $\Phi$ are related by the $\epsilon$-lifting (formally defined in \ref{def:lifting}) of the postcondition $\Psi$ in floating-point computation. 
+% For example, $\mathsf{laplace}(\epsilon, v_1) $ and 
+% $\mathsf{laplace}(\epsilon, v_2)$ are related by the $\epsilon$-lifting of the equivalent relation if $|v_1 - v_2| \leq 1$, 
+% where $\mathsf{laplace}(\epsilon, v)$ is the Laplace distribution with scale $\epsilon$ and location $v$.
+% 
+% where $\mathsf{laplace}(\epsilon, v)$ is the Laplace distribution with scale $\epsilon$ and location $v$.
+% A program is proved to be $\epsilon$-differentially private if their resulted distributions are related by the $\epsilon$-lifting on adjacent inputs.
+%
+For example, $\uniform(0, 1] $ and
+$\uniform(0, 1]$ are related by the $\epsilon$-lifting of the $\Phi$ relation where $\Phi = \{(x, y) \in (0, 1]^{\float} \times (0, 1]^{\float} | x = e^{\epsilon}y\}$
+and $\uniform(0, 1] $ is the uniform distribution on floating-point numbers range over $(0, 1]$ .
+% Further, we introduce new proof rules representing the new computations beyond the pure real-number computation.
+%
+
+Further, we introduce two proof rules representing the approximate probabilistic liftings for the process of sampling from uniform distribution 
+---the key component of implementing the Laplace mechanism in floating-point computation---
+the \textbf{unif+} and \textbf{unif-}:
+\\
+$\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall l, r \in [0,1]^{\real}. ~
+	l \leq \varx^1 \langle 1 \rangle \leq r 
+	\imply
+	(e^{\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}r \land \vary^1 \langle 2 \rangle \leq 1);	
+$
+\\
+$\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall l, r \in [0,1]^{\real}. ~
+	l \leq \varx^1 \langle 1 \rangle \leq r 
+	\imply
+	(e^{-\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}r \leq 1),
+$
+\\
+%
+%
+%
+Although this process itself is not differentially private, its properties can be formally captured by approximate probabilistic liftings and be combined to show privacy for a larger program.
+%
+\paragraph{New privacy proofs}
+We provide the first formal verification of The \emph{Snapping mechanism}, which is a variant of Laplace mechanism in floating-point computation with extra rounding and clamping operations. 
+Its privacy proof is based on the floating-point computation error approximation, which cannot be formally verified by any of existing tools. 
+In contrast, we prove its privacy in floating-point computation within our logic.
+
+We plan to formalize the language and the proof of the algorithm in Coq.
+
 \section{Syntax}
 The language is defined as follows.
 \\
@@ -442,6 +537,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \begin{defn}
 [$\epsilon-$lifting \cite{barthe2016proving}]
+\label{def:lifting}
 Two sub-distributions $\mu_1 \in \distr(\mathcal{D}_1)$, $\mu_2 \in \distr(\mathcal{D}_2)$ are related by the $\epsilon-$lifting of $\Psi \subseteq \mathcal{D}_1 \times \mathcal{D}_2$, written $\mu_1 \Psi^{\#(\epsilon)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(\mathcal{D}_1 \times \mathcal{D}_2)$ and $\mu_R \in \distr(\mathcal{D}_1 \times \mathcal{D}_2)$ s.t.:
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
@@ -601,7 +697,7 @@ The judgments are defined in following form:
 \[
 	\prog_1 \sim_{\epsilon} \prog_2: \Phi \Rightarrow \Psi.
 \]
-Here, $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of memories. Each assertions can refer to two copies $x\langle 1 \rangle, x\langle 2 \rangle$ of each program variable $x$, where these tagged variables refer to the value of x in the execution of $\prog_1$ and $\prog_2$ respectively.
+Here, $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of memories. Each assertion can refer to two copies $x\langle 1 \rangle, x\langle 2 \rangle$ of each program variable $x$, where these tagged variables refer to the value of x in the execution of $\prog_1$ and $\prog_2$ respectively.
 %
 \\
 A judgment is valid, written $\vdash \prog_1 \sim_{\epsilon} \prog_2: \Phi_0 \Rightarrow \Phi$, 
