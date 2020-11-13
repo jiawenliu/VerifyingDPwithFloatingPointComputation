@@ -23,8 +23,8 @@ From Snapv
 Inductive command (V: Type) : Type :=
     ASGN : expr V -> expr V -> command V
   | SEQ : command V -> command V -> command V
-  | UNIF01 : expr V -> command V
   | UNIF1 : expr V -> command V
+  | UNIF2 : expr V -> command V
   | SKIP : command V.
 
 
