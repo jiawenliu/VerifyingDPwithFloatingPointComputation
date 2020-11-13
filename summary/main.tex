@@ -89,8 +89,10 @@ $
 \prog_1 \sim_{\epsilon} \prog_2: \Phi \Rightarrow \Psi
 $,
 where $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of the newly defined environments.
+Each assertion refers to two copies $x\vtag{1}$, $\vtag{2}$ of each program variable $x$, where tagged variables refer to the value of x in executions of $\prog_1$ and $\prog_2$ respectively.
+%
 Different from $\mathsf{apRHL}^+$, each assertion can refer to any values which the variables are mapped to in environment through annotations on the top right of variables. 
-For example, $x^1$, $x^2$ and $x^3$ are refer to $\fval, \rval_1$ and $\rval_2$ respectively 
+For example, $x^1$, $x^2$ and $x^3$ refer to $\fval, \rval_1$ and $\rval_2$ respectively 
 if $x$ is mapped to $\fval_{(\rval_1, \rval_2)}$ in the environment.
 %
 
@@ -104,8 +106,8 @@ $\prog_1$ and $\prog_2$ on any two initial memories satisfying the precondition 
 % A program is proved to be $\epsilon$-differentially private if their resulted distributions are related by the $\epsilon$-lifting on adjacent inputs.
 %
 For example, $\uniform(0, 1] $ and
-$\uniform(0, 1]$ are related by the $\epsilon$-lifting of the $\Phi$ relation where $\Phi = \{(x, y) \in (0, 1]^{\float} \times (0, 1]^{\float} | x = e^{\epsilon}y\}$
-and $\uniform(0, 1] $ is the uniform distribution on floating-point numbers range over $(0, 1]$ .
+$\uniform(0, 1]$ are related by the $\epsilon$-lifting of the relation $\Phi \triangleq \{(x, y) \in (0, 1]^{\float} \times (0, 1]^{\float} | x = e^{\epsilon}y\}$,
+where $\uniform(0, 1] $ is the uniform distribution on floating-point numbers range over $(0, 1]$.
 % Further, we introduce new proof rules representing the new computations beyond the pure real-number computation.
 %
 
@@ -123,7 +125,7 @@ $\vdash
 	\forall l, r \in [0,1]^{\real}. ~
 	l \leq \varx^1 \langle 1 \rangle \leq r 
 	\imply
-	(e^{\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}r \land \vary^1 \langle 2 \rangle \leq 1);	
+	(e^{\epsilon} l \leq \vary^1 \vtag{2} \leq e^{\epsilon}r \land \vary^1 \vtag{2}\leq 1);	
 $
 \\
 $\vdash
@@ -139,6 +141,7 @@ $\vdash
 	(e^{-\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}r \leq 1),
 $
 \\
+The two rules represent the $\epsilon$-lifting of two uniform distribution on floating-point numbers range over $(0, 1]$ w.r.t. to postconditions respectively.
 %
 %
 %
