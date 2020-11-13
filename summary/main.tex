@@ -60,7 +60,7 @@ We prove the soundness via the methodology of probabilistic coupling and approxi
 We propose a formal analysis of differentially private algorithms under finite computation, whose proof does not exclusively rely on the existing tools of differential privacy. The paper is composed of three main components.
 %
 \paragraph{The language and operational semantics}
-We firstly we design an operational semantics for approximating the floating-point computation errors on a standard imperative language with only the assignment, distribution sampling, and sequence commands.
+We firstly design an operational semantics for approximating the floating-point computation errors on a standard imperative language with only the assignment, distribution sampling, and sequence commands.
 
 In this language, the expressions (in real number precision) are evaluated into floating-point values $\fval$ through floating-point computation with computation error arose during evaluation. 
 
@@ -84,14 +84,14 @@ $\mathsf{apRHL}^+$.
 
 We conceive it as a floating-point computational variant of $\mathsf{apRHL}^+$ based on the new operational semantics, i.e., in the environments, variables are mapping to floating-point values together with their lower and upper bounds on computation errors, instead of a single real number.
 %
-The judgments are of form:
+The judgments are of the form:
 $
 \prog_1 \sim_{\epsilon} \prog_2: \Phi \Rightarrow \Psi
 $,
 where $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of the newly defined environments.
 Each assertion refers to two copies $x\vtag{1}$, $\vtag{2}$ of each program variable $x$, where tagged variables refer to the value of x in executions of $\prog_1$ and $\prog_2$ respectively.
 %
-Different from $\mathsf{apRHL}^+$, each assertion can refer to any values which the variables are mapped to in environment through annotations on the top right of variables. 
+Different from $\mathsf{apRHL}^+$, each assertion can refer to any values to which the variables are mapped in the environment through annotations on the top right of variables. 
 For example, $x^1$, $x^2$ and $x^3$ refer to $\fval, \rval_1$ and $\rval_2$ respectively 
 if $x$ is mapped to $\fval_{(\rval_1, \rval_2)}$ in the environment.
 %
@@ -148,8 +148,8 @@ The two rules represent the $\epsilon$-lifting of two uniform distribution on fl
 Although this process itself is not differentially private, its properties can be formally captured by approximate probabilistic liftings and be combined to show privacy for a larger program.
 %
 \paragraph{New privacy proofs}
-We provide the first formal verification of The \emph{Snapping mechanism}, which is a variant of Laplace mechanism in floating-point computation with extra rounding and clamping operations. 
-Its privacy proof is based on the floating-point computation error approximation, which cannot be formally verified by any of existing tools. 
+We provide the first formal verification of the \emph{Snapping mechanism}, which is a variant of the Laplace mechanism in floating-point computation with extra rounding and clamping operations. 
+Its privacy proof is based on the floating-point computation error approximation, which cannot be formally verified by any of the existing tools. 
 In contrast, we prove its privacy in floating-point computation within our logic.
 
 We plan to formalize the language and the proof of the algorithm in Coq.
