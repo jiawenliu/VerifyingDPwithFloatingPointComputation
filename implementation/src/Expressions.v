@@ -8,6 +8,10 @@ Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega
       Coq.Reals.Rpower
       Coq.Reals.Rdefinitions.
 
+Require Import Reals Psatz.
+From Flocq Require Import Core Plus_error.
+
+
 
 
 Import ListNotations.
@@ -180,7 +184,6 @@ Fixpoint freeVars (V:Type) (e:expr V) :=
   | Const _ _ => (empty_set nat)
   | Unop u e1 => freeVars e1
   | Binop b e1 e2 => set_union eq_nat_dec (freeVars e1) (freeVars e2)
- (*  | Cond e1 e2 e3 => freeVars e1 ∪ freeVars e2 ∪ freeVars e3 *)
   end.
 (*
   Definition V := V_ordered.t.
