@@ -104,11 +104,11 @@ Inductive trans_com (E : trs_env) (delta : R)
   trans_com E delta (SKIP R) (UNITM E)
 | Unif01_trans x v er1 er2:
      sem_distr_e E (UNIFR 0 1) (v, (er1, er2)) ->
-     trans_com E delta (UNIF01 (Var R x))
+     trans_com E delta (UNIF1 (Var R x))
                (UNITM (t_update E (of_nat x) (v, (er1, er2)))) (*(E & { sx --> (v, (er1, er2))}) *)
 | Sample_trans x v er1 er2:
      sem_distr_e E (UNIFS 1) (v, (er1, er2)) ->
-    trans_com E delta (UNIF1 (Var R x))
+    trans_com E delta (UNIF2 (Var R x))
               (UNITM (t_update E (of_nat x) (v, (er1, er2)))) (*(E & { sx --> (v, (er1, er2))}) *)
 | Seq_trans c1 c2 E1 distr1 distr2:
     trans_com E delta c1 distr1 ->
