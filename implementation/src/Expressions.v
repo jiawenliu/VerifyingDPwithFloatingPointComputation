@@ -43,7 +43,15 @@ Module V_orderedFacts := OrdersFacts.OrderedTypeFacts (V_ordered).
 (**
   Expressions will use binary operators.
   Define them first
-**)
+ **)
+
+
+From Flocq Require Import Core Bracket Round Operations Div Sqrt  Plus_error.
+
+
+Variable beta : radix.
+
+
 
 Definition eq_nat_dec : forall (n m : nat), {n =  m} + {n <> m}.
 Proof.
@@ -99,6 +107,18 @@ Definition evalBinop (o:binop) (v1:R) (v2:R) :=
   | Clamp => RClamp v1 v2
   | Round => RRound v1 v2                   
   end.
+
+
+Definition evalFBinop (o:binop) (v1: R) (v2:R) :=
+  match o with
+  | Plus => Rplus v1 v2
+  | Sub => Rminus v1 v2
+  | Mult => Rmult v1 v2
+  | Div => Rdiv v1 v2
+  | Clamp => RClamp v1 v2
+  | Round => RRound v1 v2                   
+  end.
+
 
 Lemma binopEq_refl b:
   binopEq b b = true.
@@ -171,11 +191,11 @@ Definition evalUnop (o:unop) (v:R):=
   Define exprressions parametric over some value type V.
   Will ease reasoning about different instantiations later.
 **)
-Inductive expr (V:Type): Type :=
+Inductive expr (V: Type): Type :=
   Var: nat -> expr V
 | Const: mType -> V -> expr V
 | Unop: unop -> expr V -> expr V
-| Binop: binop -> expr V -> expr V -> expr V                                
+| Binop: binop -> expr V-> expr V-> expr  V                         
 .
 
 Fixpoint freeVars (V:Type) (e:expr V) :=

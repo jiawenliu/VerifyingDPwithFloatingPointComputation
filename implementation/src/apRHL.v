@@ -9,14 +9,18 @@ From Snapv
      Infra.RealSimps Infra.Ltacs.
 
 From Snapv
-     Require Import Command CommandSemantics ExpressionTransitions.
+     Require Import Command CommandSemantics ExpressionTransitions Environments.
 
 From Snapv 
-    Require Import Hoare  Maps.
-From Snapv.aprhl Require Import Extra Prob.
+    Require Import  Maps.
+From Snapv.distr Require Import Extra Prob.
 
 
 Require Import Coq.Strings.Ascii Coq.Strings.BinaryString.
+
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype choice seq.
+
+From extructures Require Import ord fset fmap ffun.
 
 
 (* ################################################################# *)
@@ -41,10 +45,10 @@ Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
     forall v1 v2 er11 er12 er21 er22,
       trans_expr m1 delta e1 (v1, (er11, er12)) ->
       trans_expr m2 delta e2 (v2, (er21, er22)) ->
-      P (((t_update m1 (of_nat X1) (v1, (er11, er12)))),  ((t_update m2 (of_nat X2) (v2, (er21, er22)))))
+      P (((upd m1 (of_nat X1) (v1, (er11, er12)))),  ((upd m2 (of_nat X2) (v2, (er21, er22)))))
       end.
 
-Notation "P [ X |-> a ]" := (assn_sub X a P) (at level 10).
+Notation "P [ X1 X2 |-> e1 e2 ]" := (assn_sub X1 X2 e1 e2 P) (at level 10).
 
 
 

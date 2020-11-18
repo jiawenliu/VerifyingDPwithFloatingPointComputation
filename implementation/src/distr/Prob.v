@@ -16,7 +16,7 @@ From extructures Require Import ord fset fmap ffun.
 
 From deriving Require Import deriving.
 
-From Snapv.aprhl Require Import Extra.
+From Snapv.distr Require Import Extra.
 
 Set Implicit Arguments.
 Unset Strict Implicit.

@@ -13,6 +13,7 @@
 ./Infra/RealSimps.v
 ./Infra/Ltacs.v
 ./Infra/Results.v
-./aprhl/Extra.v
-./aprhl/Prob.v
+./distr/Extra.v
+./distr/Prob.v
 ./apRHL.v
+./Environments.v
