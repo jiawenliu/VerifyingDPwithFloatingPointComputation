@@ -61,17 +61,17 @@ Inductive trans_expr (E : state) (delta : R)
     trans_expr E delta (Var R x) (v, (er1, er2))
 | Const_lt_zero c:
     ~ (fl c = c) -> c < 0 ->
-    trans_expr E delta  (Const REAL c) 
+    trans_expr E delta  (Const c) 
    (c, (perturb (c) delta Up, 
         perturb (c) delta Down))
 | Const_gt_zero c :
     ~ fl c = c -> 0 <= c ->
-    trans_expr E delta (Const REAL c) 
+    trans_expr E delta (Const c) 
     (c, (perturb (c) delta Down, 
         perturb (c) delta Up))
 | Const_eq c :
     fl c = c -> 
-    trans_expr E delta (Const  REAL c) 
+    trans_expr E delta (Const  c) 
     (c, (c, c))
 | Unop_gt_zero e v op er1 er2:
     (evalUnop op v) > 0 -> 

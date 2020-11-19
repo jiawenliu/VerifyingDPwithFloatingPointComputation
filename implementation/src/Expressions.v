@@ -7,29 +7,13 @@ Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega
       Coq.Lists.ListSet
       Coq.Reals.Rpower
       Coq.Reals.Rdefinitions.
-
-Require Import Reals Psatz.
-From Flocq Require Import Core Plus_error.
-
-
-
-
 Import ListNotations.
-
-From Coq
-     Require Import  Structures.Orders Recdef.
-
-
-From Coq
-     Require Import QArith.QArith Structures.Orders Recdef.
-
 From Coq.QArith
      Require Export Qreals.
 
-From Snapv
+From Snapv.lib
      Require Export MachineType.
 
-Require Import Omega.
 
 (*Module Type OrderType := Coq.Structures.Orders.OrderedType.
 
@@ -44,12 +28,6 @@ Module V_orderedFacts := OrdersFacts.OrderedTypeFacts (V_ordered).
   Expressions will use binary operators.
   Define them first
  **)
-
-
-From Flocq Require Import Core Bracket Round Operations Div Sqrt  Plus_error.
-
-
-Variable beta : radix.
 
 
 
@@ -76,25 +54,8 @@ end.
   Next define an evaluation function for binary operators on reals.
   Errors are added on the exprression evaluation level later.
  **)
-
-
-Definition RClamp (v: R) (B: R) : R := v
-(*  if (B <? v)
-       then B else v.
-  match V_ordered.compare B v with
-  | Lt => B
-  | Eq => B
-  | Gt => match (V_ordered.compare v (B)%R) with
-  		| Lt =>  (Ropp B)
-  		| Eq =>  (Ropp B)
-  		| Gt => v
-  		end
-  end
-*)
-.
   
               
-Definition RRound (v1:R) (v2:R) := v1.
 
 
 
@@ -104,49 +65,29 @@ Definition evalBinop (o:binop) (v1:R) (v2:R) :=
   | Sub => Rminus v1 v2
   | Mult => Rmult v1 v2
   | Div => Rdiv v1 v2
-  | Clamp => RClamp v1 v2
-  | Round => RRound v1 v2                   
+  | Clamp => Rclamp v1 v2
+  | Round => Rround v1 v2                   
   end.
 
 
-Variable fexp : Z -> Z.
-Context { valid_exp : Valid_exp fexp }.
-
-Variable prec : Z.
-Hypothesis Hprec : (0 < prec)%Z.
-Hypothesis fexp_prec :
-  forall e, (e - prec <= fexp e)%Z.
-
-Variable rnd : R -> Z.
-Context { valid_rnd : Valid_rnd rnd }.
-
-Variable choice : bool -> Z -> location -> Z.
-Hypothesis rnd_choice :
-  forall x m l,
-  inbetween_int m (Rabs x) l ->
-  rnd x = cond_Zopp (Rlt_bool x 0) (choice (Rlt_bool x 0) m l).
-
-
-
-Definition div (x y : float beta) :=
-  if Zeq_bool (Fnum x) 0 then Float beta 0 0
-  else
-    let '(m, e, l) := truncate beta fexp (Fdiv fexp (Fabs x) (Fabs y)) in
-    let s := xorb (Zlt_bool (Fnum x) 0) (Zlt_bool (Fnum y) 0) in
-    Float beta (cond_Zopp s (choice s m l)) e.
-
-
-Definition FRound  (v : float beta) :=
-  round beta fexp rnd (F2R v).
-
-Definition evalFBinop (o:binop) (v1: float beta) (v2: float beta) :=
+Definition evalRBinop (o:binop) (v1:R) (v2:R) :=
   match o with
-  | Plus => F2R(Fplus v1 v2)
-  | Sub => F2R(Fminus v1 v2)
-  | Mult => F2R(Fmult v1 v2)
-  | Div => F2R(div v1 v2)
-  | Clamp =>  F2R(v2)
-  | Round => (FRound v2)                 
+  | Plus => Rplus v1 v2
+  | Sub => Rminus v1 v2
+  | Mult => Rmult v1 v2
+  | Div => Rdiv v1 v2
+  | Clamp => Rclamp v1 v2
+  | Round => Rround v1 v2                   
+  end.
+
+Definition evalFBinop (o:binop) (v1: R) (v2: R) :=
+  match o with
+  | Plus => (Fplus v1 v2)
+  | Sub => (Fsub v1 v2)
+  | Mult =>(Fmult v1 v2)
+  | Div => (Fdiv v1 v2)
+  | Clamp =>  Fclamp v1 v2
+  | Round => (Fround v2)                 
   end.
 
 
@@ -223,16 +164,16 @@ Definition evalUnop (o:unop) (v:R):=
 **)
 Inductive expr (V: Type): Type :=
   Var: nat -> expr V
-| Const: mType -> V -> expr V
+| Const: V -> expr V
 | Unop: unop -> expr V -> expr V
 | Binop: binop -> expr V-> expr V-> expr  V                         
 .
 
 Fixpoint freeVars (V:Type) (e:expr V) :=
   match e with
-  | Var _ x => (set_add  eq_nat_dec x [])
-  | Const _ _ => (empty_set nat)
-  | Unop u e1 => freeVars e1
-  | Binop b e1 e2 => set_union eq_nat_dec (freeVars e1) (freeVars e2)
+  | Var x => (set_add  eq_nat_dec x [])
+  | Const _  => (empty_set nat)
+  | Unop u e1 => freeVars V e1
+  | Binop b e1 e2 => set_union eq_nat_dec (freeVars V e1) (freeVars V e2)
   end.
  

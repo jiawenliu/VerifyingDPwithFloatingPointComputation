@@ -7,29 +7,17 @@ Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega
       Coq.Lists.ListSet
       Coq.Reals.Rpower
       Coq.Reals.Rdefinitions.
-
-Require Import Reals Psatz.
-From Flocq Require Import Core Plus_error.
-
-
-
-
-Import ListNotations.
-
-From Coq
-     Require Import  Structures.Orders Recdef.
-
-
-From Coq
-     Require Import QArith.QArith Structures.Orders Recdef.
-
-From Coq.QArith
-     Require Export Qreals.
-
 Require Import Omega.
 
 From Flocq Require Import Core Bracket Round Operations Div Sqrt  Plus_error.
 
+
+From mathcomp Require Import ssreflect ssrfun ssrbool ssrnat eqtype.
+From mathcomp Require Import seq choice.
+From deriving Require Import deriving.
+From extructures Require Import ord fset fmap ffun.
+Require Import Coq.Reals.Reals.
+Require Import Coq.Strings.String.
 
 Record FFP : Set := FFP64 { Num : R }.
 
@@ -53,30 +41,41 @@ Hypothesis rnd_choice :
   rnd x = cond_Zopp (Rlt_bool x 0) (choice (Rlt_bool x 0) m l).
 
 
-
-Definition div (x y : float beta) :=
-  if Zeq_bool (Fnum x) 0 then Float beta 0 0
-  else
-    let '(m, e, l) := truncate beta fexp (Fdiv fexp (Fabs x) (Fabs y)) in
-    let s := xorb (Zlt_bool (Fnum x) 0) (Zlt_bool (Fnum y) 0) in
-    Float beta (cond_Zopp s (choice s m l)) e.
-
-
-Definition FRound  (v : float beta) :=
-  round beta fexp rnd (F2R v).
-
-(*Definition evalFBinop (o:binop) (v1: float beta) (v2: float beta) :=
-  match o with
-  | Plus => F2R(Fplus v1 v2)
-  | Sub => F2R(Fminus v1 v2)
-  | Mult => F2R(Fmult v1 v2)
-  | Div => F2R(div v1 v2)
-  | Clamp =>  F2R(v2)
-  | Round => (FRound v2)                 
-  end.
-*)
-
 Definition R2FFP (r : R) := round beta fexp rnd (r).
 
+
+
+Definition Fdiv (x y : R) : R := R2FFP (Rdiv (R2FFP x) (R2FFP y)).
+
+Definition Fplus  (x y : R) : R := R2FFP (Rplus (R2FFP x) (R2FFP y)).
+Definition Fsub  (x y : R) : R := R2FFP (Rminus (R2FFP x) (R2FFP y)).
+Definition Fmult  (x y : R) : R := R2FFP (Rmult (R2FFP x) (R2FFP y)).
+                                         
+
+Definition Fround  (v : R) :=
+  round beta fexp rnd (v).
+
+
+Definition rle x y : bool := Rle_dec x y.
+
+Definition Fclamp  (b v : R) : R :=
+  if rle (R2FFP b) (R2FFP v)
+  then  (R2FFP b)
+  else if rle (R2FFP v) (Ropp(R2FFP b))
+       then (Ropp(R2FFP b))
+       else  (R2FFP v).
+
+
+         
+Definition Rclamp  (b v : R) : R :=
+  if rle ( b) ( v)
+  then  ( b)
+  else if rle ( v) (Ropp( b))
+       then (Ropp( b))
+       else  ( v).
+
+
+
+Definition Rround (v1:R) (v2:R) := v1.
 
 
