@@ -69,13 +69,6 @@ Inductive sem_distr_e (E : env): (distr_e R)
 .
 
 
-
-  
-(* TO RENAME *)
-Print Distr.
-
-Print mkdistr.
-
 Definition unit_E  (E : env) := dirac E.
 
 

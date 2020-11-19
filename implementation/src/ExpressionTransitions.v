@@ -1,7 +1,6 @@
 Require Import Coq.Bool.Bool.
 Require Import Coq.Arith.Arith.
 Require Import Coq.Arith.EqNat.
-Require Import Coq.omega.Omega.
 Require Import Coq.Lists.List.
 Require Import Decimal Ascii String.
 Require Import Coq.Strings.Ascii Coq.Strings.BinaryString.
@@ -10,16 +9,9 @@ Import ListNotations.
 From Coq
      Require Import Reals.Reals.
 
-
-From Snapv
-    Require Export Expressions.
-
-
-From Snapv Require Import Environments.
-
+From Snapv Require Export Expressions Environments.
 From Snapv.distr Require Import Extra Prob.
-
-From Flocq Require Import Core Bracket Round Operations Div Sqrt.
+From Snapv.lib Require Import MachineType.
 
 From extructures Require Import ord fset fmap ffun.
 
@@ -31,6 +23,10 @@ From mathcomp Require Import
   Define the Transition From the real computation to the Floating Point Computation with Floating point Relative Error
 **)
 Open Scope R_scope.
+
+
+Definition fl := R2FFP.
+
 
 Inductive ptbdir : Type := Down | Up.
 
@@ -51,10 +47,7 @@ using a perturbation of the real valued computation by (1 + delta), where
 |delta| <= machine epsilon.
  **)
 
-Print state.
 
-Definition fl (r : R) := r
-  .
 
 Definition err : Type :=  (R * R).
   (*TO RENAME*)
