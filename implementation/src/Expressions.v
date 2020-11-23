@@ -126,6 +126,7 @@ Definition unopEq (o1:unop) (o2:unop) :=
   | _ , _ => false
   end.
 
+
 Lemma unopEq_refl b:
   unopEq b b = true.
 Proof.
@@ -152,8 +153,21 @@ Definition evalUnop (o:unop) (v:R):=
   match o with
   |Neg => (- v)%R
   |Ln => (ln v)
-  (* TODO *)
   end .
+
+
+Definition evalFUnop (o:unop) (v:R):=
+  match o with
+  |Neg => Fneg v
+  |Ln => Fln v
+  end .
+
+Definition evalRUnop (o:unop) (v:R):=
+  match o with
+  |Neg => (Ropp v)
+  |Ln => (ln v)
+  end .
+
 
 (*Definition evalFma (v1:R) (v2:R) (v3:R):=
   evalBinop Plus (evalBinop Mult v1 v2) v3.

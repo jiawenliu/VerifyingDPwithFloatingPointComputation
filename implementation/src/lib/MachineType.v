@@ -21,7 +21,7 @@ Require Import Coq.Strings.String.
 
 
 (*The fixed Floating Point number of 64 bits, with 
-53 bits mentassa and 11 bits of exponents*)
+52 bits mantissa and 11 bits of exponents*)
 Record FFP : Set := FFP64 { Num : R }.
 
 Variable beta : radix.
@@ -77,8 +77,19 @@ Definition Rclamp  (b v : R) : R :=
        then (Ropp( b))
        else  ( v).
 
-
-
 Definition Rround (v1:R) (v2:R) := v1.
+
+
+
+Definition Fneg (v : R) := R2FFP (Ropp (R2FFP v))
+  .
+
+
+Definition Fln (v : R) := R2FFP (ln (R2FFP v))
+  .
+
+
+
+
 
 
