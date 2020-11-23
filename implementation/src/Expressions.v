@@ -162,18 +162,18 @@ Definition evalUnop (o:unop) (v:R):=
   Define exprressions parametric over some value type V.
   Will ease reasoning about different instantiations later.
 **)
-Inductive expr (V: Type): Type :=
-  Var: nat -> expr V
-| Const: V -> expr V
-| Unop: unop -> expr V -> expr V
-| Binop: binop -> expr V-> expr V-> expr  V                         
+Inductive expr : Type :=
+  Var: nat -> expr
+| Const: R -> expr
+| Unop: unop -> expr -> expr
+| Binop: binop -> expr -> expr -> expr                         
 .
 
-Fixpoint freeVars (V:Type) (e:expr V) :=
+Fixpoint freeVars  (e:expr) :=
   match e with
   | Var x => (set_add  eq_nat_dec x [])
   | Const _  => (empty_set nat)
-  | Unop u e1 => freeVars V e1
-  | Binop b e1 e2 => set_union eq_nat_dec (freeVars V e1) (freeVars V e2)
+  | Unop u e1 => freeVars e1
+  | Binop b e1 e2 => set_union eq_nat_dec (freeVars e1) (freeVars e2)
   end.
  

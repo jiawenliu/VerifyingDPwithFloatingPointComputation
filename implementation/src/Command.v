@@ -1,33 +1,22 @@
 (**
-  Formalization of the base exprression language for the flover framework
+  Formalization of the while language for verfication framework.
  **)
-From Coq
-     Require Import  Structures.Orders Recdef.
-
-
-From Coq
-     Require Import QArith.QArith Structures.Orders Recdef.
 
 From Snapv
       Require Export Expressions.
 
 (**
-  Expressions will use binary operators.
-  Define them first
-**)
-
-(**
   Define exprressions commands over some value type V for expression.
   Will ease reasoning about different instantiations later.
 **)
-Inductive command (V: Type) : Type :=
+Inductive command : Type :=
   (* VAR X*)
-    ASGN : expr V -> expr V -> command V
-  | SEQ : command V -> command V -> command V
+    ASGN : expr -> expr -> command
+  | SEQ : command -> command -> command
   (* VAR X*)
-  | UNIF1 : expr V -> command V
-  | UNIF2 : expr V -> command V
-  | SKIP : command V.
+  | UNIF1 : expr -> command
+  | UNIF2 : expr -> command
+  | SKIP : command.
 
 
 

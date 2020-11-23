@@ -19,6 +19,9 @@ From extructures Require Import ord fset fmap ffun.
 Require Import Coq.Reals.Reals.
 Require Import Coq.Strings.String.
 
+
+(*The fixed Floating Point number of 64 bits, with 
+53 bits mentassa and 11 bits of exponents*)
 Record FFP : Set := FFP64 { Num : R }.
 
 Variable beta : radix.

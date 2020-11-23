@@ -7,12 +7,6 @@
 ./Maps.v
 ./Command.v
 ./CommandSemantics.v
-./MachineType.v
-./Infra/RealRationalProps.v
-./Infra/RationalSimps.v
-./Infra/RealSimps.v
-./Infra/Ltacs.v
-./Infra/Results.v
 ./distr/Extra.v
 ./distr/Prob.v
 ./apRHL.v

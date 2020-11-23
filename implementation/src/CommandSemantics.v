@@ -74,19 +74,19 @@ Definition unit_E  (E : env) := dirac E.
 
 
 Inductive trans_com (E : env) (delta : R)
-  :(command R) -> distr_m  -> Prop :=
+  :(command) -> distr_m  -> Prop :=
 | Asgn_trans x e v er1 er2:
-    trans_expr E delta e (v, (er1, er2)) -> 
-    trans_com E delta (ASGN (Var R x) e) (unit_E ((upd E (of_nat x) (v, (er1, er2))))) (*(E & {(of_nat x) --> (v, (er1, er2)) })*)
+    trans_expr E e (v, (er1, er2)) -> 
+    trans_com E delta (ASGN (Var x) e) (unit_E ((upd E (of_nat x) (v, (er1, er2))))) (*(E & {(of_nat x) --> (v, (er1, er2)) })*)
 | Skip_trans:
-  trans_com E delta (SKIP R) (unit_E E)
+  trans_com E delta (SKIP) (unit_E E)
 | Unif01_trans x v er1 er2:
      sem_distr_e E (UNIFR 0 1) (v, (er1, er2)) ->
-     trans_com E delta (UNIF1 (Var R x))
+     trans_com E delta (UNIF1 (Var x))
                (unit_E (upd E (of_nat x) (v, (er1, er2)))) (*(E & { sx --> (v, (er1, er2))}) *)
 | Sample_trans x v er1 er2:
      sem_distr_e E (UNIFS 1) (v, (er1, er2)) ->
-    trans_com E delta (UNIF2 (Var R x))
+    trans_com E delta (UNIF2 (Var x))
               (unit_E (upd E (of_nat x) (v, (er1, er2)))) (*(E & { sx --> (v, (er1, er2))}) *)
 | Seq_trans c1 c2 E1 distr1 distr2:
     trans_com E delta c1 distr1 ->

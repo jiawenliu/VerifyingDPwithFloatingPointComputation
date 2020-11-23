@@ -43,8 +43,8 @@ Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
     match pm with
       | (m1, m2) =>
     forall v1 v2 er11 er12 er21 er22,
-      trans_expr m1 delta e1 (v1, (er11, er12)) ->
-      trans_expr m2 delta e2 (v2, (er21, er22)) ->
+      trans_expr m1 e1 (v1, (er11, er12)) ->
+      trans_expr m2 e2 (v2, (er21, er22)) ->
       P (((upd m1 (of_nat X1) (v1, (er11, er12)))),  ((upd m2 (of_nat X2) (v2, (er21, er22)))))
       end.
 
@@ -52,11 +52,11 @@ Notation "P [ X1 X2 |-> e1 e2 ]" := (assn_sub X1 X2 e1 e2 P) (at level 10).
 
 
 
-Inductive hoare_rule : Assertion -> command R -> R -> command R -> Assertion -> Prop :=
+Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Prop :=
   | H_Skip  P:
-      hoare_rule P (SKIP R) 0 (SKIP R) P
+      hoare_rule P (SKIP) 0 (SKIP) P
   | H_Asgn Q x1 a1 x2 a2 :
-      hoare_rule (assn_sub x1 x2 a1 a2 Q) (ASGN (Var R x1) a1) 0 (ASGN (Var R x2) a2) Q
+      hoare_rule (assn_sub x1 x2 a1 a2 Q) (ASGN (Var x1) a1) 0 (ASGN (Var x2) a2) Q
   | H_Seq  P c1 c2 Q d1 d2 R r1 r2:
       hoare_rule P c1 r1 d1 Q -> hoare_rule Q c2 r2 d2 R 
     -> hoare_rule P (SEQ c1 c2) (r1 + r2) (SEQ d1 d2) R
@@ -67,7 +67,7 @@ Inductive hoare_rule : Assertion -> command R -> R -> command R -> Assertion -> 
     Rle r' r ->
     hoare_rule P c1 r c2 Q
   | H_UnifP x1 x2 eps:
-      hoare_rule ATrue (UNIF1 (Var R x1)) eps (UNIF1 (Var R x2))
+      hoare_rule ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -77,7 +77,7 @@ Inductive hoare_rule : Assertion -> command R -> R -> command R -> Assertion -> 
                                   end
                  end)
   | H_UnifN x1 x2 eps:
-      hoare_rule ATrue (UNIF1 (Var R x1)) eps (UNIF1 (Var R x2))
+      hoare_rule ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -87,7 +87,7 @@ Inductive hoare_rule : Assertion -> command R -> R -> command R -> Assertion -> 
                                   end
                  end)
   | H_Null  x1 x2:
-hoare_rule ATrue (UNIF2 (Var R x1)) 0 (UNIF2 (Var R x2))
+hoare_rule ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
 (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
