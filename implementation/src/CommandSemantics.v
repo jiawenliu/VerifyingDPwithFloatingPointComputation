@@ -63,26 +63,26 @@ Definition is_sample (d: {prob state}) (E:state) : Prop :=
 
 
 
-Inductive trans_com (E : env) 
+Inductive trans_com (eta : R) (E : env) 
   :(command) -> distr_m  -> Prop :=
 | Asgn_trans x e v er1 er2:
-    trans_expr E e (v, (er1, er2)) -> 
-    trans_com E  (ASGN (Var x) e) (unit_E ((upd E (of_nat x) (v, (er1, er2)))))
+    trans_expr eta E e (v, (er1, er2)) -> 
+    trans_com eta E  (ASGN (Var x) e) (unit_E ((upd E (of_nat x) (v, (er1, er2)))))
 | Skip_trans:
-  trans_com E  (SKIP) (unit_E E)
+  trans_com eta E  (SKIP) (unit_E E)
 | Unif01_trans x v er1 er2:
      in_supp (UNIFR) (v, (er1, er2)) ->
-     trans_com E  (UNIF1 (Var x))
+     trans_com eta E  (UNIF1 (Var x))
                (unit_E (upd E (of_nat x) (v, (er1, er2))))
 | Sample_trans x v er1 er2:
      in_supp (UNIFS) (v, (er1, er2)) ->
-    trans_com E  (UNIF2 (Var x))
+    trans_com eta E  (UNIF2 (Var x))
               (unit_E (upd E (of_nat x) (v, (er1, er2)))) 
 | Seq_trans c1 c2 E1 distr1 distr2:
-    trans_com E  c1 distr1 ->
+    trans_com eta E  c1 distr1 ->
      is_sample distr1 E1 ->
-    trans_com E1  c2 distr2 -> 
-    trans_com E  (SEQ c1 c2) distr2
+    trans_com eta E1  c2 distr2 -> 
+    trans_com eta E  (SEQ c1 c2) distr2
 .
 
 

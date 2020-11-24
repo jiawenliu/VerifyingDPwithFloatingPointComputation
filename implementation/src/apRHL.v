@@ -36,15 +36,15 @@ Definition AFalse :=
 
 Print state.
 
-Definition delta := 0.00001%R.
+Definition eta := 0.00001%R.
 
 Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
   fun (pm : (state * state)) =>
     match pm with
       | (m1, m2) =>
     forall v1 v2 er11 er12 er21 er22,
-      trans_expr m1 e1 (v1, (er11, er12)) ->
-      trans_expr m2 e2 (v2, (er21, er22)) ->
+      trans_expr eta m1 e1 (v1, (er11, er12)) ->
+      trans_expr eta m2 e2 (v2, (er21, er22)) ->
       P (((upd m1 (of_nat X1) (v1, (er11, er12)))),  ((upd m2 (of_nat X2) (v2, (er21, er22)))))
       end.
 
