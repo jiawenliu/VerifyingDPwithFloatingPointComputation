@@ -36,7 +36,9 @@ Proof.
   intros.
   Admitted.
 
-
+(* The binary operations are mostly regular, except Round and Clamp
+Round lam v: do rounding for v in terms of lam.
+Clamp B v: do clamping for v, by truncating v to -B and B, if v falls outside of [-B, B]*)
 Inductive binop : Type := Plus | Sub | Mult | Div | Round | Clamp.
 
 Definition binopEq (b1 : binop) (b2 : binop) :=
@@ -87,7 +89,7 @@ Definition evalFBinop (o:binop) (v1: R) (v2: R) :=
   | Mult =>(Fmult v1 v2)
   | Div => (Fdiv v1 v2)
   | Clamp =>  Fclamp v1 v2
-  | Round => (Fround v2)                 
+  | Round => (Fround v1 v2)                 
   end.
 
 

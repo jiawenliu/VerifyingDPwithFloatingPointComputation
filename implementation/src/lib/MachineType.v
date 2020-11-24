@@ -9,6 +9,9 @@ Require Import Coq.Strings.String Coq.Lists.List Coq.omega.Omega
       Coq.Reals.Rdefinitions.
 Require Import Omega.
 
+From Gappa Require Import Gappa_tactic.
+
+
 From Flocq Require Import Core Bracket Round Operations Div Sqrt  Plus_error.
 
 
@@ -34,17 +37,22 @@ Hypothesis Hprec : (0 < prec)%Z.
 Hypothesis fexp_prec :
   forall e, (e - prec <= fexp e)%Z.
 
-Variable rnd : R -> Z.
+(* Variable rnd : R -> Z.
 Context { valid_rnd : Valid_rnd rnd }.
+ *)
+Variable rndR2Z : R -> Z.
+Context { valid_rnd : Valid_rnd rndR2Z }.
 
-Variable choice : bool -> Z -> location -> Z.
-Hypothesis rnd_choice :
-  forall x m l,
-  inbetween_int m (Rabs x) l ->
-  rnd x = cond_Zopp (Rlt_bool x 0) (choice (Rlt_bool x 0) m l).
+Definition rnd := rounding_float rndZR 53 (-1074).
 
 
-Definition R2FFP (r : R) := round beta fexp rnd (r).
+Definition R2FFP (r : R) := rnd (r).
+
+Definition format :=
+  generic_format radix2 (FLT_exp (-1074) 53).
+
+
+Definition rle x y : bool := Rle_dec x y.
 
 
 
@@ -55,11 +63,18 @@ Definition Fsub  (x y : R) : R := R2FFP (Rminus (R2FFP x) (R2FFP y)).
 Definition Fmult  (x y : R) : R := R2FFP (Rmult (R2FFP x) (R2FFP y)).
                                          
 
-Definition Fround  (v : R) :=
-  round beta fexp rnd (v).
+Definition Fround  (lam v : R) :=
+  let v1 := (Rmult (IZR(rndR2Z((R2FFP v) / (R2FFP lam))))  lam) in
+  let v2 := Rabs (v - v1) in
+    if rle v2 0.5
+  then v1
+    else
+      match Rcase_abs v1 with
+      | left _ =>  R2FFP (Rminus (R2FFP v1) 1)
+      | right _ =>  R2FFP (Rplus (R2FFP v1) 1)
+      end.
 
 
-Definition rle x y : bool := Rle_dec x y.
 
 Definition Fclamp  (b v : R) : R :=
   if rle (R2FFP b) (R2FFP v)
@@ -77,7 +92,18 @@ Definition Rclamp  (b v : R) : R :=
        then (Ropp( b))
        else  ( v).
 
-Definition Rround (v1:R) (v2:R) := v1.
+Definition Rround
+            (lam v : R) :=
+  let v1 := (Rmult (IZR(rndR2Z(v /lam )))  lam) in
+  let v2 := Rabs (v - v1) in
+    if rle v2 0.5
+  then v1
+    else
+      match Rcase_abs v1 with
+      | left _ =>  (Rminus ( v1) 1)
+      | right _ => (Rplus ( v1) 1)
+      end.
+
 
 
 
