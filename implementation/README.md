@@ -6,9 +6,12 @@
 
 - The following OPAM packages:
   
+  + `coq-flocq` (tested with 3.3.1)
   + `coq-mathcomp-ssreflect` (tested with 1.11)
   + `coq-mathcomp-fingroup` (tested with 1.11)
   + `coq-mathcomp-algebra` (tested with 1.11)
+  + `gappa` (tested with 1.3.5)
+  + `gappalib-coq` (tested with 1.4.4)
   
 - Deriving (https://github.com/arthuraa/deriving, tested with revision 8d7cd4d)
 
