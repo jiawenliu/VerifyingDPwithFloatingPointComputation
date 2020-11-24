@@ -34,26 +34,29 @@ Definition err : Type :=  (R * R).
   Definition env := state.
 
   (*The machine epsilon under the 64 bits fixed floating point computation*)
-  Definition eta := 2^53.
+  Definition eta := (Ropp (2^53)).
 
+  Print eta.
   
 Inductive ptbdir : Type := Down | Up.
 
 Definition perturb (e: R) (dir: ptbdir) :  R :=
   match dir with
-  (* The Real-type has no error *)
+  (* the upper bound of the relative error for Fixed-point computation,
+   computed in terms of real number*)
   |Down =>  (e * (1 + eta))
-  (* Fixed-point numbers have an absolute error *)
+  (* the lower bound of the relative error for Fixed-point computation, 
+   computed in terms of real number*)
   |Up => ( e / (1 + eta))
   end.
 
 Hint Unfold perturb.
 
 (**
-Define expression evaluation relation parametric by an "error" epsilon.
+Define expression evaluation relation 
 The result value exprresses float computations according to the IEEE standard,
-using a perturbation of the real valued computation by (1 + delta), where
-|delta| <= machine epsilon.
+using a perturbation of the real valued computation by (1 + eta), where
+|eta| <= machine epsilon.
  **)
 
 
@@ -82,77 +85,77 @@ Inductive trans_expr (E : state)
     (evalUnop op v) > 0 -> 
     trans_expr E e (v, (er1, er2)) ->
     trans_expr E (Unop Neg e) 
-    (fl (evalUnop Neg v), 
-      (perturb (evalUnop op er1)  Down, 
-        perturb (evalUnop op er2) Up)) 
+    (fl (evalFUnop Neg v), 
+      (perturb (evalRUnop op er1)  Down, 
+        perturb (evalRUnop op er2) Up)) 
 | Unop_lt_zero e v op er1 er2:
-    (evalUnop op v) < 0 -> 
+    (evalFUnop op v) < 0 -> 
     trans_expr E  e (v, (er1, er2)) ->
     trans_expr E  (Unop Neg e) 
-    (evalUnop op v, 
-      (perturb (evalUnop op er1)  Up, 
-        perturb (evalUnop op er2)  Down)) 
+    (evalFUnop op v, 
+      (perturb (evalRUnop op er1)  Up, 
+        perturb (evalRUnop op er2)  Down)) 
 
 | Binop_PSRC_gt0 op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
-    (evalBinop op v1 v2) = v ->
+    (evalFBinop op v1 v2) = v ->
     0 <= v ->
     trans_expr E  e1 (v1, (er1_l, er1_u)) ->
     trans_expr E  e2 (v2, (er2_l, er2_u)) ->
     ((op = Plus) \/ (op = Expressions.Sub) \/ (op = Round) \/ (op = Clamp)) ->
     trans_expr E  (Binop op e1 e2) 
     (v, 
-      (perturb (evalBinop op er1_l er2_l)  Down, 
-        perturb (evalBinop op er1_u er2_u)  Up)) 
+      (perturb (evalRBinop op er1_l er2_l)  Down, 
+        perturb (evalRBinop op er1_u er2_u)  Up)) 
 | Binop_PSRC_lt0 op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
-    (evalBinop op v1 v2) = v ->
+    (evalFBinop op v1 v2) = v ->
     v < 0 ->
     trans_expr E e1 (v1, (er1_l, er1_u)) ->
     trans_expr E e2 (v2, (er2_l, er2_u)) ->
     ((op = Plus) \/ (op = Expressions.Sub) \/ (op = Round) \/ (op = Clamp)) ->
     trans_expr E (Binop op e1 e2) 
     (v, 
-      (perturb (evalBinop op er1_l er2_l) Up, 
-        perturb (evalBinop op er1_u er2_u) Down)) 
+      (perturb (evalRBinop op er1_l er2_l) Up, 
+        perturb (evalRBinop op er1_u er2_u) Down)) 
 | Binop_MD_ltlt op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
-    (evalBinop op v1 v2) = v ->
+    (evalFBinop op v1 v2) = v ->
     v1 < 0 /\ v2 < 0 ->
     trans_expr E e1 (v1, (er1_l, er1_u)) ->
     trans_expr E  e2 (v2, (er2_l, er2_u)) ->
     ((op = Mult) \/ (op = Div)) ->
     trans_expr E (Binop op e1 e2) 
     (v, 
-      (perturb (evalBinop op er1_u er2_u) Down, 
-        perturb (evalBinop op er1_l er2_l) Up))
+      (perturb (evalRBinop op er1_u er2_u) Down, 
+        perturb (evalRBinop op er1_l er2_l) Up))
 | Binop_MD_gtgt op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
-    (evalBinop op v1 v2) = v ->
+    (evalFBinop op v1 v2) = v ->
     0 <= v1 /\ 0 <= v2 ->
     trans_expr E e1 (v1, (er1_l, er1_u)) ->
     trans_expr E e2 (v2, (er2_l, er2_u)) ->
     ((op = Mult) \/ (op = Div)) ->
     trans_expr E (Binop op e1 e2) 
     (v, 
-      (perturb (evalBinop op er1_l er2_l) Down, 
-        perturb (evalBinop op er1_u er2_u) Up))
+      (perturb (evalRBinop op er1_l er2_l) Down, 
+        perturb (evalRBinop op er1_u er2_u) Up))
 | Binop_MD_ltgt op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
-    (evalBinop op v1 v2) = v ->
+    (evalFBinop op v1 v2) = v ->
     v1 < 0 /\ 0 <= v2 ->
     trans_expr E e1 (v1, (er1_l, er1_u)) ->
     trans_expr E e2 (v2, (er2_l, er2_u)) ->
     ((op = Mult) \/ (op = Div)) ->
     trans_expr E (Binop op e1 e2) 
     (v, 
-      (perturb (evalBinop op er1_l er2_u)  Up, 
-        perturb (evalBinop op er1_u er2_l) Down)) 
+      (perturb (evalRBinop op er1_l er2_u)  Up, 
+        perturb (evalRBinop op er1_u er2_l) Down)) 
 | Binop_MD_gtlt op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
-    (evalBinop op v1 v2) = v ->
+    (evalFBinop op v1 v2) = v ->
     0 <= v1 /\ v2 < 0 ->
     trans_expr E e1 (v1, (er1_l, er1_u)) ->
     trans_expr E e2 (v2, (er2_l, er2_u)) ->
     ((op = Mult) \/ (op = Div)) ->
     trans_expr E (Binop  op e1 e2) 
     (v, 
-      (perturb (evalBinop op er1_u er2_l) Up, 
-        perturb (evalBinop op er1_l er2_u) Down))
+      (perturb (evalRBinop op er1_u er2_l) Up, 
+        perturb (evalRBinop op er1_l er2_u) Down))
 .
 
 

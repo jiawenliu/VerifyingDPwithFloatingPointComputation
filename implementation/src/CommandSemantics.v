@@ -27,7 +27,7 @@ From Snapv
 From Snapv
      Require Import Command ExpressionTransitions Environments Maps.
 
-From Snapv.distr Require Import Extra Prob.
+From Snapv.distr Require Import Extra Prob Unif.
 
 From Flocq Require Import Core Bracket Round Operations Div Sqrt.
 
@@ -51,26 +51,6 @@ Definition distr_m := { prob env }.
 
 
 
-
-(* TODO: Be Specific *)
-Inductive  distr_e (V:Type) : Type :=
-| UNIFR: V -> V -> distr_e V
-| UNIFS: V -> distr_e V.
-
-(* TO RENAME  SUPP E distre (R * R * R) => (R* R*R)  \in distre *)
-Inductive sem_distr_e (E : env): (distr_e R)
- -> (R * (R * R)) -> Prop :=
-| UnifR_sem v v1 v2 er1 er2:
-    er1 = er2 -> v = er1 ->
-  v1 <= v -> v <= v2 ->
-    sem_distr_e E (UNIFR v1 v2) (v, (er1, er2)) (*(E & { sx --> (v, (er1, er2))}) *)
-| UnifS_sem v v1 v2 er1 er2:
-    er1 = er2 -> v = er1 ->
-  v1 <= v <= v2 ->
-    sem_distr_e E (UNIFS v1) (v, (er1, er2)) (*(E & { sx --> (v, (er1, er2))}) *)
-.
-
-
 Definition unit_E  (E : env) := dirac E.
 
 
@@ -91,11 +71,11 @@ Inductive trans_com (E : env)
 | Skip_trans:
   trans_com E  (SKIP) (unit_E E)
 | Unif01_trans x v er1 er2:
-     sem_distr_e E (UNIFR 0 1) (v, (er1, er2)) ->
+     in_supp (UNIFR) (v, (er1, er2)) ->
      trans_com E  (UNIF1 (Var x))
                (unit_E (upd E (of_nat x) (v, (er1, er2))))
 | Sample_trans x v er1 er2:
-     sem_distr_e E (UNIFS 1) (v, (er1, er2)) ->
+     in_supp (UNIFS) (v, (er1, er2)) ->
     trans_com E  (UNIF2 (Var x))
               (unit_E (upd E (of_nat x) (v, (er1, er2)))) 
 | Seq_trans c1 c2 E1 distr1 distr2:

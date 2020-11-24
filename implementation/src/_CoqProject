@@ -9,6 +9,7 @@
 ./CommandSemantics.v
 ./distr/Extra.v
 ./distr/Prob.v
+./distr/Unif.v
 ./apRHL.v
 ./Environments.v
 ./lib/MachineType.v
