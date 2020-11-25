@@ -122,9 +122,7 @@ Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command
 Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
   ( aprHore_judgement  P c1 eps c2 Q) (at level 90, c1 at level 91)
   : aprHoare_scope.
-
-Print Grammar constr.
-
+  
 (* Check ({{ ATrue }} SKIP { 0.1%R } SKIP {{ ATrue }} ).
 *)
 
