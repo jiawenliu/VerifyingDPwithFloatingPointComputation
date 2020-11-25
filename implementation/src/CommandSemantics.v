@@ -20,12 +20,8 @@ From mathcomp Require Import
      ssreflect ssrfun ssrbool eqtype ssrnat choice seq
      bigop path   .
 
-
 From Snapv
-     Require Export MachineType.
-
-From Snapv
-     Require Import Command ExpressionTransitions Environments Maps.
+     Require Import Command ExpressionTransitions Environments.
 
 From Snapv.distr Require Import Extra Prob Unif.
 
@@ -45,9 +41,10 @@ Definition distr_m := { prob env }.
 Definition unit_E  (E : env) := dirac E.
 
 Definition do_sample d : {prob env} :=
-  sample: e <- d;
- dirac e.
+ sample: e <- d;
+ dirac e. 
 
+(* is_sample d E :  E \in supp d *)
 Definition is_sample (d: {prob env}) (E:env) : Prop :=
   E \in supp (do_sample d).
 
@@ -60,19 +57,18 @@ Inductive trans_com (eta : R) (E : env)
     trans_com eta E  (ASGN (Var x) e) (unit_E ((upd E (of_nat x) (v, (er1, er2)))))
 | Skip_trans:
   trans_com eta E  (SKIP) (unit_E E)
-| Unif01_trans x v er1 er2:
-     unif_sem (UNIF_01) (v, (er1, er2)) ->
-     trans_com eta E  (UNIF1 (Var x))
-               (unit_E (upd E (of_nat x) (v, (er1, er2))))
-| Sample_trans x v er1 er2:
-     unif_sem (UNIF_sign) (v, (er1, er2)) ->
-    trans_com eta E  (UNIF2 (Var x))
-              (unit_E (upd E (of_nat x) (v, (er1, er2)))) 
+| Unif01_trans x:    
+  trans_com eta E  (UNIF1 (Var x))
+              (sample: v <- unif_01; dirac ((upd E (of_nat x) (v, (v, v))) ))
+| Sample_trans x:
+     trans_com eta E (UNIF2 (Var x))
+              (sample: v <- unif_sign; dirac ((upd E (of_nat x) (v, (v, v))) ))
 | Seq_trans c1 c2 E1 distr1 distr2:
     trans_com eta E  c1 distr1 ->
-    is_sample distr1 E1 ->
-    trans_com eta E1  c2 distr2 -> 
-    trans_com eta E  (SEQ c1 c2) distr2
+    (* (sample: v <- distr1; trans_com eta v c2 ) ->*)
+    trans_com eta E1 c2 distr2 -> 
+    trans_com eta E (SEQ c1 c2) distr2
+    
 .
 
 

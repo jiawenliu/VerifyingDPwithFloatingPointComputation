@@ -71,7 +71,7 @@ Definition FT : Type := (float radix2).
 
 (* The uniform distribution ranging over fixed floating point number from 0 to 1*)
 
-Definition floats_01 : {fset nat} := fset (iota 0 (2^53)).
+Definition floats_01 : {fset R} := fset (map (fun x => (Rmult (Rpower 2 ( Ropp 53)) (INR x)))(iota 0 (2^53))).
 
 
 Definition unif_01_mass x: rat :=
@@ -82,6 +82,7 @@ Definition unif_01_mass x: rat :=
 
 Lemma unif_01_subproof1 x : x \in floats_01 ->   zeroq <= (unif_01_mass x).
 Proof.
+  
   Admitted.
     (* by rewrite /unif_01_mass; case: eq_op. Qed.*)
 
@@ -121,42 +122,6 @@ Definition unif_sign :=
   mkprob (@unif_sign_subproof1) (unif_sign_subproof2).
 
 
-
-(*
-Inductive  distr_e : Type :=
-| UNIF_01:  distr_e
-| UNIF_sign:  distr_e.
-
-Inductive in_supp : (distr_e)
- -> (R * (R * R)) -> Prop :=
-| UnifR_supp v er1 er2:
-    er1 = er2 -> v = er1 ->
-  (Rle 0 v) -> (Rle v 1) ->
-   in_supp ( UNIF_01) (v, (er1, er2)) 
-| UnifS_supp v er1 er2:
-    er1 = er2 -> v = er1 ->
-    (is_sample unif_sign v) ->
-    in_supp (UNIF_sign) (v, (er1, er2))
-.
- *)
-
-Inductive  distr_unif : Type :=
-| UNIF_01: distr_unif
-| UNIF_sign: distr_unif.
-
-
-
-Inductive unif_sem : (distr_unif)
- -> (R * (R * R)) -> Prop :=
-| UnifR_supp v er1 er2:
-   (v \in supp (sample: e <- unif_01;dirac e)) ->
-   er1 = er2 -> (Rdiv 1 (INR v)) = er1 ->
-   unif_sem (UNIF_01) ( (Rdiv 1 (INR v)), (er1, er2)) 
-| UnifS_supp v er1 er2:
-    er1 = er2 -> v = er1 ->
-    (v \in supp ( sample: e <- unif_sign;dirac e))->
-    unif_sem (UNIF_sign) (v, (er1, er2))
-.
 
 
 
