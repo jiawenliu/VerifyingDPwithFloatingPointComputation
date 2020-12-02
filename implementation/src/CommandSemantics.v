@@ -40,15 +40,6 @@ Definition distr_m := { prob env }.
 
 Definition unit_E  (E : env) := dirac E.
 
-Definition do_sample d : {prob env} :=
- sample: e <- d;
- dirac e. 
-
-(* is_sample d E :  E \in supp d *)
-Definition is_sample (d: {prob env}) (E:env) : Prop :=
-  E \in supp (do_sample d).
-
-
 
 Inductive trans_com (eta : R) (E : env) 
   :(command) -> distr_m  -> Prop :=
@@ -63,13 +54,19 @@ Inductive trans_com (eta : R) (E : env)
 | Sample_trans x:
      trans_com eta E (UNIF2 (Var x))
               (sample: v <- unif_sign; dirac ((upd E (of_nat x) (v, (v, v))) ))
-| Seq_trans c1 c2 E1 distr1 distr2:
+| Seq_trans c1 c2 distr1 f:
     trans_com eta E  c1 distr1 ->
-    (* (sample: v <- distr1; trans_com eta v c2 ) ->*)
-    trans_com eta E1 c2 distr2 -> 
-    trans_com eta E (SEQ c1 c2) distr2
+    (* ***** abstract function f takes care of the transformation from m \in distr1 into distr2 ****** *)
+    (forall m, trans_com eta m c2 (f m)) -> 
+    trans_com eta E (SEQ c1 c2) (sample distr1 f)
     
 .
+
+Definition semantics_sound (st: env) x : Prop :=
+  match (st x) with
+  | (v, (er1, er2)) => (Rle er1 v) /\ (Rle v er2)
+  end.
+ 
 
 
 Close Scope R_scope.

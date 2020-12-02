@@ -153,6 +153,13 @@ Inductive trans_expr (eta : R) (E : state)
     (v, 
       (perturb eta (evalRBinop op er1_u er2_l) Up, 
         perturb eta (evalRBinop op er1_l er2_u) Down))
+| Binop_ClampRound op e1 e2 v1 v2 er1_l er1_u er2_l er2_u v:
+    (evalFBinop op v1 v2) = v ->
+    trans_expr eta E e1 (v1, (er1_l, er1_u)) ->
+    trans_expr eta E e2 (v2, (er2_l, er2_u)) ->
+    ((op = Clamp) \/ (op = Round)) ->
+    trans_expr eta E (Binop op e1 e2) 
+    (v, ((evalRBinop op er1_l er2_l), (evalRBinop op er1_u er2_u)))
 .
 
 

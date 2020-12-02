@@ -36,7 +36,9 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
 .
 
 Definition eta := 0.0000000005%R.
-Lemma SnapDP' :
+
+
+(* Lemma SnapDP' :
   forall a a' Lam B eps: R,
     (Rplus a (Ropp a')) = 1 ->
     hoare_rule ATrue (Snap a Lam B eps) (Rmult eps (Rplus 1 (Rmult 24%R (Rmult B eta)))) (Snap a' Lam B eps)
@@ -81,11 +83,77 @@ Proof.
  *)
 
 Admitted.
+*)
 
+(*functional extensionality, propositional extensionality *)
+Lemma Snap_sub3:
+  forall a a' Lam B eps: R,
+     Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
+    (Rminus a a') = 1 ->
+  assn_sub (3%nat) (3%nat)
+           (Binop Clamp 
+                  (Const B)
+                  (Binop Round 
+                         (Const Lam)
+                         (Binop Plus 
+                                (Const a)
+                                (Binop Mult 
+                                       (Const (1 / eps))
+                                       (Binop Mult 
+                                              (Var 2) 
+                                              (Unop Ln (Var 1)))))))
+           (Binop Clamp 
+                  (Const B)
+                  (Binop Round 
+                         (Const Lam)
+                         (Binop Plus 
+                                (Const a')
+                                (Binop Mult 
+                                       (Const (1 / eps))
+                                       (Binop Mult 
+                                              (Var 2) 
+                                              (Unop Ln (Var 1)))))))
+           (fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0, (0, 0))) =>
+              let (m1, m2) := pm in
+              let (v1, _) := m1 (of_nat 3) in
+              let (v2, _) := m2 (of_nat 3) in forall v : R_eqType, v1 = v -> v2 = v)
+  =
+  ((fun (pm : (state * state)) =>
+                                  let (m1, m2) := pm in
+                                  let (v1, _) := m1 (of_nat 1) in
+                                  let (v2, _) := m2 (of_nat 1) in
+                                  let (s1, _) := m1 (of_nat 2) in
+                                  let (s2, _) := m2 (of_nat 2) in
+                                  forall v,
+                                    Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a) eps) s1)) v1 ->
+                                    Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam) a) eps) s1)) ->
+                                    Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))) v2 ->
+                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))))
+                                    /\ s1 = s2)).
+Proof. Admitted.
+
+
+Lemma zero_lt_eta : Rlt 0 eta.
+Proof.
+  unfold eta.
+Admitted.
+
+
+Lemma zero_lt_24 : Rlt 0 24.
+Proof.
+  trivial.
+Admitted.
+
+
+  
+
+Ltac apply_snap_sub3 := apply Snap_sub3.
+
+(* Point wise equal in terms of memeory*)
 Lemma SnapDP:
   forall a a' Lam B eps: R,
      Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
-    (Rplus a (Ropp a')) = 1 ->
+    (Rminus a a') = 1 ->
     aprHore_judgement ATrue (Snap a Lam B eps) (Rmult eps (Rplus 1 (Rmult 24%R (Rmult B eta)))) (Snap a' Lam B eps)
                (fun (pm : (state * state)) =>
                     let (m1, m2) := pm in
@@ -157,10 +225,10 @@ apply Rmult_lt_0_compat .
 rewrite <- H3.
 apply H1.
 apply Rmult_lt_0_compat .
-admit.
+apply  zero_lt_24.
 apply Rmult_lt_0_compat .
 apply H0.
-admit.
+apply zero_lt_eta.
 
 apply
   aprHore_seq with (Q := fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0, (0, 0))) =>
@@ -196,15 +264,45 @@ apply aprHore_conseq with
                                     /\ s1 = s2))
     (r' := 0).
 
-apply aprHore_nulls with (eps := 0).
+apply aprHore_nulls.
 unfold ATrue.
 unfold assert_implies; auto.
 
 unfold assert_implies; auto.
 apply Rle_refl.
 
+rewrite <- Snap_sub3 with (B := B).
+apply aprHore_asgn with (e1 := 
+                           (Binop Clamp 
+                                  (Const B)
+                                  (Binop Round 
+                                         (Const Lam)
+                                         (Binop Plus 
+                                                (Const a)
+                                                (Binop Mult 
+                                                       (Const (1 / eps))
+                                                       (Binop Mult 
+                                                              (Var 2) 
+                                                              (Unop Ln (Var 1))))))))
+                        (e2 := 
+                           (Binop Clamp (Const B)
+                                  (Binop Round (Const Lam)
+                                         (Binop Plus (Const a')
+                                                (Binop Mult (Const (1 / eps)) (Binop Mult (Var 2) (Unop Ln (Var 1))))))))
+                        (x1 := 3%nat) (x2 := 3%nat)
+(Q := fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0, (0, 0))) =>
+    let (m1, m2) := pm in
+    let (v1, _) := m1 (of_nat 3) in
+    let (v2, _) := m2 (of_nat 3) in forall v : R_eqType, v1 = v -> v2 = v)
+.
+auto.
+auto.
+auto.
+auto.
 
-Admitted.
+(* Manually, more automatically *)
+
+Qed.
 
 Close Scope aprHoare_scope.
 Close Scope R_scope.

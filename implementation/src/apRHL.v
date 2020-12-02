@@ -103,12 +103,17 @@ Notation "P ->> Q" := (assert_implies P Q)
 
 Open  Scope aprHoare_scope.
 
-(***************************** The Formal Probabilistic Lifting Judgement ***************)
+Print sample.
+Check sample.
+
+(***************************** The Formal Probabilistic Lifting Judgement *************************)
 
 
-Definition prob_lifting (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Prop := True.
+Definition prob_lifting (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Prop :=
+  True.
+(*The Formal Definiiton for Probabilistic Lifting*)
 
-(********************************* The Formal aprHoare Judgement *************************)
+(********************************* The Formal aprHoare Judgement ***********************************)
 
 
 Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
@@ -122,11 +127,11 @@ Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command
 Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
   ( aprHore_judgement  P c1 eps c2 Q) (at level 90, c1 at level 91)
   : aprHoare_scope.
-  
+
 (* Check ({{ ATrue }} SKIP { 0.1%R } SKIP {{ ATrue }} ).
 *)
 
-(************************* The proving rules for aprHoare Logic Judgements ***************)
+(************************* The Proving Rules for aprHoare Logic Judgements *************************)
 
 
 Theorem aprHore_skip : forall c1 c2 P ,
@@ -214,8 +219,8 @@ Qed.
 
 
 
-Theorem aprHore_null :forall x1 x2 eps,
-   aprHore_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+Theorem aprHore_null :forall x1 x2,
+   aprHore_judgement  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -225,6 +230,71 @@ Theorem aprHore_null :forall x1 x2 eps,
                     end).
 Proof.
   unfold aprHore_judgement.
+  intros.
+  unfold prob_lifting.
+  auto.
+Qed.
+
+Theorem aprHore_nulls :forall x1 x2,
+   aprHore_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
+                 (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
+                                  | (v1, _),(v2, _) => v1 = v2
+                                    
+                                  end
+                    end).
+Proof.
+  unfold aprHore_judgement.
+  intros.
+  unfold prob_lifting.
+  auto.
+Qed.
+
+Theorem aprHore_round :forall y1 y2 x1 x2 Lam,
+   aprHore_judgement (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat y1)),(m2 (of_nat y2)) with
+                                  | (v1, _),(v2, _) => 
+                                  forall v, 
+                                  (Rle v1 (v + Lam/2)) /\ (Rle (v - Lam/2) v1) -> 
+                                    (Rle v2 (v + Lam/2)) /\ (Rle (v - Lam/2) v2)                           
+                                  end
+                    end)
+                     (ASGN (Var x1) (Binop Round (Const Lam) (Var y1))) 0
+                     (ASGN (Var x2) (Binop Round (Const Lam) (Var y2)))
+                 (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
+                                  | (v1, _),(v2, _) => forall v, v1 = v -> v2 = v
+                                    
+                                  end
+                    end).
+Proof.
+  unfold aprHore_judgement.
+  intros.
+  unfold prob_lifting.
+  auto.
+Qed.
+
+
+(*************************************** Some Logic Lemmas and Theorems ********************************)
+
+
+Theorem hoare_pre_false : forall (Q : Assertion) c1 c2,
+  aprHore_judgement AFalse c1 0 c2 Q.
+Proof.
+  unfold aprHore_judgement.
+  intros.
+  unfold prob_lifting.
+  auto.
+Qed.
+
+
+Theorem hoare_post_true : forall(P : Assertion) c1 c2,
+  aprHore_judgement P c1 0 c2 ATrue.
+Proof.
+ unfold aprHore_judgement.
   intros.
   unfold prob_lifting.
   auto.
