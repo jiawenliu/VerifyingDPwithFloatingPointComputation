@@ -71,6 +71,7 @@ Qed.
 
 Definition mass d := \sum_(x <- supp d) d x.
 
+
 Lemma massE d X :
   fsubset (supp d) X -> mass d = \sum_(x <- X) d x.
 Proof.
@@ -446,6 +447,13 @@ below.)  The definition is useful because (1) it has good composition
 properties, as seen by [coupling_dirac] and [coupling_sample], and because (2)
 it is strong enough to establish the equality of two distributions, as seen in
 [coupling_same]. *)
+
+
+Lemma le_prob_0 (T : ordType) (d : {prob T}) :
+  forall (x : T),
+  le_rat zeroq (d x).
+Proof.
+Admitted.
 
 Variant coupling (T S : ordType) (R : T -> S -> Prop) pT pS : Type :=
 | Coupling p of

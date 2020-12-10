@@ -59,12 +59,8 @@ rewrite /rle; split.
   admit.
 Admitted.
 Definition R_ordMixin := OrdMixin rleP.
+
 Canonical R_ordType := OrdType R R_ordMixin.
-
-
-
-Definition FT : Type := (float radix2).
-
 
 
 

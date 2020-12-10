@@ -4,7 +4,9 @@
 From Coq
      Require Import QArith.QArith QArith.Qminmax QArith.Qabs QArith.Qreals
      micromega.Psatz Reals.Reals
-     Strings.Ascii Strings.BinaryString Omega.
+     Strings.Ascii Strings.BinaryString Omega
+     Logic.PropExtensionality
+     Logic.FunctionalExtensionality.
 
 From Snapv
      Require Import 
@@ -85,6 +87,34 @@ Proof.
 Admitted.
 *)
 
+Lemma Snap_sub1:
+  forall (a Lam B eps v er1 er2: R) m,
+     Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
+   
+     trans_expr eta m (Binop Clamp 
+                             (Const B)
+                             (Binop Round 
+                                    (Const Lam)
+                                    (Binop Plus 
+                                           (Const a)
+                                           (Binop Mult 
+                                                  (Const (1 / eps))
+                                                  (Binop Mult 
+                                                         (Var 2) 
+                                                         (Unop Ln (Var 1)))))))
+                (v, (er1, er2)) ->
+     let (v1, _) := m (of_nat 1) in
+     let (s, _) := m (of_nat 2) in
+     (exp ((v - Lam/2 - a) / eps / s) < v1) /\
+     (v1 < exp ((v + Lam/2 - a) / eps / s)).
+Proof.
+
+  intros.
+  
+Admitted.
+
+                   
+         
 (*functional extensionality, propositional extensionality *)
 Lemma Snap_sub3:
   forall a a' Lam B eps: R,
@@ -118,31 +148,58 @@ Lemma Snap_sub3:
               let (v1, _) := m1 (of_nat 3) in
               let (v2, _) := m2 (of_nat 3) in forall v : R_eqType, v1 = v -> v2 = v)
   =
-  ((fun (pm : (state * state)) =>
+  (fun (pm : (state * state)) =>
                                   let (m1, m2) := pm in
                                   let (v1, _) := m1 (of_nat 1) in
                                   let (v2, _) := m2 (of_nat 1) in
                                   let (s1, _) := m1 (of_nat 2) in
                                   let (s2, _) := m2 (of_nat 2) in
                                   forall v,
-                                    Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a) eps) s1)) v1 ->
-                                    Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam) a) eps) s1)) ->
-                                    Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))) v2 ->
-                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))))
-                                    /\ s1 = s2)).
-Proof. Admitted.
+                                   (exp ((v - Lam/2 - a) / eps / s1) < v1) /\
+                                   (v1 < exp ((v + Lam/2 - a) / eps / s1))
+                                    ->
+                                    (Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))) v2 /\
+                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2)))))).
+Proof.
+  intros.
+  unfold assn_sub.
+  apply functional_extensionality.
+  intros.
 
+  apply propositional_extensionality.
+  split.
+  intros.
+  
+
+  (*rewrite updE in H3.
+  generalize v.
+  apply Snap_sub1 with  (Lam := Lam) (a := a) (eps := eps) .
+  rewrite <- Snap_sub1 with  (Lam := Lam) (a := a) (eps := eps) .
+  *)
+  admit.  
+
+  intros.
+  
+
+
+Admitted.
 
 Lemma zero_lt_eta : Rlt 0 eta.
 Proof.
   unfold eta.
-Admitted.
+  lra.
+
+Qed.
+
+
 
 
 Lemma zero_lt_24 : Rlt 0 24.
 Proof.
-  trivial.
-Admitted.
+ lra.
+
+Qed.
+
 
 
   
@@ -164,6 +221,9 @@ Lemma SnapDP:
 Proof.
   intros.
   unfold Snap.
+  Check  aprHore_seq.
+  eapply aprHore_seq.
+(* weakest precondition calculus , *)  
 apply aprHore_seq with (Q := fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0, (0, 0))) =>
     let (m1, m2) := pm in
     let (v1, _) := m1 (of_nat 3) in let (v2, _) := m2 (of_nat 3) in forall v, v1 = v -> v2 = v)
@@ -176,10 +236,11 @@ apply aprHore_seq with (Q := fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0,
                                   let (s1, _) := m1 (of_nat 2) in
                                   let (s2, _) := m2 (of_nat 2) in
                                   forall v,
-                                    Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a) eps) s1)) v1 ->
-                                    Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam) a) eps) s1)) ->
-                                    Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))) v2 ->
-                                    Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))))).
+                                    (Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a) eps) s1)) v1 /\
+                                     Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam/2) a) eps) s1)))
+                                    ->
+                                    (Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))) v2 /\
+                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))))))).
 
 
 apply 
@@ -192,10 +253,11 @@ apply
                                   let (s1, _) := m1 (of_nat 2) in
                                   let (s2, _) := m2 (of_nat 2) in
                                   forall v,
-                                    Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a) eps) s1)) v1 ->
-                                    Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam) a) eps) s1)) ->
-                                    Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))) v2 ->
-                                    Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2)))))
+                                    (Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a) eps) s1)) v1 /\
+                                     Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam/2) a) eps) s1)))
+                                    ->
+                                    (Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))) v2 /\
+                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2)))))))
                      
 .
 
@@ -228,7 +290,7 @@ apply Rmult_lt_0_compat .
 apply  zero_lt_24.
 apply Rmult_lt_0_compat .
 apply H0.
-apply zero_lt_eta.
+unfold eta; lra.
 
 apply
   aprHore_seq with (Q := fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0, (0, 0))) =>
@@ -243,11 +305,11 @@ apply
                                   let (s1, _) := m1 (of_nat 2) in
                                   let (s2, _) := m2 (of_nat 2) in
                                   forall v,
-                                    Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a) eps) s1)) v1 ->
-                                    Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam) a) eps) s1)) ->
-                                    Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))) v2 ->
-                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))))
-                       /\ s1 = s2)).
+                                    (Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a) eps) s1)) v1 /\
+                                     Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam/2) a) eps) s1)))
+                                    ->
+                                    (Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))) v2 /\
+                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))))))).
 apply aprHore_conseq with
     (P' := ATrue)
     (Q' := (fun (pm : (state * state)) =>
@@ -257,11 +319,11 @@ apply aprHore_conseq with
                                   let (s1, _) := m1 (of_nat 2) in
                                   let (s2, _) := m2 (of_nat 2) in
                                   forall v,
-                                    Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a) eps) s1)) v1 ->
-                                    Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam) a) eps) s1)) ->
-                                    Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))) v2 ->
-                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam) a') eps) s2))))
-                                    /\ s1 = s2))
+                                    (Rlt (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a) eps) s1)) v1 /\
+                                     Rlt v1 (exp (Rdiv (Rdiv (Rminus (Rplus v Lam/2) a) eps) s1)))
+                                    ->
+                                    (Rlt (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2))) v2 /\
+                                    (Rlt v2 (Rmult (eps) (exp (Rdiv (Rdiv (Rminus (Rminus v Lam/2) a') eps) s2)))))))
     (r' := 0).
 
 apply aprHore_nulls.
@@ -299,9 +361,6 @@ auto.
 auto.
 auto.
 auto.
-
-(* Manually, more automatically *)
-
 Qed.
 
 Close Scope aprHoare_scope.

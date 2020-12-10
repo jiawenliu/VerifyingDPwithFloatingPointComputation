@@ -25,7 +25,7 @@ From mathcomp Require Import
 Open Scope R_scope.
 
 
-Definition fl := R2FFP.
+Definition fl := R2F.
 
 
 Definition err : Type :=  (R * R).
@@ -56,6 +56,21 @@ using a perturbation of the real valued computation by (1 + eta), where
 |eta| <= machine epsilon.
  **)
 
+Definition expr_eval (eta : R) (E : state) (e: expr)
+  : R * err :=
+    match e with
+    | Var x => appf E (of_nat x)
+    | Const c => 
+    if (rle (fl c) c) then 
+    if (rle c 0) then 
+    (c, (perturb eta (c) Up, perturb eta (c)  Down))
+    else
+    (c, (perturb eta (c) Down, perturb eta (c)  Up))
+    else
+    (c, (c, c))
+    | _ => (0%R, (0%R, 0%R))
+    end
+  .
 
 
   
@@ -162,6 +177,12 @@ Inductive trans_expr (eta : R) (E : state)
     (v, ((evalRBinop op er1_l er2_l), (evalRBinop op er1_u er2_u)))
 .
 
+Lemma round_eq : forall v1 v Lam eta E,
+(Rle v1 (v + Lam/2)) /\ (Rle (v - Lam/2) v1)
+-> 
+  trans_expr eta E (Binop Round (Const Lam) (Const v)) (v, (v, v)).
+Proof. 
+  Admitted.
 
 Close Scope R_scope.
 

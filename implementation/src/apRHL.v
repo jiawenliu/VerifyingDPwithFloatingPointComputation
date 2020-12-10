@@ -1,23 +1,27 @@
 
 
 From Coq
-     Require Import QArith.QArith QArith.Qminmax QArith.Qabs QArith.Qreals
-     micromega.Psatz Reals.Reals.
+     Require Import (* QArith.QArith QArith.Qminmax QArith.Qabs QArith.Qreals
+     micromega.Psatz *) Reals.Reals.
 
 From Snapv
      Require Import Command CommandSemantics ExpressionTransitions Environments.
 
-From Snapv 
-    Require Import  Maps.
 From Snapv.distr Require Import Extra Prob.
 
 
+From Snapv.lib Require Import MachineType.
+
 Require Import Coq.Strings.Ascii Coq.Strings.BinaryString.
 
-From mathcomp Require Import ssreflect ssrfun ssrbool eqtype choice seq.
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq
+  ssrint rat ssrnum bigop path.
 
 From extructures Require Import ord fset fmap ffun.
 
+From deriving Require Import deriving.
+Require Import Coq.Strings.String.
+Require Import Coq.Unicode.Utf8.
 
 (* ################################################################# *)
 (** * Definitions *)
@@ -28,9 +32,6 @@ Definition ATrue :=
 
 Definition AFalse :=
   fun (pm : (state * state)) => False.
-
-
-Print state.
 
 Definition eta := 0.00001%R.
 
@@ -103,17 +104,57 @@ Notation "P ->> Q" := (assert_implies P Q)
 
 Open  Scope aprHoare_scope.
 
-Print sample.
-Check sample.
-
 (***************************** The Formal Probabilistic Lifting Judgement *************************)
+
+Open Scope prob_scope.
+
+Local Open Scope ring_scope.
+
+
+Definition DP_divergenceR (T : ordType) (eps : R) (dT1 dT2: {prob T}) (delta : R) :=
+  forall x,
+    fle ( (fsub ( Q2F (dT1 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT2 x))))) (F64 delta) /\
+    fle ( (fsub ( Q2F (dT2 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT1 x))))) (F64 delta).
+
+(* \max *)
+
+
+(*
+Definition DP_divergence (T : ordType) (eps : R) (dT1 dT2: {prob T}) :=
+
+ \max_(x <- supp dT1) 
+ if (x \in supp dT2) then (subq (dT1 x) ( mulq eps (dT2 x)))
+ else (dT1 x).
+
+
+
+Definition DP_divergence_m (eps : R) (dT1 dT2: distr_m) := 
+ \max_(x <- supp dT1) 
+ if (x \in supp dT2) then (subq (dT1 x) ( mulq eps (dT2 x)))
+ else (dT1 x).
+*)
+
 
 
 Definition prob_lifting (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Prop :=
   True.
-(*The Formal Definiiton for Probabilistic Lifting*)
 
-(********************************* The Formal aprHoare Judgement ***********************************)
+(*
+The Formal Definition for Probabilistic Lifting
+1. two jiont distributions of d1 and d2
+2. marginal of each joint distirbution is d1 and d2
+3. (eps, delta) distance < detla
+ *)
+
+Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type :=
+| Coupling dl dr of
+  d1 = sample dl (dirac \o fst) &
+  d2 = sample dr (dirac \o snd) &
+  (forall xy, xy \in supp dl -> P (xy.1, xy.2)) &
+  (forall xy, xy \in supp dr -> P (xy.1, xy.2)) &
+  (DP_divergenceR ([ordType of (state * state)]) eps dl dr (0)).
+
+(********************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ***********************************)
 
 
 Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
@@ -122,6 +163,16 @@ Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command
                                       (trans_com eta st1 c1 distr1) ->
                                       (trans_com eta st2 c2 distr2) ->
                                       prob_lifting distr1 Q eps distr2.
+
+(********************************* The Formal aprHoare Judgement with Full Prob Lifting Definition ***********************************)
+
+
+Definition aprHore_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
+      :=
+        forall st1 st2 distr1 distr2, (P (st1, st2)) ->
+                                      (trans_com eta st1 c1 distr1) ->
+                                      (trans_com eta st2 c2 distr2) ->
+                                      prob_lifting' distr1 Q eps distr2.
 
 
 Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
@@ -134,15 +185,44 @@ Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
 (************************* The Proving Rules for aprHoare Logic Judgements *************************)
 
 
-Theorem aprHore_skip : forall c1 c2 P ,
-    aprHore_judgement  P c1 0 c2 P.
-Proof.
-  unfold aprHore_judgement.
+(*  The SKIP aprHore Logic Rule  *)
 
+Theorem aprHore_skip : forall P ,
+    aprHore_judgement'  P SKIP 0 SKIP P.
+Proof.
+  unfold aprHore_judgement'.
   intros.
-  unfold prob_lifting.
-  auto.
-Qed.
+  exists (dirac (st1, st2)) (dirac (st1, st2)).
+  rewrite ?sample_diracL //.
+  inversion H0.
+  unfold unit_E in H3.
+  unfold unit_E.
+  trivial.
+  rewrite ?sample_diracL //.
+  inversion H1.
+  unfold unit_E in H3.
+  unfold unit_E.
+  trivial.
+    by move=> [??] /supp_diracP [-> ->].
+      by move=> [??] /supp_diracP [-> ->].
+      unfold DP_divergenceR.
+                                  intros.
+      split.
+      apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
+                          (r := (f64exp (R2F64 0))).
+      apply qle_fle.      
+             apply le_prob_0.
+             rewrite f0_eq .
+             apply f0_le_exp.
+             apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
+                          (r := (f64exp (R2F64 0))).
+             apply qle_fle.      
+             apply le_prob_0.
+             rewrite f0_eq .
+             apply f0_le_exp.
+                                  Qed.
+                                  
+                                  
 
 
 Theorem aprHore_asgn : forall x1 x2 e1 e2  Q,
@@ -158,7 +238,7 @@ Qed.
 
 Theorem aprHore_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
     aprHore_judgement P c1 r1 c2 R -> aprHore_judgement R d1 r2 d2 Q 
-    -> aprHore_judgement P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) R.
+    -> aprHore_judgement P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
 Proof.
   unfold aprHore_judgement.
   intros.
@@ -300,5 +380,7 @@ Proof.
   auto.
 Qed.
 
-Close Scope aprHoare_scope.
+Close Scope ring_scope.
 
+Close Scope aprHoare_scope.
+Close Scope prob_scope.
