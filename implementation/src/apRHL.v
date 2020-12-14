@@ -211,13 +211,15 @@ Proof.
       apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
                           (r := (f64exp (R2F64 0))).
       apply qle_fle.      
-             apply le_prob_0.
+             apply  distr_ge0.
              rewrite f0_eq .
              apply f0_le_exp.
              apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
                           (r := (f64exp (R2F64 0))).
-             apply qle_fle.      
-             apply le_prob_0.
+             apply qle_fle.
+             apply distr_ge0.
+
+             
              rewrite f0_eq .
              apply f0_le_exp.
                                   Qed.
@@ -234,6 +236,58 @@ Proof.
   auto.
 Qed.
 
+
+Theorem aprHore_asgn' : forall x1 x2 e1 e2  Q,
+    aprHore_judgement' (assn_sub x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
+Proof.
+  unfold aprHore_judgement'.
+  intros.
+  unfold assn_sub in H.
+  eexists.
+
+  
+  inversion H0.
+
+  inversion H1.
+  
+  (* intros ?[dl].
+
+  pose dl := (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x1) (v0, (er0, er3)))))).
+  
+  unfold unit_E.
+  unfold unit_E in  H7.
+  unfold unit_E in H3.
+  intros ?[dl]. *)
+  pose edl := (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x2) (v0, (er0, er3)))))).
+  unfold unit_E in H3, H7.
+  unfold unit_E.
+  
+  simple refine ?[dl].
+  Check edl.
+  Check ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x2) (v0, (er0, er3))))).
+  Check st1.
+  pose st1' := (upd st1 (of_nat x1) (v, (er1, er2))).
+  pose st2' := (upd st2 (of_nat x2) (v0, (er0, er3))).
+  instantiate (1 := (dirac (st1', st2'))).
+  
+   rewrite sample_diracL.
+
+  pose ?[dl] dl.
+  specialize ?[dl] as dl.
+
+  rewrite sample_diracL.
+  
+  exists (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x1) (v, (er1, er2))))))
+         (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x1) (v, (er1, er2)))))).
+  rewrite ?sample_diracL //.
+  
+  inversion H0.
+  unfold unit_E in H3.
+  unfold unit_E.
+  trivial.
+  
+  auto.
+Qed.
 
 
 Theorem aprHore_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
