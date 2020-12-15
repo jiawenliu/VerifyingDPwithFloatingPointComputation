@@ -1,5 +1,4 @@
 
-
 From Coq
      Require Import (* QArith.QArith QArith.Qminmax QArith.Qabs QArith.Qreals
      micromega.Psatz *) Reals.Reals.
@@ -8,7 +7,6 @@ From Snapv
      Require Import Command CommandSemantics ExpressionTransitions Environments.
 
 From Snapv.distr Require Import Extra Prob.
-
 
 From Snapv.lib Require Import MachineType.
 
@@ -43,7 +41,15 @@ Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
       trans_expr eta m1 e1 (v1, (er11, er12)) ->
       trans_expr eta m2 e2 (v2, (er21, er22)) ->
       P (((upd m1 (of_nat X1) (v1, (er11, er12)))),  ((upd m2 (of_nat X2) (v2, (er21, er22)))))
-      end.
+    end.
+
+Definition assn_sub' x1 x2 e1 e2 (P: Assertion) : Assertion :=
+  fun (pm : (state * state)) =>
+    match pm with
+      | (m1, m2) =>
+      P (((upd m1 (of_nat x1) ( expr_eval m1 e1))),  ((upd m2 (of_nat x2) ( expr_eval m2 e2))))
+    end.
+
 
 Notation "P [ X1 X2 |-> e1 e2 ]" := (assn_sub X1 X2 e1 e2 P) (at level 10).
 
@@ -156,6 +162,33 @@ Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type
 
 (********************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ***********************************)
 
+Lemma lifting_dirac (R : Assertion) x y :
+  R (x, y) -> prob_lifting' (dirac x) R 0 (dirac y).
+Proof.
+  
+  move => rxy; exists (dirac (x, y))  (dirac (x, y)); rewrite ?sample_diracL //.
+    by move=> [??] /supp_diracP [-> ->].
+    by move=> [??] /supp_diracP [-> ->].
+unfold DP_divergenceR.
+                                  intros.
+      split.
+      apply fle_mult with (v := (Q2F (dirac (x, y) x0)))
+                          (r := (f64exp (R2F64 0))).
+      apply qle_fle.      
+             apply  distr_ge0.
+             rewrite f0_eq .
+             apply f0_le_exp.
+             apply fle_mult with (v := (Q2F (dirac (x, y) x0)))
+                          (r := (f64exp (R2F64 0))).
+             apply qle_fle.
+             apply distr_ge0.
+
+             
+             rewrite f0_eq .
+             apply f0_le_exp.
+Qed.
+
+
 
 Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
       :=
@@ -168,11 +201,11 @@ Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command
 
 
 Definition aprHore_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
-      :=
-        forall st1 st2 distr1 distr2, (P (st1, st2)) ->
-                                      (trans_com eta st1 c1 distr1) ->
-                                      (trans_com eta st2 c2 distr2) ->
-                                      prob_lifting' distr1 Q eps distr2.
+  :=
+    forall st1 st2,
+    let distr1 := com_eval st1 c1 in
+    let distr2 := com_eval st2 c2 in
+   (P (st1, st2)) -> prob_lifting' distr1 Q eps distr2.
 
 
 Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
@@ -190,39 +223,30 @@ Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
 Theorem aprHore_skip : forall P ,
     aprHore_judgement'  P SKIP 0 SKIP P.
 Proof.
+  
   unfold aprHore_judgement'.
   intros.
   exists (dirac (st1, st2)) (dirac (st1, st2)).
   rewrite ?sample_diracL //.
-  inversion H0.
-  unfold unit_E in H3.
-  unfold unit_E.
-  trivial.
   rewrite ?sample_diracL //.
-  inversion H1.
-  unfold unit_E in H3.
-  unfold unit_E.
-  trivial.
     by move=> [??] /supp_diracP [-> ->].
       by move=> [??] /supp_diracP [-> ->].
       unfold DP_divergenceR.
-                                  intros.
+      intros.
       split.
       apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
                           (r := (f64exp (R2F64 0))).
       apply qle_fle.      
-             apply  distr_ge0.
-             rewrite f0_eq .
-             apply f0_le_exp.
-             apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
+      apply  distr_ge0.
+      rewrite f0_eq .
+      apply f0_le_exp.
+      apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
                           (r := (f64exp (R2F64 0))).
-             apply qle_fle.
-             apply distr_ge0.
-
-             
-             rewrite f0_eq .
-             apply f0_le_exp.
-                                  Qed.
+      apply qle_fle.
+      apply distr_ge0.
+      rewrite f0_eq .
+      apply f0_le_exp.
+Qed.
                                   
                                   
 
@@ -238,56 +262,39 @@ Qed.
 
 
 Theorem aprHore_asgn' : forall x1 x2 e1 e2  Q,
-    aprHore_judgement' (assn_sub x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
+    aprHore_judgement' (assn_sub' x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
 Proof.
   unfold aprHore_judgement'.
+  
   intros.
-  unfold assn_sub in H.
-  eexists.
+  unfold assn_sub' in H.
+  unfold com_eval.
+  intros.
+  pose st1' :=(upd st1 (of_nat x1) (expr_eval st1 e1)).
+  pose st2' :=(upd st2 (of_nat x2) ( expr_eval st2 e2)).
 
-  
-  inversion H0.
-
-  inversion H1.
-  
-  (* intros ?[dl].
-
-  pose dl := (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x1) (v0, (er0, er3)))))).
-  
-  unfold unit_E.
-  unfold unit_E in  H7.
-  unfold unit_E in H3.
-  intros ?[dl]. *)
-  pose edl := (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x2) (v0, (er0, er3)))))).
-  unfold unit_E in H3, H7.
-  unfold unit_E.
-  
-  simple refine ?[dl].
-  Check edl.
-  Check ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x2) (v0, (er0, er3))))).
-  Check st1.
-  pose st1' := (upd st1 (of_nat x1) (v, (er1, er2))).
-  pose st2' := (upd st2 (of_nat x2) (v0, (er0, er3))).
-  instantiate (1 := (dirac (st1', st2'))).
-  
-   rewrite sample_diracL.
-
-  pose ?[dl] dl.
-  specialize ?[dl] as dl.
-
-  rewrite sample_diracL.
-  
-  exists (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x1) (v, (er1, er2))))))
-         (dirac ((upd st1 (of_nat x1) (v, (er1, er2))), ((upd st2 (of_nat x1) (v, (er1, er2)))))).
+  exists (dirac (st1', st2')) (dirac (st1', st2')).
   rewrite ?sample_diracL //.
-  
-  inversion H0.
-  unfold unit_E in H3.
-  unfold unit_E.
-  trivial.
-  
-  auto.
+  rewrite ?sample_diracL //.
+    by move=> [??] /supp_diracP [-> ->].
+      by move=> [??] /supp_diracP [-> ->].
+      unfold DP_divergenceR.
+      intros.
+      split.
+      apply fle_mult with (v := (Q2F (dirac (st1', st2') x)))
+                          (r := (f64exp (R2F64 0))).
+      apply qle_fle.      
+      apply  distr_ge0.
+      rewrite f0_eq .
+      apply f0_le_exp.
+      apply fle_mult with (v := (Q2F (dirac (st1', st2') x)))
+                          (r := (f64exp (R2F64 0))).
+      apply qle_fle.
+      apply distr_ge0.
+      rewrite f0_eq .
+      apply f0_le_exp.
 Qed.
+
 
 
 Theorem aprHore_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
@@ -300,6 +307,20 @@ Proof.
   auto.
 Qed.
 
+
+Theorem aprHore_seq' : forall P c1 d1 R c2 d2 Q r1 r2 ,
+    aprHore_judgement' P c1 r1 c2 R -> aprHore_judgement' R d1 r2 d2 Q 
+    -> aprHore_judgement' P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
+Proof.
+  intros.
+  unfold aprHore_judgement'.
+  
+  intros.
+  inversion H1.
+  
+  unfold prob_lifting'.
+  auto.
+Qed.
 
 
 Theorem aprHore_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',

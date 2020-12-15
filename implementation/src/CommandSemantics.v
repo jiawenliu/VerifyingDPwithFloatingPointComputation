@@ -67,7 +67,23 @@ Definition semantics_sound (st: env) x : Prop :=
   | (v, (er1, er2)) => (Rle er1 v) /\ (Rle v er2)
   end.
  
+(*The semantics defined for commands as functions*)
 
+
+Fixpoint com_eval (E : env) (c : command) : (distr_m):=
+  match c with
+  | SKIP => dirac E
+  | (ASGN (Var x) e) =>
+    dirac (upd E (of_nat x) (expr_eval E e))
+  | (UNIF1 (Var x)) =>
+    (sample: v <- unif_01; dirac ((upd E (of_nat x) (v, (v, v))) ))
+  | (UNIF2 (Var x)) =>
+    (sample: v <- unif_sign; dirac ((upd E (of_nat x) (v, (v, v))) ))
+  | SEQ c1 c2 =>
+    (sample: E1 <- (com_eval E c1); (com_eval E1 c2))
+  | _ => dirac E
+  end
+  .
 
 Close Scope R_scope.
 

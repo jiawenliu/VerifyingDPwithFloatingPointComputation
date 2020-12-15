@@ -56,7 +56,10 @@ using a perturbation of the real valued computation by (1 + eta), where
 |eta| <= machine epsilon.
  **)
 
-Definition expr_eval (eta : R) (E : state) (e: expr)
+Definition eta := 0.00001%R.
+
+
+Fixpoint expr_eval  (E : state) (e: expr)
   : R * err :=
     match e with
     | Var x => appf E (of_nat x)
@@ -67,8 +70,68 @@ Definition expr_eval (eta : R) (E : state) (e: expr)
     else
     (c, (perturb eta (c) Down, perturb eta (c)  Up))
     else
-    (c, (c, c))
-    | _ => (0%R, (0%R, 0%R))
+      (c, (c, c))
+    |Unop op e =>
+       let (v, err) := (expr_eval E e) in
+       let (er1, er2) := err in
+    if (rle 0 v)
+     then
+        (fl (evalFUnop op v), 
+         (perturb eta (evalRUnop op er1) Down, 
+          perturb eta (evalRUnop op er2) Up))
+     else
+       (evalFUnop op v, 
+         (perturb eta (evalRUnop op er1)  Up, 
+          perturb eta (evalRUnop op er2)  Down))
+    | Binop op e1 e2 =>
+      match op with
+      | Plus
+      | Expressions.Sub
+        => let (v1, err1) := (expr_eval  E e1) in
+           let (er1_l, er1_u) := err1 in
+           let (v2, err2) := (expr_eval  E e2) in
+           let (er2_l, er2_u) := err1 in
+           let v := (evalFBinop op v1 v2) in
+           if (rle 0 v) then
+             (fl v, (perturb eta (evalRBinop op er1_l er2_l)  Down, 
+                     perturb eta (evalRBinop op er1_u er2_u)  Up))
+           else
+             (fl v, (perturb eta (evalRBinop op er1_l er2_l) Up, 
+                     perturb eta (evalRBinop op er1_u er2_u) Down)) 
+      | Mult
+      | Div
+        =>let (v1, err1) := (expr_eval  E e1) in
+           let (er1_l, er1_u) := err1 in
+           let (v2, err2) := (expr_eval  E e2) in
+           let (er2_l, er2_u) := err1 in
+           let v := fl (evalFBinop op v1 v2) in
+           if (rle 0 v1) && (rle 0 v2) then
+               (v, 
+                (perturb eta (evalRBinop op er1_l er2_l) Down, 
+                 perturb eta (evalRBinop op er1_u er2_u) Up))
+           else
+             if  (rle 0 v2) then
+               (v, 
+                (perturb eta (evalRBinop op er1_l er2_u)  Up, 
+                 perturb eta (evalRBinop op er1_u er2_l) Down))
+             else
+               if (rle 0 v1) then
+                 (v, 
+                  (perturb eta (evalRBinop op er1_u er2_l) Up, 
+                   perturb eta (evalRBinop op er1_l er2_u) Down))
+               else
+                 (v, 
+                  (perturb eta (evalRBinop op er1_u er2_u) Down, 
+                   perturb eta (evalRBinop op er1_l er2_l) Up))
+      | Clamp
+      | Round
+        => let (v1, err1) := (expr_eval  E e1) in
+           let (er1_l, er1_u) := err1 in
+           let (v2, err2) := (expr_eval  E e2) in
+           let (er2_l, er2_u) := err1 in
+           let v := fl (evalFBinop op v1 v2) in
+           (v, ((evalRBinop op er1_l er2_l), (evalRBinop op er1_u er2_u)))
+             end                      
     end
   .
 
@@ -96,8 +159,8 @@ Inductive trans_expr (eta : R) (E : state)
 | Unop_gt_zero e v op er1 er2:
     (evalUnop op v) > 0 -> 
     trans_expr eta E e (v, (er1, er2)) ->
-    trans_expr eta E (Unop Neg e) 
-    (fl (evalFUnop Neg v), 
+    trans_expr eta E (Unop op e) 
+    (fl (evalFUnop op v), 
       (perturb eta (evalRUnop op er1)  Down, 
         perturb eta (evalRUnop op er2) Up)) 
 | Unop_lt_zero e v op er1 er2:
