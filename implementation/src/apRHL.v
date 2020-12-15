@@ -164,33 +164,30 @@ Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type
 
 Lemma lifting_dirac (R : Assertion) x y :
   R (x, y) -> prob_lifting' (dirac x) R 0 (dirac y).
-Proof.
-  
+Proof.  
   move => rxy; exists (dirac (x, y))  (dirac (x, y)); rewrite ?sample_diracL //.
     by move=> [??] /supp_diracP [-> ->].
     by move=> [??] /supp_diracP [-> ->].
-unfold DP_divergenceR.
-                                  intros.
-      split.
-      apply fle_mult with (v := (Q2F (dirac (x, y) x0)))
-                          (r := (f64exp (R2F64 0))).
-      apply qle_fle.      
-             apply  distr_ge0.
-             rewrite f0_eq .
-             apply f0_le_exp.
-             apply fle_mult with (v := (Q2F (dirac (x, y) x0)))
-                          (r := (f64exp (R2F64 0))).
-             apply qle_fle.
-             apply distr_ge0.
-
-             
-             rewrite f0_eq .
-             apply f0_le_exp.
+    unfold DP_divergenceR.
+    intros.
+    split.
+    eapply  fle_mult.
+    apply qle_fle.      
+    apply  distr_ge0.
+    rewrite f0_eq .
+    apply f0_le_exp.
+    eapply fle_mult.
+    apply qle_fle.
+    apply distr_ge0.      
+    rewrite f0_eq .
+    apply f0_le_exp.      
 Qed.
 
 
+(* SIMPLify the proof*)
 
-Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
+
+Definition aprHoare_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
       :=
         forall st1 st2 distr1 distr2, (P (st1, st2)) ->
                                       (trans_com eta st1 c1 distr1) ->
@@ -200,7 +197,7 @@ Definition aprHore_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command
 (********************************* The Formal aprHoare Judgement with Full Prob Lifting Definition ***********************************)
 
 
-Definition aprHore_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
+Definition aprHoare_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
   :=
     forall st1 st2,
     let distr1 := com_eval st1 c1 in
@@ -209,7 +206,7 @@ Definition aprHore_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: comman
 
 
 Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
-  ( aprHore_judgement  P c1 eps c2 Q) (at level 90, c1 at level 91)
+  ( aprHoare_judgement  P c1 eps c2 Q) (at level 90, c1 at level 91)
   : aprHoare_scope.
 
 (* Check ({{ ATrue }} SKIP { 0.1%R } SKIP {{ ATrue }} ).
@@ -220,125 +217,71 @@ Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
 
 (*  The SKIP aprHore Logic Rule  *)
 
-Theorem aprHore_skip : forall P ,
-    aprHore_judgement'  P SKIP 0 SKIP P.
-Proof.
-  
-  unfold aprHore_judgement'.
+Theorem aprHoare_skip : forall P ,
+    aprHoare_judgement'  P SKIP 0 SKIP P.
+Proof.  
+  unfold aprHoare_judgement'.
   intros.
-  exists (dirac (st1, st2)) (dirac (st1, st2)).
-  rewrite ?sample_diracL //.
-  rewrite ?sample_diracL //.
-    by move=> [??] /supp_diracP [-> ->].
-      by move=> [??] /supp_diracP [-> ->].
-      unfold DP_divergenceR.
-      intros.
-      split.
-      apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
-                          (r := (f64exp (R2F64 0))).
-      apply qle_fle.      
-      apply  distr_ge0.
-      rewrite f0_eq .
-      apply f0_le_exp.
-      apply fle_mult with (v := (Q2F (dirac (st1, st2) x)))
-                          (r := (f64exp (R2F64 0))).
-      apply qle_fle.
-      apply distr_ge0.
-      rewrite f0_eq .
-      apply f0_le_exp.
-Qed.
-                                  
-                                  
+  apply lifting_dirac.
+  apply H.
+Qed.                
 
-
-Theorem aprHore_asgn : forall x1 x2 e1 e2  Q,
-    aprHore_judgement (assn_sub x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
+Theorem aprHoare_asgn : forall x1 x2 e1 e2  Q,
+    aprHoare_judgement' (assn_sub' x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
 Proof.
-  unfold aprHore_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
-Qed.
-
-
-Theorem aprHore_asgn' : forall x1 x2 e1 e2  Q,
-    aprHore_judgement' (assn_sub' x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
-Proof.
-  unfold aprHore_judgement'.
-  
+  unfold aprHoare_judgement'. 
   intros.
   unfold assn_sub' in H.
   unfold com_eval.
   intros.
-  pose st1' :=(upd st1 (of_nat x1) (expr_eval st1 e1)).
-  pose st2' :=(upd st2 (of_nat x2) ( expr_eval st2 e2)).
-
-  exists (dirac (st1', st2')) (dirac (st1', st2')).
-  rewrite ?sample_diracL //.
-  rewrite ?sample_diracL //.
-    by move=> [??] /supp_diracP [-> ->].
-      by move=> [??] /supp_diracP [-> ->].
-      unfold DP_divergenceR.
-      intros.
-      split.
-      apply fle_mult with (v := (Q2F (dirac (st1', st2') x)))
-                          (r := (f64exp (R2F64 0))).
-      apply qle_fle.      
-      apply  distr_ge0.
-      rewrite f0_eq .
-      apply f0_le_exp.
-      apply fle_mult with (v := (Q2F (dirac (st1', st2') x)))
-                          (r := (f64exp (R2F64 0))).
-      apply qle_fle.
-      apply distr_ge0.
-      rewrite f0_eq .
-      apply f0_le_exp.
+  apply lifting_dirac.
+  apply H.
 Qed.
 
 
 
-Theorem aprHore_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
-    aprHore_judgement P c1 r1 c2 R -> aprHore_judgement R d1 r2 d2 Q 
-    -> aprHore_judgement P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
+Theorem aprHoare_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
+    aprHoare_judgement P c1 r1 c2 R -> aprHoare_judgement R d1 r2 d2 Q 
+    -> aprHoare_judgement P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
 Proof.
-  unfold aprHore_judgement.
+  unfold aprHoare_judgement.
   intros.
   unfold prob_lifting.
   auto.
 Qed.
 
 
-Theorem aprHore_seq' : forall P c1 d1 R c2 d2 Q r1 r2 ,
-    aprHore_judgement' P c1 r1 c2 R -> aprHore_judgement' R d1 r2 d2 Q 
-    -> aprHore_judgement' P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
+Theorem aprHoare_seq' : forall P c1 d1 R c2 d2 Q r1 r2 ,
+    aprHoare_judgement' P c1 r1 c2 R -> aprHoare_judgement' R d1 r2 d2 Q 
+    -> aprHoare_judgement' P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
 Proof.
-  intros.
   unfold aprHore_judgement'.
-  
+
   intros.
-  inversion H1.
-  
-  unfold prob_lifting'.
-  auto.
+  case=> /= p.
+  pose def xy := sample: x' <- com_eval xy.1 c2; sample: y' <- com_eval xy.2 d2; dirac (x', y').
+  have WT xy : xy \in supp (state * state) -> xy.1 \in supp (state).
+  move=> xyp; rewrite eT; apply/supp_sampleP.
+  unfold com_eval.
 Qed.
 
 
-Theorem aprHore_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
-    aprHore_judgement P' c1 r' c2 Q' ->
+Theorem aprHoare_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
+    aprHoare_judgement P' c1 r' c2 Q' ->
     P ->> P' ->
     Q' ->> Q ->
     Rle r' r ->
-    aprHore_judgement P c1 r c2 Q.
+    aprHoare_judgement P c1 r c2 Q.
 Proof.
-  unfold aprHore_judgement.
+  unfold aprHoare_judgement.
   intros.
   unfold prob_lifting.
   auto.
 Qed.
 
 
-Theorem aprHore_unifP :forall x1 x2 eps,
-   aprHore_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+Theorem aprHoare_unifP :forall x1 x2 eps,
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -348,15 +291,15 @@ Theorem aprHore_unifP :forall x1 x2 eps,
                                   end
                     end).
 Proof.
-  unfold aprHore_judgement.
+  unfold aprHoare_judgement.
   intros.
   unfold prob_lifting.
   auto.
 Qed.
 
 
-Theorem aprHore_unifN :forall x1 x2 eps,
-   aprHore_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+Theorem aprHoare_unifN :forall x1 x2 eps,
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -374,7 +317,7 @@ Qed.
 
 
 
-Theorem aprHore_null :forall x1 x2,
+Theorem aprHoare_null :forall x1 x2,
    aprHore_judgement  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
@@ -384,13 +327,13 @@ Theorem aprHore_null :forall x1 x2,
                                   end
                     end).
 Proof.
-  unfold aprHore_judgement.
+  unfold aprHoare_judgement.
   intros.
   unfold prob_lifting.
   auto.
 Qed.
 
-Theorem aprHore_nulls :forall x1 x2,
+Theorem aprHoare_nulls :forall x1 x2,
    aprHore_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
@@ -400,13 +343,13 @@ Theorem aprHore_nulls :forall x1 x2,
                                   end
                     end).
 Proof.
-  unfold aprHore_judgement.
+  unfold aprHoare_judgement.
   intros.
   unfold prob_lifting.
   auto.
 Qed.
 
-Theorem aprHore_round :forall y1 y2 x1 x2 Lam,
+Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
    aprHore_judgement (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat y1)),(m2 (of_nat y2)) with

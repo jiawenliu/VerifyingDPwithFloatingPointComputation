@@ -1,4 +1,4 @@
-# Coq Formalization of Netter Optimizations
+# Coq Formalization of Differential Privacy in Floating Point COmputation
 
 ## Dependencies
 
@@ -17,6 +17,8 @@
 
 - Extensional Structures (https://github.com/arthuraa/extructures, tested with
   revision d5dafd2)
+
+- Gappa (http://gappa.gforge.inria.fr, tested with Gappa 1.3.5)
   
 ## Compiling
 
