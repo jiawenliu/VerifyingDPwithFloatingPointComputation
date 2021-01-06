@@ -184,6 +184,34 @@ Proof.
 Qed.
 
 
+Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
+  prob_lifting' d1 R1 eps1 d2 ->
+  (forall x y, x \in supp d1 -> y \in supp d2 -> R1 (x, y) ->  prob_lifting' (f x) R2 eps2 (g y)) ->
+  prob_lifting' (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
+Proof.
+case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
+pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
+(*  exists (sample eL def) (sample eR def).
+- rewrite Ld1 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
+    by rewrite sample_diracL insubT /=; case: (R12 _ _ _ _ _).
+  *)
+  have WT xy : xy \in supp eL -> xy.1 \in supp d1.
+  move=> xyp; rewrite Ld1; apply/supp_sampleP.  
+  exists xy=> //=; exact/supp_diracP.
+have WS xy : xy \in supp eR -> xy.2 \in supp d2.
+  move=> xyp; rewrite Rd2; apply/supp_sampleP.
+  exists xy=> //=; exact/supp_diracP.
+  Print svalP.
+  pose draw xy := if insub xy is Some xy
+                  then
+                    let xyP := svalP xy in
+                    let xP := WT _ xyP in
+                    let yP := WS _ xyP in
+                    let: Coupling eT eS _ _ _ _ _  := R12 _ _ xP yP (R1eL R1eR _ xyP) in eT eS
+                  else
+                    def xy.
+  exists (sample eL draw) (sample eR draw).
+
 (* SIMPLify the proof*)
 
 
