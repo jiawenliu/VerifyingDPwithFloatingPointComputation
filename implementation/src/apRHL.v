@@ -183,6 +183,7 @@ Proof.
     apply f0_le_exp.      
 Qed.
 
+Unset Printing Implicit Defensive.
 
 Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
   prob_lifting' d1 R1 eps1 d2 ->
@@ -191,37 +192,41 @@ Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
 Proof.
 case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
 pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
-(*  exists (sample eL def) (sample eR def).
-- rewrite Ld1 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
-    by rewrite sample_diracL insubT /=; case: (R12 _ _ _ _ _).
-  *)
-  have WT xy : xy \in supp eL -> xy.1 \in supp d1.
-  move=> xyp; rewrite Ld1; apply/supp_sampleP.  
+pose P xy := (xy \in supp eL) && (xy \in supp eR).
+have WT xy : P xy -> xy.1 \in supp d1.
+  move=> /andP [xyp _]; rewrite Ld1; apply/supp_sampleP.
   exists xy=> //=; exact/supp_diracP.
-have WS xy : xy \in supp eR -> xy.2 \in supp d2.
-  move=> xyp; rewrite Rd2; apply/supp_sampleP.
+have WS xy : P xy -> xy.2 \in supp d2.
+  move=> /andP [_ xyp]; rewrite Rd2; apply/supp_sampleP.
   exists xy=> //=; exact/supp_diracP.
-  pose drawR xy := if insub xy is Some xy
-                   then
-                    let xyP := svalP xy in
-                    let xP := WS _ xyP in
-                    let: Coupling  _ eT _ _ _ _ _
-                       := R12 _ _  _ xP (R1eR  _ xyP)
-                    in eT
-                  else
-                    (def xy).
-  
-  Check drawR.
-  Check def.
-  pose drawL xy := if insub xy is Some xy
-                  then
-                    let xyP := svalP xy in
-                    let yP := WT _ xyP in
-                    let: Coupling eS _ _ _ _ _ _
-                       := R12 _ _  yP _ (R1eL  _ xyP) in
-                    eS
-                  else
-                    def xy.
+have WR1 xy : P xy -> R1 xy.
+  case: xy => x y.
+  case/andP => ??.
+  by apply: (R1eL (x, y)).
+have {}R12 : forall xy, xy.1 \in supp d1 -> xy.2 \in supp d2 ->
+               R1 xy -> prob_lifting' (f xy.1) R2 eps2 (g xy.2).
+  by move=> [x y]; apply: R12.
+pose drawL xy := if insub xy is Some xy
+                 then
+                   let xyP := svalP xy in
+                   let xP := WT (sval xy) xyP in
+                   let yP := WS (sval xy) xyP in
+                   let: Coupling eT eS _ _ _ _ _  :=
+                      R12 (sval xy) xP yP (WR1 _ xyP) in
+                   eT
+                 else
+                   def xy.
+pose drawR xy := if insub xy is Some xy
+                 then
+                   let xyP := svalP xy in
+                   let xP := WT _ xyP in
+                   let yP := WS _ xyP in
+                   let: Coupling eT eS _ _ _ _ _  :=
+                      R12 (sval xy) xP yP (WR1 _ xyP) in
+                   eS
+                 else
+                   def xy.
+exists (sample eL drawL) (sample eR drawR).
 
  (* exists (sample eL (drawL)) (sample eR drawR).*)
 (* SIMPLify the proof*)
