@@ -295,50 +295,45 @@ Proof.
   
   case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
   pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
-  
- have WT xy : xy \in supp eL -> xy.1 \in supp d1.
-  move=> xyp; rewrite Ld1; apply/supp_sampleP.  
-  exists xy=> //=; exact/supp_diracP.
-have WS xy : xy \in supp eR -> xy.2 \in supp d2.
-  move=> xyp; rewrite Rd2; apply/supp_sampleP.
-  exists xy=> //=; exact/supp_diracP.
-  
- 
-   pose drawL xy := if insub xy is Some xy
-                 then
-                   let xyP := svalP xy in
-                   let xP := WT _ xyP in
-                   let: Coupling eT eS _ _ _ _ _  :=
-                      R12 _ _ (R1eL _ xyP) in 
-                   eT
-                 else
-                   def xy.
+  have W xy : xy \in (supp eL :|: supp eR)%fset ->
+              prob_lifting' (f xy.1) R2 eps2 (g xy.2).
+    rewrite in_fsetU.
+    by case: (boolP (xy \in supp eL)) => [xy_in _|_ xy_in]; eauto.
+
+   pose drawL xy :=
+     if insub xy is Some xy
+     then
+       let: Coupling eT eS _ _ _ _ _  := W (sval xy) (svalP xy) in
+       eT
+     else
+       def xy.
     
-   pose drawR xy := if insub xy is Some xy
-                 then
-                   let xyP := svalP xy in
-                   let xP := WS _ xyP in
-                   let: Coupling eT eS _ _ _ _ _  :=
-                      R12 _ _ (R1eR _ xyP) in 
-                   eS
-                 else
-                   def xy.
+   pose drawR xy :=
+     if insub xy is Some xy
+     then
+       let: Coupling eT eS _ _ _ _ _  := W (sval xy) (svalP xy) in
+       eS
+     else
+       def xy.
 
    exists (sample eL drawL) (sample eR drawR).
 
   - rewrite Ld1 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
-      by rewrite sample_diracL insubT /=; case: (R12 _ _ _).
+      rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp //.
+      by move=> ?; case: (W _ _).
 
   - rewrite Rd2 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
-      by rewrite sample_diracL insubT /=; case: (R12 _ _ _).
+      rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp ?orbT //.
+      by move=> ?; case: (W _ _).
 
   - case=> x' y' /supp_sampleP [] [x y] xy_supp.
-    rewrite /drawL insubT /=.
-    case: (R12 _ _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eL'.
+    rewrite /drawL insubT /= ?in_fsetU ?xy_supp //.
+    move=> ?; case: (W _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eL'.
 
   - case=> x' y' /supp_sampleP [] [x y] xy_supp.
-    rewrite /drawR insubT /=.
-    case: (R12 _ _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eR'.
+    rewrite /drawR insubT /= ?in_fsetU ?xy_supp ?orbT // .
+    move=> ?; case: (W _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eR'.
+
 
     
   Admitted.
