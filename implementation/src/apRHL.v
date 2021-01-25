@@ -160,6 +160,29 @@ Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type
 
 (********************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ***********************************)
 
+Lemma lifting_imply (P P' : Assertion) (eps1 eps2: R) d1 d2 :
+  prob_lifting' d1 P' eps1 d2 ->
+  P' ->> P ->
+  Rle eps1 eps2 -> prob_lifting' d1 P eps2 d2.
+Proof.
+  move => Hc Hp Heps.
+  inversion Hc.
+   exists dl dr.
+   assumption.
+   assumption.
+   have Hp' : forall xy, P'(xy.1, xy.2) -> P(xy.1, xy.2).
+   move=> [x y] Hyp.
+   apply Hp.
+   apply Hyp.
+
+Admitted.
+
+        
+   
+   
+   
+  
+      
 Lemma lifting_dirac (R : Assertion) x y :
   R (x, y) -> prob_lifting' (dirac x) R 0 (dirac y).
 Proof.  
@@ -386,6 +409,8 @@ Definition aprHoare_judgement (P: Assertion) (c1 : command) (eps: R) (c2: comman
                                       prob_lifting distr1 Q eps distr2.
 
 
+
+
 (***************** The Formal aprHoare Judgement with Full Prob Lifting Definition ******************)
 
 
@@ -432,17 +457,6 @@ Qed.
 
 
 Theorem aprHoare_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
-    aprHoare_judgement P c1 r1 c2 R -> aprHoare_judgement R d1 r2 d2 Q 
-    -> aprHoare_judgement P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
-Proof.
-  unfold aprHoare_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
-Qed.
-
-
-Theorem aprHoare_seq' : forall P c1 d1 R c2 d2 Q r1 r2 ,
     aprHoare_judgement' P c1 r1 c2 R -> aprHoare_judgement' R d1 r2 d2 Q 
     -> aprHoare_judgement' P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
 Proof.
@@ -450,24 +464,29 @@ Proof.
   
   unfold aprHoare_judgement'.
 
-  intros.
+  move => P c1 d1 R2 c2 d2 Q r1 r2 H1 H2 st1 st2 Hp.
   eapply lifting_sample.
-  
-  
+  by apply H1.
+    by apply  H2.
 Qed.
 
 
 Theorem aprHoare_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
-    aprHoare_judgement P' c1 r' c2 Q' ->
+    aprHoare_judgement' P' c1 r' c2 Q' ->
     P ->> P' ->
     Q' ->> Q ->
     Rle r' r ->
-    aprHoare_judgement P c1 r c2 Q.
+    aprHoare_judgement' P c1 r c2 Q.
 Proof.
-  unfold aprHoare_judgement.
+  unfold aprHoare_judgement'.
   intros.
-  unfold prob_lifting.
-  auto.
+  
+  eapply lifting_imply .
+  apply X.
+  apply H.
+  apply H2.
+  apply H0.
+  apply H1.
 Qed.
 
 
