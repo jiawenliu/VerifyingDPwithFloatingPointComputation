@@ -13,7 +13,15 @@ From Snapv.lib Require Import MachineType.
 Require Import Coq.Strings.Ascii Coq.Strings.BinaryString.
 
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq
-  ssrint rat ssrnum bigop path.
+     ssrint rat ssrnum bigop path.
+
+(*
+From mathcomp Require Import ssralg.
+Import GRing.
+
+Delimit Scope R_scope with R.
+ *)
+
 
 From extructures Require Import ord fset fmap ffun.
 
@@ -21,9 +29,14 @@ From deriving Require Import deriving.
 Require Import Coq.Strings.String.
 Require Import Coq.Unicode.Utf8.
 
+                           
 (* ################################################################# *)
 (** * Definitions *)
-Definition Assertion :=( state * state) -> Prop.
+
+Definition spair : Type :=  (state * state).
+
+Definition Assertion := spair -> Prop.
+
 
 Definition ATrue :=
   fun (pm : (state * state)) => True.
@@ -31,7 +44,9 @@ Definition ATrue :=
 Definition AFalse :=
   fun (pm : (state * state)) => False.
 
-Definition eta := 0.00001%R.
+
+Definition eta : R := 0.00001%R.
+
 
 Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
   fun (pm : (state * state)) =>
@@ -122,23 +137,6 @@ Definition DP_divergenceR (T : ordType) (eps : R) (dT1 dT2: {prob T}) (delta : R
     fle ( (fsub ( Q2F (dT1 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT2 x))))) (F64 delta) /\
     fle ( (fsub ( Q2F (dT2 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT1 x))))) (F64 delta).
 
-(* \max *)
-
-
-(*
-Definition DP_divergence (T : ordType) (eps : R) (dT1 dT2: {prob T}) :=
-
- \max_(x <- supp dT1) 
- if (x \in supp dT2) then (subq (dT1 x) ( mulq eps (dT2 x)))
- else (dT1 x).
-
-
-
-Definition DP_divergence_m (eps : R) (dT1 dT2: distr_m) := 
- \max_(x <- supp dT1) 
- if (x \in supp dT2) then (subq (dT1 x) ( mulq eps (dT2 x)))
- else (dT1 x).
-*)
 
 
 
@@ -185,6 +183,7 @@ Qed.
 
 Unset Printing Implicit Defensive.
 
+(*
 Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
   prob_lifting' d1 R1 eps1 d2 ->
   (forall x y, x \in supp d1 -> y \in supp d2 -> R1 (x, y) ->  prob_lifting' (f x) R2 eps2 (g y)) ->
@@ -285,9 +284,31 @@ exists (sample eL drawL) (sample eR drawR).
 *)
 
 Admitted.
+*)
 
 
-Lemma lifting_sample' (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
+Arguments DP_divergenceR { _ } .
+
+
+Lemma divergenceC:
+    forall (eL eR: {prob spair}) eps1 eps2 (drawR drawL: spair -> {prob spair}),
+      DP_divergenceR  eps1 eL eR 0 ->
+      (forall x y, 
+        (x, y) \in (supp eL :|: supp eR)%fset -> 
+                   DP_divergenceR eps2 (drawL (x, y) ) (drawR (x, y) ) 0) ->
+      DP_divergenceR (Rplus eps1 eps2) (sample eL drawL) (sample eR drawR) 0.
+Proof.
+  move => *.
+
+  unfold DP_divergenceR.
+
+  move => x.
+  rewrite !sampleE.
+  
+  
+Admitted.
+
+Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
   prob_lifting' d1 R1 eps1 d2 ->
   (forall x y, R1 (x, y) ->  prob_lifting' (f x) R2 eps2 (g y)) ->
   prob_lifting' (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
@@ -319,11 +340,11 @@ Proof.
    exists (sample eL drawL) (sample eR drawR).
 
   - rewrite Ld1 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
-      rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp //.
+    rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp //.
       by move=> ?; case: (W _ _).
 
   - rewrite Rd2 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
-      rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp ?orbT //.
+    rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp ?orbT //.
       by move=> ?; case: (W _ _).
 
   - case=> x' y' /supp_sampleP [] [x y] xy_supp.
@@ -334,9 +355,28 @@ Proof.
     rewrite /drawR insubT /= ?in_fsetU ?xy_supp ?orbT // .
     move=> ?; case: (W _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eR'.
 
+    have eps2D: forall x y, 
+        (x, y) \in (supp eL :|: supp eR)%fset -> 
+                   R1 (x, y) ->
+                   DP_divergenceR
+                     eps2 (drawL (x, y) ) (drawR (x, y) ) 0.
+    unfold drawL.
+    unfold drawR.
+    move => x y insubxy R1xy.
+    rewrite insubT /=.
+      by case: (W _ _ ).  
 
-    
-  Admitted.
+      have eps2D': forall x y, 
+          (x, y) \in (supp eL :|: supp eR)%fset -> 
+                     DP_divergenceR
+                       eps2 (drawL (x, y) ) (drawR (x, y) ) 0.
+      unfold drawL.
+      unfold drawR.
+      move => x y insubxy.
+      rewrite insubT /=.
+        by case: (W _ _ ).
+          by apply divergenceC.
+Qed.
 
 Definition aprHoare_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
       :=
@@ -345,7 +385,8 @@ Definition aprHoare_judgement (P: Assertion) (c1 : command) (eps: R) (c2: comman
                                       (trans_com eta st2 c2 distr2) ->
                                       prob_lifting distr1 Q eps distr2.
 
-(********************************* The Formal aprHoare Judgement with Full Prob Lifting Definition ***********************************)
+
+(***************** The Formal aprHoare Judgement with Full Prob Lifting Definition ******************)
 
 
 Definition aprHoare_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
@@ -360,8 +401,7 @@ Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
   ( aprHoare_judgement  P c1 eps c2 Q) (at level 90, c1 at level 91)
   : aprHoare_scope.
 
-(* Check ({{ ATrue }} SKIP { 0.1%R } SKIP {{ ATrue }} ).
-*)
+(* Check ({{ ATrue }} SKIP { 0.1%R } SKIP {{ ATrue }} ). *)
 
 (************************* The Proving Rules for aprHoare Logic Judgements *************************)
 
@@ -406,14 +446,14 @@ Theorem aprHoare_seq' : forall P c1 d1 R c2 d2 Q r1 r2 ,
     aprHoare_judgement' P c1 r1 c2 R -> aprHoare_judgement' R d1 r2 d2 Q 
     -> aprHoare_judgement' P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
 Proof.
-  unfold aprHore_judgement'.
+  
+  
+  unfold aprHoare_judgement'.
 
   intros.
-  case=> /= p.
-  pose def xy := sample: x' <- com_eval xy.1 c2; sample: y' <- com_eval xy.2 d2; dirac (x', y').
-  have WT xy : xy \in supp (state * state) -> xy.1 \in supp (state).
-  move=> xyp; rewrite eT; apply/supp_sampleP.
-  unfold com_eval.
+  eapply lifting_sample.
+  
+  
 Qed.
 
 
