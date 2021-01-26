@@ -188,7 +188,7 @@ Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type
 
 
 
-Variant prob_lifting'' (T : ordType)  (P : (T * T) -> Prop) (eps: R) d1 d2 : Type :=
+Variant prob_lifting'' (T : ordType)  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type :=
 | Coupling' dl dr of
   d1 = sample dl (dirac \o fst) &
   d2 = sample dr (dirac \o snd) &
@@ -219,11 +219,6 @@ Proof.
    apply H3.
    apply Heps.
 Qed.
-
-        
-   
-   
-   
   
       
 Lemma lifting_dirac (R : Assertion) x y :
@@ -249,112 +244,8 @@ Qed.
 
 Unset Printing Implicit Defensive.
 
-(*
-Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
-  prob_lifting' d1 R1 eps1 d2 ->
-  (forall x y, x \in supp d1 -> y \in supp d2 -> R1 (x, y) ->  prob_lifting' (f x) R2 eps2 (g y)) ->
-  prob_lifting' (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
-Proof.
-case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
-pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
-pose P xy := (xy \in supp eL) && (xy \in supp eR).
-have WT xy : P xy -> xy.1 \in supp d1.
-  move=> /andP [xyp _]; rewrite Ld1; apply/supp_sampleP.
-  exists xy=> //=; exact/supp_diracP.
-have WS xy : P xy -> xy.2 \in supp d2.
-  move=> /andP [_ xyp]; rewrite Rd2; apply/supp_sampleP.
-  exists xy=> //=; exact/supp_diracP.
-have WR1 xy : P xy -> R1 xy.
-  case: xy => x y.
-  case/andP => ??.
-  by apply: (R1eL (x, y)).
- have {}R12new : forall xy, xy.1 \in supp d1 -> xy.2 \in supp d2 ->
-               R1 xy -> prob_lifting' (f xy.1) R2 eps2 (g xy.2).
-   by move=> [x y]; apply: R12.
-   
-have WTL xy : xy \in supp eL -> xy.1 \in supp d1.
-
-move=> xyp; rewrite Ld1; apply/supp_sampleP.
-  exists xy=> //=; exact/supp_diracP.
-
-have WSR xy :  xy \in supp eR -> xy.2 \in supp d2.
-move=> xyp; rewrite Rd2; apply/supp_sampleP.
-  exists xy=> //=; exact/supp_diracP.
-
- have WR1L xy :  xy \in supp eL  -> R1 xy.
-  case: xy => x y.
-
-    by apply: (R1eL (x, y)).
-
-     have WR1R xy :  xy \in supp eR  -> R1 xy.
-  case: xy => x y.
-
-    by apply: (R1eR (x, y)).
-
-(* pose drawL xy := if insub xy is Some xy
-                 then
-                   let xyPL := svalP xy in
-                   let xP := WTL (sval xy) xyPL in
-                   let xyPR := svalP xy in
-                   let yP := WSR (sval xy) xyPR in
-                   let: Coupling eT eS _ _ _ _ _  :=
-                      R12new (sval xy) xP yP (WR1L _ xyPL) in 
-                   eT
-                 else
-                   def xy.
-    
-pose drawR xy := if insub xy is Some xy
-                 then
-                   let xyP := svalP xy in
-                   let xP := WT _ xyP in
-                   let yP := WS _ xyP in
-                   let: Coupling eT eS _ _ _ _ _  :=
-                      R12new (sval xy) xP yP (WR1 _ xyP) in
-                   eS
-                 else
-                   def xy.
-
-    (*
-pose drawL xy := if insub xy is Some xy
-                 then
-                   let xyP := svalP xy in
-                   let xP := WT (sval xy) xyP in
-                   let yP := WS (sval xy) xyP in
-                   let: Coupling eT eS _ _ _ _ _  :=
-                      R12new (sval xy) xP yP (WR1 _ xyP) in 
-                   eT
-                 else
-                   def xy.
-pose drawR xy := if insub xy is Some xy
-                 then
-                   let xyP := svalP xy in
-                   let xP := WT _ xyP in
-                   let yP := WS _ xyP in
-                   let: Coupling eT eS _ _ _ _ _  :=
-                      R12new (sval xy) xP yP (WR1 _ xyP) in
-                   eS
-                 else
-                   def xy.
-*)
-exists (sample eL drawL) (sample eR drawR).
-
-
-
-
-- rewrite Ld1 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
-  rewrite sample_diracL insubT /=.
-  
-  case: (R12new _ _ _ _).
-
-
-*)
-
-Admitted.
-*)
-
 
 Arguments DP_divergenceR { _ } .
-
 
 Lemma divergenceC:
     forall (eL eR: {prob spair}) eps1 eps2 (drawR drawL: spair -> {prob spair}),
@@ -373,6 +264,97 @@ Proof.
   
   
 Admitted.
+
+Lemma divergenceC':
+    forall (eL eR: {prob spair}) eps (drawR drawL: spair -> {prob spair}),
+      DP_divergenceR  eps eL eR 0 ->
+      (forall x y, 
+        (x, y) \in (supp eL :|: supp eR)%fset -> 
+                   DP_divergenceR eps (drawL (x, y) ) (drawR (x, y) ) 0) ->
+      DP_divergenceR eps (sample eL drawL) (sample eR drawR) 0.
+Proof.
+  move => *.
+
+  unfold DP_divergenceR.
+
+  move => x.
+  rewrite !sampleE.
+  
+  
+Admitted.
+
+
+Lemma lifting_sample' T R1 R2 d1 d2 (eps : R) f g :
+  prob_lifting'' T d1 R1 eps d2 ->
+  (forall x y, R1 (x, y) ->  prob_lifting' (f x) R2 eps (g y)) ->
+  prob_lifting' (sample d1 f) R2 (eps) (sample d2 g).
+Proof.
+  case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
+  pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
+  have W xy : xy \in (supp eL :|: supp eR)%fset ->
+              prob_lifting' (f xy.1) R2 eps (g xy.2).
+    rewrite in_fsetU.
+    by case: (boolP (xy \in supp eL)) => [xy_in _|_ xy_in]; eauto.
+
+   pose drawL xy :=
+     if insub xy is Some xy
+     then
+       let: Coupling eT eS _ _ _ _ _  := W (sval xy) (svalP xy) in
+       eT
+     else
+       def xy.
+    
+   pose drawR xy :=
+     if insub xy is Some xy
+     then
+       let: Coupling eT eS _ _ _ _ _  := W (sval xy) (svalP xy) in
+       eS
+     else
+       def xy.
+
+   exists (sample eL drawL) (sample eR drawR).
+
+  - rewrite Ld1 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
+    rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp //.
+      by move=> ?; case: (W _ _).
+
+  - rewrite Rd2 !sampleA; apply/eq_in_sample; case=> [x y] /= xy_supp.
+    rewrite sample_diracL insubT /= ?in_fsetU ?xy_supp ?orbT //.
+      by move=> ?; case: (W _ _).
+
+  - case=> x' y' /supp_sampleP [] [x y] xy_supp.
+    rewrite /drawL insubT /= ?in_fsetU ?xy_supp //.
+    move=> ?; case: (W _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eL'.
+
+  - case=> x' y' /supp_sampleP [] [x y] xy_supp.
+    rewrite /drawR insubT /= ?in_fsetU ?xy_supp ?orbT // .
+    move=> ?; case: (W _ _) => /= eL' eR' Ld1' Rd2' R1eL' R1eR' eps1D'; exact:  R1eR'.
+
+    have eps2D: forall x y, 
+        (x, y) \in (supp eL :|: supp eR)%fset -> 
+                   R1 (x, y) ->
+                   DP_divergenceR
+                     eps (drawL (x, y) ) (drawR (x, y) ) 0.
+    unfold drawL.
+    unfold drawR.
+    move => x y insubxy R1xy.
+    rewrite insubT /=.
+      by case: (W _ _ ).  
+
+      have eps2D': forall x y, 
+          (x, y) \in (supp eL :|: supp eR)%fset -> 
+                     DP_divergenceR
+                       eps (drawL (x, y) ) (drawR (x, y) ) 0.
+      unfold drawL.
+      unfold drawR.
+      move => x y insubxy.
+      rewrite insubT /=.
+        by case: (W _ _ ).
+        by apply divergenceC'.
+Qed.
+  
+
+
 
 Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
   prob_lifting' d1 R1 eps1 d2 ->
