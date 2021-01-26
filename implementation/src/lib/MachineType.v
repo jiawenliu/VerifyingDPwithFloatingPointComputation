@@ -164,6 +164,11 @@ Proof.
 Admitted.
 
 
+Lemma fle_mult_left (x f1 f2 : float64) :
+fle f1 f2 -> fle (fmult f1 x) (fmult f2 x).
+Proof.
+  Admitted.
+
 Lemma fle_ref (x : float64):
   fle x x.
 Proof.
@@ -187,8 +192,23 @@ Definition Fneg (v : R) := R2F (Ropp (R2F v))
 Definition Fln (v : R) := R2F (ln (R2F v))
   .
 
+Lemma fle_sub (x v r : float64) :
+  fle v r -> fle (fsub x v) (F64 0) -> fle (fsub x r) (F64 0).
+Proof.
+  Admitted.
+
+Check fle_sub.
 
 
+Lemma rle_fle (r1 r2 : R) :
+rle r1 r2 -> fle (R2F64 r1) (R2F64 r2).
+Proof.
+  Admitted.
+
+Lemma fle_exp (f1 f2: float64): 
+fle f1 f2 -> fle (f64exp f1) (f64exp f2).
+Proof.
+  Admitted.
 
 
 

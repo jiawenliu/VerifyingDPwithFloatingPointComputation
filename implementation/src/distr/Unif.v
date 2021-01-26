@@ -44,6 +44,7 @@ Canonical R_choiceType := ChoiceType R R_choiceMixin.
 
 (** Finally, we can show that the reals are an ordered type. *)
 
+
 Definition rle x y : bool := Rle_dec x y.
 Lemma rleP : Ord.axioms rle.
 Proof.
@@ -60,10 +61,8 @@ rewrite /rle; split.
 Admitted.
 Definition R_ordMixin := OrdMixin rleP.
 
+
 Canonical R_ordType := OrdType R R_ordMixin.
-
-
-
 
 (* The uniform distribution ranging over fixed floating point number from 0 to 1*)
 

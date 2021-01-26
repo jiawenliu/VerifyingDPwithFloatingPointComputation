@@ -145,7 +145,7 @@ Inductive trans_expr (eta : R) (E : state)
 | Const_lt_zero c:
     ~ (fl c = c) -> c < 0 ->
     trans_expr eta E   (Const c) 
-   (c, (perturb eta (c) Up, 
+   (c, (perturb eta (c)  Up, 
         perturb eta (c)  Down))
 | Const_gt_zero c :
     ~ fl c = c -> 0 <= c ->

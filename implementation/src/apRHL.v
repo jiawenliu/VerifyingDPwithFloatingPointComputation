@@ -138,6 +138,34 @@ Definition DP_divergenceR (T : ordType) (eps : R) (dT1 dT2: {prob T}) (delta : R
     fle ( (fsub ( Q2F (dT2 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT1 x))))) (F64 delta).
 
 
+Lemma DP_divergenceR_implies T eps1 eps2 d1 d2:
+  DP_divergenceR T eps1 d1 d2 0-> rle eps1 eps2 ->
+  DP_divergenceR T eps2 d1 d2 0.
+Proof.
+  move => HI HE.
+  unfold DP_divergenceR.
+  unfold DP_divergenceR in HI.
+  split.
+  
+  eapply fle_sub .
+  apply fle_mult_left.
+  apply fle_exp.
+  apply rle_fle.
+  apply HE.
+  destruct (HI x) as [HI1 HI2].    
+  assumption.
+  eapply fle_sub .
+  apply fle_mult_left.
+  apply fle_exp.
+  apply rle_fle.
+  apply HE.
+  destruct (HI x) as [HI1 HI2].    
+  assumption.
+Qed.
+
+
+  
+                                       
 
 
 Definition prob_lifting (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Prop :=
@@ -158,12 +186,23 @@ Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type
   (forall xy, xy \in supp dr -> P (xy.1, xy.2)) &
   (DP_divergenceR ([ordType of (state * state)]) eps dl dr (0)).
 
+
+
+Variant prob_lifting'' (T : ordType)  (P : (T * T) -> Prop) (eps: R) d1 d2 : Type :=
+| Coupling' dl dr of
+  d1 = sample dl (dirac \o fst) &
+  d2 = sample dr (dirac \o snd) &
+  (forall xy, xy \in supp dl -> P (xy.1, xy.2)) &
+  (forall xy, xy \in supp dr -> P (xy.1, xy.2)) &
+  (DP_divergenceR ([ordType of (T * T) ]) eps dl dr (0)).
+
+
 (********************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ***********************************)
 
 Lemma lifting_imply (P P' : Assertion) (eps1 eps2: R) d1 d2 :
   prob_lifting' d1 P' eps1 d2 ->
   P' ->> P ->
-  Rle eps1 eps2 -> prob_lifting' d1 P eps2 d2.
+  rle eps1 eps2 -> prob_lifting' d1 P eps2 d2.
 Proof.
   move => Hc Hp Heps.
   inversion Hc.
@@ -174,8 +213,12 @@ Proof.
    move=> [x y] Hyp.
    apply Hp.
    apply Hyp.
-
-Admitted.
+   eauto.
+   eauto.
+   eapply DP_divergenceR_implies.
+   apply H3.
+   apply Heps.
+Qed.
 
         
    
@@ -509,7 +552,7 @@ Qed.
 
 
 Theorem aprHoare_unifN :forall x1 x2 eps,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+   aprHoare_judgement'  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -519,16 +562,21 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                                   end
                     end).
 Proof.
-  unfold aprHore_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
-Qed.
+   unfold aprHoare_judgement'.
+
+   move => x1 x2 eps  st1 st2 HT.
+   
+  (* apply lifting_dirac.
+  eapply lifting_sample.
+  
+Qed.*)
+Admitted.
+
 
 
 
 Theorem aprHoare_null :forall x1 x2,
-   aprHore_judgement  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
+   aprHoare_judgement'  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -537,10 +585,12 @@ Theorem aprHoare_null :forall x1 x2,
                                   end
                     end).
 Proof.
-  unfold aprHoare_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
+  unfold aprHoare_judgement'.
+  move => x1 x2   st1 st2 HT.
+have lift_unif1 
+  
+eapply lifting_sample.
+
 Qed.
 
 Theorem aprHoare_nulls :forall x1 x2,
