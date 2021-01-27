@@ -295,7 +295,7 @@ Unset Printing Implicit Defensive.
 Arguments DP_divergenceR { _ } .
 
 Lemma divergenceC:
-    forall (eL eR: {prob spair}) eps1 eps2 (drawR drawL: spair -> {prob spair}),
+    forall (T S : ordType) (eL eR: {prob T*T}) eps1 eps2 (drawR drawL: (T* T) -> {prob  S * S}),
       DP_divergenceR  eps1 eL eR 0 ->
       (forall x y, 
         (x, y) \in (supp eL :|: supp eR)%fset -> 
@@ -403,7 +403,7 @@ Qed.
 
 
 
-Lemma lifting_sample' (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
+Lemma lifting_sample' (T S : ordType) R1 R2 (d1 d2: {prob T}) (eps1 eps2 : R) (f g: T -> {prob S}) :
   prob_lifting d1 R1 eps1 d2 ->
   (forall x y, R1 (x, y) ->  prob_lifting (f x) R2 eps2 (g y)) ->
   prob_lifting (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
@@ -552,13 +552,14 @@ Qed.
 
 
 Theorem aprHoare_null1 :forall x1 x2,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (0 + 0) (UNIF1 (Var x2))
                  (fun (pm : (state * state)) => (pm.1 (of_nat x1)).1 = (pm.2 (of_nat x2)).1).
 Proof.
   unfold aprHoare_judgement.
   move => x1 x2   st1 st2 HT.  
-  eapply lifting_sample.
-  apply prob_null.
+
+  eapply lifting_sample'.
+  apply lifting_eq.
   intros.
   apply lifting_dirac.
   simpl.
@@ -571,13 +572,13 @@ Proof.
 Qed.
 
 Theorem aprHoare_null2 :forall x1 x2,
-   aprHoare_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
+   aprHoare_judgement  ATrue (UNIF2 (Var x1)) (0 + 0) (UNIF2 (Var x2))
                 (fun (pm : (state * state)) => (pm.1 (of_nat x1)).1 = (pm.2 (of_nat x2)).1).
 Proof.
   unfold aprHoare_judgement.
   move => x1 x2   st1 st2 HT.  
-  eapply lifting_sample.
-  apply lifting_null.
+  eapply lifting_sample'.
+  apply lifting_eq.
   intros.
   apply lifting_dirac.
   simpl.
@@ -589,11 +590,18 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma lifting_unif  eps:
+    prob_lifting Unif.unif_01
+                 (fun xy => forall l r, Rlt l xy.1 -> Rlt xy.1 r -> Rlt (Rmult eps l) xy.2 -> Rlt xy.2 (Rmult eps r))
+eps Unif.unif_01.
+
+Proof.
+Admitted.
 
 
 
 Theorem aprHoare_unifP :forall x1 x2 eps,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps+0) (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -604,14 +612,32 @@ Theorem aprHoare_unifP :forall x1 x2 eps,
                     end).
 Proof.
   unfold aprHoare_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
+  move => x1 x2 eps  st1 st2 HT.  
+  eapply lifting_sample'.
+  apply lifting_unif.
+   intros.
+  apply lifting_dirac.
+  simpl.
+  simpl in H.
+  
+  rewrite  !updE //.
+  by rewrite !eqxx.
 Qed.
 
 
+Lemma lifting_unifN  eps:
+    prob_lifting Unif.unif_01
+                 (fun xy => forall l r, Rlt l xy.1 -> Rlt xy.1 r -> Rlt (Rmult  (Ropp eps) l) xy.2 -> Rlt xy.2 (Rmult  (Ropp eps) r))
+eps Unif.unif_01.
+
+Proof.
+Admitted.
+
+
+
+
 Theorem aprHoare_unifN :forall x1 x2 eps,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps + 0) (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -623,10 +649,16 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
 Proof.
 
   unfold aprHoare_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
+  move => x1 x2 eps  st1 st2 HT.  
+  eapply lifting_sample'.
+  apply lifting_unifN.
+   intros.
+  apply lifting_dirac.
+  simpl.
+  simpl in H.
   
+  rewrite  !updE //.
+  by rewrite !eqxx.
 Qed.
 
 
