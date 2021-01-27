@@ -232,6 +232,63 @@ Proof.
     apply f0_le_exp.      
 Qed.
 
+Lemma lifting_eq  (T : ordType) (d: {prob T}) :
+  prob_lifting d (fun xy => xy.1 = xy.2)  0 d.
+Proof.
+  intros.
+  pose dl := sample d (fun x => dirac (x, x)).
+  pose dr := sample d (fun x => dirac (x, x)).
+  exists dl dr.
+  unfold dl.
+  rewrite sampleA.
+  under eq_sample do rewrite sample_diracL //.
+                     simpl.
+                     rewrite sample_diracR //.
+  rewrite sampleA. 
+  under eq_sample do rewrite sample_diracL //.
+                     simpl.
+                     rewrite sample_diracR //.
+                     simpl.
+  move=> [x y].
+  simpl.
+  rewrite supp_sample.
+  case/bigcupP.
+  move => i Hi Ht Hxy .
+  rewrite supp_dirac in Hxy.
+  rewrite in_fset1 in Hxy.
+  have Hxy': (x, y) = (i, i).
+  by apply /eqP.
+    by inversion Hxy'.
+  move=> [x y].
+  simpl.
+  rewrite supp_sample.
+  case/bigcupP.
+  move => i Hi Ht Hxy .
+  rewrite supp_dirac in Hxy.
+  rewrite in_fset1 in Hxy.
+  have Hxy': (x, y) = (i, i).
+  by apply /eqP.
+    by inversion Hxy'.
+    
+  unfold dl.
+  unfold dr. 
+  unfold DP_divergenceR.
+  intros.
+  split.
+  eapply  fle_mult.
+  apply qle_fle.      
+  apply  distr_ge0.
+  rewrite f0_eq .
+  apply f0_le_exp.
+  eapply fle_mult.
+  apply qle_fle.
+  apply distr_ge0.      
+  rewrite f0_eq .
+  apply f0_le_exp.
+Qed.
+
+
+
 Unset Printing Implicit Defensive.
 
 
@@ -483,9 +540,7 @@ Theorem aprHoare_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
 Proof.
   unfold aprHoare_judgement.
   intros.
-  
   eapply lifting_imply .
-
   apply X.
   apply H.
   apply H2.
@@ -494,41 +549,44 @@ Proof.
 Qed.
 
 
-Theorem aprHoare_null :forall x1 x2,
+
+
+Theorem aprHoare_null1 :forall x1 x2,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
-                 (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) => v1 = v2
-                                    
-                                  end
-                    end).
+                 (fun (pm : (state * state)) => (pm.1 (of_nat x1)).1 = (pm.2 (of_nat x2)).1).
 Proof.
   unfold aprHoare_judgement.
-  move => x1 x2   st1 st2 HT.
-  
+  move => x1 x2   st1 st2 HT.  
   eapply lifting_sample.
-  
-  
-  instantiate R1 as fun xy => xy.1 = xy.2.
-  
-
+  apply prob_null.
+  intros.
+  apply lifting_dirac.
+  simpl.
+  simpl in H.
+  rewrite H.
+  rewrite  !updE //.
+  rewrite !eqxx.
+  simpl.  
+  reflexivity.
 Qed.
 
-Theorem aprHoare_nulls :forall x1 x2,
-   aprHore_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
-                 (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) => v1 = v2
-                                    
-                                  end
-                    end).
+Theorem aprHoare_null2 :forall x1 x2,
+   aprHoare_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
+                (fun (pm : (state * state)) => (pm.1 (of_nat x1)).1 = (pm.2 (of_nat x2)).1).
 Proof.
   unfold aprHoare_judgement.
+  move => x1 x2   st1 st2 HT.  
+  eapply lifting_sample.
+  apply lifting_null.
   intros.
-  unfold prob_lifting.
-  auto.
+  apply lifting_dirac.
+  simpl.
+  simpl in H.
+  rewrite H.
+  rewrite  !updE //.
+  rewrite !eqxx.
+  simpl.  
+  reflexivity.
 Qed.
 
 
