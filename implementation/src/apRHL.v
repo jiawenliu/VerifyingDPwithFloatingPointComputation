@@ -493,6 +493,67 @@ Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
 (************************* The Proving Rules for aprHoare Logic Judgements *************************)
 
 
+(*************************************** Some Logic Lemmas and Theorems ********************************)
+
+
+Theorem hoare_pre_false : forall (Q : Assertion) c1 c2,
+  aprHoare_judgement AFalse c1 0 c2 Q.
+Proof.
+  unfold aprHoare_judgement.
+  move => Q c1 c2 st1 st2 HF.
+  inversion HF.
+Qed.
+
+
+Theorem hoare_post_true : forall(P : Assertion) c1 c2,
+  aprHoare_judgement P c1 0 c2 ATrue.
+Proof.
+ unfold aprHoare_judgement.
+ move => Q c1 c2 st1 st2 HP.
+ 
+ pose d1 := (com_eval st1 c1).
+ pose d2 := (com_eval st2 c2).
+ exists (sample d1 (fun x => sample d2 (fun y => dirac (x, y))))
+        (sample d1 (fun x => sample d2 (fun y => dirac (x, y)))).
+   rewrite sampleC.
+
+   rewrite !sampleA.
+   under eq_sample do rewrite !sampleA.
+                      under eq_sample do  under eq_sample do
+                                                  rewrite !sample_diracL.
+                     simpl.
+                     rewrite sample_diracR //.
+                    by  rewrite sample_const.
+                     
+    rewrite sampleC.
+
+   rewrite !sampleA. 
+   under eq_sample do rewrite !sampleA.
+                      under eq_sample do  under eq_sample do
+                                                  rewrite !sample_diracL.
+                     simpl.
+                      under eq_sample do rewrite !sample_const.
+                    by  rewrite sample_diracR //.
+
+                    intros. by unfold ATrue.
+  intros. by unfold ATrue.
+  unfold DP_divergenceR.
+  intros.
+  split.
+  eapply  fle_mult.
+  apply qle_fle.      
+  apply  distr_ge0.
+  rewrite f0_eq .
+  apply f0_le_exp.
+
+  eapply  fle_mult.
+  apply qle_fle.      
+  apply  distr_ge0.
+  rewrite f0_eq .
+  apply f0_le_exp.
+Qed.
+
+
 (*  The SKIP aprHore Logic Rule  *)
 
 Theorem aprHoare_skip : forall P ,
@@ -666,7 +727,7 @@ Qed.
 
 
 Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
-   aprHore_judgement (fun (pm : (state * state)) =>
+   aprHoare_judgement (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat y1)),(m2 (of_nat y2)) with
                                   | (v1, _),(v2, _) => 
@@ -685,34 +746,11 @@ Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
                                   end
                     end).
 Proof.
-  unfold aprHore_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
-Qed.
+
+Admitted.
 
 
-(*************************************** Some Logic Lemmas and Theorems ********************************)
 
-
-Theorem hoare_pre_false : forall (Q : Assertion) c1 c2,
-  aprHore_judgement AFalse c1 0 c2 Q.
-Proof.
-  unfold aprHore_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
-Qed.
-
-
-Theorem hoare_post_true : forall(P : Assertion) c1 c2,
-  aprHore_judgement P c1 0 c2 ATrue.
-Proof.
- unfold aprHore_judgement.
-  intros.
-  unfold prob_lifting.
-  auto.
-Qed.
 
 Close Scope ring_scope.
 
