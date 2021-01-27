@@ -117,7 +117,7 @@ hoare_rule ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
 
 Declare Scope aprHoare_scope.
 
-Definition assert_implies (P Q : Assertion) : Prop :=
+Definition assert_implies {T : ordType} (P Q : (T * T) -> Prop) : Prop :=
   forall st1 st2, P (st1, st2) -> Q (st1, st2).
 
 Notation "P ->> Q" := (assert_implies P Q)
@@ -168,8 +168,6 @@ Qed.
                                        
 
 
-Definition prob_lifting (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Prop :=
-  True.
 
 (*
 The Formal Definition for Probabilistic Lifting
@@ -178,18 +176,8 @@ The Formal Definition for Probabilistic Lifting
 3. (eps, delta) distance < detla
  *)
 
-Variant prob_lifting' (d1: distr_m) (P: Assertion) (eps: R) (d2: distr_m) : Type :=
+Variant prob_lifting {T : ordType}  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type :=
 | Coupling dl dr of
-  d1 = sample dl (dirac \o fst) &
-  d2 = sample dr (dirac \o snd) &
-  (forall xy, xy \in supp dl -> P (xy.1, xy.2)) &
-  (forall xy, xy \in supp dr -> P (xy.1, xy.2)) &
-  (DP_divergenceR ([ordType of (state * state)]) eps dl dr (0)).
-
-
-
-Variant prob_lifting'' (T : ordType)  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type :=
-| Coupling' dl dr of
   d1 = sample dl (dirac \o fst) &
   d2 = sample dr (dirac \o snd) &
   (forall xy, xy \in supp dl -> P (xy.1, xy.2)) &
@@ -197,12 +185,15 @@ Variant prob_lifting'' (T : ordType)  d1  (P : (T * T) -> Prop) (eps: R) d2 : Ty
   (DP_divergenceR ([ordType of (T * T) ]) eps dl dr (0)).
 
 
-(********************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ***********************************)
 
-Lemma lifting_imply (P P' : Assertion) (eps1 eps2: R) d1 d2 :
-  prob_lifting' d1 P' eps1 d2 ->
+
+(******************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ********************************)
+
+
+Lemma lifting_imply (T : ordType) (P P' : (T * T) -> Prop ) (eps1 eps2: R) d1 d2 :
+  prob_lifting d1 P' eps1 d2 ->
   P' ->> P ->
-  rle eps1 eps2 -> prob_lifting' d1 P eps2 d2.
+  rle eps1 eps2 -> prob_lifting d1 P eps2 d2.
 Proof.
   move => Hc Hp Heps.
   inversion Hc.
@@ -219,10 +210,9 @@ Proof.
    apply H3.
    apply Heps.
 Qed.
-  
-      
-Lemma lifting_dirac (R : Assertion) x y :
-  R (x, y) -> prob_lifting' (dirac x) R 0 (dirac y).
+
+Lemma lifting_dirac (T : ordType) (R : (T * T) -> Prop) x y :
+  R (x, y) -> prob_lifting (dirac x) R 0 (dirac y).
 Proof.  
   move => rxy; exists (dirac (x, y))  (dirac (x, y)); rewrite ?sample_diracL //.
     by move=> [??] /supp_diracP [-> ->].
@@ -266,7 +256,7 @@ Proof.
 Admitted.
 
 Lemma divergenceC':
-    forall (eL eR: {prob spair}) eps (drawR drawL: spair -> {prob spair}),
+    forall (T S : ordType) (eL eR: {prob T*T}) eps (drawR drawL: (T*T) -> {prob S * S}),
       DP_divergenceR  eps eL eR 0 ->
       (forall x y, 
         (x, y) \in (supp eL :|: supp eR)%fset -> 
@@ -284,15 +274,15 @@ Proof.
 Admitted.
 
 
-Lemma lifting_sample' T R1 R2 d1 d2 (eps : R) f g :
-  prob_lifting'' T d1 R1 eps d2 ->
-  (forall x y, R1 (x, y) ->  prob_lifting' (f x) R2 eps (g y)) ->
-  prob_lifting' (sample d1 f) R2 (eps) (sample d2 g).
+Lemma lifting_sample (T S : ordType) R1 R2 (d1 d2: {prob T}) (eps : R) (f g: T -> {prob S}) :
+  prob_lifting d1 R1 eps d2 ->
+  (forall x y, R1 (x, y) ->  prob_lifting (f x) R2 eps (g y)) ->
+  prob_lifting (sample d1 f) R2 (eps) (sample d2 g).
 Proof.
   case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
   pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
   have W xy : xy \in (supp eL :|: supp eR)%fset ->
-              prob_lifting' (f xy.1) R2 eps (g xy.2).
+              prob_lifting (f xy.1) R2 eps (g xy.2).
     rewrite in_fsetU.
     by case: (boolP (xy \in supp eL)) => [xy_in _|_ xy_in]; eauto.
 
@@ -356,16 +346,16 @@ Qed.
 
 
 
-Lemma lifting_sample (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
-  prob_lifting' d1 R1 eps1 d2 ->
-  (forall x y, R1 (x, y) ->  prob_lifting' (f x) R2 eps2 (g y)) ->
-  prob_lifting' (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
+Lemma lifting_sample' (R1 R2 : Assertion) (d1 d2 : distr_m) (eps1 eps2 : R) f g :
+  prob_lifting d1 R1 eps1 d2 ->
+  (forall x y, R1 (x, y) ->  prob_lifting (f x) R2 eps2 (g y)) ->
+  prob_lifting (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
 Proof.
   
   case=> /= eL eR Ld1 Rd2 R1eL R1eR eps1D R12.
   pose def xy := sample: x' <- f xy.1; sample: y' <- g xy.2; dirac (x', y').
   have W xy : xy \in (supp eL :|: supp eR)%fset ->
-              prob_lifting' (f xy.1) R2 eps2 (g xy.2).
+              prob_lifting (f xy.1) R2 eps2 (g xy.2).
     rewrite in_fsetU.
     by case: (boolP (xy \in supp eL)) => [xy_in _|_ xy_in]; eauto.
 
@@ -426,25 +416,15 @@ Proof.
           by apply divergenceC.
 Qed.
 
-Definition aprHoare_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) : Prop
-      :=
-        forall st1 st2 distr1 distr2, (P (st1, st2)) ->
-                                      (trans_com eta st1 c1 distr1) ->
-                                      (trans_com eta st2 c2 distr2) ->
-                                      prob_lifting distr1 Q eps distr2.
-
-
-
-
 (***************** The Formal aprHoare Judgement with Full Prob Lifting Definition ******************)
 
 
-Definition aprHoare_judgement' (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
+Definition aprHoare_judgement (P: Assertion) (c1 : command) (eps: R) (c2: command) (Q: Assertion) 
   :=
     forall st1 st2,
     let distr1 := com_eval st1 c1 in
     let distr2 := com_eval st2 c2 in
-   (P (st1, st2)) -> prob_lifting' distr1 Q eps distr2.
+   (P (st1, st2)) -> prob_lifting distr1 Q eps distr2.
 
 
 Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
@@ -459,18 +439,18 @@ Notation "{{ P }} c1 { eps } c2 {{ Q }}" :=
 (*  The SKIP aprHore Logic Rule  *)
 
 Theorem aprHoare_skip : forall P ,
-    aprHoare_judgement'  P SKIP 0 SKIP P.
+    aprHoare_judgement  P SKIP 0 SKIP P.
 Proof.  
-  unfold aprHoare_judgement'.
+  unfold aprHoare_judgement.
   intros.
   apply lifting_dirac.
   apply H.
 Qed.                
 
 Theorem aprHoare_asgn : forall x1 x2 e1 e2  Q,
-    aprHoare_judgement' (assn_sub' x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
+    aprHoare_judgement (assn_sub' x1 x2 e1 e2 Q) (ASGN (Var x1) e1) 0 (ASGN (Var x2) e2) Q.
 Proof.
-  unfold aprHoare_judgement'. 
+  unfold aprHoare_judgement. 
   intros.
   unfold assn_sub' in H.
   unfold com_eval.
@@ -482,37 +462,76 @@ Qed.
 
 
 Theorem aprHoare_seq : forall P c1 d1 R c2 d2 Q r1 r2 ,
-    aprHoare_judgement' P c1 r1 c2 R -> aprHoare_judgement' R d1 r2 d2 Q 
-    -> aprHoare_judgement' P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
-Proof.
-  
-  
-  unfold aprHoare_judgement'.
+    aprHoare_judgement P c1 r1 c2 R -> aprHoare_judgement R d1 r2 d2 Q 
+    -> aprHoare_judgement P (SEQ c1 d1) (r1 + r2) (SEQ c2 d2) Q.
+Proof. 
+  unfold aprHoare_judgement.
 
   move => P c1 d1 R2 c2 d2 Q r1 r2 H1 H2 st1 st2 Hp.
-  eapply lifting_sample.
+  eapply lifting_sample'.
   by apply H1.
     by apply  H2.
 Qed.
 
 
 Theorem aprHoare_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
-    aprHoare_judgement' P' c1 r' c2 Q' ->
+    aprHoare_judgement P' c1 r' c2 Q' ->
     P ->> P' ->
     Q' ->> Q ->
-    Rle r' r ->
-    aprHoare_judgement' P c1 r c2 Q.
+    rle r' r ->
+    aprHoare_judgement P c1 r c2 Q.
 Proof.
-  unfold aprHoare_judgement'.
+  unfold aprHoare_judgement.
   intros.
   
   eapply lifting_imply .
+
   apply X.
   apply H.
   apply H2.
   apply H0.
   apply H1.
 Qed.
+
+
+Theorem aprHoare_null :forall x1 x2,
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
+                 (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
+                                  | (v1, _),(v2, _) => v1 = v2
+                                    
+                                  end
+                    end).
+Proof.
+  unfold aprHoare_judgement.
+  move => x1 x2   st1 st2 HT.
+  
+  eapply lifting_sample.
+  
+  
+  instantiate R1 as fun xy => xy.1 = xy.2.
+  
+
+Qed.
+
+Theorem aprHoare_nulls :forall x1 x2,
+   aprHore_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
+                 (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
+                                  | (v1, _),(v2, _) => v1 = v2
+                                    
+                                  end
+                    end).
+Proof.
+  unfold aprHoare_judgement.
+  intros.
+  unfold prob_lifting.
+  auto.
+Qed.
+
+
 
 
 Theorem aprHoare_unifP :forall x1 x2 eps,
@@ -534,7 +553,7 @@ Qed.
 
 
 Theorem aprHoare_unifN :forall x1 x2 eps,
-   aprHoare_judgement'  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) eps (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -544,52 +563,17 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                                   end
                     end).
 Proof.
-   unfold aprHoare_judgement'.
 
-   move => x1 x2 eps  st1 st2 HT.
-   
-  (* apply lifting_dirac.
-  eapply lifting_sample.
-  
-Qed.*)
-Admitted.
-
-
-
-
-Theorem aprHoare_null :forall x1 x2,
-   aprHoare_judgement'  ATrue (UNIF1 (Var x1)) 0 (UNIF1 (Var x2))
-                 (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) => v1 = v2
-                                    
-                                  end
-                    end).
-Proof.
-  unfold aprHoare_judgement'.
-  move => x1 x2   st1 st2 HT.
-have lift_unif1 
-  
-eapply lifting_sample.
-
-Qed.
-
-Theorem aprHoare_nulls :forall x1 x2,
-   aprHore_judgement  ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
-                 (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) => v1 = v2
-                                    
-                                  end
-                    end).
-Proof.
   unfold aprHoare_judgement.
   intros.
   unfold prob_lifting.
   auto.
+  
 Qed.
+
+
+
+
 
 Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
    aprHore_judgement (fun (pm : (state * state)) =>
