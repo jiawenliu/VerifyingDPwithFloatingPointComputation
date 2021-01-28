@@ -730,7 +730,7 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      rle l v1 -> Rlt v1 r -> rle (Rmult (Ropp eps) l) v2 -> rle v2 (Rmult (Ropp eps) r)
+                                      rle l v1 -> rle v1 r -> rle (Rmult (Ropp eps) l) v2 -> rle v2 (Rmult (Ropp eps) r)
                                   end
                     end).
 Proof.

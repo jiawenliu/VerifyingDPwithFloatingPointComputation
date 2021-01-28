@@ -286,7 +286,7 @@ Qed.
 
 Definition sample :=
   mkprob sample_subproof1 sample_subproof2.
-
+(*S T -> {prob T}*)
 Lemma sample_defE0 y : (y \in Y) = (P y != 0).
 Proof.
 rewrite /P Num.Theory.psumr_eq0 -?has_predC /=; last first.

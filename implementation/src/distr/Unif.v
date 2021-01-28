@@ -68,12 +68,12 @@ Canonical R_ordType := OrdType R R_ordMixin.
 
 Definition floats_01 : {fset R} := fset (map (fun x => (Rmult (Rpower 2 ( Ropp 53)) (INR x)))(iota 0 (2^53))).
 
-
 Definition unif_01_mass x: rat :=
   if (x \in floats_01)
   then  (fracq ((Posz 1), (Posz (2^53))))
        else zeroq     
 .
+
 
 Lemma unif_01_subproof1 x : x \in floats_01 ->   zeroq <= (unif_01_mass x).
 Proof.

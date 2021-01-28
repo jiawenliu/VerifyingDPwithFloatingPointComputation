@@ -77,10 +77,12 @@ Fixpoint com_eval (E : env) (c : command) : (distr_m):=
     dirac (upd E (of_nat x) (expr_eval E e))
   | (UNIF1 (Var x)) =>
     (sample: v <- unif_01; dirac ((upd E (of_nat x) (v, (v, v))) ))
+    (* S T -> {Prob T} -> (fun: MEM -> {Prob T})*)
   | (UNIF2 (Var x)) =>
     (sample: v <- unif_sign; dirac ((upd E (of_nat x) (v, (v, v))) ))
   | SEQ c1 c2 =>
     (sample: E1 <- (com_eval E c1); (com_eval E1 c2))
+    (* {Prob MEM} -> (fun: MEM -> {Prob T})*)
   | _ => dirac E
   end
   .
