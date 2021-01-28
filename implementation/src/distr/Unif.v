@@ -90,6 +90,40 @@ Definition unif_01 :=
   mkprob (@unif_01_subproof1) (unif_01_subproof2).
 
 
+
+Definition unif_epsR_mass eps xy : rat :=
+  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
+  then
+    if (xy.2 == 1%R) && (rle (exp (Ropp eps)) xy.1)
+                       then
+                         
+         (fracq ((Posz 1), (Posz (2^53))))
+                       else
+                         (fracq ((Posz 1), (Posz (2^53))))
+                      	else zeroq
+.
+
+Definition unif_epsL_mass eps xy: rat :=
+  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
+  then
+    (fracq ((Posz 1), (Posz (2^53))))
+  else zeroq
+.
+
+Lemma unif_epsR_subproof1 eps xy : (xy.1 \in Unif.floats_01) /\ (xy.1 = (Rmult eps xy.2)) 
+-> zeroq <= (unif_epsR_mass eps xy).
+Proof. 
+Admitted.
+
+
+Lemma unif_epsR_subproof2 eps: \sum_(y <- Unif.floats_01) unif_epsR_mass eps ((Rmult eps y), y) = 1.
+Proof. 
+Admitted.
+
+Definition unif_epsR eps :=
+  mkprob (@unif_epsR_subproof1 eps) (unif_epsR_subproof2 eps).
+        
+
 (* The uniform distribution ranging over sign of + and -*)
 
 Definition signs : {fset R} := fset ([:: (-1)%R; 1%R]).

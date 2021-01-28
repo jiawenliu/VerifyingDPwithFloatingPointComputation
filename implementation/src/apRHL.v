@@ -652,7 +652,7 @@ Proof.
 Qed.
 
 
-Definition unif_eps_liftingR xy eps: rat :=
+Definition unif_epsR_mass eps xy : rat :=
   if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
   then
     if (xy.2 == 1%R) && (rle (exp (Ropp eps)) xy.1)
@@ -661,18 +661,26 @@ Definition unif_eps_liftingR xy eps: rat :=
          (fracq ((Posz 1), (Posz (2^53))))
                        else
                          (fracq ((Posz 1), (Posz (2^53))))
-                           else zeroq
+                      	else zeroq
 .
 
-Definition unif_eps_liftingL xy eps: rat :=
+Definition unif_epsL_mass eps xy: rat :=
   if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
   then
     (fracq ((Posz 1), (Posz (2^53))))
   else zeroq
 .
 
+Lemma unif_epsR_subproof1 eps xy : (xy.1 \in Unif.floats_01) /\ (xy.1 = (Rmult eps xy.2)) 
+-> zeroq <= (unif_epsR_mass eps xy).
+	Proof. 
+		Admitted.
 
 
+Lemma unif_epsR_subproof1 eps xy : \sum_(y <- Unif.floats_01)  (unif_epsR_mass ((Rmult eps y), y) = 1.
+	Proof. 
+	Admitted.
+        
 
 Lemma lifting_unif  eps:
     prob_lifting Unif.unif_01
@@ -680,8 +688,10 @@ Lemma lifting_unif  eps:
 eps Unif.unif_01.
 Proof.
 
-  pose dl := unif_eps_liftingR .
-  pose dr := unif_eps_liftingL.
+  pose dl := unif_eps_liftingR eps.
+  pose dr := unif_eps_liftingL eps.
+  exists dl dr.
+  
                        
 Admitted.
 
