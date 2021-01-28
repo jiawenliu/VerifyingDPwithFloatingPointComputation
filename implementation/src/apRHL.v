@@ -651,12 +651,38 @@ Proof.
   reflexivity.
 Qed.
 
+
+Definition unif_eps_liftingR xy eps: rat :=
+  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
+  then
+    if (xy.2 == 1%R) && (rle (exp (Ropp eps)) xy.1)
+                       then
+                         
+         (fracq ((Posz 1), (Posz (2^53))))
+                       else
+                         (fracq ((Posz 1), (Posz (2^53))))
+                           else zeroq
+.
+
+Definition unif_eps_liftingL xy eps: rat :=
+  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
+  then
+    (fracq ((Posz 1), (Posz (2^53))))
+  else zeroq
+.
+
+
+
+
 Lemma lifting_unif  eps:
     prob_lifting Unif.unif_01
-                 (fun xy => forall l r, Rlt l xy.1 -> Rlt xy.1 r -> Rlt (Rmult eps l) xy.2 -> Rlt xy.2 (Rmult eps r))
+                 (fun xy => forall l r, rle l xy.1 -> rle xy.1 r -> rle (Rmult eps l) xy.2 -> rle xy.2 (Rmult eps r))
 eps Unif.unif_01.
-
 Proof.
+
+  pose dl := unif_eps_liftingR .
+  pose dr := unif_eps_liftingL.
+                       
 Admitted.
 
 
@@ -668,7 +694,7 @@ Theorem aprHoare_unifP :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      Rlt l v1 -> Rlt v1 r -> Rlt (Rmult eps l) v2 -> Rlt v2 (Rmult eps r)
+                                      rle l v1 -> rle v1 r -> rle (Rmult eps l) v2 -> rle v2 (Rmult eps r)
                                   end
                     end).
 Proof.
@@ -688,7 +714,7 @@ Qed.
 
 Lemma lifting_unifN  eps:
     prob_lifting Unif.unif_01
-                 (fun xy => forall l r, Rlt l xy.1 -> Rlt xy.1 r -> Rlt (Rmult  (Ropp eps) l) xy.2 -> Rlt xy.2 (Rmult  (Ropp eps) r))
+                 (fun xy => forall l r, rle l xy.1 -> rle xy.1 r -> rle (Rmult  (Ropp eps) l) xy.2 -> rle xy.2 (Rmult  (Ropp eps) r))
 eps Unif.unif_01.
 
 Proof.
@@ -704,7 +730,7 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      Rlt l v1 -> Rlt v1 r -> Rlt (Rmult (Ropp eps) l) v2 -> Rlt v2 (Rmult (Ropp eps) r)
+                                      rle l v1 -> Rlt v1 r -> rle (Rmult (Ropp eps) l) v2 -> rle v2 (Rmult (Ropp eps) r)
                                   end
                     end).
 Proof.
