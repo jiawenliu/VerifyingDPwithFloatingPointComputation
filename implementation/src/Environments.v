@@ -52,5 +52,3 @@ Canonical R_ordType := OrdType R R_ordMixin.
 *)
 
 Notation state := (ffun (fun v : string => (0%R, (0%R, 0%R)))).
-
-Check [ordType of state].

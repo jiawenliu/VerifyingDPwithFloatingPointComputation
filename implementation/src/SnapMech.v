@@ -221,7 +221,6 @@ Lemma SnapDP:
 Proof.
   intros.
   unfold Snap.
-  Check  aprHore_seq.
   eapply aprHore_seq.
 (* weakest precondition calculus , *)  
 apply aprHore_seq with (Q := fun pm : ffun (fun=> (0, (0, 0))) * ffun (fun=> (0, (0, 0))) =>

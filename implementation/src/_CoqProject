@@ -1,3 +1,5 @@
+-arg "-w -parsing,-ambiguous-paths,-local-declaration,-redundant-canonical-projection"
+
 -R . Snapv
 
 ./ExpressionTransitions.v
