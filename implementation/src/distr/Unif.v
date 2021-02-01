@@ -68,6 +68,21 @@ Canonical R_ordType := OrdType R R_ordMixin.
 
 Definition floats_01 : {fset R} := fset (map (fun x => (Rmult (Rpower 2 ( Ropp 53)) (INR x)))(iota 0 (2^53))).
 
+Definition floats_pair_01_eps (eps : R) : {fset (R*R)} :=
+  fset (map (fun x => ((Rmult (Rpower 2 ( Ropp 53)) (INR x)), (Rmult (Rmult (Rpower 2 ( Ropp 53)) (INR x)))  (exp (eps)) )) (iota 0 (2^53))).
+
+Definition floats_pair_01_R (eps : R) : {fset (R*R)} :=
+  fset_filter (fun xy => (rle xy.2 1)) (floats_pair_01_eps eps).
+
+Definition floats_pair_01_L (eps : R) : {fset (R*R)} :=
+  fset_filter (fun xy => (rle (exp (Ropp eps)) xy.1) )
+              (fset (map (fun x => ((Rmult (Rpower 2 ( Ropp 53)) (INR x)), 1%R )) (iota 0 (2^53)))).
+
+Definition floats_pair_01_eps01 (eps :R) : {fset (R*R)} :=
+  fsetU (floats_pair_01_R eps) (floats_pair_01_L eps).
+
+
+
 Definition unif_01_mass x: rat :=
   if (x \in floats_01)
   then  (fracq ((Posz 1), (Posz (2^53))))
@@ -92,37 +107,41 @@ Definition unif_01 :=
 
 
 Definition unif_epsR_mass eps xy : rat :=
-  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
-  then
-    if (xy.2 == 1%R) && (rle (exp (Ropp eps)) xy.1)
-                       then
-                         
-         (fracq ((Posz 1), (Posz (2^53))))
-                       else
-                         (fracq ((Posz 1), (Posz (2^53))))
-                      	else zeroq
+  if (xy \in  (floats_pair_01_R eps))
+  then                        
+      (fracq ((Posz 1), (Posz (2^53))))
+  else
+    if (xy \in  (floats_pair_01_L eps))
+    then
+      (fracq ((Posz 1), (Posz (2^53))))
+  else zeroq
 .
 
 Definition unif_epsL_mass eps xy: rat :=
-  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
+  if (xy \in  (floats_pair_01_eps01 eps) )
   then
     (fracq ((Posz 1), (Posz (2^53))))
   else zeroq
 .
 
-Lemma unif_epsR_subproof1 eps xy : (xy.1 \in Unif.floats_01) /\ (xy.1 = (Rmult eps xy.2)) 
+Lemma unif_epsR_subproof1 eps xy : (xy \in  (floats_pair_01_eps01 eps) ) 
 -> zeroq <= (unif_epsR_mass eps xy).
 Proof. 
 Admitted.
 
 
-Lemma unif_epsR_subproof2 eps: \sum_(y <- Unif.floats_01) unif_epsR_mass eps ((Rmult eps y), y) = 1.
+Lemma unif_epsR_subproof2 eps: \sum_(xy <-  (floats_pair_01_eps01 eps) ) unif_epsR_mass eps xy = 1.
 Proof. 
 Admitted.
 
 Definition unif_epsR eps :=
   mkprob (@unif_epsR_subproof1 eps) (unif_epsR_subproof2 eps).
-        
+
+
+Definition unif_epsL eps :=
+  mkprob (@unif_epsR_subproof1 eps) (unif_epsR_subproof2 eps).
+
+
 
 (* The uniform distribution ranging over sign of + and -*)
 
