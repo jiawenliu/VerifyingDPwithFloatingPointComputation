@@ -25,9 +25,13 @@ Set Warnings "-notation-overridden,-parsing".
 Require Import Coq.Bool.Bool.
 Require Import Coq.Arith.Arith.
 Require Import Coq.Arith.EqNat.
-Require Import Coq.omega.Omega.
+Require Import Lia.
 Require Import Coq.Lists.List.
 Import ListNotations.
+
+Declare Scope aexp_scope.
+Declare Scope bexp_scope.
+Declare Scope com_scope.
 
 From Snapv Require Import Maps.
 
@@ -523,7 +527,7 @@ Example silly_presburger_example : forall m n o p,
   m + n <= n + o /\ o + 3 = p + 3 ->
   m <= p.
 Proof.
-  intros. omega.
+  intros. lia.
 Qed.
 
 (** (Note the [Require Import Coq.omega.Omega.] at the top of

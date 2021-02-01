@@ -47,7 +47,7 @@ Definition perturb (eta : R) (e: R) (dir: ptbdir) :  R :=
   |Up => ( e / (1 + eta))
   end.
 
-Hint Unfold perturb.
+Hint Unfold perturb : core.
 
 (**
 Define expression evaluation relation 
@@ -249,7 +249,7 @@ Proof.
 
 Close Scope R_scope.
 
-Hint Constructors trans_expr.
+Hint Constructors trans_expr : core.
 
 (** *)
 (*   Show some simpler (more general) rule lemmata *)

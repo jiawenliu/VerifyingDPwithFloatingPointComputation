@@ -4,9 +4,11 @@ Set Warnings "-notation-overridden,-parsing".
 Require Import Coq.Bool.Bool.
 Require Import Coq.Arith.Arith.
 Require Import Coq.Arith.EqNat.
-Require Import Coq.omega.Omega.
+Require Import Lia.
 From Snapv Require Import Imp. 
 From Snapv Require Import Maps.
+
+Declare Scope hoare_spec_scope.
 
 
 Definition Assertion := state -> Prop.
@@ -568,7 +570,7 @@ Proof.
   apply hoare_consequence_pre
     with (P' := (fun st => st X < 5) [X |-> X+1]).
   apply hoare_asgn.
-  intros st H. unfold assn_sub, t_update. simpl. omega.
+  intros st H. unfold assn_sub, t_update. simpl. lia.
 Qed.
 
 (** Finally, for convenience in proofs, here is a combined rule of 
@@ -991,11 +993,11 @@ Proof.
     unfold bassn, assn_sub, t_update, assert_implies.
     simpl. intros st [_ H].
     apply beq_nat_true in H.
-    rewrite H. omega.
+    rewrite H. lia.
   - (* Else *)
     eapply hoare_consequence_pre. apply hoare_asgn.
     unfold assn_sub, t_update, assert_implies.
-    simpl; intros st _. omega.
+    simpl; intros st _. lia.
 Qed.
 
 (** **** Exercise: 2 stars (if_minus_plus)  *)
@@ -1192,7 +1194,7 @@ apply hoare_if1.
     simpl. unfold hoare_triple. intros.
 inversion H; subst. inversion H0; subst. 
  apply eq_true_negb_classical in H2. apply beq_nat_true in H2.
-rewrite H2 in H1. omega.
+rewrite H2 in H1. lia.
 Qed.
 
 End If1.
@@ -1316,11 +1318,11 @@ Proof.
   eapply hoare_consequence_pre.
   apply hoare_asgn.
   unfold bassn, assn_sub, assert_implies, t_update. simpl.
-    intros st [H1 H2]. apply leb_complete in H2. omega.
+    intros st [H1 H2]. apply leb_complete in H2. lia.
   unfold bassn, assert_implies. intros st [Hle Hb].
     simpl in Hb. destruct (leb (st X) 2) eqn : Heqle.
     exfalso. apply Hb; reflexivity.
-    apply leb_iff_conv in Heqle. omega.
+    apply leb_iff_conv in Heqle. lia.
 Qed.
 (** We can use the WHILE rule to prove the following Hoare triple... *)
 

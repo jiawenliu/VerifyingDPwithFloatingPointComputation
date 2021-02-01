@@ -197,9 +197,6 @@ Lemma fle_sub (x v r : float64) :
 Proof.
   Admitted.
 
-Check fle_sub.
-
-
 Lemma rle_fle (r1 r2 : R) :
 rle r1 r2 -> fle (R2F64 r1) (R2F64 r2).
 Proof.
