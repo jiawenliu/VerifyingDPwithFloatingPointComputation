@@ -6,7 +6,7 @@ From Coq
 From Snapv
      Require Import Command CommandSemantics ExpressionTransitions Environments.
 
-From Snapv.distr Require Import Extra Prob.
+From Snapv.distr Require Import Extra Prob Unif.
 
 From Snapv.lib Require Import MachineType.
 
@@ -652,50 +652,27 @@ Proof.
 Qed.
 
 
-Definition unif_epsR_mass eps xy : rat :=
-  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
-  then
-    if (xy.2 == 1%R) && (rle (exp (Ropp eps)) xy.1)
-                       then
-                         
-         (fracq ((Posz 1), (Posz (2^53))))
-                       else
-                         (fracq ((Posz 1), (Posz (2^53))))
-                      	else zeroq
-.
 
-Definition unif_epsL_mass eps xy: rat :=
-  if (xy.1 \in Unif.floats_01) && (xy.1 == (Rmult eps xy.2))
-  then
-    (fracq ((Posz 1), (Posz (2^53))))
-  else zeroq
-.
-
-Lemma unif_epsR_subproof1 eps xy : (xy.1 \in Unif.floats_01) /\ (xy.1 = (Rmult eps xy.2)) 
--> zeroq <= (unif_epsR_mass eps xy).
-	Proof. 
-		Admitted.
-
-
-Lemma unif_epsR_subproof1 eps xy : \sum_(y <- Unif.floats_01)  (unif_epsR_mass ((Rmult eps y), y) = 1.
-	Proof. 
-	Admitted.
-        
-
-Lemma lifting_unif  eps:
-    prob_lifting Unif.unif_01
+Lemma lifting_unifP  eps:
+    prob_lifting unif_01
                  (fun xy => forall l r, rle l xy.1 -> rle xy.1 r -> rle (Rmult eps l) xy.2 -> rle xy.2 (Rmult eps r))
 eps Unif.unif_01.
 Proof.
 
-  pose dl := unif_eps_liftingR eps.
-  pose dr := unif_eps_liftingL eps.
+  pose dl := unif_epsL eps.
+  pose dr := unif_epsR eps.
   exists dl dr.
-  
-                       
-Admitted.
+  apply unif_epsL_samplL.  
+  apply unif_epsR_samplR.
 
+  apply unif_epsL_supp.
+  apply unif_epsR_supp.
 
+  unfold DP_divergenceR.
+  split.
+  apply unif_epsL_div.
+  apply unif_epsR_div.
+Qed.
 
 Theorem aprHoare_unifP :forall x1 x2 eps,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps+0) (UNIF1 (Var x2))
@@ -711,7 +688,7 @@ Proof.
   unfold aprHoare_judgement.
   move => x1 x2 eps  st1 st2 HT.  
   eapply lifting_sample'.
-  apply lifting_unif.
+  apply lifting_unifP.
    intros.
   apply lifting_dirac.
   simpl.
@@ -726,11 +703,19 @@ Lemma lifting_unifN  eps:
     prob_lifting Unif.unif_01
                  (fun xy => forall l r, rle l xy.1 -> rle xy.1 r -> rle (Rmult  (Ropp eps) l) xy.2 -> rle xy.2 (Rmult  (Ropp eps) r))
 eps Unif.unif_01.
-
 Proof.
-Admitted.
-
-
+  pose dl := unif_epsL (Ropp eps).
+  pose dr := unif_epsR (Ropp eps).
+  exists dl dr.
+  apply unif_epsL_samplL.  
+  apply unif_epsR_samplR.
+  apply unif_epsL_supp.
+  apply unif_epsR_supp.
+  unfold DP_divergenceR.
+  split.
+  apply unif_epsL_div.
+  apply unif_epsR_div.
+Qed.
 
 
 Theorem aprHoare_unifN :forall x1 x2 eps,

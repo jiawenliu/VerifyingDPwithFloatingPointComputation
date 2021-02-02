@@ -142,6 +142,48 @@ Definition unif_epsL eps :=
   mkprob (@unif_epsR_subproof1 eps) (unif_epsR_subproof2 eps).
 
 
+Lemma unif_epsR_samplR eps :
+unif_01 = sample: x <- unif_epsR eps; (dirac \o snd) x.
+Proof. 
+Admitted.
+
+
+Lemma unif_epsL_samplL eps :
+unif_01 = sample: x <- unif_epsR eps; (dirac \o fst) x.
+Proof. 
+Admitted.
+
+
+Lemma unif_epsR_supp eps : forall xy,
+  xy \in supp (unif_epsR eps)
+         -> forall l r : R,
+      rle l (xy.1, xy.2).1
+      -> rle (xy.1, xy.2).1 r -> rle (eps * l) (xy.1, xy.2).2 -> rle (xy.1, xy.2).2 (eps * r).
+Proof.
+Admitted.
+
+
+Lemma unif_epsL_supp eps : forall xy,
+  xy \in supp (unif_epsL eps)
+         -> forall l r : R,
+      rle l (xy.1, xy.2).1
+      -> rle (xy.1, xy.2).1 r -> rle (eps * l) (xy.1, xy.2).2 -> rle (xy.1, xy.2).2 (eps * r).
+Proof.
+Admitted.
+
+Lemma unif_epsL_div eps epsD: forall xy,
+    fle (fsub (Q2F ( (unif_epsL eps) xy)) (fmult (f64exp (R2F64 epsD)) (Q2F ( (unif_epsR eps) xy)))) {| MachineType.Num := 0 |}.
+
+Proof.
+Admitted.
+
+
+Lemma unif_epsR_div eps epsD: forall xy,
+    fle (fsub (Q2F ( (unif_epsR eps) xy)) (fmult (f64exp (R2F64 epsD)) (Q2F ( (unif_epsL eps) xy)))) {| MachineType.Num := 0 |}.
+
+Proof.
+Admitted.
+
 
 (* The uniform distribution ranging over sign of + and -*)
 
