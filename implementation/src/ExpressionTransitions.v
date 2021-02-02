@@ -135,6 +135,14 @@ Fixpoint expr_eval  (E : state) (e: expr)
     end
   .
 
+Lemma round_eqV : forall (E : state) y v Lam,
+(rle (E (of_nat y)).1 (v + Lam / 2)) /\ (rle (v - Lam / 2) (E (of_nat y)).1)
+<-> 
+   ((expr_eval E (Binop Round (Const Lam) (Var y))).1 = v) .
+Proof. 
+  Admitted.
+
+
 
   
 Inductive trans_expr (eta : R) (E : state) 
@@ -241,11 +249,12 @@ Inductive trans_expr (eta : R) (E : state)
 .
 
 Lemma round_eq : forall v1 v Lam eta E,
-(Rle v1 (v + Lam/2)) /\ (Rle (v - Lam/2) v1)
+(rle v1 (v + Lam/2)) /\ (rle (v - Lam/2) v1)
 -> 
   trans_expr eta E (Binop Round (Const Lam) (Const v)) (v, (v, v)).
 Proof. 
   Admitted.
+
 
 Close Scope R_scope.
 

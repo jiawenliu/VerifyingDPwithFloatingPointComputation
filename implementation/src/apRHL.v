@@ -397,8 +397,10 @@ Proof.
       move => x y insubxy.
       rewrite insubT /=.
         by case: (W _ _ ).
+        
         by apply divergenceC'.
 Qed.
+
   
 
 
@@ -472,7 +474,8 @@ Proof.
         by case: (W _ _ ).
           by apply divergenceC.
 Qed.
-
+       
+  
 (***************** The Formal aprHoare Judgement with Full Prob Lifting Definition ******************)
 
 
@@ -692,8 +695,7 @@ Proof.
    intros.
   apply lifting_dirac.
   simpl.
-  simpl in H.
-  
+  simpl in H. 
   rewrite  !updE //.
   by rewrite !eqxx.
 Qed.
@@ -737,8 +739,7 @@ Proof.
    intros.
   apply lifting_dirac.
   simpl.
-  simpl in H.
-  
+  simpl in H. 
   rewrite  !updE //.
   by rewrite !eqxx.
 Qed.
@@ -748,27 +749,29 @@ Qed.
 
 
 Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
-   aprHoare_judgement (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat y1)),(m2 (of_nat y2)) with
-                                  | (v1, _),(v2, _) => 
-                                  forall v, 
-                                  (Rle v1 (v + Lam/2)) /\ (Rle (v - Lam/2) v1) -> 
-                                    (Rle v2 (v + Lam/2)) /\ (Rle (v - Lam/2) v2)                           
-                                  end
-                    end)
+   aprHoare_judgement (fun (pm : (state * state)) => forall v, 
+                           (rle (pm.1 (of_nat y1)).1 (v + Lam/2))
+                           /\ (rle (v - Lam/2) (pm.1 (of_nat y1)).1) -> 
+                           (rle (pm.2 (of_nat y2)).1 (v + Lam/2))
+                           /\ (rle (v - Lam/2) (pm.2 (of_nat y2)).1 ))
                      (ASGN (Var x1) (Binop Round (Const Lam) (Var y1))) 0
                      (ASGN (Var x2) (Binop Round (Const Lam) (Var y2)))
-                 (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) => forall v, v1 = v -> v2 = v
-                                    
-                                  end
-                    end).
+                     (fun (pm : (state * state)) => forall v, (pm.1 (of_nat x1)).1 = v
+                                                              -> (pm.2 (of_nat x2)).1 = v).
 Proof.
 
-Admitted.
+   unfold aprHoare_judgement.
+  intros.
+  apply lifting_dirac.
+  rewrite  !updE //.
+  rewrite !eqxx.  
+  move => v Hround1.
+  simpl in H.
+  apply round_eqV.
+
+  rewrite <- (round_eqV st1 y1 v) in Hround1.
+    by  apply (H v) in Hround1.
+Qed.
 
 
 
