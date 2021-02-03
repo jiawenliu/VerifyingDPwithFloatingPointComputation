@@ -4,6 +4,7 @@ From deriving Require Import deriving.
 From extructures Require Import ord fset fmap ffun.
 Require Import Coq.Reals.Reals.
 Require Import Coq.Strings.String.
+From Snapv.lib Require Import MachineType.
 
 (** First, we need to show that real numbers have an equality operator.  This
 follows from the axioms on reals. *)
@@ -33,11 +34,17 @@ rewrite /rle; split.
   case: (Rle_dec x y) (Rle_dec y z) => [xy|//] [yz|//] _ _.
   apply/(introT (sumboolP _)). exact: Rle_trans xy yz.
 - move=> x y.
-  case: (Rle_dec x y) (Rle_dec y x) => [xy|//] [yx|//] _.
+
+case: (Rle_dec x y) (Rle_dec y x) => [xy|//] [yx|//] _. 
   exact: Rle_antisym.
-- (* Exercise: prove this! *)
-  admit.
+  
+-move=> x y.
+ case: (Rle_dec x y) (Rle_dec y x).
+ move =>  [xy|//] RD.
+ split.
+ move => nxy Rd.
 Admitted.
+
 Definition R_ordMixin := OrdMixin rleP.
 Canonical R_ordType := OrdType R R_ordMixin.
 
@@ -49,6 +56,58 @@ Canonical R_ordType := OrdType R R_ordMixin.
     in all but finitely many inputs. When [f] is a constant function [fun _ =>
     y], this means that almost all outputs of a finite function are equal to [y]
 
-*)
+ *)
+Lemma feq_req x y : x = y <-> (Num x) = (Num y).
+Proof. Admitted.
 
-Notation state := (ffun (fun v : string => (0%R, (0%R, 0%R)))).
+Lemma feq_req_ref x y : reflect (x = y) (req (Num x) (Num y)).
+Proof.
+Admitted.
+
+
+
+Definition feq x y : bool := Req_EM_T (Num x) (Num y).
+Lemma feqP : Equality.axiom feq.
+Proof.
+  move => x y.
+  unfold feq.
+
+  apply feq_req_ref.
+Qed.
+Definition F_eqMixin := EqMixin feqP.
+Canonical F_eqType := EqType float64 F_eqMixin.
+
+(** We also need to show that real numbers satisfy a choice principle.  This is
+not part of the real number axioms, so I am going to postulate it
+here. (Alternatively, we could show that this follows from the standard axiom of
+choice included in Coq's standard library.) *)
+
+Axiom F_choiceMixin : choiceMixin float64.
+Canonical F_choiceType := ChoiceType float64 F_choiceMixin.
+
+(** Finally, we can show that the reals are an ordered type. *)
+
+Definition fle x y : bool := Rle_dec  (Num x) (Num y).
+Lemma fleP : Ord.axioms fle.
+Proof.
+rewrite /fle; split.
+- move=> x; exact/(introT (sumboolP _))/Rle_refl.
+- move=> y x z.
+  case: (Rle_dec  (Num x) (Num y)) (Rle_dec  (Num y) (Num z)) => [xy|//] [yz|//] _ _.
+  apply/(introT (sumboolP _)). exact: Rle_trans xy yz.
+- move=> x y.
+  case: (Rle_dec  (Num x) (Num y)) (Rle_dec (Num y) (Num x)) => [xy|//] [yx|//] _.
+  rewrite feq_req.
+  exact: Rle_antisym.
+ -  move=> x y.
+(* Exercise: prove this! *)
+  
+  admit.
+Admitted.
+Definition F_ordMixin := OrdMixin fleP.
+Canonical F_ordType := OrdType float64 F_ordMixin.
+
+
+Notation state := (ffun (fun v : string => (  (F64 0%R), (0%R, 0%R)))).
+
+Notation state' := (ffun (fun v : string => (  (0%R), (0%R, 0%R)))).

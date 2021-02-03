@@ -115,16 +115,26 @@ Definition fmult  (x y : float64) : float64 := F64 (R2F (Rmult (Num x) (Num y)))
 
 Definition fle (x y : float64) : bool := rle (Num x) (Num y).
 
-Definition fround  (lam v : float64) :=
+Definition fround  (lam v : float64) : float64 :=
   let v1 := (Rmult (IZR(rndR2Z((Num v) / (Num lam)))) ( Num lam)) in
   let v2 := Rabs ((Num v) - v1) in
     if rle v2 0.5
-  then v1
+  then (R2F64 v1)
     else
       match Rcase_abs v1 with
-      | left _ =>  R2F (Rminus (v1) 1)
-      | right _ =>  R2F (Rplus (v1) 1)
+      | left _ =>  R2F64 (Rminus (v1) 1)
+      | right _ =>  R2F64 (Rplus (v1) 1)
       end.
+
+Definition fclamp  (b v : float64) : float64 :=
+  if rle (Num b) (Num v)
+  then  b
+  else if rle (Num v) (Ropp(Num b))
+       then (R2F64 (Ropp(F2R b)))
+       else  v.
+
+Definition  fneg (x : float64) : float64 :=(R2F64 (Ropp(F2R x)))
+  .
 
 
          
@@ -206,6 +216,34 @@ Lemma fle_exp (f1 f2: float64):
 fle f1 f2 -> fle (f64exp f1) (f64exp f2).
 Proof.
   Admitted.
+  
+(*Open Scope ring_scope.
+
+Lemma fle_mult_le  a b c d e1 e2:
+ fle (fsub (Q2F a) (fmult e1 (Q2F b))) {| MachineType.Num := 0 |}
+ -> fle (fsub (Q2F c) (fmult e2 (Q2F d))) {| MachineType.Num := 0 |}
+ -> fle (fsub (Q2F (a * c)) (fmult (fmult e1 e2) (Q2F (b * d)))) {| MachineType.Num := 0 |}.
+Proof.
+Admitted.
 
 
+Lemma fle_sum:
+  forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x0 x a,
+    fle (fsub (Q2F (eL x0 * drawL x0 x))
+              (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |}
+    ->fle
+    (fsub (Q2F (\sum_(x0 <- supp eL) eL x0 * drawL x0 x))
+       (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
+    {| MachineType.Num := 0 |}.
+Proof.
+Admitted.
+
+
+Lemma fexp_mult :
+  forall e1 e2, fmult (f64exp (R2F64 (e1))) (f64exp (R2F64 (e2))) = (f64exp (R2F64 (e1 + e2))).
+Proof.
+Admitted.
+
+Close Scope ring_scope.
+*)
 

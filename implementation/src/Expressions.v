@@ -92,6 +92,15 @@ Definition evalFBinop (o:binop) (v1: R) (v2: R) :=
   | Round => (Fround v1 v2)                 
   end.
 
+Definition evalfBinop (o:binop) (v1: float64) (v2: float64) :=
+  match o with
+  | Plus => (fplus v1 v2)
+  | Sub => (fsub v1 v2)
+  | Mult =>(fmult v1 v2)
+  | Div => (fdiv v1 v2)
+  | Clamp =>  fclamp v1 v2
+  | Round => (fround v1 v2)                 
+  end.
 
 Lemma binopEq_refl b:
   binopEq b b = true.
@@ -170,6 +179,11 @@ Definition evalRUnop (o:unop) (v:R):=
   |Ln => (ln v)
   end .
 
+Definition evalfUnop (o:unop) (v: float64):=
+  match o with
+  |Neg => fneg v
+  |Ln => fln v
+  end .
 
 (*Definition evalFma (v1:R) (v2:R) (v3:R):=
   evalBinop Plus (evalBinop Mult v1 v2) v3.
