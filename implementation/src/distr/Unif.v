@@ -3,8 +3,10 @@ From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq
 
 From Gappa Require Import Gappa_tactic.
 
-From Snapv
+From Snapv.lib
      Require Export MachineType.
+
+From Snapv Require Import Environments.
 
 From Snapv.distr Require Import Extra Prob.
 
@@ -28,57 +30,25 @@ Local Open Scope fset_scope.
 (** First, we need to show that real numbers have an equality operator.  This
 follows from the axioms on reals. *)
 
-Definition req x y : bool := Req_EM_T x y.
-Lemma reqP : Equality.axiom req.
-Proof. move=> ??; exact: sumboolP. Qed.
-Definition R_eqMixin := EqMixin reqP.
-Canonical R_eqType := EqType R R_eqMixin.
-
-(** We also need to show that real numbers satisfy a choice principle.  This is
-not part of the real number axioms, so I am going to postulate it
-here. (Alternatively, we could show that this follows from the standard axiom of
-choice included in Coq's standard library.) *)
-
-Axiom R_choiceMixin : choiceMixin R.
-Canonical R_choiceType := ChoiceType R R_choiceMixin.
-
-(** Finally, we can show that the reals are an ordered type. *)
-
-
-Definition rle x y : bool := Rle_dec x y.
-Lemma rleP : Ord.axioms rle.
-Proof.
-rewrite /rle; split.
-- move=> x; exact/(introT (sumboolP _))/Rle_refl.
-- move=> y x z.
-  case: (Rle_dec x y) (Rle_dec y z) => [xy|//] [yz|//] _ _.
-  apply/(introT (sumboolP _)). exact: Rle_trans xy yz.
-- move=> x y.
-  case: (Rle_dec x y) (Rle_dec y x) => [xy|//] [yx|//] _.
-  exact: Rle_antisym.
-- (* Exercise: prove this! *)
-  admit.
-Admitted.
-Definition R_ordMixin := OrdMixin rleP.
-
-
-Canonical R_ordType := OrdType R R_ordMixin.
 
 (* The uniform distribution ranging over fixed floating point number from 0 to 1*)
 
-Definition floats_01 : {fset R} := fset (map (fun x => (Rmult (Rpower 2 ( Ropp 53)) (INR x)))(iota 0 (2^53))).
+Definition F2R f := Num f.
 
-Definition floats_pair_01_eps (eps : R) : {fset (R*R)} :=
-  fset (map (fun x => ((Rmult (Rpower 2 ( Ropp 53)) (INR x)), (Rmult (Rmult (Rpower 2 ( Ropp 53)) (INR x)))  (exp (eps)) )) (iota 0 (2^53))).
 
-Definition floats_pair_01_R (eps : R) : {fset (R*R)} :=
-  fset_filter (fun xy => (rle xy.2 1)) (floats_pair_01_eps eps).
+Definition floats_01 : {fset float64} := fset (map (fun x => R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)))(iota 0 (2^53))).
 
-Definition floats_pair_01_L (eps : R) : {fset (R*R)} :=
-  fset_filter (fun xy => (rle (exp (Ropp eps)) xy.1) )
-              (fset (map (fun x => ((Rmult (Rpower 2 ( Ropp 53)) (INR x)), 1%R )) (iota 0 (2^53)))).
+Definition floats_pair_01_eps (eps : R) : {fset (float64 * float64)} :=
+  fset (map (fun x => (R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)), R2F64 (Rmult (Rmult (Rpower 2 ( Ropp 53)) (INR x)) (exp (eps))))) (iota 0 (2^53))).
 
-Definition floats_pair_01_eps01 (eps :R) : {fset (R*R)} :=
+Definition floats_pair_01_R (eps : R) : {fset (float64 * float64)} :=
+  fset_filter (fun xy => (rle (F2R xy.2) 1)) (floats_pair_01_eps eps).
+
+Definition floats_pair_01_L (eps : R) : {fset  (float64 * float64)} :=
+  fset_filter (fun xy => (rle (exp (Ropp eps))  (F2R xy.1)) )
+              (fset (map (fun x => (R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)), R2F64 1%R )) (iota 0 (2^53)))).
+
+Definition floats_pair_01_eps01 (eps :R) : {fset  (float64 * float64)} :=
   fsetU (floats_pair_01_R eps) (floats_pair_01_L eps).
 
 
@@ -157,8 +127,8 @@ Admitted.
 Lemma unif_epsR_supp eps : forall xy,
   xy \in supp (unif_epsR eps)
          -> forall l r : R,
-      rle l (xy.1, xy.2).1
-      -> rle (xy.1, xy.2).1 r -> rle (eps * l) (xy.1, xy.2).2 -> rle (xy.1, xy.2).2 (eps * r).
+      rle l ((F2R xy.1), (F2R xy.2)).1
+      -> rle ((F2R xy.1),  (F2R xy.2)).1 r -> rle (eps * l) ((F2R xy.1),  (F2R xy.2)).2 -> rle ((F2R xy.1),  (F2R xy.2)).2 (eps * r).
 Proof.
 Admitted.
 
@@ -166,8 +136,8 @@ Admitted.
 Lemma unif_epsL_supp eps : forall xy,
   xy \in supp (unif_epsL eps)
          -> forall l r : R,
-      rle l (xy.1, xy.2).1
-      -> rle (xy.1, xy.2).1 r -> rle (eps * l) (xy.1, xy.2).2 -> rle (xy.1, xy.2).2 (eps * r).
+      rle l ( (F2R xy.1),  (F2R xy.2)).1
+      -> rle ( (F2R xy.1),  (F2R xy.2)).1 r -> rle (eps * l) ( (F2R xy.1),  (F2R xy.2)).2 -> rle ((F2R xy.1),  (F2R xy.2)).2 (eps * r).
 Proof.
 Admitted.
 
