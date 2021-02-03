@@ -157,12 +157,12 @@ Admitted.
 
 (* The uniform distribution ranging over sign of + and -*)
 
-Definition signs : {fset R} := fset ([:: (-1)%R; 1%R]).
+Definition signs : {fset float64} := fset ([:: (R2F64 (-1)%R); (R2F64 1%R) ]).
 
 Definition unif_sign_mass x: rat :=
-  if (x == 1%R)
+  if ((F2R x) == 1%R)
   then (fracq (1, (Posz 2)))
-  else if (x == (-1)%R)
+  else if ( (F2R x) == (-1)%R)
        then  (fracq (1, (Posz 2)))
        else 0     
 .

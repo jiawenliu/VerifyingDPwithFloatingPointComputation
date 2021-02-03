@@ -70,7 +70,7 @@ Notation "P [ X1 X2 |-> e1 e2 ]" := (assn_sub X1 X2 e1 e2 P) (at level 10).
 
 
 (*Command * epsilon * command : P => Q*)
-Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Prop :=
+(* Inductive hoare_rule : Assertion -> command -> R -> command -> Assertion -> Prop :=
   | H_Skip  P:
       hoare_rule P (SKIP) 0 (SKIP) P
   | H_Asgn Q x1 a1 x2 a2 :
@@ -114,7 +114,7 @@ hoare_rule ATrue (UNIF2 (Var x1)) 0 (UNIF2 (Var x2))
                                   end
                  end)
 .
-
+*)
 Declare Scope aprHoare_scope.
 
 Definition assert_implies {T : ordType} (P Q : (T * T) -> Prop) : Prop :=
@@ -176,6 +176,12 @@ The Formal Definition for Probabilistic Lifting
 3. (eps, delta) distance < detla
  *)
 
+Section Lifting.
+
+  From mathcomp Require Import ssralg.
+  Import GRing.
+
+  
 Variant prob_lifting {T : ordType}  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type :=
 | Coupling dl dr of
   d1 = sample dl (dirac \o fst) &
@@ -184,10 +190,6 @@ Variant prob_lifting {T : ordType}  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type
   (forall xy, xy \in supp dr -> P (xy.1, xy.2)) &
   (DP_divergenceR ([ordType of (T * T) ]) eps dl dr (0)).
 
-
-
-
-(******************************* The Formal aprHoare Judgement with Empty Prob Lifting Definition ********************************)
 
 
 Lemma lifting_imply (T : ordType) (P P' : (T * T) -> Prop ) (eps1 eps2: R) d1 d2 :
@@ -294,6 +296,33 @@ Unset Printing Implicit Defensive.
 
 Arguments DP_divergenceR { _ } .
 
+Lemma fle_mult_le  a b c d e1 e2:
+ fle (fsub (Q2F a) (fmult e1 (Q2F b))) {| MachineType.Num := 0 |}
+ -> fle (fsub (Q2F c) (fmult e2 (Q2F d))) {| MachineType.Num := 0 |}
+ -> fle (fsub (Q2F (a * c)) (fmult (fmult e1 e2) (Q2F (b * d)))) {| MachineType.Num := 0 |}.
+Proof.
+Admitted.
+
+
+Lemma fle_sum:
+  forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x0 x a,
+    fle (fsub (Q2F (eL x0 * drawL x0 x))
+              (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |}
+    ->fle
+    (fsub (Q2F (\sum_(x0 <- supp eL) eL x0 * drawL x0 x))
+       (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
+    {| MachineType.Num := 0 |}.
+Proof.
+Admitted.
+
+
+Lemma fexp_mult :
+  forall e1 e2, fmult (f64exp (R2F64 (e1))) (f64exp (R2F64 (e2))) = (f64exp (R2F64 (e1 + e2))).
+Proof.
+Admitted.
+
+
+
 Lemma divergenceC:
     forall (T S : ordType) (eL eR: {prob T*T}) eps1 eps2 (drawR drawL: (T* T) -> {prob  S * S}),
       DP_divergenceR  eps1 eL eR 0 ->
@@ -302,16 +331,25 @@ Lemma divergenceC:
                    DP_divergenceR eps2 (drawL (x, y) ) (drawR (x, y) ) 0) ->
       DP_divergenceR (Rplus eps1 eps2) (sample eL drawL) (sample eR drawR) 0.
 Proof.
-  move => *.
-
   unfold DP_divergenceR.
+  move => T S eL eR eps1 eps2 drawR drawL H1 H2.
 
-  move => x.
+  
+
+  move => x.  
   rewrite !sampleE.
+  split.  
+  eapply fle_sum.
+  Print fle_sum.
   
-  
+  rewrite <- fexp_mult.
+  eapply  fle_mult_le.
+   
 Admitted.
 
+
+
+(* 
 Lemma divergenceC':
     forall (T S : ordType) (eL eR: {prob T*T}) eps (drawR drawL: (T*T) -> {prob S * S}),
       DP_divergenceR  eps eL eR 0 ->
@@ -403,9 +441,9 @@ Qed.
 
   
 
+*)
 
-
-Lemma lifting_sample' (T S : ordType) R1 R2 (d1 d2: {prob T}) (eps1 eps2 : R) (f g: T -> {prob S}) :
+Lemma lifting_sample (T S : ordType) R1 R2 (d1 d2: {prob T}) (eps1 eps2 : R) (f g: T -> {prob S}) :
   prob_lifting d1 R1 eps1 d2 ->
   (forall x y, R1 (x, y) ->  prob_lifting (f x) R2 eps2 (g y)) ->
   prob_lifting (sample d1 f) R2 (eps1 + eps2) (sample d2 g).
@@ -474,7 +512,9 @@ Proof.
         by case: (W _ _ ).
           by apply divergenceC.
 Qed.
-       
+
+
+End Lifting.
   
 (***************** The Formal aprHoare Judgement with Full Prob Lifting Definition ******************)
 
@@ -513,32 +553,27 @@ Theorem hoare_post_true : forall(P : Assertion) c1 c2,
 Proof.
  unfold aprHoare_judgement.
  move => Q c1 c2 st1 st2 HP.
- 
  pose d1 := (com_eval st1 c1).
  pose d2 := (com_eval st2 c2).
  exists (sample d1 (fun x => sample d2 (fun y => dirac (x, y))))
         (sample d1 (fun x => sample d2 (fun y => dirac (x, y)))).
    rewrite sampleC.
-
    rewrite !sampleA.
    under eq_sample do rewrite !sampleA.
                       under eq_sample do  under eq_sample do
                                                   rewrite !sample_diracL.
-                     simpl.
-                     rewrite sample_diracR //.
-                    by  rewrite sample_const.
-                     
-    rewrite sampleC.
-
+                                                  simpl.
+                      rewrite sample_diracR //.
+                        by rewrite sample_const.                    
+   rewrite sampleC.
    rewrite !sampleA. 
    under eq_sample do rewrite !sampleA.
                       under eq_sample do  under eq_sample do
                                                   rewrite !sample_diracL.
-                     simpl.
+                                                  simpl.
                       under eq_sample do rewrite !sample_const.
-                    by  rewrite sample_diracR //.
-
-                    intros. by unfold ATrue.
+                                           by  rewrite sample_diracR //.
+                                           intros. by unfold ATrue.
   intros. by unfold ATrue.
   unfold DP_divergenceR.
   intros.
@@ -548,7 +583,6 @@ Proof.
   apply  distr_ge0.
   rewrite f0_eq .
   apply f0_le_exp.
-
   eapply  fle_mult.
   apply qle_fle.      
   apply  distr_ge0.
@@ -589,7 +623,7 @@ Proof.
   unfold aprHoare_judgement.
 
   move => P c1 d1 R2 c2 d2 Q r1 r2 H1 H2 st1 st2 Hp.
-  eapply lifting_sample'.
+  eapply lifting_sample.
   by apply H1.
     by apply  H2.
 Qed.
@@ -612,17 +646,18 @@ Proof.
   apply H1.
 Qed.
 
-
+Definition F2R f := MachineType.Num f.
 
 
 Theorem aprHoare_null1 :forall x1 x2,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) (0 + 0) (UNIF1 (Var x2))
-                 (fun (pm : (state * state)) => (pm.1 (of_nat x1)).1 = (pm.2 (of_nat x2)).1).
+                       (fun (pm : (state * state)) =>
+                          (F2R (pm.1 (of_nat x1)).1) = F2R (pm.2 (of_nat x2)).1).
 Proof.
   unfold aprHoare_judgement.
   move => x1 x2   st1 st2 HT.  
 
-  eapply lifting_sample'.
+  eapply lifting_sample.
   apply lifting_eq.
   intros.
   apply lifting_dirac.
@@ -637,11 +672,12 @@ Qed.
 
 Theorem aprHoare_null2 :forall x1 x2,
    aprHoare_judgement  ATrue (UNIF2 (Var x1)) (0 + 0) (UNIF2 (Var x2))
-                (fun (pm : (state * state)) => (pm.1 (of_nat x1)).1 = (pm.2 (of_nat x2)).1).
+                       (fun (pm : (state * state)) =>
+                          F2R (pm.1 (of_nat x1)).1 = F2R (pm.2 (of_nat x2)).1).
 Proof.
   unfold aprHoare_judgement.
   move => x1 x2   st1 st2 HT.  
-  eapply lifting_sample'.
+  eapply lifting_sample.
   apply lifting_eq.
   intros.
   apply lifting_dirac.
@@ -658,7 +694,7 @@ Qed.
 
 Lemma lifting_unifP  eps:
     prob_lifting unif_01
-                 (fun xy => forall l r, rle l xy.1 -> rle xy.1 r -> rle (Rmult eps l) xy.2 -> rle xy.2 (Rmult eps r))
+                 (fun xy => forall l r, rle l (F2R xy.1) -> rle (F2R xy.1) r -> rle (Rmult eps l) (F2R xy.2) -> rle (F2R xy.2) (Rmult eps r))
 eps Unif.unif_01.
 Proof.
 
@@ -684,13 +720,13 @@ Theorem aprHoare_unifP :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      rle l v1 -> rle v1 r -> rle (Rmult eps l) v2 -> rle v2 (Rmult eps r)
+                                      rle l (F2R v1) -> rle (F2R v1) r -> rle (Rmult eps l) (F2R v2) -> rle (F2R v2) (Rmult eps r)
                                   end
                     end).
 Proof.
   unfold aprHoare_judgement.
   move => x1 x2 eps  st1 st2 HT.  
-  eapply lifting_sample'.
+  eapply lifting_sample.
   apply lifting_unifP.
    intros.
   apply lifting_dirac.
@@ -703,7 +739,7 @@ Qed.
 
 Lemma lifting_unifN  eps:
     prob_lifting Unif.unif_01
-                 (fun xy => forall l r, rle l xy.1 -> rle xy.1 r -> rle (Rmult  (Ropp eps) l) xy.2 -> rle xy.2 (Rmult  (Ropp eps) r))
+                 (fun xy => forall l r, rle l (F2R xy.1) -> rle (F2R xy.1) r -> rle (Rmult  (Ropp eps) l) (F2R xy.2) -> rle (F2R xy.2) (Rmult  (Ropp eps) r))
 eps Unif.unif_01.
 Proof.
   pose dl := unif_epsL (Ropp eps).
@@ -727,14 +763,14 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      rle l v1 -> rle v1 r -> rle (Rmult (Ropp eps) l) v2 -> rle v2 (Rmult (Ropp eps) r)
+                                      rle l (F2R v1) -> rle (F2R v1) r -> rle (Rmult (Ropp eps) l) (F2R v2)  -> rle (F2R v2)  (Rmult (Ropp eps) r)
                                   end
                     end).
 Proof.
 
   unfold aprHoare_judgement.
   move => x1 x2 eps  st1 st2 HT.  
-  eapply lifting_sample'.
+  eapply lifting_sample.
   apply lifting_unifN.
    intros.
   apply lifting_dirac.
@@ -750,14 +786,14 @@ Qed.
 
 Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
    aprHoare_judgement (fun (pm : (state * state)) => forall v, 
-                           (rle (pm.1 (of_nat y1)).1 (v + Lam/2))
-                           /\ (rle (v - Lam/2) (pm.1 (of_nat y1)).1) -> 
-                           (rle (pm.2 (of_nat y2)).1 (v + Lam/2))
-                           /\ (rle (v - Lam/2) (pm.2 (of_nat y2)).1 ))
+                           (rle (F2R (pm.1 (of_nat y1)).1) (v + Lam/2))
+                           /\ (rle (v - Lam/2) (F2R (pm.1 (of_nat y1)).1)) -> 
+                           (rle (F2R (pm.2 (of_nat y2)).1) (v + Lam/2))
+                           /\ (rle (v - Lam/2) (F2R (pm.2 (of_nat y2)).1) ))
                      (ASGN (Var x1) (Binop Round (Const Lam) (Var y1))) 0
                      (ASGN (Var x2) (Binop Round (Const Lam) (Var y2)))
-                     (fun (pm : (state * state)) => forall v, (pm.1 (of_nat x1)).1 = v
-                                                              -> (pm.2 (of_nat x2)).1 = v).
+                     (fun (pm : (state * state)) => forall v, (F2R (pm.1 (of_nat x1)).1) = v
+                                                              -> (F2R (pm.2 (of_nat x2)).1) = v).
 Proof.
 
    unfold aprHoare_judgement.
@@ -768,7 +804,6 @@ Proof.
   move => v Hround1.
   simpl in H.
   apply round_eqV.
-
   rewrite <- (round_eqV st1 y1 v) in Hround1.
     by  apply (H v) in Hround1.
 Qed.
