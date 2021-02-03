@@ -76,7 +76,8 @@ Definition Fdiv (x y : R) : R := R2F (Rdiv (R2F x) (R2F y)).
 Definition Fplus  (x y : R) : R := R2F (Rplus (R2F x) (R2F y)).
 Definition Fsub  (x y : R) : R := R2F (Rminus (R2F x) (R2F y)).
 Definition Fmult  (x y : R) : R := R2F (Rmult (R2F x) (R2F y)).
-                                         
+Definition Fneg (v : R) := R2F (Ropp (R2F v)).
+Definition Fln (v : R) := R2F (ln (R2F v)).                                       
 
 Definition Fround  (lam v : R) :=
   let v1 := (Rmult (IZR(rndR2Z((R2F v) / (R2F lam))))  lam) in
@@ -89,10 +90,6 @@ Definition Fround  (lam v : R) :=
       | right _ =>  R2F (Rplus (R2F v1) 1)
       end.
 
-
-
-
-
 Definition Fclamp  (b v : R) : R :=
   if rle (R2F b) (R2F v)
   then  (R2F b)
@@ -104,14 +101,10 @@ Definition Fclamp  (b v : R) : R :=
 
 Definition f64exp (x: float64) := F64 (R2F (exp (Num x))).
 Definition fln (x: float64) := F64 (R2F (ln (Num x))).
-
-
 Definition fdiv (x y : float64) : float64 := F64 (R2F (Rdiv (Num x) (Num y))).
-
 Definition fplus  (x y : float64) : float64 := F64 (R2F (Rplus (Num x) (Num y))).
 Definition fsub  (x y : float64) : float64 := F64 (R2F (Rminus (Num x) (Num y))).
 Definition fmult  (x y : float64) : float64 := F64 (R2F (Rmult (Num x) (Num y))).
-                                         
 
 Definition fle (x y : float64) : bool := rle (Num x) (Num y).
 
@@ -133,8 +126,7 @@ Definition fclamp  (b v : float64) : float64 :=
        then (R2F64 (Ropp(F2R b)))
        else  v.
 
-Definition  fneg (x : float64) : float64 :=(R2F64 (Ropp(F2R x)))
-  .
+Definition  fneg (x : float64) : float64 :=(R2F64 (Ropp(F2R x))).
 
 
          
@@ -161,12 +153,20 @@ Local Open Scope ring_scope.
 
 
 
-Lemma qle_fle (x : rat) :
-  le_rat zeroq x ->
+Axiom qle_fle  : forall (x : rat), le_rat zeroq x ->
   fle (F64 0) (Q2F x).
- Proof.
- Admitted.
- 
+
+Axiom f0_eq : (R2F64 0) = (F64 0).
+
+Axiom f0_le_exp: forall x, fle (F64 0) (f64exp x).
+
+Axiom fle_ref : forall (x : float64), fle x x.  
+
+Axiom feq_req: forall x y, x = y <-> (Num x) = (Num y).
+
+Axiom fexp_mult :
+  forall e1 e2, fmult (f64exp (R2F64 (e1))) (f64exp (R2F64 (e2))) = (f64exp (R2F64 (Rplus e1 e2))).
+
  
 Lemma fle_mult (v r : float64) :
 fle (F64 0) v -> fle (F64 0) r -> fle (fsub v (fmult r v))  (F64 0).
@@ -179,28 +179,6 @@ fle f1 f2 -> fle (fmult f1 x) (fmult f2 x).
 Proof.
   Admitted.
 
-Lemma fle_ref (x : float64):
-  fle x x.
-Proof.
-Admitted.
-  
-  Lemma f0_eq :
-    (R2F64 0) = (F64 0).
-Proof.
-Admitted.
-
-Lemma f0_le_exp:
-  forall x,
-    fle (F64 0) (f64exp x).
-Proof.
-Admitted.
-
-Definition Fneg (v : R) := R2F (Ropp (R2F v))
-  .
-
-
-Definition Fln (v : R) := R2F (ln (R2F v))
-  .
 
 Lemma fle_sub (x v r : float64) :
   fle v r -> fle (fsub x v) (F64 0) -> fle (fsub x r) (F64 0).
@@ -216,7 +194,11 @@ Lemma fle_exp (f1 f2: float64):
 fle f1 f2 -> fle (f64exp f1) (f64exp f2).
 Proof.
   Admitted.
-  
+ 
+
+
+
+
 (*Open Scope ring_scope.
 
 Lemma fle_mult_le  a b c d e1 e2:
@@ -239,11 +221,7 @@ Proof.
 Admitted.
 
 
-Lemma fexp_mult :
-  forall e1 e2, fmult (f64exp (R2F64 (e1))) (f64exp (R2F64 (e2))) = (f64exp (R2F64 (e1 + e2))).
-Proof.
-Admitted.
 
-Close Scope ring_scope.
 *)
+Close Scope ring_scope.
 

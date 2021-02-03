@@ -5,6 +5,7 @@ From extructures Require Import ord fset fmap ffun.
 Require Import Coq.Reals.Reals.
 Require Import Coq.Strings.String.
 From Snapv.lib Require Import MachineType.
+Require Import Coq.micromega.Lra Coq.micromega.Lia.
 
 (** First, we need to show that real numbers have an equality operator.  This
 follows from the axioms on reals. *)
@@ -43,7 +44,11 @@ case: (Rle_dec x y) (Rle_dec y x) => [xy|//] [yx|//] _.
  move =>  [xy|//] RD.
  split.
  move => nxy Rd.
-Admitted.
+ 
+ destruct Rd.
+ rewrite orbT //.
+ lra.
+Qed.
 
 Definition R_ordMixin := OrdMixin rleP.
 Canonical R_ordType := OrdType R R_ordMixin.
@@ -57,12 +62,7 @@ Canonical R_ordType := OrdType R R_ordMixin.
     y], this means that almost all outputs of a finite function are equal to [y]
 
  *)
-Lemma feq_req x y : x = y <-> (Num x) = (Num y).
-Proof. Admitted.
-
-Lemma feq_req_ref x y : reflect (x = y) (req (Num x) (Num y)).
-Proof.
-Admitted.
+Axiom feq_req_ref : forall x y,  reflect (x = y) (req (Num x) (Num y)).
 
 
 
@@ -99,11 +99,17 @@ rewrite /fle; split.
   case: (Rle_dec  (Num x) (Num y)) (Rle_dec (Num y) (Num x)) => [xy|//] [yx|//] _.
   rewrite feq_req.
   exact: Rle_antisym.
- -  move=> x y.
-(* Exercise: prove this! *)
-  
-  admit.
-Admitted.
+-  move=> x y.
+    case:  (Rle_dec  (Num x) (Num y)) (Rle_dec (Num y) (Num x)).
+ move =>  [xy|//] RD.
+ split.
+ move => nxy Rd.
+ 
+ destruct Rd.
+ rewrite orbT //.
+ lra.
+Qed.
+
 Definition F_ordMixin := OrdMixin fleP.
 Canonical F_ordType := OrdType float64 F_ordMixin.
 
