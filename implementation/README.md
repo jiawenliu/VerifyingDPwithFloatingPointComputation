@@ -40,7 +40,7 @@ cd src/ and hit `make`
 
   * lib/:  The main definitions are:
      
-    + `Extra.v`: 
+    + `MachineType.v`: The fixed flaoting point type of 64 bits.
 
   * distr/:  The main definitions are:
     
@@ -48,7 +48,7 @@ cd src/ and hit `make`
 
     + `Prob.v`: theory of finite probability distributions
 
-    + 'Unif.v' : the unif distirbution defined over fixed floating point number ranging from 0 to 1,  (0, 1].
+    + `Unif.v` : the unif distirbution defined over fixed floating point number ranging from 0 to 1,  (0, 1].
 
 - example/:
 
