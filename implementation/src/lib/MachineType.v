@@ -196,17 +196,16 @@ Proof.
   Admitted.
  
 
-
+Lemma fle_mult_le  a b c d e1 e2:
+ fle (fsub (Q2F a) (fmult e1 (Q2F b))) {| MachineType.Num := 0 |}
+ -> fle (fsub (Q2F c) (fmult e2 (Q2F d))) {| MachineType.Num := 0 |}
+ -> fle (fsub (Q2F (mulq a c)) (fmult (fmult e1 e2) (Q2F (mulq b d)))) {| MachineType.Num := 0 |}.
+Proof.
+Admitted.
 
 
 (*Open Scope ring_scope.
 
-Lemma fle_mult_le  a b c d e1 e2:
- fle (fsub (Q2F a) (fmult e1 (Q2F b))) {| MachineType.Num := 0 |}
- -> fle (fsub (Q2F c) (fmult e2 (Q2F d))) {| MachineType.Num := 0 |}
- -> fle (fsub (Q2F (a * c)) (fmult (fmult e1 e2) (Q2F (b * d)))) {| MachineType.Num := 0 |}.
-Proof.
-Admitted.
 
 
 Lemma fle_sum:

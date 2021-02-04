@@ -296,18 +296,12 @@ Unset Printing Implicit Defensive.
 
 Arguments DP_divergenceR { _ } .
 
-Lemma fle_mult_le  a b c d e1 e2:
- fle (fsub (Q2F a) (fmult e1 (Q2F b))) {| MachineType.Num := 0 |}
- -> fle (fsub (Q2F c) (fmult e2 (Q2F d))) {| MachineType.Num := 0 |}
- -> fle (fsub (Q2F (a * c)) (fmult (fmult e1 e2) (Q2F (b * d)))) {| MachineType.Num := 0 |}.
-Proof.
-Admitted.
 
 
 Lemma fle_sum:
-  forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x0 x a,
-    fle (fsub (Q2F (eL x0 * drawL x0 x))
-              (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |}
+  forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x a,
+    (forall x0, x0 \in (supp eL :|: supp eR)%fset -> fle (fsub (Q2F (eL x0 * drawL x0 x))
+              (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |})
     ->fle
     (fsub (Q2F (\sum_(x0 <- supp eL) eL x0 * drawL x0 x))
        (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
@@ -316,14 +310,16 @@ Proof.
 Admitted.
 
 
-
+Lemma fsetU_refl (T : ordType) (x y : {fset T}) : (x :|: y)%fset =  (y :|: x)%fset.
+Proof.
+Admitted.
 
 Lemma divergence_compose:
     forall (T S : ordType) (eL eR: {prob T*T}) eps1 eps2 (drawR drawL: (T* T) -> {prob  S * S}),
       DP_divergenceR  eps1 eL eR 0 ->
-      (forall x y, 
-        (x, y) \in (supp eL :|: supp eR)%fset -> 
-                   DP_divergenceR eps2 (drawL (x, y) ) (drawR (x, y) ) 0) ->
+      (forall xy, 
+        xy \in (supp eL :|: supp eR)%fset -> 
+                   DP_divergenceR eps2 (drawL xy ) (drawR xy ) 0) ->
       DP_divergenceR (Rplus eps1 eps2) (sample eL drawL) (sample eR drawR) 0.
 Proof.
   unfold DP_divergenceR. 
@@ -333,15 +329,23 @@ Proof.
   move => x.  
   rewrite !sampleE.
   split.  
-  eapply fle_sum.
-  Print fle_sum.
-  
+  eapply fle_sum.  
   rewrite <- fexp_mult.
+  move => x0 Hx0.
   eapply  fle_mult_le.
-  
-  eapply H1.
-   
-Admitted.
+  apply (H1 x0).  
+
+  apply (H2 x0 Hx0 x).
+
+   eapply fle_sum.  
+  rewrite <- fexp_mult.
+  move => x0 Hx0.
+  eapply  fle_mult_le.
+  apply (H1 x0).
+  rewrite fsetU_refl in Hx0.
+   apply (H2 x0 Hx0 x).
+Qed.
+
 
 
 Lemma lifting_sample (T S : ordType) R1 R2 (d1 d2: {prob T}) (eps1 eps2 : R) (f g: T -> {prob S}) :
@@ -402,10 +406,10 @@ Proof.
     rewrite insubT /=.
       by case: (W _ _ ).  
 
-      have eps2D': forall x y, 
-          (x, y) \in (supp eL :|: supp eR)%fset -> 
+      have eps2D': forall xy, 
+          xy \in (supp eL :|: supp eR)%fset -> 
                      DP_divergenceR
-                       eps2 (drawL (x, y) ) (drawR (x, y) ) 0.
+                       eps2 (drawL xy ) (drawR xy ) 0.
       unfold drawL.
       unfold drawR.
       move => x y insubxy.
