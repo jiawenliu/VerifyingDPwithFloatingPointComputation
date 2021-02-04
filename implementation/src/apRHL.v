@@ -163,12 +163,6 @@ Proof.
   assumption.
 Qed.
 
-
-  
-                                       
-
-
-
 (*
 The Formal Definition for Probabilistic Lifting
 1. two jiont distributions of d1 and d2
@@ -177,8 +171,6 @@ The Formal Definition for Probabilistic Lifting
  *)
 
 Section Lifting.
-
-
 
   
 Variant prob_lifting {T : ordType}  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type :=
@@ -294,8 +286,6 @@ Unset Printing Implicit Defensive.
 
 
 Arguments DP_divergenceR { _ } .
-
-
 
 
 Lemma divergence_compose:
@@ -481,8 +471,7 @@ Proof.
 Qed.
 
 
-(*  The SKIP aprHore Logic Rule  *)
-
+(*  The SKIP aprHoare Logic Rule  *)
 Theorem aprHoare_skip : forall P ,
     aprHoare_judgement  P SKIP 0 SKIP P.
 Proof.  
@@ -540,13 +529,14 @@ Definition F2R f := MachineType.Num f.
 
 
 Theorem aprHoare_null1 :forall x1 x2,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (0 + 0) (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (0) (UNIF1 (Var x2))
                        (fun (pm : (state * state)) =>
                           (F2R (pm.1 (of_nat x1)).1) = F2R (pm.2 (of_nat x2)).1).
 Proof.
+  rewrite -{1}(Rplus_0_r 0).
   unfold aprHoare_judgement.
-  move => x1 x2   st1 st2 HT.  
-
+  move => x1 x2   st1 st2 HT.
+  
   eapply lifting_sample.
   apply lifting_eq.
   intros.
@@ -561,10 +551,11 @@ Proof.
 Qed.
 
 Theorem aprHoare_null2 :forall x1 x2,
-   aprHoare_judgement  ATrue (UNIF2 (Var x1)) (0 + 0) (UNIF2 (Var x2))
+   aprHoare_judgement  ATrue (UNIF2 (Var x1)) (0) (UNIF2 (Var x2))
                        (fun (pm : (state * state)) =>
                           F2R (pm.1 (of_nat x1)).1 = F2R (pm.2 (of_nat x2)).1).
 Proof.
+   rewrite -{1}(Rplus_0_r 0).
   unfold aprHoare_judgement.
   move => x1 x2   st1 st2 HT.  
   eapply lifting_sample.
@@ -604,7 +595,7 @@ Proof.
 Qed.
 
 Theorem aprHoare_unifP :forall x1 x2 eps,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps+0) (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -614,8 +605,11 @@ Theorem aprHoare_unifP :forall x1 x2 eps,
                                   end
                     end).
 Proof.
+    move => x1 x2 eps.  
+
+  rewrite -{1}(Rplus_0_r eps).
   unfold aprHoare_judgement.
-  move => x1 x2 eps  st1 st2 HT.  
+   move => st1 st2 HT.
   eapply lifting_sample.
   apply lifting_unifP.
    intros.
@@ -647,7 +641,7 @@ Qed.
 
 
 Theorem aprHoare_unifN :forall x1 x2 eps,
-   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps + 0) (UNIF1 (Var x2))
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
@@ -657,9 +651,10 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                                   end
                     end).
 Proof.
-
+      move => x1 x2 eps.  
+  rewrite -{1}(Rplus_0_r eps).
   unfold aprHoare_judgement.
-  move => x1 x2 eps  st1 st2 HT.  
+   move => st1 st2 HT.
   eapply lifting_sample.
   apply lifting_unifN.
    intros.
@@ -669,10 +664,6 @@ Proof.
   rewrite  !updE //.
   by rewrite !eqxx.
 Qed.
-
-
-
-
 
 Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
    aprHoare_judgement (fun (pm : (state * state)) => forall v, 
@@ -685,8 +676,7 @@ Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
                      (fun (pm : (state * state)) => forall v, (F2R (pm.1 (of_nat x1)).1) = v
                                                               -> (F2R (pm.2 (of_nat x2)).1) = v).
 Proof.
-
-   unfold aprHoare_judgement.
+  unfold aprHoare_judgement.
   intros.
   apply lifting_dirac.
   rewrite  !updE //.

@@ -13,6 +13,9 @@ From Snapv
      Expressions Command ExpressionTransitions
      CommandSemantics apRHL Environments.
 
+From Snapv.lib
+     Require Import MachineType.
+     
 Require Import Coq.Strings.Ascii Coq.Strings.BinaryString.
 
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype choice seq.
@@ -37,7 +40,6 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
 								(Unop Ln (Var 1)))))))))
 .
 
-Definition eta := 0.0000000005%R.
 
 
 (* Lemma SnapDP' :
@@ -87,6 +89,7 @@ Proof.
 Admitted.
 *)
 
+(* 
 Lemma Snap_sub1:
   forall (a Lam B eps v er1 er2: R) m,
      Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
@@ -102,7 +105,7 @@ Lemma Snap_sub1:
                                                   (Binop Mult 
                                                          (Var 2) 
                                                          (Unop Ln (Var 1)))))))
-                (v, (er1, er2)) ->
+                ((F2R v), (er1, er2)) ->
      let (v1, _) := m (of_nat 1) in
      let (s, _) := m (of_nat 2) in
      (exp ((v - Lam/2 - a) / eps / s) < v1) /\
@@ -206,16 +209,15 @@ Qed.
 
 Ltac apply_snap_sub3 := apply Snap_sub3.
 
+*)
 (* Point wise equal in terms of memeory*)
-Lemma SnapDP:
+(* Lemma SnapDP:
   forall a a' Lam B eps: R,
      Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
     (Rminus a a') = 1 ->
-    aprHore_judgement ATrue (Snap a Lam B eps) (Rmult eps (Rplus 1 (Rmult 24%R (Rmult B eta)))) (Snap a' Lam B eps)
-               (fun (pm : (state * state)) =>
-                    let (m1, m2) := pm in
-                    let (v1, _) := m1 (of_nat 3) in let (v2, _) := m2 (of_nat 3) in
-                                                    forall v, v1 = v -> v2 = v)
+    aprHoare_judgement ATrue (Snap a Lam B eps) (Rmult eps (Rplus 1 (Rmult 24%R (Rmult B eta)))) (Snap a' Lam B eps)
+                       (fun (pm : (state * state)) =>
+                          forall v, (pm.1 (of_nat 3)).1 = v -> (pm.2 (of_nat 3)).1 = v)
 .
 
 Proof.
@@ -361,6 +363,23 @@ auto.
 auto.
 auto.
 Qed.
+ *)
+Lemma SnapDP:
+  forall a a' Lam B eps: R,
+     Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
+    (Rminus a a') = 1 ->
+    aprHoare_judgement ATrue (Snap a Lam B eps) (Rmult eps (Rplus 1 (Rmult 24%R (Rmult B eta))) + 0) (Snap a' Lam B eps)
+                       (fun (pm : (state * state)) =>
+                          forall v, (pm.1 (of_nat 3)).1 = v -> (pm.2 (of_nat 3)).1 = v)
+.
 
-Close Scope aprHoare_scope.
+Proof.
+
+  move => a a' Lam B eps HLam HB Heps Hadj.
+
+  unfold Snap.
+  eapply aprHoare_seq.
+  eapply aprHoare_unifP.
+
+  Close Scope aprHoare_scope.
 Close Scope R_scope.
