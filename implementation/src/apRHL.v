@@ -178,8 +178,7 @@ The Formal Definition for Probabilistic Lifting
 
 Section Lifting.
 
-  From mathcomp Require Import ssralg.
-  Import GRing.
+
 
   
 Variant prob_lifting {T : ordType}  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type :=
@@ -298,21 +297,6 @@ Arguments DP_divergenceR { _ } .
 
 
 
-Lemma fle_sum:
-  forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x a,
-    (forall x0, x0 \in (supp eL :|: supp eR)%fset -> fle (fsub (Q2F (eL x0 * drawL x0 x))
-              (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |})
-    ->fle
-    (fsub (Q2F (\sum_(x0 <- supp eL) eL x0 * drawL x0 x))
-       (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
-    {| MachineType.Num := 0 |}.
-Proof.
-Admitted.
-
-
-Lemma fsetU_refl (T : ordType) (x y : {fset T}) : (x :|: y)%fset =  (y :|: x)%fset.
-Proof.
-Admitted.
 
 Lemma divergence_compose:
     forall (T S : ordType) (eL eR: {prob T*T}) eps1 eps2 (drawR drawL: (T* T) -> {prob  S * S}),
@@ -342,7 +326,8 @@ Proof.
   move => x0 Hx0.
   eapply  fle_mult_le.
   apply (H1 x0).
-  rewrite fsetU_refl in Hx0.
+  
+  rewrite fsetUC in Hx0.
    apply (H2 x0 Hx0 x).
 Qed.
 

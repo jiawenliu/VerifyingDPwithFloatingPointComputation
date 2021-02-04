@@ -11,6 +11,7 @@ Require Import Omega.
 
 From Gappa Require Import Gappa_tactic.
 
+From Snapv.distr Require Import Extra Prob.
 
 From Flocq Require Import Core Bracket Round Operations Div Sqrt  Plus_error.
 
@@ -202,6 +203,25 @@ Lemma fle_mult_le  a b c d e1 e2:
  -> fle (fsub (Q2F (mulq a c)) (fmult (fmult e1 e2) (Q2F (mulq b d)))) {| MachineType.Num := 0 |}.
 Proof.
 Admitted.
+
+
+From mathcomp Require Import ssralg.
+  Import GRing.
+
+  
+Lemma fle_sum:
+  forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x a,
+    (forall x0, x0 \in (supp eL :|: supp eR)%fset -> fle (fsub (Q2F (eL x0 * drawL x0 x))
+              (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |})
+    ->fle
+    (fsub (Q2F (\sum_(x0 <- supp eL) eL x0 * drawL x0 x))
+       (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
+    {| MachineType.Num := 0 |}.
+Proof.
+
+Admitted.
+
+
 
 
 (*Open Scope ring_scope.
