@@ -146,7 +146,7 @@ Proof.
   unfold DP_divergenceR.
   unfold DP_divergenceR in HI.
   split.
-  
+   
   eapply fle_sub .
   apply fle_mult_left.
   apply fle_exp.
@@ -575,7 +575,7 @@ Qed.
 
 Lemma lifting_unifP  eps:
     prob_lifting unif_01
-                 (fun xy => forall l r, rle l (F2R xy.1) -> rle (F2R xy.1) r -> rle (Rmult eps l) (F2R xy.2) -> rle (F2R xy.2) (Rmult eps r))
+                 (fun xy => forall l r, (Rle l (F2R xy.1) /\ Rle (F2R xy.1) r) -> (Rle (Rmult eps l) (F2R xy.2) /\ Rle (F2R xy.2) (Rmult eps r)))
 eps Unif.unif_01.
 Proof.
 
@@ -601,7 +601,8 @@ Theorem aprHoare_unifP :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      rle l (F2R v1) -> rle (F2R v1) r -> rle (Rmult eps l) (F2R v2) -> rle (F2R v2) (Rmult eps r)
+                                      (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
+                                      (Rle (Rmult eps l) (F2R v2) /\ Rle (F2R v2) (Rmult eps r))
                                   end
                     end).
 Proof.
@@ -623,7 +624,9 @@ Qed.
 
 Lemma lifting_unifN  eps:
     prob_lifting Unif.unif_01
-                 (fun xy => forall l r, rle l (F2R xy.1) -> rle (F2R xy.1) r -> rle (Rmult  (Ropp eps) l) (F2R xy.2) -> rle (F2R xy.2) (Rmult  (Ropp eps) r))
+                 (fun xy => forall l r,
+                      (Rle l (F2R xy.1) /\ Rle (F2R xy.1) r) ->
+                      (Rle (Rmult  (Ropp eps) l) (F2R xy.2) /\ Rle (F2R xy.2) (Rmult  (Ropp eps) r)))
 eps Unif.unif_01.
 Proof.
   pose dl := unif_epsL (Ropp eps).
@@ -647,7 +650,8 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                     | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
                                   | (v1, _),(v2, _) =>
                                     forall l r,
-                                      rle l (F2R v1) -> rle (F2R v1) r -> rle (Rmult (Ropp eps) l) (F2R v2)  -> rle (F2R v2)  (Rmult (Ropp eps) r)
+                                      (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
+                                      (Rle (Rmult (Ropp eps) l) (F2R v2) /\ Rle (F2R v2)  (Rmult (Ropp eps) r))
                                   end
                     end).
 Proof.
