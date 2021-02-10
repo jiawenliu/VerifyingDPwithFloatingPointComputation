@@ -635,23 +635,9 @@ Qed.
 
 
 
-Lemma unifP_imply  : forall x1 x2 eps,
-  (fun (pm : (state * state)) =>
-     F2R (pm.1 (of_nat x1)).1 = Rmult (exp eps) (F2R (pm.2 (of_nat x2)).1)) ->>
-  (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) =>
-                                    forall l r,
-                                      (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
-                                      (Rle (Rmult (exp eps) l) (F2R v2) /\ Rle (F2R v2) (Rmult (exp eps) r))
-                                  end
-                    end).                                                                           
-Proof.
 
-Admitted.
 
-Theorem aprHoare_unifP :forall x1 x2 eps,
+(*Theorem aprHoare_unifP :forall x1 x2 eps,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
                  (fun (pm : (state * state)) =>
                     match pm with
@@ -672,7 +658,7 @@ Proof.
   rewrite <- Rle_rle.
   apply Rle_refl.
 Qed.
-
+*)
 (* 
 
 Theorem aprHoare_unifN :forall x1 x2 eps,

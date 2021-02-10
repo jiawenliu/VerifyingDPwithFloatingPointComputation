@@ -39,47 +39,16 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
 							(Binop Mult (Var 2)
 								(Unop Ln (Var 1)))))))))
 .
-
-
-(* 
-Lemma Snap_sub1:
-  forall (a Lam B eps v er1 er2: R) m,
-     Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
-   
-     trans_expr eta m (Binop Clamp 
-                             (Const B)
-                             (Binop Round 
-                                    (Const Lam)
-                                    (Binop Plus 
-                                           (Const a)
-                                           (Binop Mult 
-                                                  (Const (1 / eps))
-                                                  (Binop Mult 
-                                                         (Var 2) 
-                                                         (Unop Ln (Var 1)))))))
-                ((F2R v), (er1, er2)) ->
-     let (v1, _) := m (of_nat 1) in
-     let (s, _) := m (of_nat 2) in
-     (exp ((v - Lam/2 - a) / eps / s) < v1) /\
-     (v1 < exp ((v + Lam/2 - a) / eps / s)).
-Proof.
-
-  intros.
-  
-Admitted.
-*)
-                   
+              
          
 (* functional extensionality, propositional extensionality *)
+(** TODO: adaopt this Lemma into the main Proof *)
 Lemma Snap_sub1:
   forall a a' Lam B eps: R,
      Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
     (Rminus a a') = 1 ->
   (fun pm : (state * state) =>
-  let (m1, m2) := pm in
-   let (v1, _) := m1 (of_nat 1) in
-   let (v2, _) := m2 (of_nat 1) in
-   forall l r : R, l <= apRHL.F2R v1 <= r -> eps * l <= apRHL.F2R v2 <= eps * r) ->>
+  apRHL.F2R (pm.1 (of_nat 1)).1 = exp eps * apRHL.F2R (pm.2 (of_nat 1)).1) ->>
   (fun pm : (state * state) =>
    let (m1, m2) := pm in
    let (v1, _) := m1 (of_nat 1) in
@@ -87,15 +56,14 @@ Lemma Snap_sub1:
    let (s1, _) := m1 (of_nat 2) in
    let (s2, _) := m2 (of_nat 2) in
    forall v : R,
-   exp (((v - Lam) / 2 - a) / eps / F2R s1) <= F2R v1 <=
-   exp (((v + Lam) / 2 - a) / eps / F2R s1) ->
-   eps * exp (((v - Lam) / 2 - a') / eps / F2R s2) <= F2R v2 <=
-   eps * exp (((v - Lam) / 2 - a') / eps / F2R s2)).
+   exp (((v - Lam) / 2 - a) * eps / F2R s1) <= F2R v1 <=
+   exp (((v + Lam) / 2 - a) * eps / F2R s1) ->
+   exp (((v - Lam) / 2 - a') * eps / F2R s2) <= F2R v2 <=
+   exp (((v + Lam) / 2 - a') * eps / F2R s2)).
 
 Proof.
 
-
-
+  
 Admitted.
 
 Lemma Snap_sub2:
@@ -124,11 +92,23 @@ Lemma Snap_sub2:
    let (s1, _) := m1 (of_nat 2) in
    let (s2, _) := m2 (of_nat 2) in
    forall v : R,
-   exp (((v - Lam) / 2 - a) / eps / F2R s1) <= F2R v1 <=
-   exp (((v + Lam) / 2 - a) / eps / F2R s1) ->
-   eps * exp (((v - Lam) / 2 - a') / eps / F2R s2) <= F2R v2 <=
-   eps * exp (((v - Lam) / 2 - a') / eps / F2R s2)).
+    exp (((v - Lam) / 2 - a) * eps / F2R s1) <= F2R v1 <=
+   exp (((v + Lam) / 2 - a) * eps / F2R s1) ->
+   exp (((v - Lam) / 2 - a') * eps / F2R s2) <= F2R v2 <=
+   exp (((v + Lam) / 2 - a') * eps / F2R s2)).
 Proof.
+  move =>    a a' Lam B eps  HLam HB Heps Hadj.
+  unfold assn_sub'.
+  apply  functional_extensionality.
+  move => pm.
+  rewrite /fst.
+  rewrite /snd.
+  simpl.
+
+  
+  apply Rlt_le  in HB.
+  apply Rle_rle in HB.
+
 Admitted.
 
 Ltac apply_snap_sub1 := apply Snap_sub1.
@@ -145,14 +125,12 @@ Lemma SnapDP:
 
 Proof.
   move => a a' Lam B eps  HLam HB Heps Hadj.
-  rewrite <- (Rplus_0_l (eps * (1 + 24 * (B * eta)))).
   unfold Snap.
-  eapply aprHoare_seq.
+  eapply aprHoare_seqR.
   eapply aprHoare_null2.
-  rewrite <- (Rplus_0_r (eps * (1 + 24 * (B * eta)))).
-  eapply aprHoare_seq.
+  eapply aprHoare_seqL.
   eapply aprHoare_conseq.
-  eapply aprHoare_unifP.
+  eapply aprHoare_unif.
   move => * //.
   instantiate (2 := eps).
   instantiate
@@ -163,10 +141,10 @@ Proof.
               let (s1, _) := m1 (of_nat 2) in
               let (s2, _) := m2 (of_nat 2) in
               forall v : R,
-                exp (((v - Lam) / 2 - a) / eps / F2R s1) <= F2R v1 <=
-                exp (((v + Lam) / 2 - a) / eps / F2R s1) ->
-                eps * exp (((v - Lam) / 2 - a') / eps / F2R s2) <= F2R v2 <=
-                eps * exp (((v - Lam) / 2 - a') / eps / F2R s2))).
+                exp (((v - Lam) / 2 - a) * eps / F2R s1) <= F2R v1 <=
+                exp (((v + Lam) / 2 - a) * eps / F2R s1) ->
+                exp (((v - Lam) / 2 - a') * eps / F2R s2) <= F2R v2 <=
+                exp (((v + Lam) / 2 - a') * eps / F2R s2))).
 
   by apply Snap_sub1 with (B := B).
   rewrite Rmult_plus_distr_l.
@@ -192,6 +170,7 @@ Proof.
   assumption. 
 Qed.
 
-
+(*** weakest precondition formulation 
+for example: replace the results to be equality **)
   Close Scope aprHoare_scope.
 Close Scope R_scope.
