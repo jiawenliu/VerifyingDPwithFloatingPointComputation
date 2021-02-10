@@ -114,6 +114,4 @@ Definition F_ordMixin := OrdMixin fleP.
 Canonical F_ordType := OrdType float64 F_ordMixin.
 
 
-Notation state := (ffun (fun v : string => (  (F64 0%R), (0%R, 0%R)))).
-
-Notation state' := (ffun (fun v : string => (  (0%R), (0%R, 0%R)))).
+Notation state := (ffun (fun v : string => ((F64 0%R), (0%R, 0%R)))).

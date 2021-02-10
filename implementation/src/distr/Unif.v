@@ -127,19 +127,14 @@ Admitted.
 
 Lemma unif_epsR_supp eps : forall xy,
   xy \in supp (unif_epsR eps)
-         -> forall l r : R,
-      (Rle l ((F2R xy.1), (F2R xy.2)).1 /\ Rle ((F2R xy.1),  (F2R xy.2)).1 r) -> 
-      (Rle (eps * l) ((F2R xy.1),  (F2R xy.2)).2 /\ Rle ((F2R xy.1),  (F2R xy.2)).2 (eps * r)).
+         -> (F2R xy.1) = Rmult (exp eps) (F2R xy.2).
 Proof.
 Admitted.
 
 
 Lemma unif_epsL_supp eps : forall xy,
   xy \in supp (unif_epsL eps)
-         -> forall l r : R,
-      (Rle l ( (F2R xy.1),  (F2R xy.2)).1
-      /\ Rle ( (F2R xy.1),  (F2R xy.2)).1 r) -> 
-      (Rle (eps * l) ( (F2R xy.1),  (F2R xy.2)).2 /\ Rle ((F2R xy.1),  (F2R xy.2)).2 (eps * r)).
+-> (F2R xy.1) = Rmult (exp eps) (F2R xy.2) .
 Proof.
 Admitted.
 

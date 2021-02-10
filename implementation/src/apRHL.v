@@ -507,6 +507,27 @@ Proof.
     by apply  H2.
 Qed.
 
+Theorem aprHoare_seqR : forall P c1 d1 R c2 d2 Q r ,
+    aprHoare_judgement P c1 0 c2 R -> aprHoare_judgement R d1 r d2 Q 
+    -> aprHoare_judgement P (SEQ c1 d1) r (SEQ c2 d2) Q.
+Proof.
+  move => P c1 d1 R2 c2 d2 Q r H1 H2 st1 st2 Hp.
+  rewrite - (Rplus_0_l r).
+eapply  aprHoare_seq .
+  by apply H1.
+    by apply  H2.
+Qed.
+
+Theorem aprHoare_seqL : forall P c1 d1 R c2 d2 Q r ,
+    aprHoare_judgement P c1 r c2 R -> aprHoare_judgement R d1 0 d2 Q 
+    -> aprHoare_judgement P (SEQ c1 d1) r (SEQ c2 d2) Q.
+Proof. 
+  move => P c1 d1 R2 c2 d2 Q r H1 H2 st1 st2 Hp.
+  rewrite - (Rplus_0_r r).
+eapply  aprHoare_seq .
+  by apply H1.
+    by apply  H2.
+Qed.
 
 Theorem aprHoare_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
     aprHoare_judgement P' c1 r' c2 Q' ->
@@ -571,11 +592,9 @@ Proof.
   reflexivity.
 Qed.
 
-
-
-Lemma lifting_unifP  eps:
+Lemma lifting_unif  eps:
     prob_lifting unif_01
-                 (fun xy => forall l r, (Rle l (F2R xy.1) /\ Rle (F2R xy.1) r) -> (Rle (Rmult eps l) (F2R xy.2) /\ Rle (F2R xy.2) (Rmult eps r)))
+                 (fun xy => (F2R xy.1) = Rmult (exp eps) (F2R xy.2))
 eps Unif.unif_01.
 Proof.
 
@@ -594,17 +613,10 @@ Proof.
   apply unif_epsR_div.
 Qed.
 
-Theorem aprHoare_unifP :forall x1 x2 eps,
+Theorem aprHoare_unif :forall x1 x2 eps,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
-                 (fun (pm : (state * state)) =>
-                    match pm with
-                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
-                                  | (v1, _),(v2, _) =>
-                                    forall l r,
-                                      (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
-                                      (Rle (Rmult eps l) (F2R v2) /\ Rle (F2R v2) (Rmult eps r))
-                                  end
-                    end).
+                       (fun (pm : (state * state)) =>
+                          F2R (pm.1 (of_nat x1)).1 = Rmult (exp eps) (F2R (pm.2 (of_nat x2)).1)).
 Proof.
     move => x1 x2 eps.  
 
@@ -612,7 +624,7 @@ Proof.
   unfold aprHoare_judgement.
    move => st1 st2 HT.
   eapply lifting_sample.
-  apply lifting_unifP.
+  apply lifting_unif.
    intros.
   apply lifting_dirac.
   simpl.
@@ -622,26 +634,46 @@ Proof.
 Qed.
 
 
-Lemma lifting_unifN  eps:
-    prob_lifting Unif.unif_01
-                 (fun xy => forall l r,
-                      (Rle l (F2R xy.1) /\ Rle (F2R xy.1) r) ->
-                      (Rle (Rmult  (Ropp eps) l) (F2R xy.2) /\ Rle (F2R xy.2) (Rmult  (Ropp eps) r)))
-eps Unif.unif_01.
+
+Lemma unifP_imply  : forall x1 x2 eps,
+  (fun (pm : (state * state)) =>
+     F2R (pm.1 (of_nat x1)).1 = Rmult (exp eps) (F2R (pm.2 (of_nat x2)).1)) ->>
+  (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
+                                  | (v1, _),(v2, _) =>
+                                    forall l r,
+                                      (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
+                                      (Rle (Rmult (exp eps) l) (F2R v2) /\ Rle (F2R v2) (Rmult (exp eps) r))
+                                  end
+                    end).                                                                           
 Proof.
-  pose dl := unif_epsL (Ropp eps).
-  pose dr := unif_epsR (Ropp eps).
-  exists dl dr.
-  apply unif_epsL_samplL.  
-  apply unif_epsR_samplR.
-  apply unif_epsL_supp.
-  apply unif_epsR_supp.
-  unfold DP_divergenceR.
-  split.
-  apply unif_epsL_div.
-  apply unif_epsR_div.
+
+Admitted.
+
+Theorem aprHoare_unifP :forall x1 x2 eps,
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
+                 (fun (pm : (state * state)) =>
+                    match pm with
+                    | (m1, m2) => match (m1 (of_nat x1)),(m2 (of_nat x2)) with
+                                  | (v1, _),(v2, _) =>
+                                    forall l r,
+                                      (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
+                                      (Rle (Rmult (exp eps) l) (F2R v2) /\ Rle (F2R v2) (Rmult (exp eps) r))
+                                  end
+                    end).
+Proof.
+  move => x1 x2 eps.
+  eapply aprHoare_conseq.
+  eapply aprHoare_unif.
+  unfold    assert_implies.
+  move => *//.
+  eapply unifP_imply.
+  rewrite <- Rle_rle.
+  apply Rle_refl.
 Qed.
 
+(* 
 
 Theorem aprHoare_unifN :forall x1 x2 eps,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
@@ -651,23 +683,19 @@ Theorem aprHoare_unifN :forall x1 x2 eps,
                                   | (v1, _),(v2, _) =>
                                     forall l r,
                                       (Rle l (F2R v1) /\ Rle (F2R v1) r) ->
-                                      (Rle (Rmult (Ropp eps) l) (F2R v2) /\ Rle (F2R v2)  (Rmult (Ropp eps) r))
+                                      (Rle (Rmult (exp (Ropp eps)) l) (F2R v2) /\ Rle (F2R v2)  (Rmult (exp (Ropp eps)) r))
                                   end
                     end).
 Proof.
-      move => x1 x2 eps.  
-  rewrite -{1}(Rplus_0_r eps).
-  unfold aprHoare_judgement.
-   move => st1 st2 HT.
-  eapply lifting_sample.
-  apply lifting_unifN.
-   intros.
-  apply lifting_dirac.
-  simpl.
-  simpl in H. 
-  rewrite  !updE //.
-  by rewrite !eqxx.
+   move => x1 x2 eps.
+  eapply aprHoare_conseq.
+  eapply aprHoare_unif.
+  unfold    assert_implies.
+  move => *//.
+  eapply unifP_imply.
+  rewrite <- Rle_rle.
 Qed.
+ *)
 
 Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
    aprHoare_judgement (fun (pm : (state * state)) => forall v, 
