@@ -111,9 +111,30 @@ where $\uniform(0, 1] $ is the uniform distribution on floating-point numbers ra
 % Further, we introduce new proof rules representing the new computations beyond the pure real-number computation.
 %
 
-Further, we introduce two proof rules representing the approximate probabilistic liftings for the process of sampling from uniform distribution 
+Further, we introduce new proof rules representing the approximate probabilistic liftings for the process of sampling from uniform distribution 
 ---the key component of implementing the Laplace mechanism in floating-point computation---
-the \textbf{unif+} and \textbf{unif-}:
+the \textbf{unif}:
+\\
+$
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\varx^1 \langle 1 \rangle 
+	= 
+	e^{\epsilon} \vary^1 \langle 2 \rangle 	
+}~\textbf{unif}
+$
+\\
+and two corollary rules \textbf{unif+} and \textbf{unif-}:
 \\
 $\vdash
 	\varx \samplel \uniform(0, 1] 	
@@ -268,7 +289,7 @@ $\trsmem$, the expression $\expr$
 is transited to $\fvalv$ with error bound $err = (\rval_{l}, \rval_{u})$
 in floating point transition semantics,
 %
-s.t. $\rval_{l} \leq \fvalv \leq \rval_{u}$. The semantics is presented in Figure. \ref{fig_imp_trans_semantics_exp}.
+s.t. $\rval_{l} \leq \fvalv \leq \rval_{u}$. The semantics is presented in Figure. \ref{fig:op_semantics}.
 %
 $\trsmem, \prog \trsto \trsmem'$ represents, given an environment $\trsmem$,
 %
@@ -278,16 +299,16 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 %
 \begin{figure}
-\boxed{\trsenv, \expr \trsto \fval_{(\rval, \rval)}
+\boxed{\trsmem, \expr \trsto \fval_{(\rval, \rval)}
 : Env \times Expr \trsto Value}
 \begin{mathpar}
 \inferrule*[right = var]
 {
-	\trsenv(\varx) 
+	\trsmem(\varx) 
 	= (\fval_{( \ubar{\rval}, \bar{\rval} )})
 }
 {
-	\trsenv, \varx
+	\trsmem, \varx
 	\trsto
 	(\fval_{( \ubar{\rval}, \bar{\rval} )})
 }
@@ -302,7 +323,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	\rval \geq 0
 }
 {
-	\trsenv, \rval
+	\trsmem, \rval
 	\trsto
 	\big(\fval_{(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta))} 
 	\big)
@@ -319,7 +340,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	\rval < 0
 }
 {
-	\trsenv, \rval
+	\trsmem, \rval
 	\trsto
 	\big(\fval_{(\rval(1 + \eta), \frac{\rval}{(1 + \eta)})} \big)
 }
@@ -333,7 +354,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	\fval = \rval
 }
 {
-	\trsenv, \rval
+	\trsmem, \rval
 	\trsto
 	(\fval_{(\rval, \rval)} )
 }
@@ -342,10 +363,10 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-pp]
 {
-	\trsenv, \expr_1 \trsto 
+	\trsmem, \expr_1 \trsto 
 	(\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
 	~~~~
 	\fval_1 \geq 0
 	~~~~
@@ -356,7 +377,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	* \in \{\times, \div \}
 }
 {
-    \trsenv, \expr_1 * \expr_2
+    \trsmem, \expr_1 * \expr_2
     \trsto
     \big(
     \fval_{(\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
@@ -368,9 +389,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-nn]
 {
-	\trsenv, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
 	~~~~
 	\fval_1 < 0
 	~~~~
@@ -381,7 +402,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	* \in \{\times, \div \}
 }
 {
-    \trsenv, \expr_1 * \expr_2
+    \trsmem, \expr_1 * \expr_2
     \trsto
     \big(
     \fval_
@@ -394,9 +415,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-pn]
 {
-	\trsenv, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
 	~~~~
 	\fval_1 \geq 0
 	~~~~
@@ -407,7 +428,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	* \in \{\times, \div \}
 }
 {
-    \trsenv, \expr_1 * \expr_2
+    \trsmem, \expr_1 * \expr_2
     \trsto
     \big(
     \fval_
@@ -420,9 +441,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-np]
 {
-	\trsenv, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
 	~~~~
 	\fval_1 < 0
 	~~~~
@@ -433,7 +454,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	* \in \{\times, \div \}
 }
 {
-    \trsenv, \expr_1 * \expr_2
+    \trsmem, \expr_1 * \expr_2
     \trsto
     \big(
     \fval_
@@ -446,9 +467,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-p]
 {
-	\trsenv, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
 	~~~~
 	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
@@ -457,7 +478,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	* \in \{+, - \}
 }
 {
-    \trsenv, \expr_1 * \expr_2
+    \trsmem, \expr_1 * \expr_2
     \trsto
     \big(
     \fval_
@@ -470,9 +491,9 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = bop-n]
 {
-	\trsenv, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
 	~~~~
-	\trsenv, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
 	~~~~
 	\fval = \floaten(\fval_1 * \fval_2)
 	~~~~
@@ -481,7 +502,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 	* \in \{+, - \}
 }
 {
-    \trsenv, \expr_1 * \expr_2
+    \trsmem, \expr_1 * \expr_2
     \trsto
     \big(
     \fval_
@@ -494,14 +515,14 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = uop-p]
 {
-	\trsenv, \expr \trsto (\fval_{1(\ubar{\rval}, \bar{\rval})})
+	\trsmem, \expr \trsto (\fval_{1(\ubar{\rval}, \bar{\rval})})
 	~~~~
 	\fval = \floaten(\uop (\fval_1)) 
 	~~~~
 	\fval \geq 0
 }
 {
-    \trsenv, \uop(\expr)
+    \trsmem, \uop(\expr)
     \trsto
     \Big(\fval_
     {\big(
@@ -515,14 +536,14 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 %
 \inferrule*[right = uop-n]
 {
-	\trsenv, \expr \trsto (\fval_{1(\ubar{\rval}, \bar{\rval})})
+	\trsmem, \expr \trsto (\fval_{1(\ubar{\rval}, \bar{\rval})})
 	~~~~
 	\fval = \floaten(\uop (\fval_1)) 
 	~~~~
 	\fval < 0
 }
 {
-    \trsenv, \uop(\expr)
+    \trsmem, \uop(\expr)
     \trsto 
     \Big(\fval_
     {\big(\uop(\ubar{\rval})(1 + \eta),
@@ -532,7 +553,7 @@ The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution 
 }
 \end{mathpar}
 \caption{Semantics of Transition for Expressions with Relative Floating Point Error}
-\label{fig_imp_trans_semantics_exp}
+\label{fig:op_semantics}
 \end{figure}
 %
 %
@@ -732,31 +753,10 @@ The extended rules in Fig. \ref{fig:aprhlplus} represent the lifting proved in s
 	:
 	\top
 	\Rightarrow
-	\forall l, r \in [0,1]^{\real}. ~
-	l \leq \varx^1 \langle 1 \rangle \leq r 
-	\imply
-	(e^{\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}r \land \vary^1 \langle 2 \rangle \leq 1)	
-}
-~\textbf{Unif+}
-\and
-\inferrule
-{
-	\empty
-}
-{
-	\vdash
-	\varx \samplel \uniform(0, 1] 	
-	\sim_{\epsilon} 
-	\vary \samplel \uniform(0, 1]
-	:
-	\top
-	\Rightarrow
-	\forall l, r \in [0,1]^{\real}. ~
-	l \leq \varx^1 \langle 1 \rangle \leq r 
-	\imply
-	(e^{-\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}r)
-}
-~\textbf{Unif-}
+	\varx^1 \langle 1 \rangle 
+	= 
+	e^{\epsilon} \vary^1 \langle 2 \rangle 	
+}~\textbf{unif}
 \and
 %
 \inferrule
@@ -878,6 +878,52 @@ By induction on the judgment $\vdash \prog_1
 \prog_2 :
 \Phi_0 \Rightarrow \Phi $,  we have the proof of this Lemma in detailed versions.
 \end{proof}
+%
+%
+\begin{corr}
+{\small
+\begin{mathpar}
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
+	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	\imply
+	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
+}
+~\textbf{Unif+}
+\and
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall \rvalL, \rvalR \in [0,1]^{\real}.
+	(\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	 		\imply
+	 		e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR) 	
+}
+~\textbf{Unif-}
+\end{mathpar}
+}
+\end{corr}
+%
 %
 %
 \begin{thm}

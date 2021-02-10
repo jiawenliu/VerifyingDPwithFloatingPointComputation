@@ -9,18 +9,161 @@
 \usepackage{hyperref}
 \begin{document}
 
-\title{Verifying Snapping Mechanism - Connecting Ideal and Flopt}
+\title{Verifying Differential Privacy in Floating-Point Computation}
 \author{}
 
 \date{}
-
 \maketitle
-In order to verify the differential privacy proeprty of
-the snapping mechanism \cite{mironov2012significance},
-we follow the logic rules designed from
-\cite{barthe2016proving} and connecting 
-it with the floating point computation semantics.
+\begin{abstract}
+The programs implementing differentially private algorithms can be formally verified via existing logics and tools, such as $\mathsf{apRHL}^+$\cite{barthe2016proving}. 
+These verifications rely on the assumption that these implementations whose underlining computation is real number based without computation error.
+However, in reality, these algorithms are mostly implemented under finite precision, which accounts for computation errors
+and causes critical failures in preserving differential privacy. 
+
+We develop a method for formally verifying differential privacy of algorithms implemented based on floating-point computation. Our method extends the relational program logic $\mathsf{apRHL}^+$, and provides an operational semantics under floating-point computation, which work together to provide the formal verification.
+
+We demonstrate our method via an algorithm: the \emph{Snapping mechanism}  proposed in \cite{mironov2012significance}, where its  differential privacy is theoretically proved even with floating-point computation error.
+We implement our logic and example verifications in Coq.
+\end{abstract}
+
+\section{Introduction}
+Differential privacy proposed by Dwork, McSherry, Nissim, and Smith \cite{dwork2006calibrating} is considered the gold standard for privacy-preserving computations. 
+%
+Existing methods are able to formally verify the differential privacy of most of the popular algorithms \cite{barthe2016proving}. 
+However, these verifications are based on the ideal implementations of these algorithms without computation error.
+While in reality, the implementations of these algorithms are not ideal, mostly in floating-point computation with computation errors.
+These computation errors can cause critical failures in preserving differential privacy, which is identified in the literature \cite{balcer2017differential, gazeau2016preserving, mckenna2020permute, mironov2012significance, ilvento2020implementing}.
+%
+In the meantime, some algorithms claim to preserve differential privacy even in floating-point computation, for instance:
+\begin{itemize}
+	\item The \emph{Snapping mechanism}, which is an improved version of the implementation of Laplace mechanism in floating-point computation, by adding extra rounding and clamping operations. (See \cite{mironov2012significance}.)
+%
+	\item The \emph{Base-2 Exponential mechanism}, which is a revised version of the Exponential mechanism, by altering the base in Exponential mechanism from $e$ into $2$. (See \cite{ilvento2020implementing}.)
+%
+	\item The \emph{Discrete Gaussian mechanism}, which is a discrete version of the Gaussian mechanism. (See \cite{canonne2020discrete}.)
+\end{itemize}
+%
+Unfortunately, existing pen-and-paper proofs of these algorithms use complex computation error approximations, which are hard to understand and error-prone.
+
+This gives us the motivation that can we develop methods for formally and automatically verifying these algorithms by considering the errors that arose during the floating-point computation.
+
+To verify the differential privacy property of
+the algorithms implemented in floating-point computation,
+we extend the relational program logic $\mathsf{apRHL}^+$ from
+\cite{barthe2016proving}. 
+Then we compose 
+it with an operational semantics designed for approximating the floating-point computation error.
+%
+We prove the soundness via the methodology of probabilistic coupling and approximate lifting shown by Barth et al. \cite{barthe2016proving}.
+%
+\section{System Overview}
+We propose a formal analysis of differentially private algorithms under finite computation, whose proof does not exclusively rely on the existing tools of differential privacy. The paper is composed of three main components.
+%
+\paragraph{The language and operational semantics}
+We firstly design an operational semantics for approximating the floating-point computation errors on a standard imperative language with only the assignment, distribution sampling, and sequence commands.
+
+In this language, the expressions (in real number precision) are evaluated into floating-point values $\fval$ through floating-point computation with computation error arose during evaluation. 
+
+In order to track the computation error propagated in floating-point computation, we attach a pair of real values $(\rval_1, \rval_2)$ to approximate the computation error in the environment for every variable. 
+To be specific,
+a variable is mapped to $(\fval_{(\rval_1, \rval_2)})$, where $\fval$ is a value evaluated from some expressions in floating-point precision,
+and $\rval_1, \rval_2$ are lower and upper bounds of the floating-point computation error propagated when evaluating into $\fval$: 
+$\trsmem, \expr \trsto \fval_{(\rval_1, \rval_2)}$.
+%
+For example, $[], 1 + 1 \trsto 2_{(1.99, 2.01)}$, where $\pm 0.01$ are the relative computation errors relevant to the machine epsilon $\eta$.
+
+The operational semantics for programs takes an environment $\trsmem$ and a program $\prog$ and returns a distribution over environment $\trsmem'$: $\trsmem, \prog \trsto Distr(\trsmem')$. 
+For example, $[], x \samplel \uniform(0,1] \trsto 
+\elet 0.1_{(0.1, 0.1)} = \sem{\uniform(0,1]} \ein \unit{[x \mapsto 0.1_{(0.1, 0.1)}]}$, 
+where we assume the sample from discrete floating-point numbers produce no error, accounting for the $0.1_{(0.1, 0.1)}$ in the environment.
+
+%
+\paragraph{An extended $\mathsf{apRHL}^+$} 
+To verify the differential privacy, we adopt the proof principles of probabilistic coupling and approximate lifting and work with a relational program logic
+$\mathsf{apRHL}^+$.
+
+We conceive it as a floating-point computational variant of $\mathsf{apRHL}^+$ based on the new operational semantics, i.e., in the environments, variables are mapping to floating-point values together with their lower and upper bounds on computation errors, instead of a single real number.
+%
+The judgments are of the form:
+$
+\prog_1 \sim_{\epsilon} \prog_2: \Phi \Rightarrow \Psi
+$,
+where $\prog_1$ and $\prog_2$ are programs and $\Phi$ and $\Psi$ are assertions on pairs of the newly defined environments.
+Each assertion refers to two copies $x\vtag{1}$, $\vtag{2}$ of each program variable $x$, where tagged variables refer to the value of x in executions of $\prog_1$ and $\prog_2$ respectively.
+%
+Different from $\mathsf{apRHL}^+$, each assertion can refer to any values to which the variables are mapped in the environment through annotations on the top right of variables. 
+For example, $x^1$, $x^2$ and $x^3$ refer to $\fval, \rval_1$ and $\rval_2$ respectively 
+if $x$ is mapped to $\fval_{(\rval_1, \rval_2)}$ in the environment.
+%
+
+Informally, a judgment of the above form is valid if the two distributions produced by the executions of 
+$\prog_1$ and $\prog_2$ on any two initial memories satisfying the precondition $\Phi$ are related by the $\epsilon$-lifting (formally defined in \ref{def:lifting}) of the postcondition $\Psi$ in floating-point computation. 
+% For example, $\mathsf{laplace}(\epsilon, v_1) $ and 
+% $\mathsf{laplace}(\epsilon, v_2)$ are related by the $\epsilon$-lifting of the equivalent relation if $|v_1 - v_2| \leq 1$, 
+% where $\mathsf{laplace}(\epsilon, v)$ is the Laplace distribution with scale $\epsilon$ and location $v$.
+% 
+% where $\mathsf{laplace}(\epsilon, v)$ is the Laplace distribution with scale $\epsilon$ and location $v$.
+% A program is proved to be $\epsilon$-differentially private if their resulted distributions are related by the $\epsilon$-lifting on adjacent inputs.
+%
+For example, $\uniform(0, 1] $ and
+$\uniform(0, 1]$ are related by the $\epsilon$-lifting of the relation $\Phi \triangleq \{(x, y) \in (0, 1]^{\float} \times (0, 1]^{\float} | x = e^{\epsilon}y\}$,
+where $\uniform(0, 1] $ is the uniform distribution on floating-point numbers range over $(0, 1]$.
+% Further, we introduce new proof rules representing the new computations beyond the pure real-number computation.
+%
+
+Further, we introduce two proof rules representing the approximate probabilistic liftings for the process of sampling from uniform distribution 
+---the key component of implementing the Laplace mechanism in floating-point computation---
+the \textbf{unif+} and \textbf{unif-}:
+\\
+$\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall l, r \in [0,1]^{\real}. ~
+	l \leq \varx^1 \langle 1 \rangle \leq r 
+	\imply
+	(e^{\epsilon} l \leq \vary^1 \vtag{2} \leq e^{\epsilon}r \land \vary^1 \vtag{2}\leq 1);	
+$
+\\
+$\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall l, r \in [0,1]^{\real}. ~
+	l \leq \varx^1 \langle 1 \rangle \leq r 
+	\imply
+	(e^{-\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}r \leq 1),
+$
+\\
+The two rules represent the $\epsilon$-lifting of two uniform distribution on floating-point numbers range over $(0, 1]$ w.r.t. to postconditions respectively.
+%
+%
+%
+Although this process itself is not differentially private, its properties can be formally captured by approximate probabilistic liftings and be combined to show privacy for a larger program.
+%
+\paragraph{New privacy proofs}
+We provide the first formal verification of the \emph{Snapping mechanism}, which is a variant of the Laplace mechanism in floating-point computation with extra rounding and clamping operations. 
+Its privacy proof is based on the floating-point computation error approximation, which cannot be formally verified by any of the existing tools. 
+In contrast, we prove its privacy in floating-point computation within our logic.
+
+We plan to formalize the language and the proof of the algorithm in Coq.
+
 \section{Syntax}
+The language is defined as follows.
+\\
+In the language, $\rval$ is in the domain of real number $\real$, $\rval \in \real$. 
+$\fval$ is in the domain of floating point number $\float$, $\fval \in \float$. 
+Furthermore, $\float$ is a subset of $\real$ allowing the $\fval$ be represented in $\real$ without lose of precision. 
+On the other hand, $\rval$ sacrifices its precision when casted into $\float$.
+The type $\float_{\real \times \real}$ represents the base type of values, composed of a floating-point value $\fval$ and a pair of real-number values $\rval$.
+In environment., the variables are mapped to $(\fval_{(\rval, \rval)})$ of the type $\float_{\real \times \real}$.
+%
 \[\begin{array}{llll}
 \mbox{Programs} & \prog & ::= & 
 	%
@@ -28,7 +171,7 @@ it with the floating point computation semantics.
 	%
 	~|~ \prog ; \prog \\
 
-\mbox{Expr} & \expr & ::= & \rval  ~|~  \fval
+\mbox{Expr} & \expr & ::= & \rval
 	%
 	~|~ \varx  ~|~ \expr \bop \expr
 	%
@@ -48,12 +191,11 @@ it with the floating point computation semantics.
 %
 \mbox{Error} & \err & ::= & (\rval, \rval) \\
 %
-\mbox{Env} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval_{\err})]\\
+\mbox{Env} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval_{(\rval, \rval)})]\\
 %
 \mbox{Type} & \tau & ::= & \float ~|~ \real ~|~ \float_{\real \times \real}
 \end{array}
 \]
-where $\rval$ is in domain of real number $\real$, $\rval \in \real$ and $\fval$ is in domain of floating point number $\float$, $\fval \in \float$. Furthermore, the domain of floating point number $\float$ is a subset of $\real$ containing the real number that can be represented in the floating point computation. The type $\float_{\real \times \real}$ represents the base type of expressions. In Env., the variables are mapped to $(\fval_{\err})$ of the type $\float_{\real \times \real}$.
 
 
 %
@@ -126,7 +268,7 @@ $\trsmem$, the expression $\expr$
 is transited to $\fvalv$ with error bound $err = (\rval_{l}, \rval_{u})$
 in floating point transition semantics,
 %
-s.t. $\rval_{l} \leq \fvalv \leq \rval_{u}$.
+s.t. $\rval_{l} \leq \fvalv \leq \rval_{u}$. The semantics is presented in Figure. \ref{fig:op_semantics}.
 %
 $\trsmem, \prog \trsto \trsmem'$ represents given and environment $\trsmem$,
 %
@@ -135,10 +277,270 @@ the program $\prog$ is transited to a new environment $\trsmem'$.
 The $\muniform(0, 1] \in \distr(\float)$ is the mathematic uniform distribution over floating point values ranging over $(0, 1]$.
 %
 %
+\begin{figure}
+\boxed{\trsmem, \expr \trsto \fval_{(\rval, \rval)}
+: Env \times Expr \trsto Value}
+\begin{mathpar}
+\inferrule*[right = var]
+{
+	\trsmem(\varx) 
+	= (\fval_{( \ubar{\rval}, \bar{\rval} )})
+}
+{
+	\trsmem, \varx
+	\trsto
+	(\fval_{( \ubar{\rval}, \bar{\rval} )})
+}
+\and
+%
+\inferrule*[right = val]
+{
+	\fval = \floaten(\rval)
+	~~
+	\fval \neq \rval
+	\and
+	\rval \geq 0
+}
+{
+	\trsmem, \rval
+	\trsto
+	\big(\fval_{(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta))} 
+	\big)
+}
+%
+\and
+%
+\inferrule*[right = val-neg]
+{
+	\fval = \floaten(\rval) 
+	~~
+	\fval \neq \rval
+	\and
+	\rval < 0
+}
+{
+	\trsmem, \rval
+	\trsto
+	\big(\fval_{(\rval(1 + \eta), \frac{\rval}{(1 + \eta)})} \big)
+}
+%
+\and
+%
+\inferrule*[right = val-eq]
+{
+	\fval = \floaten(\rval)
+	~~~~
+	\fval = \rval
+}
+{
+	\trsmem, \rval
+	\trsto
+	(\fval_{(\rval, \rval)} )
+}
+%
+\and
+%
+\inferrule*[right = bop-pp]
+{
+	\trsmem, \expr_1 \trsto 
+	(\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval_1 \geq 0
+	~~~~
+	\fval_2 \geq 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval_{(\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+        (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))}
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-nn]
+{
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval_1 < 0
+	~~~~
+	\fval_2 < 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval_
+    {(\frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)}, 
+        (\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta))}
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-pn]
+{
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval_1 \geq 0
+	~~~~
+	\fval_2 < 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval_
+    {((\bar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+        \frac{\ubar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})}
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-np]
+{
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval_1 < 0
+	~~~~
+	\fval_2 \geq 0
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	* \in \{\times, \div \}
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval_
+    {((\ubar{\rval_1} * \bar{\rval_2})(1 + \eta),
+        \frac{\bar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)})}
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-p]
+{
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	\fval \geq 0
+	~~~~
+	* \in \{+, - \}
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval_
+    {(\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}, 
+            (\bar{\rval_1} * \bar{\rval_2})(1 + \eta))}
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = bop-n]
+{
+	\trsmem, \expr_1 \trsto (\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+	~~~~
+	\fval < 0
+	~~~~
+	* \in \{+, - \}
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    \fval_
+    {((\ubar{\rval_1} * \ubar{\rval_2})(1 + \eta),
+            \frac{\bar{\rval_1} * \bar{\rval_2}}{(1 + \eta)})}
+    \big)
+}
+%
+\and
+%
+\inferrule*[right = uop-p]
+{
+	\trsmem, \expr \trsto (\fval_{1(\ubar{\rval}, \bar{\rval})})
+	~~~~
+	\fval = \floaten(\uop (\fval_1)) 
+	~~~~
+	\fval \geq 0
+}
+{
+    \trsmem, \uop(\expr)
+    \trsto
+    \Big(\fval_
+    {\big(
+        \frac{\uop(\ubar{\rval})}{(1 + \eta)}, 
+        (\uop(\bar{\rval}))(1 + \eta)
+        \big)}
+    \Big)
+}
+%
+~~~~
+%
+\inferrule*[right = uop-n]
+{
+	\trsmem, \expr \trsto (\fval_{1(\ubar{\rval}, \bar{\rval})})
+	~~~~
+	\fval = \floaten(\uop (\fval_1)) 
+	~~~~
+	\fval < 0
+}
+{
+    \trsmem, \uop(\expr)
+    \trsto 
+    \Big(\fval_
+    {\big(\uop(\ubar{\rval})(1 + \eta),
+        \frac{\uop(\bar{\rval})}{(1 + \eta)}
+        \big)}
+    \Big)
+}
+\end{mathpar}
+\caption{Semantics of Transition for Expressions with Relative Floating Point Error}
+\label{fig:op_semantics}
+\end{figure}
+%
+%
 \section{Judgement and Validity}
 %
 \begin{defn}
 [$\epsilon-$lifting \cite{barthe2016proving}]
+\label{def:lifting}
 Two sub-distributions $\mu_1 \in \distr(\mathcal{D}_1)$, $\mu_2 \in \distr(\mathcal{D}_2)$ are related by the $\epsilon-$lifting of $\Psi \subseteq \mathcal{D}_1 \times \mathcal{D}_2$, written $\mu_1 \Psi^{\#(\epsilon)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(\mathcal{D}_1 \times \mathcal{D}_2)$ and $\mu_R \in \distr(\mathcal{D}_1 \times \mathcal{D}_2)$ s.t.:
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
@@ -330,31 +732,11 @@ The rule in Fig. \ref{fig:aprhlplus} represents the lifting proved in soundness 
 	:
 	\top
 	\Rightarrow
-	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
-	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
-	\imply
-	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
+	\varx^1 \langle 1 \rangle 
+	= 
+	e^{\epsilon} \vary^1 \langle 2 \rangle 	
 }
-~\textbf{Unif+}
-\and
-\inferrule
-{
-	\empty
-}
-{
-	\vdash
-	\varx \samplel \uniform(0, 1] 	
-	\sim_{\epsilon} 
-	\vary \samplel \uniform(0, 1]
-	:
-	\top
-	\Rightarrow
-	\forall \rvalL, \rvalR \in [0,1]^{\real}.
-	(\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
-	 		\imply
-	 		e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR) 	
-}
-~\textbf{Unif-}
+~\textbf{Unif}
 \and
 %
 \inferrule
@@ -569,6 +951,8 @@ By induction on $\prog$, we have following cases:
 \end{itemize}
 \end{proof}
 %
+%
+%
 \clearpage
 \begin{thm}[Soundness]
  $\forall \prog_1$, $\prog_2$,  $ \vdash \prog_1	
@@ -584,6 +968,570 @@ $$
 (\sem{\prog_2}_{\trsmem_2}) 
 $$.
 \end{thm}
+%
+%
+%
+\begin{proof}
+By induction on the judgment $\vdash \prog_1	
+\sim_{\epsilon}
+\prog_2 :
+\Phi_0 \Rightarrow \Phi $, we have following cases:
+\begin{itemize}
+\caseL{{\small\[
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\varx^1 \langle 1 \rangle 
+	= 
+	e^{\epsilon} \vary^1 \langle 2 \rangle 	
+}~\textbf{unif}
+\]}}
+	In this case, 
+	assume $m_1, m_2$, $\rvalL, \rvalR \in (0,1]^{\real}$, s.t.,
+	$(m_1, m_2) \in \sem{\Phi_0}$, where the precondition
+	$
+	\Phi_0 \triangleq
+	\top
+	$
+	%
+	is interpreted as:
+	%
+	\[
+	\sem{\Phi_0} =
+	\left \{
+	(m_1, m_2)
+	\right \}
+	\]
+	%
+	%
+	The post-condition $\Phi \triangleq 
+			\Rightarrow
+	\varx^1 \langle 1 \rangle 
+	= 
+	e^{\epsilon} \vary^1 \langle 2 \rangle 	
+	$ is interpreted as:
+	%
+	\[
+	\sem{\Phi} =
+	\left \{
+	(m_1, m_2)
+	~ \left \vert ~
+	\sem{\varx}_{\trsmem_1}^1 =
+	e^{\epsilon} \sem{\vary}_{\trsmem_2}^1
+		\land \sem{\vary}_{\trsmem_2}^1 \leq 1)
+	\right.
+	\right \}
+	\]
+	%
+	Let $(\fvalv_{(\rvalv_{l}, \rvalv_{u})}) = \sem{x}_{m_1}$ and 
+	$(\fvalw_{(\rvalw_{l}, \rvalw_{u})}) = \sem{y}_{m_2}$, we can rewrite the interpretation of $\sem{\Phi}$ as:
+	%
+\[
+	\sem{\Phi} =
+	\left \{
+	(m_1, m_2)
+	~ \left \vert ~
+	\begin{array}{l}
+	(\fvalv_{(\rvalv_{l}, \rvalv_{u})}) = \sem{x}_{m_1}
+	\land 
+	(\fvalw_{(\rvalw_{l}, \rvalw_{u})}) = \sem{y}_{m_2}
+	\\
+	\land
+	\fvalv = e^{\epsilon}  \fvalw
+		\land \fvalw \leq 1)
+	\end{array}
+	\right.
+	\right \}
+\]
+	%
+	By the semantics of sampling, we have:\\
+	%
+	$\sem{\varx \samplel \uniform(0, 1]}_{\trsmem_1} =
+	\elet (\fvalv_{(\rvalv_{l}, \rvalv_{u})}) 
+	= \sem{\uniform(0, 1]}_{\trsmem_1} 
+	\ein 
+	\unit{\trsmem_1[\varx \mapsto (\fvalv_{(\rvalv_{l}, \rvalv_{u})})]}
+	$
+	%
+	\\
+	%
+	$\sem{\vary \samplel \uniform(0, 1]}_{\trsmem_2} = 
+	\elet (\fvalw_{(\rvalw_{l}, \rvalw_{u})})
+	= \sem{\uniform(0, 1]}_{\trsmem_2} 
+	\ein 
+	\unit{\trsmem_2[\vary \mapsto (\fvalw_{(\rvalw_{l}, \rvalw_{u})})]}
+	$. \\
+	%
+	Then we need to prove:
+	\[\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2),\]
+	where 
+	$\mu_1(\trsmem) = 
+	\elet (\fvalv_{(\rvalv_{l}, \rvalv_{u})}) 
+	= \sem{\uniform(0, 1]}_{\trsmem} 
+	\ein 
+	\unit{\trsmem[\varx \mapsto (\fvalv_{(\rvalv_{l}, \rvalv_{u})})]}$ and
+	%
+	\\
+	%
+	$\mu_2(\trsmem) = 
+	\elet (\fvalw_{(\rvalw_{l}, \rvalw_{u})})
+	= \sem{\uniform(0, 1]}_{\trsmem} 
+	\ein 
+	\unit{\trsmem[\vary \mapsto (\fvalw_{(\rvalw_{l}, \rvalw_{u})})]}$.
+	%
+	\\
+	%
+	Now the following subproof is to show the subgoal:
+	%
+	\\
+	\textbf{Subgoal:} For any pair of environments $(\trsmem_1, \trsmem_2)$, if we can show ${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]}$, then $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$,
+	%
+	where
+	\[
+		R = 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		~\vert~
+		\fval_1  = e^{\epsilon}  \fval_2 
+		\land \fval_2 \leq 1
+		\right \}.
+	\]	% \[
+	% 	R = 
+	% 	\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
+	% 	~\vert~
+	% 	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
+	% 	\rvalL \leq \fval_1 \leq \rvalR
+	% 	\imply
+	% 	(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+	% 	\land \fval_2 \leq 1)
+	% 	\right \}.
+	% \]
+	%
+	\begin{subproof}
+	%
+	It is equivalent to show following 3 items for any environment $\trsmem_1, \trsmem_2$:
+	\\
+	%
+	(i) For any $\muniform(0,1]\in \distr(\float)$, there is one and only one $\edistr_1(\trsmem_1) \in \distr(Env)$.
+	%
+	\\
+	(ii) For any $\muniform(0,1] \in \distr(\float)$, there is one and only one $\edistr_2(\trsmem_2) \in \distr(Env)$.
+	\\
+	%
+	(iii) For any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
+	$\fvalv_1 \in \supp(\muniform(0,1])$, 
+	$\fvalv_2 \in \supp(\muniform(0,1])$,
+	there is one and only one pair of environments 
+	$(\trsmem_1[ \varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}], \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}]) \in \sem{\Phi}$
+	where $\rval_{1l}, \rval_{1u}, \rval_{2l}, \rval_{2u} \in \real$.
+	%
+	\\ 
+	%
+	\textbf{Proof of (i):} 
+	Given $\muniform(0,1]$, for any $\fval_1 \in \supp(\muniform(0,1])$, 
+	we can always find one and only one $\fval_{1(\rval_{1l}, \rval_{1u})}$ where $\rval_{1l} = \fval_1 = \rval_{1u}$.
+	%
+	\\
+	Then given environment $m_1$,
+	we can construct one and only one $\sem{\uniform(0, 1)}_{\trsmem_1} \in \distr(\float_{\real \times \real})$
+	by assigning the pdf on $\fval_{1(\rval_{1l}, \rval_{1u})}$ the same as $\pdf_{\muniform(0,1]}(\fval_1)$. 
+	\\
+	%
+	Then we have the pdf of $\sem{\uniform(0, 1)}_{\trsmem_1}$  
+	is defined as $\pdf_{\sem{\uniform(0, 1)}_{\trsmem_1}}$:
+	%
+	\[
+	\pdf_{\sem{\uniform(0, 1)}_{\trsmem_1}}(\fval_{1(\rval_{1l}, \rval_{1u})}) = 
+		\begin{cases}
+		1 & \fval_1 \in (0,1]^{\mathbb{F}}
+		\land  \fval_1 = \rval_{1l} = \rval_{1u}
+		\\
+		0       & o.w.
+		\end{cases},
+	\]
+	Then by the Monad Law, we have the distribution:
+	$\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
+	\ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$.
+	% %
+	\\
+	%
+	Since for any $\fval_{1(\rval_{1l}, \rval_{1u})} \in \sem{\uniform(0, 1)}_{\trsmem_1}$, 
+	we can always construct one and only one environment $\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]$.
+	%
+	\\
+	Then we compose the  
+	$\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]$
+	with $\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
+	\ein \unit{\fval_{1(\rval_{1l}, \rval_{1u})}}$ and get:
+	%
+	%
+	$\mu_1(\trsmem_1) \in \distr(\float_{\real \times \real})$ as 
+	$\elet \fval_{1(\rval_{1l}, \rval_{1u})} = \sem{\uniform(0, 1)}_{\trsmem_1} 
+	\ein \unit{\trsmem_1[\varx_1 \mapsto (\fval_{1(\rval_{1l}, \rval_{1u})})]}$.
+	\\
+	%
+	In this way, (i) are proved.
+	\\
+	%
+	\textbf{Proof of (ii):} 
+	We can also prove (ii) by repeating every steps above except substituting $\trsmem_1, \fvalv_1, \rvalv_{1l}$ and $\rvalv_{1u}$ with $\trsmem_2, \fvalv_2, \rvalv_{2l}$ and $\rvalv_{2u}$.
+	%
+	\\
+	\textbf{Proof of (iii):} 
+	Given any pair of float value $(\fvalv_1, \fvalv_2) \in R$ where 
+	$\fvalv_1 \in \supp(\muniform(0,1])$, 
+	$\fvalv_2 \in \supp(\muniform(0,1])$, we have by definition of $R$:
+	%
+	$\fval_1  = e^{\epsilon}  \fval_2 
+		\land \fval_2 \leq 1
+	 ~ (3)$
+	\\
+	%
+	By (i) and (ii), we can also construct one and only one pair of environments $\trsmem_1', \trsmem_2'$ as:
+	\\
+	$\trsmem_1' = \trsmem_1[\varx_1 \to \fval_{1(\rval_{1l}, \rval_{1u})}] ~ (4)$ and
+	$\trsmem_2' = \trsmem_2[\varx_2 \to \fval_{2(\rval_{2l}, \rval_{2u})}] ~ (5)$,
+	\\
+	where $\rval_{1l} = \fval_1 = \rval_{1u}$ and $\rval_{2l} = \fval_2 = \rval_{2u}$.
+	%
+	\\
+	In order to show $(\trsmem_1', \trsmem_2') \in \sem{\Phi}$, we need to prove:
+	\\
+	(a)	$(\fval_{1(\rval_{1l}, \rval_{1u})}) = \sem{x_1}_{m_1}$.
+	This is proved by (5).
+	\\
+	(b) $(\fval_{2(\rval_{2l}, \rval_{2u})}) = \sem{x_2}_{m_2}$.
+	This is proved by (6).
+	\\
+	(c) $\fval_1  = e^{\epsilon}  \fval_2 
+		\land \fval_2 \leq 1$.
+	This is proved by (3).
+	\\
+	Then we have (iii) proved. 
+	\end{subproof}
+	%
+	Since we have $\muniform(0,1] ~ R^{\#(\epsilon)} ~ \muniform(0,1]$ proved in the Theorem \ref{thm:unif_coupling},
+	%
+	where 
+	\[
+		R = 
+		\left \{(\fval_1, \fval_2) \in \float \times \float 
+		~|~
+		\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
+		\rvalL \leq \fval_1 \leq \rvalR
+		\imply
+		(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
+		\land \fval_2 \leq 1)
+		\right \}.
+	\]	%
+	Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved according to \textbf{Subgoal}.
+	%
+	% \caseL{[\textsc{unif-}] }
+	% %
+	% The same as case [\textsc{unif}].
+	% 	Since we have $\muniform(0,1] ~ R^{\#(\epsilon)} ~ \muniform(0,1]$ proved in the Theorem \ref{thm:unif-_coupling},
+	% %
+	% where 
+	% \[
+	% 	R = 
+	% 	\left \{(\fval_1, \fval_2) \in \float \times \float 
+	% 	~|~
+	% 	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
+	% 	\rvalL \leq \fval_1 \leq \rvalR
+	% 	\imply
+	% 	e^{-\epsilon} \rvalL \leq \fval_2 \leq 	e^{-\epsilon} \rvalR
+	% 	\right \}.
+	% \]
+	% %
+	% Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved.
+	%
+	\caseL{[\textsc{Null}] }
+	%
+	This case is obviously proved by picking the witnesses be the joint distribution of two $\muniform(0, 1)$s.
+	%
+	The support of witnesses are on the relation of equality.
+	%
+	\end{itemize}
+\end{proof}
+%
+\newpage
+\begin{thm}
+\label{thm:unif_coupling}
+%
+$${\muniform(0,1]} ~ R^{\#(\epsilon)} ~ {\muniform(0,1]},$$
+%
+where
+	$	R = 
+		\left \{(\varx, \vary) \in {\float} \times {\float} 
+		~|~
+		\fval_1  = e^{\epsilon}  \fval_2 
+		\land \fval_2 \leq 1
+		\right \}
+		$.
+	%
+\end{thm}
+%
+\begin{proof}[Proof of Theorem \ref{thm:unif_coupling}]
+%
+Let $\edistr_1 = \muniform(0, 1]$ and $\edistr_2 = \muniform(0, 1]$, it is equivalent to show 
+${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
+%
+%
+%
+\\
+%
+Let $\mu_L, \mu_R \in \distr\left({\float} \times {\float}\right)$ 
+be the two witness distribution s.t.
+their $\pdf.$ are defined as:
+{\small\[
+	\pdf_{\mu_L}(x, y) = 
+	\begin{cases}
+	\frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+	& x = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon})\\
+	\frac{1}{\left \vert (0, 1]^{\float} \right \vert} 	
+	& x \in [e^{-\epsilon}, 1] \land y = 1\\
+	0       
+	& o.w.
+	\end{cases};
+~~~
+	\pdf_{\mu_R}(x, y) = 
+	\begin{cases}
+	\frac{1}{\left \vert (0, 1]^{\float} \right \vert}	
+	& x = y \cdot e^{-\epsilon} \land y \in (0, 1)\\
+	\frac{1}{\left \vert [e^{-\epsilon}, 1]^{\float} \right \vert} \cdot \frac{1}{\left \vert (0, 1]^{\float} \right \vert}
+	& x \in [e^{-\epsilon}, 1] \land y = 1\\
+	0       & o.w.
+	\end{cases}.
+\]
+}
+It is enough to show that $\edistr_L(x, y)$ and $\edistr_R(x, y)$ are satisfying following three requirements:
+\begin{itemize}
+	\item $\supp(\mu_L) \subseteq R \land \supp(\mu_R) \subseteq R$
+%
+%
+%
+	\begin{itemize}
+		\item $\supp(\mu_L) \subseteq R$ 
+		%
+		\\
+		% 
+		By definition of the $\pdf$ of $\mu_L$, 
+		$\supp(\mu_L) = \{(x, y) ~\vert~ \pdf_{\mu_L}(x, y) > 0\}$,
+		we have: 
+		\\
+		$\supp(\mu_L) = \{(x, y) ~\vert~ 
+		x = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon}) 
+		\land x \in [e^{-\epsilon}, 1] \land y = 1
+		\}$.
+		\\  
+		Then we know $\supp(\mu_L) \subseteq R$.
+		%
+		%
+		we can then derive $\supp(\mu_L) \subseteq R$.
+		%
+		\item $\supp(\mu_R) \subseteq R$
+		%
+		\\
+		%
+		By definition of the $\pdf$ of $\mu_R$, 
+		$\supp(\mu_R) = \{(x, y) ~\vert~ \pdf_{\mu_R}(x, y) > 0\}$,
+		we have: 
+		\\
+		$\supp(\mu_R) = \{(x, y) ~\vert~ 
+		x = y \cdot e^{-\epsilon} \land y \in (0, 1)
+		\land
+		x \in [e^{-\epsilon}, 1] \land y = 1 \}$
+		\\  
+		Then we know $\supp(\mu_R) \subseteq R'$. 
+		%
+		\\
+		%
+		Since $R' \subseteq R$, 
+		%
+		we can then derive $\supp(\mu_R) \subseteq R$.
+		%
+	\end{itemize}		
+%
+	\item $\projl(\mu_L) = \mu_1 \land \projr(\mu_R) = \mu_2$
+	%
+	\begin{itemize}
+		\item $\projl(\mu_L) = \mu_1$ 
+		\\
+		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
+%
+		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x  \in \float$:
+		\[
+			\pdf_{\projl(\mu_L)}(x) = 
+			\begin{cases}
+			\sum_{y}\frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+			& x = y \cdot e^{-\epsilon}  \land x \in (0, e^{-\epsilon})\\
+			\sum_{y} \frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+			& x \in [e^{-\epsilon}, 1] \land y = 1\\
+			0       & o.w.
+			\end{cases} 
+			= 
+			\begin{cases}
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert}
+			&  x \in (0, e^{-\epsilon})\\
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert}
+			& x \in [e^{-\epsilon}, 1] \\
+			0       & o.w.
+			\end{cases}
+			=
+			\pdf_{\mu_1}(x)
+		\]
+
+		\item $\projr(\mu_R) = \mu_2$ 
+		%
+		\\
+		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
+		\\
+		%
+		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y \in \float$:
+		%
+		\[
+			\pdf_{\projr(\mu_R)}(y) = 
+			\begin{cases}
+			\sum_{x} 
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+			& x = y \cdot e^{-\epsilon} \land y \in (0, 1)\\
+			\sum_{x} 
+			\frac{1}{\left \vert [e^{-\epsilon}, 1]^{\float} \right \vert} 
+			\cdot
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+			& x \in [e^{-\epsilon}, 1] \land y = 1\\
+			0       & o.w.
+			\end{cases} 
+			= 
+			\begin{cases}
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert}
+			& y \in (0, 1)\\
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert}  
+			& y = 1\\
+			0       & o.w.
+			\end{cases}
+			=
+			\pdf_{\mu_2}(y)
+		\]
+	\end{itemize}	
+%
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq 0$
+%
+\\
+	By definition of $\epsilon-$DP divergence, we have:
+	 \[
+	 \begin{array}{ll}
+	 \Delta_{\epsilon}(\mu_L, \mu_R) 
+	 & = \underset{S}{\psup}
+	 \Big(
+	 \pr{(x,y) \samplel \mu_L}{(x,y) \in S} - e^{\epsilon} \pr{(x,y) \samplel \mu_R}{(x,y) \in S}
+	 \Big) \\
+	 & =\underset{S}{\psup}
+	 \Big(
+	 \sum_{(x,y) \in S} \pdf_{\mu_L}(x, y) - e^{\epsilon} \sum_{(x,y) \in S} \pdf_{\mu_R}(x, y)
+	 \Big)	 
+	 \end{array}
+	 \]
+	 \begin{itemize}
+	 	\item[{\bf case}]
+	 	%
+	 	$S \subseteq \{(x, y) ~|~ 
+	 	x = y \cdot e^{-\epsilon}  \land x \in (0, e^{-\epsilon}) \}$:
+	 	%
+		\[
+		 \begin{array}{ll}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 & = 
+		 \sum_{(x,y) \in S} \frac{1}{\left \vert (0, 1]^{\float} \right \vert})
+		 - e^{\epsilon} \sum_{(x,y) \in S} \frac{1}{\left \vert (0, 1]^{\float} \right \vert}) \\ 
+		 & = 
+		 (1 - e^{\epsilon})\sum_{(x,y) \in S} \frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+		 \leq 0 
+		 \end{array}
+		 \]
+		 %
+	 	\item[{\bf case}] $S \subseteq \{(x, y) 
+	 	~|~ x \in [e^{-\epsilon}, 1] \land y = 1 \}$:
+	 	%
+		 \[
+		 \begin{array}{ll}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 & = 
+		 \sum_{(x,y) \in S} 
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert} 
+			 - 
+		 e^{\epsilon} \sum_{(x,y) \in S} \frac{1}{\left \vert [e^{-\epsilon}, 1]^{\float} \right \vert} 
+			\cdot
+			\frac{1}{\left \vert (0, 1]^{\float} \right \vert} \\
+		 %
+		 &  = \frac{1}{\left \vert (0, 1]^{\float} \right \vert}
+		 (1 - e^{\epsilon}) \leq 0
+		 \end{array}
+		 \]
+		 %
+	 	\item[{\bf case}] o.w.:
+	 	%
+		 \[
+		 \Delta_{\epsilon}(\mu_L, \mu_R) = 0 - 0 =  0 
+		 \]	 	
+
+	 \end{itemize}
+
+\end{itemize}
+\end{proof}
+%
+%
+\begin{corr}
+{\small
+\begin{mathpar}
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
+	\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	\imply
+	(e^{\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{\epsilon}\rvalR \land \vary^1 \langle 2 \rangle \leq 1)	
+}
+~\textbf{Unif+}
+\and
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\forall \rvalL, \rvalR \in [0,1]^{\real}.
+	(\rvalL \leq \varx^1 \langle 1 \rangle \leq \rvalR 
+	 		\imply
+	 		e^{-\epsilon} \rvalL \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}\rvalR) 	
+}
+~\textbf{Unif-}
+\end{mathpar}
+}
+\end{corr}
 %
 %
 %
@@ -884,11 +1832,6 @@ By induction on the judgment $\vdash \prog_1
 	%
 	Then we have $\mu_1(\trsmem_1) \sem{\Phi}^{\#(\epsilon)} \mu_2(\trsmem_2)$ proved.
 	%
-	\caseL{[\textsc{Null}] }
-	%
-	This case is obviously proved by picking the witnesses be the joint distribution of two $\muniform(0, 1)$s.
-	%
-	The support of witnesses are on the relation of equality.
 	%
 	\end{itemize}
 \end{proof}
@@ -925,25 +1868,6 @@ ${\edistr_1} ~ R^{\#(\epsilon)} ~ \edistr_2$.
 %
 Let $\mu_L, \mu_R \in \distr\left({\float} \times {\float}\right)$ 
 be the two witness distribution s.t.
-% \[
-% 	{\mu_L}(x, y) = 
-% 	\begin{cases}
-% 	\edistr_1(\varx)
-% 	& x  = y \cdot e^{-\epsilon} \land x \in (0, e^{-\epsilon}]\\
-% 	\muniform()
-% 	0       & o.w.
-% 	\end{cases},
-% ~~~
-% 	{\mu_R}(x, y) = 
-% 	\begin{cases}
-% 	\edistr_2(y)
-% 	& x  = y \cdot e^{-\epsilon} \land y \in (0, 1]\\
-% 	0       & o.w.
-% 	\end{cases},
-% \]
-% %
-% %
-% and 
 their $\pdf.$ are defined as:
 {\small\[
 	\pdf_{\mu_L}(x, y) = 
