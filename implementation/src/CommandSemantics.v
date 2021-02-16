@@ -76,7 +76,7 @@ Fixpoint com_eval (E : env) (c : command) : (distr_m):=
   match c with
   | SKIP => dirac E
   | (ASGN (Var x) e) =>
-    dirac (upd E (of_nat x) (expr_eval E e))
+    dirac (upd E (of_nat x) (expr_eval' E e))
   | (UNIF1 (Var x)) =>
     (sample: v <- unif_01; dirac ((upd E (of_nat x) (v, ((F2R v), (F2R v)))) ))
     (* S T -> {Prob T} -> (fun: MEM -> {Prob T})*)

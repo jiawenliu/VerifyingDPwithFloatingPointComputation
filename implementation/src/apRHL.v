@@ -60,10 +60,8 @@ Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
 
 Definition assn_sub' x1 x2 e1 e2 (P: Assertion) : Assertion :=
   fun (pm : (state * state)) =>
-    match pm with
-      | (m1, m2) =>
-      P (((upd m1 (of_nat x1) ( expr_eval m1 e1))),  ((upd m2 (of_nat x2) ( expr_eval m2 e2))))
-    end.
+   P (((upd pm.1 (of_nat x1) ( expr_eval' pm.1 e1))),  ((upd pm.2 (of_nat x2) ( expr_eval' pm.2 e2))))
+ .
 
 
 Notation "P [ X1 X2 |-> e1 e2 ]" := (assn_sub X1 X2 e1 e2 P) (at level 10).
@@ -518,6 +516,7 @@ eapply  aprHoare_seq .
     by apply  H2.
 Qed.
 
+
 Theorem aprHoare_seqL : forall P c1 d1 R c2 d2 Q r ,
     aprHoare_judgement P c1 r c2 R -> aprHoare_judgement R d1 0 d2 Q 
     -> aprHoare_judgement P (SEQ c1 d1) r (SEQ c2 d2) Q.
@@ -545,6 +544,16 @@ Proof.
   apply H0.
   apply H1.
 Qed.
+
+Theorem aprHoare_conseqE : forall (P Q P' Q' R : Assertion) c1 c2 r r',
+    aprHoare_judgement P' c1 r' c2 Q' ->
+    P ->> P' ->
+    (fun x => (Q' x) /\ (P x) /\ (R x)) ->> Q ->
+    rle r' r ->
+    aprHoare_judgement P c1 r c2 Q.
+Proof.
+Admitted.
+
 
 Definition F2R f := MachineType.Num f.
 

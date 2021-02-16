@@ -136,13 +136,34 @@ Fixpoint expr_eval  (E : state) (e: expr)
     end
   .
 
+
+
+Fixpoint expr_eval'  (E : state) (e: expr)
+  : float64 * err :=
+    match e with
+    | Var x => appf E (of_nat x)
+    | Const c => ((F64 c), (c, c))
+    |Unop op e => 
+    (F64 (evalRUnop op (F2R (expr_eval' E e).1)), 
+         (perturb eta (evalRUnop op ( (expr_eval' E e).2.1)) Down, 
+          perturb eta (evalRUnop op ( (expr_eval' E e).2.2)) Up))
+    | Binop op e1 e2
+        => let (v1, err1) := (expr_eval'  E e1) in
+           let (er1_l, er1_u) := err1 in
+           let (v2, err2) := (expr_eval'  E e2) in
+           let (er2_l, er2_u) := err1 in
+           let v := F64 (evalRBinop op (F2R v1) (F2R v2)) in
+           (v, (perturb eta (evalRBinop op er1_l er2_l)  Down, 
+                     perturb eta (evalRBinop op er1_u er2_u)  Up))
+    end
+  .
+
 Lemma round_eqV : forall (E : state) y v Lam,
 (rle ( F2R (E (of_nat y)).1) (v + Lam / 2)) /\ (rle (v - Lam / 2) (F2R (E (of_nat y)).1))
 <-> 
-   ((F2R (expr_eval E (Binop Round (Const Lam) (Var y))).1) = v) .
+   ((F2R (expr_eval' E (Binop Round (Const Lam) (Var y))).1) = v) .
 Proof. 
   Admitted.
-
 
   
 Inductive trans_expr (eta : R) (E : state) 
@@ -248,13 +269,13 @@ Inductive trans_expr (eta : R) (E : state)
     (v, ((evalRBinop op er1_l er2_l), (evalRBinop op er1_u er2_u)))
 .
 
-Lemma round_eq : forall v1 v Lam eta E,
+(*Lemma round_eq : forall v1 v Lam eta E,
 (rle v1 ( (F2R v) + Lam/2)) /\ (rle ( (F2R v) - Lam/2) v1)
 -> 
   trans_expr eta E (Binop Round (Const Lam) (Const v1)) (v, ((F2R v), (F2R v))).
 Proof. 
   Admitted.
-
+*)
 
 Close Scope R_scope.
 
