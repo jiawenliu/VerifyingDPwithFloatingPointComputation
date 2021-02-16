@@ -545,15 +545,6 @@ Proof.
   apply H1.
 Qed.
 
-Theorem aprHoare_conseqE : forall (P Q P' Q' R : Assertion) c1 c2 r r',
-    aprHoare_judgement P' c1 r' c2 Q' ->
-    P ->> P' ->
-    (fun x => (Q' x) /\ (P x) /\ (R x)) ->> Q ->
-    rle r' r ->
-    aprHoare_judgement P c1 r c2 Q.
-Proof.
-Admitted.
-
 
 Definition F2R f := MachineType.Num f.
 
@@ -622,6 +613,29 @@ Proof.
   apply unif_epsR_div.
 Qed.
 
+
+Lemma lifting_unifN  eps:
+    prob_lifting unif_01
+                 (fun xy => (F2R xy.1) = Rmult (exp (Ropp eps)) (F2R xy.2))
+eps Unif.unif_01.
+Proof.
+
+  pose dl := unif_epsL (Ropp eps).
+  pose dr := unif_epsR (Ropp eps).
+  exists dl dr.
+  apply unif_epsL_samplL.  
+  apply unif_epsR_samplR.
+
+  apply unif_epsL_supp.
+  apply unif_epsR_supp.
+
+  unfold DP_divergenceR.
+  split.
+  apply unif_epsL_div.
+  apply unif_epsR_div.
+Qed.
+
+
 Theorem aprHoare_unif :forall x1 x2 eps,
    aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
                        (fun (pm : (state * state)) =>
@@ -634,6 +648,27 @@ Proof.
    move => st1 st2 HT.
   eapply lifting_sample.
   apply lifting_unif.
+   intros.
+  apply lifting_dirac.
+  simpl.
+  simpl in H. 
+  rewrite  !updE //.
+  by rewrite !eqxx.
+Qed.
+
+
+Theorem aprHoare_unifN :forall x1 x2 eps,
+   aprHoare_judgement  ATrue (UNIF1 (Var x1)) (eps) (UNIF1 (Var x2))
+                       (fun (pm : (state * state)) =>
+                          F2R (pm.1 (of_nat x1)).1 = Rmult (exp (Ropp eps)) (F2R (pm.2 (of_nat x2)).1)).
+Proof.
+    move => x1 x2 eps.  
+
+  rewrite -{1}(Rplus_0_r eps).
+  unfold aprHoare_judgement.
+   move => st1 st2 HT.
+  eapply lifting_sample.
+  apply lifting_unifN.
    intros.
   apply lifting_dirac.
   simpl.
@@ -714,6 +749,15 @@ Proof.
   rewrite <- (round_eqV st1 y1 v) in Hround1.
     by  apply (H v) in Hround1.
 Qed.
+
+Theorem aprHoare_conseqE : forall (P Q P' Q' R : Assertion) c1 c2 r r',
+    aprHoare_judgement P' c1 r' c2 Q' ->
+    P ->> P' ->
+    (fun x => (Q' x) /\ (P x) /\ (R x)) ->> Q ->
+    rle r' r ->
+    aprHoare_judgement P c1 r c2 Q.
+Proof.
+Admitted.
 
 
 

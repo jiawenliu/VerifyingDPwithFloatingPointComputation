@@ -153,9 +153,14 @@ Proof.
   rewrite /fst.
   rewrite /snd.
   (* rewrite <- forall_extensionalityP. *)
+  rewrite !updE.
+  rewrite !eqxx.
+
   simpl.
   move => Hst1.
   
+   apply Rlt_le  in HB.
+  apply Rle_rle in HB.
   
 
 Admitted.
