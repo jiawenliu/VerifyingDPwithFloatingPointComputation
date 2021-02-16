@@ -152,15 +152,13 @@ Proof.
   simpl in H.
   rewrite /fst.
   rewrite /snd.
-    (* rewrite <- forall_extensionalityP. *)
+  (* rewrite <- forall_extensionalityP. *)
+  simpl.
   move => Hst1.
-  apply Rlt_le  in HB.
-  apply Rle_rle in HB.
+  
   
 
 Admitted.
-
-Ltac apply_snap_sub1 := apply Snap_sub1.
 
 
 
