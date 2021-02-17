@@ -25,29 +25,13 @@ From mathcomp Require Import
 Open Scope R_scope.
 
 
-Definition fl := R2F.
+Definition fl := rndFR.
 
 Definition fl64 := R2F64.
 
-Definition err : Type :=  (R * R).
-  (*TO RENAME*)
+Definition env := state.
 
-  Definition env := state.
-
-  (*The machine epsilon under the 64 bits fixed floating point computation*)
   
-Inductive ptbdir : Type := Down | Up.
-
-Definition perturb (eta : R) (e: R) (dir: ptbdir) :  R :=
-  match dir with
-  (* the upper bound of the relative error for Fixed-point computation,
-   computed in terms of real number*)
-  |Down =>  (e * (1 + eta))
-  (* the lower bound of the relative error for Fixed-point computation, 
-   computed in terms of real number*)
-  |Up => ( e / (1 + eta))
-  end.
-
 Hint Unfold perturb : core.
 
 (**
@@ -56,8 +40,6 @@ The result value exprresses float computations according to the IEEE standard,
 using a perturbation of the real valued computation by (1 + eta), where
 |eta| <= machine epsilon.
  **)
-
-Definition eta := 0.00001%R.
 
 
 Fixpoint expr_eval  (E : state) (e: expr)
@@ -134,27 +116,31 @@ Fixpoint expr_eval  (E : state) (e: expr)
            (v, ((evalRBinop op er1_l er2_l), (evalRBinop op er1_u er2_u)))
              end                      
     end
-  .
+.
 
+Definition evalTBinop (op:binop) (v1 v2: bfloat64) : bfloat64 :=
+  match op with
+  | Round => (Tround v1 v2)                 
+  | Clamp =>  Tclamp v1 v2
+  | Div => (Tdiv v1 v2)
+  | Mult =>(Tmult v1 v2)
+  | Plus => Tplus v1 v2
+  | Sub => (Tsub v1 v2)
+ 
+  end.
 
 
 Fixpoint expr_eval'  (E : state) (e: expr)
-  : float64 * err :=
+  : bfloat64 :=
     match e with
     | Var x => appf E (of_nat x)
     | Const c => ((F64 c), (c, c))
-    |Unop op e => 
+    | Unop op e => 
     (F64 (evalRUnop op (F2R (expr_eval' E e).1)), 
          (perturb eta (evalRUnop op ( (expr_eval' E e).2.1)) Down, 
           perturb eta (evalRUnop op ( (expr_eval' E e).2.2)) Up))
     | Binop op e1 e2
-        => let (v1, err1) := (expr_eval'  E e1) in
-           let (er1_l, er1_u) := err1 in
-           let (v2, err2) := (expr_eval'  E e2) in
-           let (er2_l, er2_u) := err1 in
-           let v := F64 (evalRBinop op (F2R v1) (F2R v2)) in
-           (v, (perturb eta (evalRBinop op er1_l er2_l)  Down, 
-                     perturb eta (evalRBinop op er1_u er2_u)  Up))
+        => evalTBinop op ( expr_eval' E e1) ( expr_eval' E e2)
     end
   .
 

@@ -102,6 +102,8 @@ Definition evalfBinop (o:binop) (v1: float64) (v2: float64) :=
   | Round => (fround v1 v2)                 
   end.
 
+
+
 Lemma binopEq_refl b:
   binopEq b b = true.
 Proof.
