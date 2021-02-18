@@ -116,6 +116,8 @@ Definition fle (x y : float64) : bool := rle (Num x) (Num y).
 
 Definition f64exp (x: float64) :=  (R2F (exp (Num x))).
 Definition fln (x: float64) :=  (R2F (ln (Num x))).
+Definition fneg (x : float64) : float64 :=(R2F (Ropp(F2R x))).
+
 Definition fdiv (x y : float64) : float64 :=  (R2F (Rdiv (Num x) (Num y))).
 Definition fplus  (x y : float64) : float64 :=  (R2F (Rplus (Num x) (Num y))).
 Definition fsub  (x y : float64) : float64 :=  (R2F (Rminus (Num x) (Num y))).
@@ -139,7 +141,6 @@ Definition fclamp  (b v : float64) : float64 :=
        then (R2F (Ropp(F2R b)))
        else  v.
 
-Definition  fneg (x : float64) : float64 :=(R2F (Ropp(F2R x))).
 
 
          
@@ -172,6 +173,17 @@ Definition perturb (eta : R) (e: R) (dir: ptbdir) :  R :=
 
 Definition eta := 0.00001%R.
 
+Definition  Tln (v: bfloat64) : bfloat64 :=
+  (fln v.1, 
+    (perturb eta (ln v.2.1)  Down, 
+     perturb eta (ln v.2.2)  Up)).
+
+Definition  Tneg (v: bfloat64) : bfloat64 :=
+  (fneg v.1, 
+    (perturb eta (Ropp v.2.1)  Down, 
+     perturb eta (Ropp v.2.2)  Up)).
+
+
 Definition  Tplus (v1 v2: bfloat64) : bfloat64 :=
   (fplus v1.1 v2.1, 
     (perturb eta (Rplus v1.2.1 v2.2.1)  Down, 
@@ -203,14 +215,50 @@ Definition Tround  (v1 v2 : bfloat64) : bfloat64 :=
 
 
 Definition Tclamp  (b v : bfloat64) : bfloat64 :=
-   ((fround b.1 v.1), 
-    (perturb eta (Rround b.2.1 v.2.1)  Down, 
-     perturb eta (Rround b.2.2 v.2.2)  Up)).
+   ((fclamp b.1 v.1), 
+    (perturb eta (Rclamp b.2.1 v.2.1)  Down, 
+     perturb eta (Rclamp b.2.2 v.2.2)  Up)).
 
 
 
 Local Open Scope ring_scope.
 
+
+(**Axioms about Reals*)
+Axiom Rplus_minusopp : forall a b, a - b = a + (-b).
+Axiom Rexp_plus : forall a b, exp (a + b) = (exp a) * (exp b).
+Axiom Rmult_div : forall a b, a / b = a * / b.
+Axiom Rexp_ge0 : forall r, 0 < exp r .
+
+Axiom Rexp_ln_le : forall a b, a <= ln b <-> exp a <= b.
+
+Axiom Rln_exp_le : forall a b, ln a <= b <-> a <= exp b.
+
+Axiom Rmult_div_inv_le : forall a b c,
+    0 < b -> a <= b * c <-> a / b <= c.
+Axiom Rdiv_gt0 : forall v,
+    0 < v <-> 0 < 1/v.
+Axiom Rinv_inv_simpl : forall v,
+    1 / (1 / v) =  / /v.
+
+Axiom Rdiv_inv_mult_assoc : forall a v,
+    a / (1 / v) = a * (/ / v).
+
+Axiom Rmult_div_inv_le_l : forall a b c,
+    0 < b -> b * a  <= c <-> a <= c / b.
+
+
+
+
+
+(***** Axioms about Floats ****)
+
+Axiom round_eqV : forall y v Lam,
+    (v - Lam / 2) <= y <= (v + Lam / 2)  <-> F2R (fround (F64 Lam) (F64 y)) = v.
+
+Axiom clamp_eqV : forall v e B,
+    
+ F2R e = v <-> F2R (fclamp (F64 B) e) = v .
 
 
 Axiom qle_fle  : forall (x : rat), le_rat zeroq x ->

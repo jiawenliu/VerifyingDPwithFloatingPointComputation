@@ -126,7 +126,13 @@ Definition evalTBinop (op:binop) (v1 v2: bfloat64) : bfloat64 :=
   | Mult =>(Tmult v1 v2)
   | Plus => Tplus v1 v2
   | Sub => (Tsub v1 v2)
- 
+  end.
+
+
+Definition evalTUnop (op: unop) (v: bfloat64) : bfloat64 :=
+  match op with
+  | Neg => (Tneg v)                 
+  | Ln =>  Tln v
   end.
 
 
@@ -135,21 +141,11 @@ Fixpoint expr_eval'  (E : state) (e: expr)
     match e with
     | Var x => appf E (of_nat x)
     | Const c => ((F64 c), (c, c))
-    | Unop op e => 
-    (F64 (evalRUnop op (F2R (expr_eval' E e).1)), 
-         (perturb eta (evalRUnop op ( (expr_eval' E e).2.1)) Down, 
-          perturb eta (evalRUnop op ( (expr_eval' E e).2.2)) Up))
+    | Unop op e => evalTUnop op (expr_eval' E e)
     | Binop op e1 e2
         => evalTBinop op ( expr_eval' E e1) ( expr_eval' E e2)
     end
   .
-
-Lemma round_eqV : forall (E : state) y v Lam,
-(rle ( F2R (E (of_nat y)).1) (v + Lam / 2)) /\ (rle (v - Lam / 2) (F2R (E (of_nat y)).1))
-<-> 
-   ((F2R (expr_eval' E (Binop Round (Const Lam) (Var y))).1) = v) .
-Proof. 
-  Admitted.
 
   
 Inductive trans_expr (eta : R) (E : state) 

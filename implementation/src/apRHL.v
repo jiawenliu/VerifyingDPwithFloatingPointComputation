@@ -727,7 +727,7 @@ Proof.
 Qed.
  *)
 
-Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
+(*Theorem aprHoare_round :forall y1 y2 x1 x2 Lam,
    aprHoare_judgement (fun (pm : (state * state)) => forall v, 
                            (rle (F2R (pm.1 (of_nat y1)).1) (v + Lam/2))
                            /\ (rle (v - Lam/2) (F2R (pm.1 (of_nat y1)).1)) -> 
@@ -749,7 +749,7 @@ Proof.
   rewrite <- (round_eqV st1 y1 v) in Hround1.
     by  apply (H v) in Hround1.
 Qed.
-
+*)
 Theorem aprHoare_conseqE : forall (P Q P' Q' R : Assertion) c1 c2 r r',
     aprHoare_judgement P' c1 r' c2 Q' ->
     P ->> P' ->
