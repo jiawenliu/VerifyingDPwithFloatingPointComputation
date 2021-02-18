@@ -151,7 +151,7 @@ Qed.
 
 Lemma Snap_subsub4: 
       forall (a Lam B eps v : R) (st1: env),
-        Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
+        Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->  Num (st1 (of_nat 2)).1 = 1 ->
      v - Lam / 2 <= a + 1 / eps * (Num (st1 (of_nat 2)).1 * ln (Num (st1 (of_nat 1)).1)) <=
      v + Lam / 2
      ->
@@ -159,7 +159,41 @@ Lemma Snap_subsub4:
          exp ((v + Lam / 2 - a) * eps / Num (st1 (of_nat 2)).1)
 .
 Proof.
-Admitted.
+  move =>    a  Lam B eps v st1 HLam HB Heps Hs [H1 H2].
+  split.
+  apply Rexp_ln_le.
+  apply Rmult_div_inv_le.
+
+  rewrite Hs.
+  lra.
+  apply Rmult_div_inv_le_r.
+  assumption.
+  apply (Rplus_le_reg_r a).
+  rewrite Rplus_minusopp.
+  rewrite (Rplus_assoc _ _ a).
+
+     rewrite Rplus_opp_l.
+  rewrite Rplus_0_r.
+
+  rewrite (Rplus_comm _ a).
+  assumption.
+
+  apply Rln_exp_le.
+  apply Rmult_div_inv_le_l.
+rewrite Hs.
+lra.
+ rewrite  Rdiv_mult_inv_le.
+  apply (Rplus_le_reg_l a).
+  rewrite -(Rplus_assoc a).
+  rewrite (Rplus_comm _ (-a)).
+  rewrite -(Rplus_assoc (-a)).
+     rewrite Rplus_opp_l.
+  rewrite Rplus_0_l.
+  assumption.
+  assumption.
+  
+Qed.
+
 
   
 Lemma Snap_sub2:
@@ -227,6 +261,7 @@ Proof.
  apply HB.  
   assumption.
 
+  assumption.
   assumption.
 
 Qed.

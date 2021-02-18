@@ -236,6 +236,8 @@ Axiom Rln_exp_le : forall a b, ln a <= b <-> a <= exp b.
 
 Axiom Rmult_div_inv_le : forall a b c,
     0 < b -> a <= b * c <-> a / b <= c.
+
+
 Axiom Rdiv_gt0 : forall v,
     0 < v <-> 0 < 1/v.
 Axiom Rinv_inv_simpl : forall v,
@@ -247,7 +249,12 @@ Axiom Rdiv_inv_mult_assoc : forall a v,
 Axiom Rmult_div_inv_le_l : forall a b c,
     0 < b -> b * a  <= c <-> a <= c / b.
 
+Axiom Rmult_div_inv_le_r : forall a b c,
+    0 < a -> b * a  <= c <-> b <= 1/a * c.
 
+
+Axiom Rdiv_mult_inv_le : forall a b c,
+    0 < c -> a <= b * c <-> 1/c * a  <= b.
 
 
 
