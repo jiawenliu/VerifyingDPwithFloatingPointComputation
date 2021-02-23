@@ -111,9 +111,30 @@ where $\uniform(0, 1] $ is the uniform distribution on floating-point numbers ra
 % Further, we introduce new proof rules representing the new computations beyond the pure real-number computation.
 %
 
-Further, we introduce two proof rules representing the approximate probabilistic liftings for the process of sampling from uniform distribution 
+Further, we introduce new proof rules representing the approximate probabilistic liftings for the process of sampling from uniform distribution 
 ---the key component of implementing the Laplace mechanism in floating-point computation---
-the \textbf{unif+} and \textbf{unif-}:
+the \textbf{unif}:
+\\
+$
+\inferrule
+{
+	\empty
+}
+{
+	\vdash
+	\varx \samplel \uniform(0, 1] 	
+	\sim_{\epsilon} 
+	\vary \samplel \uniform(0, 1]
+	:
+	\top
+	\Rightarrow
+	\varx^1 \langle 1 \rangle 
+	= 
+	e^{\epsilon} \vary^1 \langle 2 \rangle 	
+}~\textbf{unif}
+$
+\\
+and two corollary rules \textbf{unif+} and \textbf{unif-}:
 \\
 $\vdash
 	\varx \samplel \uniform(0, 1] 	
@@ -141,7 +162,7 @@ $\vdash
 	(e^{-\epsilon} l \leq \vary^1 \langle 2 \rangle \leq e^{-\epsilon}r \leq 1),
 $
 \\
-The two rules represent the $\epsilon$-lifting of two uniform distribution on floating-point numbers range over $(0, 1]$ w.r.t. to postconditions respectively.
+These rules represent the $\epsilon$-lifting of two uniform distribution on floating-point numbers range over $(0, 1]$ w.r.t. to postconditions respectively.
 %
 %
 %

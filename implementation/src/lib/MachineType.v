@@ -300,21 +300,21 @@ rle r1 r2 -> fle (R2F64 r1) (R2F64 r2).
 Axiom fle_exp : forall (f1 f2: float64),
 fle f1 f2 -> fle (f64exp f1) (f64exp f2).
 
- 
+ Axiom Rle_rle : forall r1 r2 , Rle r1 r2 <-> rle r1 r2.
 
-Lemma fle_mult_le  a b c d e1 e2:
+
+Axiom fle_mult_le: forall  a b c d e1 e2,
  fle (fsub (Q2F a) (fmult e1 (Q2F b))) {| MachineType.Num := 0 |}
  -> fle (fsub (Q2F c) (fmult e2 (Q2F d))) {| MachineType.Num := 0 |}
  -> fle (fsub (Q2F (mulq a c)) (fmult (fmult e1 e2) (Q2F (mulq b d)))) {| MachineType.Num := 0 |}.
-Proof.
-Admitted.
+
 
 
 From mathcomp Require Import ssralg.
   Import GRing.
 
   
-Lemma fle_sum:
+Axiom fle_sum:
   forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x a,
     (forall x0, x0 \in (supp eL :|: supp eR)%fset -> fle (fsub (Q2F (eL x0 * drawL x0 x))
               (fmult a (Q2F (eR x0 * drawR x0 x)))) {| MachineType.Num := 0 |})
@@ -322,11 +322,7 @@ Lemma fle_sum:
     (fsub (Q2F (\sum_(x0 <- supp eL) eL x0 * drawL x0 x))
        (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
     {| MachineType.Num := 0 |}.
-Proof.
 
-Admitted.
-
-Axiom Rle_rle : forall r1 r2 , Rle r1 r2 <-> rle r1 r2.
 
 
 

@@ -1066,7 +1066,7 @@ By induction on $\prog$, we have following cases:
 		Then, it is obviously that $\supp(\unit{\trsmem[\varx \mapsto \sem{\expr}_{\trsmem}]})$ is discrete.
 	%
 	\caseL{$\prog_1; \prog_2$}
-	Given the porgam as $\varx = \expr$ and $\trsmem$, 
+	Given the porgam as $\prog_1; \prog_2$ and $\trsmem$, 
 	we have $\edistr$ in this case as:
 	\\
 	$\elet  \trsmem_1 = 
@@ -1081,6 +1081,56 @@ By induction on $\prog$, we have following cases:
 	 %
 	 \\
 	 Then we have: $\left \vert \supp(\edistr) \right \vert = \sum_{\trsmem_1 \in \supp(\sem{\prog_1}_{\trsmem})} \left \vert \supp(\sem{\prog_2}_{\trsmem_1}) \right \vert$ is also finite.
+	 \\
+	 We can then conclude that $\supp(\edistr)$ is discrete.
+	 %
+	 %
+	 \caseL{
+	 $\extend{\eif \bexpr \ethen \prog_t \eelse \prog_f}$}
+	%
+	Given the porgam as $\eif \bexpr \ethen \prog_t \eelse \prog_f$ 
+	and $\trsmem$, 
+	we have $\edistr$ be either $\sem{\prog_t}_{\trsmem}$ or $\sem{\prog_f}_{\trsmem}$.
+	 %
+	 \\
+	 By induction hypothesis, we have:
+	 \\
+	 both $\supp(\sem{\prog_t}_{\trsmem})$ is discrete $~(1)$; and $\supp(\sem{\prog_f}_{\trsmem})$ is discrete $~(2)$.
+	 \\
+	%
+	Then this case is proved.
+	%
+	\caseL{
+	$\extend{\ewhile \bexpr \edo \prog}$
+	}
+	%
+	\[	
+	\left\{
+	\begin{array}{ll}
+	\elet \trsmem' = \sem{\prog}_{\trsmem} \ein 
+	\sem{\ewhile \bexpr \edo \prog}_{\trsmem'}
+	  & : \sem{\bexpr}_{\trsmem} = \etrue \\
+	\unit \trsmem & : \sem{\bexpr}_{\trsmem} = \efalse \\
+	\end{array}
+	\right .
+	\]
+	Given the porgam as $\ewhile \bexpr \edo \prog$ and $\trsmem$, 
+	we have $\edistr$ as :
+	\\
+	either $\unit \trsmem$ or
+	$\elet \trsmem' = \sem{\prog}_{\trsmem} \ein 
+	\sem{\ewhile \bexpr \edo \prog}_{\trsmem'}$ 
+	 %
+	 \\
+	 It is obvously that $\supp( \unit \trsmem) = \{\trsmem\}$ is discrete.
+	 \\
+	 By induction hypothesis, we have:
+	 \\
+	 $\supp(\sem{\prog}_{\trsmem})$ is discrete $~(1)$; and 
+	 $\forall \trsmem' \in \supp(\sem{\prog}_{\trsmem})$, $\supp(\sem{\ewhile \bexpr \edo \prog}_{\trsmem'})$ are all discrete.
+	 %
+	 \\
+	 Then we have: $\left \vert \supp(\edistr) \right \vert = \sum_{\trsmem' \in \supp(\sem{\prog}_{\trsmem})} \left \vert \supp(\sem{\ewhile \bexpr \edo \prog}_{\trsmem'}) \right \vert$ is also finite.
 	 \\
 	 We can then conclude that $\supp(\edistr)$ is discrete.
 	 %
@@ -1108,7 +1158,7 @@ $$.
 %
 %
 %
-\begin{proof}
+\begin{proof}[Proof of Core Rules]
 By induction on the judgment $\vdash \prog_1	
 \sim_{\epsilon}
 \prog_2 :
@@ -1241,16 +1291,6 @@ By induction on the judgment $\vdash \prog_1
 		\land \fval_2 \leq 1
 		\right \}.
 	\]	% \[
-	% 	R = 
-	% 	\left \{(\fval_1, \fval_2) \in (0,1]^\float \times (0,1]^\float 
-	% 	~\vert~
-	% 	\forall \rvalL, \rvalR \in [0,1]^{\real}. ~
-	% 	\rvalL \leq \fval_1 \leq \rvalR
-	% 	\imply
-	% 	(e^{\epsilon} \rvalL \leq \fval_2 \leq 	e^{\epsilon} \rvalR
-	% 	\land \fval_2 \leq 1)
-	% 	\right \}.
-	% \]
 	%
 	\begin{subproof}
 	%
