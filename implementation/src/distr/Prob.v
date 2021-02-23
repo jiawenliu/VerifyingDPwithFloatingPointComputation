@@ -439,6 +439,34 @@ Qed.
 
 Open Scope prob_scope.
 
+
+Section Uniform.
+
+Variable T : ordType.
+Variable X : {fset T}.
+Hypothesis Xn0 : X != fset0.
+
+Definition unif_def (x : T) : rat := (size X)%:R^-1.
+
+Lemma unif_subproof1 x : x \in X -> 0 <= unif_def x.
+Proof.
+move=> _; by rewrite Num.Theory.invr_ge0 Num.Theory.ler0n.
+Qed.
+
+Lemma unif_subproof2 : \sum_(x <- X) unif_def x = 1.
+Proof.
+rewrite big_const_seq count_predT -Monoid.Theory.iteropE.
+rewrite -[RHS](@GRing.mulfV _ (size X)%:R) ?GRing.mulr_natl //.
+by rewrite Num.Theory.pnatr_eq0 sizes_eq0.
+Qed.
+
+Definition unif := mkprob unif_subproof1 unif_subproof2.
+
+Lemma unifE x : unif x = if x \in X then (size X)%:R^-1 else 0.
+Proof. by rewrite mkprobE. Qed.
+
+End Uniform.
+
 (** To simplify the reasoning about our optimizations, we use probabilistic
 couplings.  A coupling is a way of lifting a relation between two sets to a
 relation over distributions over these sets.  (NB: We define this relation in

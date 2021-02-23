@@ -17,7 +17,7 @@ From extructures Require Import ord fset fmap ffun.
 
 From deriving Require Import deriving.
 From extructures Require Import ord fset fmap ffun.
-Require Import Coq.Reals.Reals Coq.ZArith.Int.
+Require Import Coq.Reals.Reals Coq.ZArith.Int Lra.
 Require Import Coq.Strings.String.
 
 Set Implicit Arguments.
@@ -36,8 +36,10 @@ follows from the axioms on reals. *)
 
 Definition F2R f := Num f.
 
+Definition N2F64 (n : nat) :=
+  R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR n)).
 
-Definition floats_01 : {fset float64} := fset (map (fun x => R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)))(iota 0 (2^53))).
+Definition floats_01 : {fset float64} := fset (map N2F64 (iota 0 (2^53))).
 
 Definition floats_pair_01_eps (eps : R) : {fset (float64 * float64)} :=
   fset (map (fun x => (R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)), R2F64 (Rmult (Rmult (Rpower 2 ( Ropp 53)) (INR x)) (exp (eps))))) (iota 0 (2^53))).
@@ -52,78 +54,44 @@ Definition floats_pair_01_L (eps : R) : {fset  (float64 * float64)} :=
 Definition floats_pair_01_eps01 (eps :R) : {fset  (float64 * float64)} :=
   fsetU (floats_pair_01_R eps) (floats_pair_01_L eps).
 
-
-
-Definition unif_01_mass x: rat :=
-  if (x \in floats_01)
-  then  (fracq ((Posz 1), (Posz (2^53))))
-       else zeroq     
-.
-
-
-Lemma unif_01_subproof1 x : x \in floats_01 ->   zeroq <= (unif_01_mass x).
+Lemma floats_01_n0 : floats_01 != fset0.
 Proof.
-  
-  Admitted.
-    (* by rewrite /unif_01_mass; case: eq_op. Qed.*)
+apply/fset0Pn; rewrite /floats_01.
+by exists (N2F64 0%N); rewrite in_fset map_f.
+Qed.
 
-Lemma unif_01_subproof2 : \sum_(x <- floats_01) unif_01_mass x = 1.
+Definition unif_01 : {prob float64} := unif floats_01_n0.
+
+Lemma floats_pair_01_R_n0 eps : floats_pair_01_R eps != fset0.
 Proof.
-  Admitted.
+apply/fset0Pn; rewrite /floats_pair_01_R /floats_pair_01_eps.
+set f := fun n : nat => _; exists (f 0%N).
+rewrite in_fset_filter; apply/andP; split.
+  rewrite /f /= Rmult_0_r Rmult_0_l; apply/RleP.
+  by rewrite /rnd round_0; lra.
+by rewrite in_fset map_f.
+Qed.
 
+Lemma floats_pair_01_L_n0 eps : floats_pair_01_L eps != fset0.
+Proof. Admitted. (* AAA: Not sure if this holds... *)
 
-Definition unif_01 :=
-  mkprob (@unif_01_subproof1) (unif_01_subproof2).
+Definition unif_epsR eps : {prob float64 * float64} :=
+  unif (floats_pair_01_R_n0 eps).
 
+Definition unif_epsL eps : {prob float64 * float64} :=
+  unif (floats_pair_01_L_n0 eps).
 
-
-Definition unif_epsR_mass eps xy : rat :=
-  if (xy \in  (floats_pair_01_R eps))
-  then                        
-      (fracq ((Posz 1), (Posz (2^53))))
-  else
-    if (xy \in  (floats_pair_01_L eps))
-    then
-      (fracq ((Posz 1), (Posz (2^53))))
-  else zeroq
-.
-
-Definition unif_epsL_mass eps xy: rat :=
-  if (xy \in  (floats_pair_01_eps01 eps) )
-  then
-    (fracq ((Posz 1), (Posz (2^53))))
-  else zeroq
-.
-
-Lemma unif_epsR_subproof1 eps xy : (xy \in  (floats_pair_01_eps01 eps) ) 
--> zeroq <= (unif_epsR_mass eps xy).
-Proof. 
-Admitted.
-
-
-Lemma unif_epsR_subproof2 eps: \sum_(xy <-  (floats_pair_01_eps01 eps) ) unif_epsR_mass eps xy = 1.
-Proof. 
-Admitted.
-
-Definition unif_epsR eps :=
-  mkprob (@unif_epsR_subproof1 eps) (unif_epsR_subproof2 eps).
-
-
-Definition unif_epsL eps :=
-  mkprob (@unif_epsR_subproof1 eps) (unif_epsR_subproof2 eps).
-
-
+(* AAA: This might not hold because of the filtering on unif_epsR *)
 Lemma unif_epsR_samplR eps :
 unif_01 = sample: x <- unif_epsR eps; (dirac \o snd) x.
 Proof. 
 Admitted.
 
-
+(* AAA: Ditto *)
 Lemma unif_epsL_samplL eps :
-unif_01 = sample: x <- unif_epsR eps; (dirac \o fst) x.
+unif_01 = sample: x <- unif_epsL eps; (dirac \o fst) x.
 Proof. 
 Admitted.
-
 
 Lemma unif_epsR_supp eps : forall xy,
   xy \in supp (unif_epsR eps)

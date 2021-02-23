@@ -53,6 +53,11 @@ Qed.
 Definition R_ordMixin := OrdMixin rleP.
 Canonical R_ordType := OrdType R R_ordMixin.
 
+Lemma RleP (x y : R) : reflect (Rle x y) (x <= y)%ord.
+Proof.
+by rewrite /Ord.leq /= /rle; case: Rle_dec => ? /=; constructor.
+Qed.
+
 (** With all these definitions in place, we can define states as finite
     functions, and Coq will be able to figure out that they form an ordered type
     (because their keys and values are ordered).

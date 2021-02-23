@@ -407,7 +407,7 @@ Proof.
   
 Qed.
 
-(*** weakest precondition formulation 
+(*** weakest precondition formulation
 for example: replace the results to be equality **)
   Close Scope aprHoare_scope.
 Close Scope R_scope.
