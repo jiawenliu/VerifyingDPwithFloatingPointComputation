@@ -36,13 +36,13 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
 
 Lemma Snap_subsub1: 
       forall (a B eps x : R) (st1: env),
-        Rlt 0 B -> Rlt 0 eps ->  Num (st1 (of_nat 2)).1 = 1 ->
-        exp ((x - a) * eps / Num (st1 (of_nat 2)).1) <= Num (st1 (of_nat 1)).1
+        Rlt 0 B -> Rlt 0 eps ->
+        exp ((x - a) * eps / 1) <= Num (st1 (of_nat 1)).1
         ->
-       x <= a + 1 / eps * (Num (st1 (of_nat 2)).1 * ln (Num (st1 (of_nat 1)).1)) 
+       x <= a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1))
 .
 Proof.
- move =>    a B eps x st1  HB Heps Hs H.
+ move =>    a B eps x st1  HB Heps H.
  apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -63,7 +63,6 @@ Proof.
   assumption.
     apply Rmult_div_inv_le.
 
-  rewrite Hs.
   lra.
   rewrite Rdiv_inv_mult_assoc.
   rewrite Rinv_involutive.
@@ -76,13 +75,13 @@ Qed.
 
 Lemma Snap_subsub2: 
       forall (a B eps x : R) (st1: env),
-        Rlt 0 B -> Rlt 0 eps ->  Num (st1 (of_nat 2)).1 = 1 ->
-        Num (st1 (of_nat 1)).1 <= exp ((x - a) * eps / Num (st1 (of_nat 2)).1)
+        Rlt 0 B -> Rlt 0 eps ->
+        Num (st1 (of_nat 1)).1 <= exp ((x - a) * eps / 1)
         ->
-       a + 1 / eps * (Num (st1 (of_nat 2)).1 * ln (Num (st1 (of_nat 1)).1))  <= x
+       a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1))  <= x
 .
 Proof.
-   move =>    a B eps x st1  HB Heps Hs H.
+   move =>    a B eps x st1  HB Heps H.
 apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -103,7 +102,6 @@ apply (Rplus_le_reg_r (-a)).
   assumption.
     apply Rmult_div_inv_le_l.
 
-  rewrite Hs.
   lra.
   rewrite Rdiv_inv_mult_assoc.
   rewrite Rinv_involutive.
@@ -116,24 +114,22 @@ Qed.
    
 Lemma Snap_subsub3: 
       forall (a Lam B eps v : R) (st1: env),
-        Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->  Num (st1 (of_nat 2)).1 = 1 ->
-         exp ((v - Lam / 2 - a) * eps / Num (st1 (of_nat 2)).1) <= Num (st1 (of_nat 1)).1 <=
-         exp ((v + Lam / 2 - a) * eps / Num (st1 (of_nat 2)).1) ->
-     v - Lam / 2 <= a + 1 / eps * (Num (st1 (of_nat 2)).1 * ln (Num (st1 (of_nat 1)).1)) <=
+        Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->
+         exp ((v - Lam / 2 - a) * eps / 1) <= Num (st1 (of_nat 1)).1 <=
+         exp ((v + Lam / 2 - a) * eps / 1) ->
+     v - Lam / 2 <= a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1)) <=
      v + Lam / 2
 .
 Proof.
   
-   move =>    a  Lam B eps v st1 HLam HB Heps Hs H.
+   move =>    a  Lam B eps v st1 HLam HB Heps H.
 
    split.
    eapply Snap_subsub1 with (B := B).
    assumption.
    assumption.
-   assumption.
    apply H.
     eapply Snap_subsub2 with (B := B).
-   assumption.
    assumption.
    assumption.
       apply H.
@@ -141,22 +137,18 @@ Proof.
 Qed.
 
 
-Lemma Snap_subsub4: 
-      forall (a Lam B eps v : R) (st1: env),
-        Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->  Num (st1 (of_nat 2)).1 = 1 ->
-     v - Lam / 2 <= a + 1 / eps * (Num (st1 (of_nat 2)).1 * ln (Num (st1 (of_nat 1)).1)) <=
-     v + Lam / 2
-     ->
-     exp ((v - Lam / 2 - a) * eps / Num (st1 (of_nat 2)).1) <= Num (st1 (of_nat 1)).1 <=
-         exp ((v + Lam / 2 - a) * eps / Num (st1 (of_nat 2)).1)
+Lemma Snap_subsub4 (a Lam B eps v : R) (st1: env) :
+  Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps ->
+  v - Lam / 2 <= a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1)) <= v + Lam / 2  ->
+  exp ((v - Lam / 2 - a) * eps / 1) <= Num (st1 (of_nat 1)).1 <=
+  exp ((v + Lam / 2 - a) * eps / 1)
 .
 Proof.
-  move =>    a  Lam B eps v st1 HLam HB Heps Hs [H1 H2].
+  move => HLam HB Heps [H1 H2].
   split.
   apply Rexp_ln_le.
   apply Rmult_div_inv_le.
 
-  rewrite Hs.
   lra.
   apply Rmult_div_inv_le_r.
   assumption.
@@ -172,7 +164,7 @@ Proof.
 
   apply Rln_exp_le.
   apply Rmult_div_inv_le_l.
-rewrite Hs.
+
 lra.
  rewrite  Rdiv_mult_inv_le.
   apply (Rplus_le_reg_l a).
@@ -188,53 +180,41 @@ Qed.
 
 
   
-Lemma Snap_sub2:
-  forall a a' Lam B eps: R,
-     Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps->
-     a = (Rminus a' 1)  ->
-      (fun pm : (state * state) =>
-    ( forall v : R,
-   exp ((v - Lam / 2 - a) * eps / F2R (pm.1 (of_nat 2)).1) <= F2R (pm.1 (of_nat 1)).1 <=
-   exp ((v + Lam / 2 - a) * eps / F2R (pm.1 (of_nat 2)).1) ->
-   exp ((v - Lam / 2 - a') * eps / F2R (pm.2 (of_nat 2)).1) <= F2R (pm.2 (of_nat 1)).1 <=
-   exp ((v + Lam / 2 - a') * eps / F2R (pm.2 (of_nat 2)).1))  /\  F2R (pm.1 (of_nat 2)).1 = 1
+Lemma Snap_sub2 (a a' Lam B eps : R) :
+  Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps ->
+  a = (Rminus a' 1) ->
+  (fun pm : (state * state) =>
+     (forall v : R,
+         exp ((v - Lam / 2 - a) * eps / F2R (pm.1 (of_nat 2)).1) <= F2R (pm.1 (of_nat 1)).1 <=
+         exp ((v + Lam / 2 - a) * eps / F2R (pm.1 (of_nat 2)).1) ->
+         exp ((v - Lam / 2 - a') * eps / F2R (pm.2 (of_nat 2)).1) <= F2R (pm.2 (of_nat 1)).1 <=
+         exp ((v + Lam / 2 - a') * eps / F2R (pm.2 (of_nat 2)).1))  /\  F2R (pm.1 (of_nat 2)).1 = 1
         /\ 
-  F2R (pm.1 (of_nat 2)).1 = F2R (pm.2 (of_nat 2)).1) ->>
-  assn_sub' 3 3 (Binop Clamp (Const B) 
-				(Binop Round (Const Lam)
-					(Binop Plus (Const a)
-						(Binop Mult (Const (1/eps))
-							(Binop Mult (Var 2)
-							       (Unop Ln (Var 1)))))))
-            (Binop Clamp (Const B) 
-				(Binop Round (Const Lam)
-					(Binop Plus (Const a')
-						(Binop Mult (Const (1/eps))
-							(Binop Mult (Var 2)
-							       (Unop Ln (Var 1)))))))
-            (fun pm : (state * state) =>
-               forall v, F2R (pm.1 (of_nat 3)).1 = v -> F2R (pm.2 (of_nat 3)).1 = v)
+        F2R (pm.1 (of_nat 2)).1 = F2R (pm.2 (of_nat 2)).1) ->>
+   assn_sub' 3 3 (CLAMP B (ROUND Lam (a  + 1 / eps * (Var 2 * LN (Var 1)))))
+                 (CLAMP B (ROUND Lam (a' + 1 / eps * (Var 2 * LN (Var 1)))))
+                 (fun pm : (state * state) =>
+                    forall v, F2R (pm.1 (of_nat 3)).1 = v -> F2R (pm.2 (of_nat 3)).1 = v)
   .
 Proof.
-  move =>    a a' Lam B eps  HLam HB Heps Hadj.
+  move => HLam HB Heps Hadj.
   unfold assn_sub'. 
   move => st1 st2 H v.
   simpl.
-  rewrite !updE.
-  rewrite !eqxx. 
+  rewrite !updE eqxx.
   simpl in H.
-  unfold F2R in H.     
-  inversion H as [H1 H2].
-  inversion H2 as [H21 H22].
-  rewrite /fst.
-  rewrite /snd.
-  (* rewrite <- forall_extensionalityP. *)
+  unfold F2R in H.
+  destruct H as [H1 [H21 H22]].
+  rewrite H21 in H1 H22 *.
+  rewrite -H22 in H1 *.
+  rewrite /fst /snd.
   simpl.
   unfold fln.
   unfold fmult.
   unfold fplus.
   unfold R2F.
   simpl.
+  rewrite H21 -H22.
   move => Hst1.
   apply clamp_eqV.
   rewrite <- clamp_eqV in Hst1.
@@ -244,18 +224,8 @@ Proof.
   assumption.
   apply HB.  
   assumption.
-  rewrite -H22.
-  assumption.
-
   apply (H1 v).
-  eapply  Snap_subsub4.
-  assumption.
- apply HB.  
-  assumption.
-
-  assumption.
-  assumption.
-
+  by eapply Snap_subsub4; eauto.
 Qed.
 
 
