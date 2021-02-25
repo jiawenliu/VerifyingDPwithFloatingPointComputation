@@ -34,13 +34,13 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
   UNIF1 (Var 1);;
   Var 3 ::= CLAMP B (ROUND Lam (a + (1/eps) * (Var 2 * LN (Var 1)))).
 
-Lemma Snap_subsub1 (a B eps x y : R) :
-  Rlt 0 B -> Rlt 0 eps ->
+Lemma Snap_subsub1 (a eps x y : R) :
+  Rlt 0 eps ->
   exp ((x - a) * eps) <= y ->
   x <= a + 1 / eps * ln y
 .
 Proof.
-move => HB Heps H.
+move => Heps H.
  apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -65,14 +65,14 @@ move => HB Heps H.
 Qed.
 
 Lemma Snap_subsub2: 
-      forall (a B eps x y : R),
-        Rlt 0 B -> Rlt 0 eps ->
+      forall (a eps x y : R),
+        Rlt 0 eps ->
         y <= exp ((x - a) * eps)
         ->
        a + 1 / eps * ln y  <= x
 .
 Proof.
-   move =>    a B eps x y HB Heps H.
+   move =>    a eps x y Heps H.
 apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -98,64 +98,33 @@ apply (Rplus_le_reg_r (-a)).
   assumption.
 Qed.
    
-Lemma Snap_subsub3: 
-      forall (a Lam B eps v y : R),
-        Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->
-         exp ((v - Lam / 2 - a) * eps) <= y <=
-         exp ((v + Lam / 2 - a) * eps) ->
-     v - Lam / 2 <= a + 1 / eps * ln y <=
-     v + Lam / 2
-.
+Lemma Snap_subsub3 (a Lam eps v y : R) :
+  Rlt 0 Lam -> Rlt 0 eps  ->
+  exp ((v - Lam / 2 - a) * eps) <= y <= exp ((v + Lam / 2 - a) * eps) <->
+  v - Lam / 2 <= a + 1 / eps * ln y <= v + Lam / 2.
 Proof.
-  
-   move =>    a  Lam B eps v y HLam HB Heps H.
-
-   split.
-   eapply Snap_subsub1 with (B := B).
-   assumption.
-   assumption.
-   apply H.
-    eapply Snap_subsub2 with (B := B).
-   assumption.
-   assumption.
-      apply H.
-
-Qed.
-
-
-Lemma Snap_subsub4 (a Lam B eps v y : R) :
-  Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps ->
-  v - Lam / 2 <= a + 1 / eps * ln y <= v + Lam / 2  ->
-  exp ((v - Lam / 2 - a) * eps) <= y <=
-  exp ((v + Lam / 2 - a) * eps)
-.
-Proof.
-  move => HLam HB Heps [H1 H2].
-  split.
-  apply Rexp_ln_le.
-  apply Rmult_div_inv_le_r.
-  assumption.
-  apply (Rplus_le_reg_r a).
-  rewrite Rplus_minusopp.
-  rewrite (Rplus_assoc _ _ a).
-
-     rewrite Rplus_opp_l.
-  rewrite Rplus_0_r.
-
-  rewrite (Rplus_comm _ a).
-  assumption.
-
-  apply Rln_exp_le.
-
- rewrite  Rdiv_mult_inv_le.
-  apply (Rplus_le_reg_l a).
-  rewrite -(Rplus_assoc a).
-  rewrite (Rplus_comm _ (-a)).
-  rewrite -(Rplus_assoc (-a)).
-     rewrite Rplus_opp_l.
-  rewrite Rplus_0_l.
-  assumption.
-  assumption.
+move=> HLam Heps; split.
+- move=> H; split.
+  + eapply Snap_subsub1; eauto.
+    by apply H.
+  + eapply Snap_subsub2; eauto.
+    apply H.
+- case=> H1 H2; split.
+  + apply Rexp_ln_le.
+    apply Rmult_div_inv_le_r => //.
+    apply (Rplus_le_reg_r a).
+    rewrite Rplus_minusopp.
+    rewrite (Rplus_assoc _ _ a).
+    rewrite Rplus_opp_l.
+    rewrite Rplus_0_r.
+    by rewrite (Rplus_comm _ a).
+  + apply Rln_exp_le.
+    rewrite Rdiv_mult_inv_le //.
+    apply (Rplus_le_reg_l a).
+    rewrite -(Rplus_assoc a).
+    rewrite (Rplus_comm _ (-a)).
+    rewrite -(Rplus_assoc (-a)).
+    by rewrite Rplus_opp_l Rplus_0_l.
 Qed.
 
 Lemma Snap_sub2 (a a' Lam B eps : R) :
@@ -181,9 +150,7 @@ Proof.
   rewrite /F2R /= in H1 H21 H22 *.
   rewrite /fln /fmult /fplus /R2F -H22 H21 /=.
   rewrite -{}H22 {}H21 ![in _ / 1]/Rdiv Rinv_1 !Rmult_1_r in H1 *.
-  rewrite -!clamp_eqV -!round_eqV !Rmult_1_l => Hst1.
-  eapply Snap_subsub3; eauto.
-  by apply: H1; eapply Snap_subsub4; eauto.
+  by rewrite -!clamp_eqV -!round_eqV !Rmult_1_l -!Snap_subsub3.
 Qed.
 
 
