@@ -378,12 +378,6 @@ Axiom fle_sum:
        (fmult a (Q2F (\sum_(x0 <- supp eR) eR x0 * drawR x0 x))))
     {| MachineType.Num := 0 |}.
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> b596a8730d0c5fa3c3b13a9e89e0590d911b1073
 
 Close Scope R_scope.
 

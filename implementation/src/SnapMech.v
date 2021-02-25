@@ -27,20 +27,12 @@ From extructures Require Import ord fset fmap ffun.
 
 Open Scope R_scope.
 Open Scope aprHoare_scope.
+Open Scope com_scope.
 
 Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
-	SEQ (UNIF2 (Var 2)) 
-	(SEQ (UNIF1 (Var 1)) 
-		(ASGN (Var 3) 
-			(Binop Clamp (Const B) 
-				(Binop Round (Const Lam)
-					(Binop Plus (Const a)
-						(Binop Mult (Const (1/eps))
-							(Binop Mult (Var 2)
-								(Unop Ln (Var 1)))))))))
-.
-              
-
+  UNIF2 (Var 2);;
+  UNIF1 (Var 1);;
+  Var 3 ::= CLAMP B (ROUND Lam (a + (1/eps) * (Var 2 * LN (Var 1)))).
 
 Lemma Snap_subsub1: 
       forall (a B eps x : R) (st1: env),

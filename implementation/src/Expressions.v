@@ -209,3 +209,14 @@ Fixpoint freeVars  (e:expr) :=
   | Binop b e1 e2 => set_union eq_nat_dec (freeVars e1) (freeVars e2)
   end.
  
+Declare Scope expr_scope.
+Delimit Scope expr_scope with expr.
+Bind Scope expr_scope with expr.
+
+Notation "e1 * e2" := (Binop Mult e1 e2) : expr_scope.
+Notation "e1 + e2" := (Binop Plus e1 e2) : expr_scope.
+Notation CLAMP := (Binop Clamp).
+Notation ROUND := (Binop Round).
+Notation LN := (Unop Ln).
+
+Coercion Const : R >-> expr.
