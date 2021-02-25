@@ -17,16 +17,18 @@ From Flocq Require Import Core Bracket Round Operations Div Sqrt  Plus_error.
 
 
 From mathcomp Require Import ssreflect ssrfun ssrbool ssrnat eqtype rat ssrint.
+From mathcomp Require ssralg.
 From mathcomp Require Import seq choice.
 From deriving Require Import deriving.
 From extructures Require Import ord fset fmap ffun.
-Require Import Coq.Reals.Reals.
+Require Import Coq.Reals.Reals Lra.
 Require Import Coq.Strings.String.
 
 Open Scope R_scope.
 
 (*The fixed Floating Point number of 64 bits, with 52 bits mantissa and 11 bits of exponents*)
 Record float64 : Set := F64 { Num : R }.
+Canonical float64_subType := [newType for Num].
 Variable beta : radix.
 
 Variable fexp : Z -> Z.
@@ -58,8 +60,64 @@ Definition format :=
   generic_format radix2 (FLT_exp (-1074) 53).
 
 
-Definition rle x y : bool := Rle_dec x y.
 
+(** First, we need to show that real numbers have an equality operator.  This
+follows from the axioms on reals. *)
+
+Definition req x y : bool := Req_EM_T x y.
+Lemma reqP : Equality.axiom req.
+Proof. move=> ??; exact: sumboolP. Qed.
+Definition R_eqMixin := EqMixin reqP.
+Canonical R_eqType := EqType R R_eqMixin.
+
+(** We also need to show that real numbers satisfy a choice principle.  This is
+not part of the real number axioms, so I am going to postulate it
+here. (Alternatively, we could show that this follows from the standard axiom of
+choice included in Coq's standard library.) *)
+
+Axiom R_choiceMixin : choiceMixin R.
+Canonical R_choiceType := ChoiceType R R_choiceMixin.
+
+(** Finally, we can show that the reals are an ordered type. *)
+
+Definition rle x y : bool := Rle_dec x y.
+Lemma rleP : Ord.axioms rle.
+Proof.
+rewrite /rle; split.
+- move=> x; exact/(introT (sumboolP _))/Rle_refl.
+- move=> y x z.
+  case: (Rle_dec x y) (Rle_dec y z) => [xy|//] [yz|//] _ _.
+  apply/(introT (sumboolP _)). exact: Rle_trans xy yz.
+- move=> x y.
+
+case: (Rle_dec x y) (Rle_dec y x) => [xy|//] [yx|//] _.
+  exact: Rle_antisym.
+
+-move=> x y.
+ case: (Rle_dec x y) (Rle_dec y x).
+ move =>  [xy|//] RD.
+ split.
+ move => nxy Rd.
+
+ destruct Rd.
+ rewrite orbT //.
+ lra.
+Qed.
+
+Definition R_ordMixin := OrdMixin rleP.
+Canonical R_ordType := OrdType R R_ordMixin.
+
+Lemma RleP (x y : R) : reflect (Rle x y) (x <= y)%ord.
+Proof.
+by rewrite /Ord.leq /= /rle; case: Rle_dec => ? /=; constructor.
+Qed.
+
+Definition F_eqMixin := [eqMixin of float64 by <:].
+Canonical F_eqType := EqType float64 F_eqMixin.
+Definition F_choiceMixin := [choiceMixin of float64 by <:].
+Canonical F_choiceType := Eval hnf in ChoiceType float64 F_choiceMixin.
+Definition F_ordMixin := [ordMixin of float64 by <:].
+Canonical F_ordType := Eval hnf in OrdType float64 F_ordMixin.
 
 (*Operations on Real Type *)
 
@@ -277,8 +335,6 @@ Axiom f0_le_exp: forall x, fle (F64 0) (f64exp x).
 
 Axiom fle_ref : forall (x : float64), fle x x.  
 
-Axiom feq_req: forall x y, x = y <-> (Num x) = (Num y).
-
 Axiom fexp_mult :
   forall e1 e2, fmult (f64exp (R2F64 (e1))) (f64exp (R2F64 (e2))) = (f64exp (R2F64 (Rplus e1 e2))).
 
@@ -311,8 +367,7 @@ Admitted.
 
 
 From mathcomp Require Import ssralg.
-  Import GRing.
-
+Import GRing.
   
 Lemma fle_sum:
   forall (T S : ordType) (eL eR: {prob T*T}) (drawR drawL: (T* T) -> {prob  S * S}) x a,
@@ -325,10 +380,6 @@ Lemma fle_sum:
 Proof.
 
 Admitted.
-
-Axiom Rle_rle : forall r1 r2 , Rle r1 r2 <-> rle r1 r2.
-
-
 
 
 Close Scope R_scope.

@@ -27,11 +27,6 @@ Unset Printing Implicit Defensive.
 Local Open Scope ring_scope.
 Local Open Scope fset_scope.
 
-(** First, we need to show that real numbers have an equality operator.  This
-follows from the axioms on reals. *)
-
-
-
 (* The uniform distribution ranging over fixed floating point number from 0 to 1*)
 
 Definition F2R f := Num f.
