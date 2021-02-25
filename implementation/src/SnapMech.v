@@ -381,7 +381,7 @@ Proof.
   rewrite Rmult_comm .
   rewrite  Rmult_1_l.
   rewrite - {1}(Rplus_0_r eps).
-  rewrite <- Rle_rle.
+  apply/RleP.
   apply  Rplus_le_compat_l .
   apply Rlt_le.
   apply Rmult_lt_0_compat .
@@ -402,8 +402,7 @@ Proof.
   assumption.
   unfold assert_implies.
   move => st1 st2 hp //.
-  rewrite <- Rle_rle.
-  lra.
+  apply/RleP; lra.
   
 Qed.
 
