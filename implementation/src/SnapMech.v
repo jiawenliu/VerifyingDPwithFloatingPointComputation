@@ -34,15 +34,13 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
   UNIF1 (Var 1);;
   Var 3 ::= CLAMP B (ROUND Lam (a + (1/eps) * (Var 2 * LN (Var 1)))).
 
-Lemma Snap_subsub1: 
-      forall (a B eps x y : R),
-        Rlt 0 B -> Rlt 0 eps ->
-        exp ((x - a) * eps / 1) <= y
-        ->
-       x <= a + 1 / eps * (1 * ln y)
+Lemma Snap_subsub1 (a B eps x y : R) :
+  Rlt 0 B -> Rlt 0 eps ->
+  exp ((x - a) * eps) <= y ->
+  x <= a + 1 / eps * ln y
 .
 Proof.
- move =>    a B eps x y HB Heps H.
+move => HB Heps H.
  apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -61,24 +59,17 @@ Proof.
   assumption.
   apply Rgt_not_eq.
   assumption.
-    apply Rmult_div_inv_le.
-
-  lra.
   rewrite Rdiv_inv_mult_assoc.
-  rewrite Rinv_involutive.
-  apply Rexp_ln_le.
-  rewrite -Rplus_minusopp.
-  assumption.
-  apply Rgt_not_eq.
-  assumption.
+  rewrite Rinv_involutive; try lra.
+  by apply Rexp_ln_le.
 Qed.
 
 Lemma Snap_subsub2: 
       forall (a B eps x y : R),
         Rlt 0 B -> Rlt 0 eps ->
-        y <= exp ((x - a) * eps / 1)
+        y <= exp ((x - a) * eps)
         ->
-       a + 1 / eps * (1 * ln y)  <= x
+       a + 1 / eps * ln y  <= x
 .
 Proof.
    move =>    a B eps x y HB Heps H.
@@ -100,24 +91,19 @@ apply (Rplus_le_reg_r (-a)).
   assumption.
   apply Rgt_not_eq.
   assumption.
-    apply Rmult_div_inv_le_l.
-
-  lra.
   rewrite Rdiv_inv_mult_assoc.
-  rewrite Rinv_involutive.
+  rewrite Rinv_involutive; try lra.
   apply Rln_exp_le.
   rewrite -Rplus_minusopp.
-  assumption.
-  apply Rgt_not_eq.
   assumption.
 Qed.
    
 Lemma Snap_subsub3: 
       forall (a Lam B eps v y : R),
         Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->
-         exp ((v - Lam / 2 - a) * eps / 1) <= y <=
-         exp ((v + Lam / 2 - a) * eps / 1) ->
-     v - Lam / 2 <= a + 1 / eps * (1 * ln y) <=
+         exp ((v - Lam / 2 - a) * eps) <= y <=
+         exp ((v + Lam / 2 - a) * eps) ->
+     v - Lam / 2 <= a + 1 / eps * ln y <=
      v + Lam / 2
 .
 Proof.
@@ -139,17 +125,14 @@ Qed.
 
 Lemma Snap_subsub4 (a Lam B eps v y : R) :
   Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps ->
-  v - Lam / 2 <= a + 1 / eps * (1 * ln y) <= v + Lam / 2  ->
-  exp ((v - Lam / 2 - a) * eps / 1) <= y <=
-  exp ((v + Lam / 2 - a) * eps / 1)
+  v - Lam / 2 <= a + 1 / eps * ln y <= v + Lam / 2  ->
+  exp ((v - Lam / 2 - a) * eps) <= y <=
+  exp ((v + Lam / 2 - a) * eps)
 .
 Proof.
   move => HLam HB Heps [H1 H2].
   split.
   apply Rexp_ln_le.
-  apply Rmult_div_inv_le.
-
-  lra.
   apply Rmult_div_inv_le_r.
   assumption.
   apply (Rplus_le_reg_r a).
@@ -163,9 +146,7 @@ Proof.
   assumption.
 
   apply Rln_exp_le.
-  apply Rmult_div_inv_le_l.
 
-lra.
  rewrite  Rdiv_mult_inv_le.
   apply (Rplus_le_reg_l a).
   rewrite -(Rplus_assoc a).
@@ -175,11 +156,8 @@ lra.
   rewrite Rplus_0_l.
   assumption.
   assumption.
-  
 Qed.
 
-
-  
 Lemma Snap_sub2 (a a' Lam B eps : R) :
   Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps ->
   a = (Rminus a' 1) ->
@@ -197,35 +175,15 @@ Lemma Snap_sub2 (a a' Lam B eps : R) :
                     forall v, F2R (pm.1 (of_nat 3)).1 = v -> F2R (pm.2 (of_nat 3)).1 = v)
   .
 Proof.
-  move => HLam HB Heps Hadj.
-  unfold assn_sub'. 
-  move => st1 st2 H v.
-  simpl.
+  move => HLam HB Heps Hadj st1 st2 H v /=.
   rewrite !updE eqxx.
-  simpl in H.
-  unfold F2R in H.
-  destruct H as [H1 [H21 H22]].
-  rewrite H21 in H1 H22 *.
-  rewrite -H22 in H1 *.
-  rewrite /fst /snd.
-  simpl.
-  unfold fln.
-  unfold fmult.
-  unfold fplus.
-  unfold R2F.
-  simpl.
-  rewrite H21 -H22.
-  move => Hst1.
-  apply clamp_eqV.
-  rewrite <- clamp_eqV in Hst1.
-  apply round_eqV.
-  rewrite <- round_eqV in Hst1.
-  eapply Snap_subsub3.
-  assumption.
-  apply HB.  
-  assumption.
-  apply (H1 v).
-  by eapply Snap_subsub4; eauto.
+  case: H => [] /(_ v) /= H1 [] H21 H22.
+  rewrite /F2R /= in H1 H21 H22 *.
+  rewrite /fln /fmult /fplus /R2F -H22 H21 /=.
+  rewrite -{}H22 {}H21 ![in _ / 1]/Rdiv Rinv_1 !Rmult_1_r in H1 *.
+  rewrite -!clamp_eqV -!round_eqV !Rmult_1_l => Hst1.
+  eapply Snap_subsub3; eauto.
+  by apply: H1; eapply Snap_subsub4; eauto.
 Qed.
 
 
