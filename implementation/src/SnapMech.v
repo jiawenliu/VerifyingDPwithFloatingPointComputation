@@ -35,14 +35,14 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
   Var 3 ::= CLAMP B (ROUND Lam (a + (1/eps) * (Var 2 * LN (Var 1)))).
 
 Lemma Snap_subsub1: 
-      forall (a B eps x : R) (st1: env),
+      forall (a B eps x y : R),
         Rlt 0 B -> Rlt 0 eps ->
-        exp ((x - a) * eps / 1) <= Num (st1 (of_nat 1)).1
+        exp ((x - a) * eps / 1) <= y
         ->
-       x <= a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1))
+       x <= a + 1 / eps * (1 * ln y)
 .
 Proof.
- move =>    a B eps x st1  HB Heps H.
+ move =>    a B eps x y HB Heps H.
  apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -74,14 +74,14 @@ Proof.
 Qed.
 
 Lemma Snap_subsub2: 
-      forall (a B eps x : R) (st1: env),
+      forall (a B eps x y : R),
         Rlt 0 B -> Rlt 0 eps ->
-        Num (st1 (of_nat 1)).1 <= exp ((x - a) * eps / 1)
+        y <= exp ((x - a) * eps / 1)
         ->
-       a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1))  <= x
+       a + 1 / eps * (1 * ln y)  <= x
 .
 Proof.
-   move =>    a B eps x st1  HB Heps H.
+   move =>    a B eps x y HB Heps H.
 apply (Rplus_le_reg_r (-a)).
   rewrite (Rplus_comm a).
   rewrite (Rplus_assoc _ a).
@@ -113,16 +113,16 @@ apply (Rplus_le_reg_r (-a)).
 Qed.
    
 Lemma Snap_subsub3: 
-      forall (a Lam B eps v : R) (st1: env),
+      forall (a Lam B eps v y : R),
         Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps  ->
-         exp ((v - Lam / 2 - a) * eps / 1) <= Num (st1 (of_nat 1)).1 <=
+         exp ((v - Lam / 2 - a) * eps / 1) <= y <=
          exp ((v + Lam / 2 - a) * eps / 1) ->
-     v - Lam / 2 <= a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1)) <=
+     v - Lam / 2 <= a + 1 / eps * (1 * ln y) <=
      v + Lam / 2
 .
 Proof.
   
-   move =>    a  Lam B eps v st1 HLam HB Heps H.
+   move =>    a  Lam B eps v y HLam HB Heps H.
 
    split.
    eapply Snap_subsub1 with (B := B).
@@ -137,10 +137,10 @@ Proof.
 Qed.
 
 
-Lemma Snap_subsub4 (a Lam B eps v : R) (st1: env) :
+Lemma Snap_subsub4 (a Lam B eps v y : R) :
   Rlt 0 Lam -> Rlt 0 B -> Rlt 0 eps ->
-  v - Lam / 2 <= a + 1 / eps * (1 * ln (Num (st1 (of_nat 1)).1)) <= v + Lam / 2  ->
-  exp ((v - Lam / 2 - a) * eps / 1) <= Num (st1 (of_nat 1)).1 <=
+  v - Lam / 2 <= a + 1 / eps * (1 * ln y) <= v + Lam / 2  ->
+  exp ((v - Lam / 2 - a) * eps / 1) <= y <=
   exp ((v + Lam / 2 - a) * eps / 1)
 .
 Proof.
