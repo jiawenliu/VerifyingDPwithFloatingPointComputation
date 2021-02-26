@@ -37,28 +37,31 @@ Definition Snap (a: R) (Lam: R) (B: R) (eps: R) :=
 
 Lemma Snap_subsub1 (a eps x y : R) :
   0 < eps ->
+  0 < y   ->
   (exp ((x - a) * eps) <= y) = (x <= a + eps^-1 * ln y).
 Proof.
-move => Heps.
+move => eps_pos y_pos.
 by rewrite -ler_subl_addl ler_pdivl_mull // mulrC Rexp_ln_le.
 Qed.
 
 Lemma Snap_subsub2 (a eps x y : R) :
   0 < eps ->
+  0 < y   ->
   (y <= exp ((x - a) * eps)) = (a + eps^-1 * ln y <= x).
 Proof.
-move=> Heps.
-by rewrite -Rln_exp_le -ler_subr_addl ler_pdivr_mull // mulrC.
+move=> eps_pos y_pos.
+by rewrite -Rln_exp_le // -ler_subr_addl ler_pdivr_mull // mulrC.
 Qed.
 
 Local Notation R2 := 2%coq_R.
    
 Lemma Snap_subsub3 (a Lam eps v y : R) :
-  0 < eps  ->
+  0 < eps ->
+  0 < y   ->
   (exp ((v - Lam / R2 - a) * eps) <= y <= exp ((v + Lam / R2 - a) * eps)) =
   (v - Lam / R2 <= a + eps^-1 * ln y <= v + Lam / R2).
 Proof.
-by move=> Heps; rewrite Snap_subsub1 // Snap_subsub2.
+by move=> eps_pos y_pos; rewrite Snap_subsub1 // Snap_subsub2.
 Qed.
 
 Lemma Snap_sub2 (a a' Lam B eps : R) :
@@ -71,7 +74,9 @@ Lemma Snap_sub2 (a a' Lam B eps : R) :
          exp ((v - Lam / R2 - a') * eps / F2R (pm.2 (of_nat 2)).1) <= F2R (pm.2 (of_nat 1)).1 <=
          exp ((v + Lam / R2 - a') * eps / F2R (pm.2 (of_nat 2)).1))  /\  F2R (pm.1 (of_nat 2)).1 = 1
         /\ 
-        F2R (pm.1 (of_nat 2)).1 = F2R (pm.2 (of_nat 2)).1) ->>
+        F2R (pm.1 (of_nat 2)).1 = F2R (pm.2 (of_nat 2)).1 /\
+        0 < Num (pm.1 (of_nat 1)).1 /\
+        0 < Num (pm.2 (of_nat 1)).1) ->>
    assn_sub' 3 3 (CLAMP B (ROUND Lam (a  + 1 / eps * (Var 2 * LN (Var 1)))))
                  (CLAMP B (ROUND Lam (a' + 1 / eps * (Var 2 * LN (Var 1)))))
                  (fun pm : (state * state) =>
@@ -80,14 +85,12 @@ Lemma Snap_sub2 (a a' Lam B eps : R) :
 Proof.
   move => HLam HB Heps Hadj st1 st2 H v /=.
   rewrite !updE eqxx.
-  case: H => [] /(_ v) /= H1 [] H21 H22.
+  case: H => [] /(_ v) /= H1 [] H21 [] H22 [] st1_pos st2_pos.
   rewrite /F2R /= in H1 H21 H22 *.
   rewrite /fln /fmult /fplus /R2F -H22 H21 /=.
   rewrite -{}H22 {}H21 !divr1 !mul1r in H1 *.
-  by rewrite -!clamp_eqV -!round_eqV -!Snap_subsub3.
+  rewrite -!clamp_eqV -!round_eqV -!Snap_subsub3 //.
 Qed.
-
-
 
  (** TODO: adaopt this Lemma into the main Proof *)
 Lemma Snap_sub1:
@@ -98,7 +101,8 @@ Lemma Snap_sub1:
      F2R (pm.1 (of_nat 1)).1 = exp eps * F2R (pm.2 (of_nat 1)).1
   /\
   F2R (pm.1 (of_nat 2)).1 = F2R (pm.2 (of_nat 2)).1
- /\  F2R (pm.1 (of_nat 2)).1 = 1) ->>
+ /\  F2R (pm.1 (of_nat 2)).1 = 1 /\
+  0 < Num (pm.1 (of_nat 1)).1 /\ 0 < Num (pm.2 (of_nat 1)).1) ->>
   (fun pm : (state * state) =>
   ( forall v : R,
    exp ((v - Lam / R2 - a) * eps / F2R (pm.1 (of_nat 2)).1) <= F2R (pm.1 (of_nat 1)).1 <=
@@ -109,25 +113,18 @@ Lemma Snap_sub1:
   F2R (pm.1 (of_nat 2)).1 = F2R (pm.2 (of_nat 2)).1).
 
 Proof.
-move =>  a a' Lam B eps HLam HB Heps Hadj st1 st2 [H1 [H2 H3]].
-simpl.
-simpl in H1.
-
-simpl in H2.
-simpl in H3.
-split; last by split.
+move=> a a' Lam B eps HLam HB Heps Hadj st1 st2.
+case=> /= H1 [] H2 [] H3 [] st1_pos st2_pos; split; last by split.
 move => v Hp.
 rewrite H1 in Hp.
 rewrite H3 in H2.
 rewrite H3 in Hp.
 rewrite Hadj opprB [1 - a']addrC !addrA mulrDl mul1r !divr1 in Hp.
-rewrite (Rexp_plus ((v - Lam / R2 - a') * eps) eps) mulrC in Hp.
-case/andP: Hp => Hp1 Hp2.
-have Rexp_0 : 0 < exp eps by apply Rexp_ge0.
-rewrite -ler_pdivl_mull // mulKr ?unitf_gt0 // in Hp1.
+move: Hp; rewrite exp_plus mulrC; case/andP=> Hp1 Hp2.
+rewrite -ler_pdivl_mull ?exp_pos // mulKr ?unitf_gt0 ?exp_pos // in Hp1.
 rewrite -!H2 !divr1 Hp1 /=.
-rewrite [_ + 1]addrC mulrDl Rexp_plus mul1r in Hp2.
-by rewrite -ler_pdivl_mull // mulKr ?unitf_gt0 // in Hp2.
+rewrite [_ + 1]addrC mulrDl exp_plus mul1r in Hp2.
+by rewrite -ler_pdivl_mull ?exp_pos // mulKr ?unitf_gt0 ?exp_pos // in Hp2.
 Qed.
 
 Lemma SnapDP:
@@ -157,10 +154,10 @@ eapply aprHoare_seqL.
   rewrite mulr_ge0 // /eta -[0]/0%coq_R; apply/RleP; lra.
 eapply aprHoare_conseq.
 - eapply aprHoare_asgn.
-- eapply Snap_sub2 => //.
-- move => st1 st2 hp //.
+- admit. (*eapply Snap_sub2 => //.*) (* Need to guarantee that result is positive *)
+- admit.
 by apply/RleP; lra.
-Qed.
+Admitted.
 
 (*** weakest precondition formulation
 for example: replace the results to be equality **)

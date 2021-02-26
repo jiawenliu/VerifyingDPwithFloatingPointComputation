@@ -62,27 +62,6 @@ Definition Q2F (x : rat) : float64 := (R2F (Rdiv ( SI2R (numq x)) (SI2R (denq x)
 Definition format :=
   generic_format radix2 (FLT_exp (-1074) 53).
 
-
-
-(** First, we need to show that real numbers have an equality operator.  This
-follows from the axioms on reals. *)
-
-Definition req x y : bool := Req_EM_T x y.
-Lemma reqP : Equality.axiom req.
-Proof. move=> ??; exact: sumboolP. Qed.
-Definition R_eqMixin := EqMixin reqP.
-Canonical R_eqType := EqType R R_eqMixin.
-
-(** We also need to show that real numbers satisfy a choice principle.  This is
-not part of the real number axioms, so I am going to postulate it
-here. (Alternatively, we could show that this follows from the standard axiom of
-choice included in Coq's standard library.) *)
-
-Axiom R_choiceMixin : choiceMixin R.
-Canonical R_choiceType := ChoiceType R R_choiceMixin.
-
-(** Finally, we can show that the reals are an ordered type. *)
-
 Lemma R_ordAxioms : Ord.axioms Rleb.
 Proof.
 split.
@@ -109,8 +88,6 @@ Canonical F_distrLatticeType := Eval hnf in DistrLatticeType float64 F_orderMixi
 Canonical F_orderType := Eval hnf in OrderType float64 F_orderMixin.
 
 (*Operations on Real Type *)
-
-
 
 Definition Rclamp  (b v : R) : R :=
   if b <= v
@@ -194,9 +171,6 @@ Definition fclamp  (b v : float64) : float64 :=
        then (R2F (- (F2R b)))
        else  v.
 
-
-
-         
 Local Import GRing.Theory.
 
 (* Definitions  on Triple with Error bounds*)
@@ -207,7 +181,6 @@ Definition bfloat64 :Type := float64 * err.
 Definition bval : bfloat64' -> float64 := fun v => (sval v).1.
 Definition lb : bfloat64' -> R := fun v => (sval v).2.1.
 Definition ub : bfloat64' -> R := fun v => (sval v).2.2.
-
 
 Inductive ptbdir : Type := Down | Up.
 
@@ -235,7 +208,6 @@ Definition  Tneg (v: bfloat64) : bfloat64 :=
   (fneg v.1, 
     (perturb eta (- v.2.1)  Down,
      perturb eta (- v.2.2)  Up)).
-
 
 Definition  Tplus (v1 v2: bfloat64) : bfloat64 :=
   (fplus v1.1 v2.1, 
@@ -276,13 +248,32 @@ Local Open Scope ring_scope.
 
 Implicit Types a b c : R.
 
-Lemma Rplus_minusopp a b : a - b = a + (-b). Proof. by []. Qed.
-Axiom Rexp_plus : forall a b, exp (a + b) = (exp a) * (exp b).
-Axiom Rexp_ge0 : forall r, 0 < exp r.
-Lemma Rmult_div a b : a / b = a * b^-1. Proof. by []. Qed.
+(* Compatibility with mathcomp *)
+Lemma exp_plus : forall a b, exp (a + b) = (exp a) * (exp b).
+Proof. exact: exp_plus. Qed.
+Lemma exp_pos : forall r, 0 < exp r.
+Proof. move=> r; apply/RltP; exact: exp_pos. Qed.
 
-Axiom Rexp_ln_le : forall a b, (a <= ln b) = (exp a <= b).
-Axiom Rln_exp_le : forall a b, (ln a <= b) = (a <= exp b).
+Local Import Order.POrderTheory.
+Local Import Order.TotalTheory.
+
+Lemma Rexp_ln_le : forall a b, 0 < b -> (a <= ln b) = (exp a <= b).
+Proof.
+move=> a b b_pos; apply/(sameP idP)/(iffP idP).
+- apply: contra_le; rewrite -{1}[a]ln_exp => /RltP /ln_lt_inv lb_a.
+  apply/RltP; apply: lb_a; apply/RltP => //; exact/exp_pos.
+- apply: contra_le; rewrite -{1}[b]exp_ln; last exact/RltP.
+  by move=> /RltP /exp_lt_inv /RltP.
+Qed.
+
+Lemma Rln_exp_le : forall a b, 0 < a -> (ln a <= b) = (a <= exp b).
+Proof.
+move=> a b a_pos; apply/(sameP idP)/(iffP idP).
+- apply: contra_le; rewrite -{1}[b]ln_exp => /RltP /ln_lt_inv eb_a.
+  apply/RltP; apply: eb_a; apply/RltP => //; exact/exp_pos.
+- apply: contra_le; rewrite -{1}[a]exp_ln; last exact/RltP.
+  by move=> /RltP /exp_lt_inv /RltP.
+Qed.
 
 Axiom Rmult_div_inv_le : forall a b c,
   0 < b -> a <= b * c <-> a / b <= c.
