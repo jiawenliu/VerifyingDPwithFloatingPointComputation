@@ -275,29 +275,6 @@ move=> a b a_pos; apply/(sameP idP)/(iffP idP).
   by move=> /RltP /exp_lt_inv /RltP.
 Qed.
 
-Axiom Rmult_div_inv_le : forall a b c,
-  0 < b -> a <= b * c <-> a / b <= c.
-
-Axiom Rdiv_gt0 : forall a,
-    0 < a <-> 0 < 1/a.
-Axiom Rinv_inv_simpl : forall a,
-    1 / (1 / a) =  a^-1^-1.
-
-Axiom Rdiv_inv_mult_assoc : forall a v,
-    a / (1 / v) = a * (v^-1^-1).
-
-Axiom Rmult_div_inv_le_l : forall a b c,
-    0 < b -> b * a  <= c <-> a <= c / b.
-
-Axiom Rmult_div_inv_le_r : forall a b c,
-    0 < a -> b * a  <= c <-> b <= 1/a * c.
-
-
-Axiom Rdiv_mult_inv_le : forall a b c,
-    0 < c -> a <= b * c <-> 1/c * a  <= b.
-
-
-
 (***** Axioms about Floats ****)
 
 Axiom round_eqV : forall y v Lam,
@@ -308,8 +285,7 @@ Axiom clamp_eqV : forall v e B,
  F2R e = v <-> F2R (fclamp (F64 B) e) = v .
 
 
-Axiom qle_fle  : forall (x : rat), le_rat zeroq x ->
-  (F64 0 <= Q2F x)%ord.
+Axiom qle_fle  : forall (x : rat), 0 <= x -> (F64 0 <= Q2F x)%ord.
 
 Axiom f0_eq : (R2F64 0) = (F64 0).
 
