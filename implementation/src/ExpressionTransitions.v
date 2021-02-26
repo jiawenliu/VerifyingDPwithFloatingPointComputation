@@ -17,21 +17,15 @@ From extructures Require Import ord fset fmap ffun.
 
 From mathcomp Require Import
      ssreflect ssrfun ssrbool eqtype ssrnat choice seq
-     bigop path.
+     bigop path ssralg ssrnum Rstruct reals.
 
 (**
   Define the Transition From the real computation to the Floating Point Computation with Floating point Relative Error
 **)
-Open Scope R_scope.
-
-
 Definition fl := rndFR.
 
 Definition fl64 := R2F64.
 
-Definition env := state.
-
-  
 Hint Unfold perturb : core.
 
 (**
@@ -41,14 +35,16 @@ using a perturbation of the real valued computation by (1 + eta), where
 |eta| <= machine epsilon.
  **)
 
+Open Scope ring_scope.
+
 
 Fixpoint expr_eval  (E : state) (e: expr)
   : float64 * err :=
     match e with
     | Var x => appf E (of_nat x)
     | Const c => 
-    if (rle (fl c) c) then 
-    if (rle c 0) then 
+    if fl c <= c then
+    if c <= 0 then
     ((fl64 c), (perturb eta (c) Up, perturb eta (c)  Down))
     else
     ((fl64 c), (perturb eta (c) Down, perturb eta (c)  Up))
@@ -57,7 +53,7 @@ Fixpoint expr_eval  (E : state) (e: expr)
     |Unop op e =>
        let (v, err) := (expr_eval E e) in
        let (er1, er2) := err in
-    if (rle 0 (F2R v))
+    if 0 <= F2R v
      then
         ((evalfUnop op v), 
          (perturb eta (evalRUnop op er1) Down, 
@@ -75,7 +71,7 @@ Fixpoint expr_eval  (E : state) (e: expr)
            let (v2, err2) := (expr_eval  E e2) in
            let (er2_l, er2_u) := err1 in
            let v := (evalfBinop op v1 v2) in
-           if (rle 0 (F2R v)) then
+           if 0 <= F2R v then
              (v, (perturb eta (evalRBinop op er1_l er2_l)  Down, 
                      perturb eta (evalRBinop op er1_u er2_u)  Up))
            else
@@ -88,17 +84,17 @@ Fixpoint expr_eval  (E : state) (e: expr)
            let (v2, err2) := (expr_eval  E e2) in
            let (er2_l, er2_u) := err1 in
            let v := (evalfBinop op v1 v2) in
-           if (rle 0 (F2R v1)) && (rle 0 (F2R v2)) then
+           if (0 <= F2R v1) && (0 <= F2R v2) then
                (v, 
                 (perturb eta (evalRBinop op er1_l er2_l) Down, 
                  perturb eta (evalRBinop op er1_u er2_u) Up))
            else
-             if  (rle 0 (F2R v2)) then
+             if  (0 <= F2R v2) then
                (v, 
                 (perturb eta (evalRBinop op er1_l er2_u)  Up, 
                  perturb eta (evalRBinop op er1_u er2_l) Down))
              else
-               if (rle 0 (F2R v1)) then
+               if (0 <= F2R v1) then
                  (v, 
                   (perturb eta (evalRBinop op er1_u er2_l) Up, 
                    perturb eta (evalRBinop op er1_l er2_u) Down))
@@ -147,8 +143,7 @@ Fixpoint expr_eval'  (E : state) (e: expr)
     end
   .
 
-  
-Inductive trans_expr (eta : R) (E : state) 
+Inductive trans_expr (eta : R) (E : state)
   :(expr) -> float64 * err -> Prop :=
 | Var_load x v er1 er2:
     appf E (of_nat x) = (v, (er1, er2)) ->

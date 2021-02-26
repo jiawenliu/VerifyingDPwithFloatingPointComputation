@@ -12,20 +12,11 @@ From Snapv.lib Require Import MachineType.
 
 Require Import Coq.Strings.Ascii Coq.Strings.BinaryString.
 
-From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq
-     ssrint rat ssrnum bigop path.
-
-(*
-From mathcomp Require Import ssralg.
-Import GRing.
-
-Delimit Scope R_scope with R.
- *)
-
-
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq.
+From mathcomp Require Import ssrint rat ssralg ssrnum bigop path Rstruct reals order.
+From deriving Require Import deriving.
 From extructures Require Import ord fset fmap ffun.
 
-From deriving Require Import deriving.
 Require Import Coq.Strings.String.
 Require Import Coq.Unicode.Utf8.
 
@@ -44,8 +35,7 @@ Definition ATrue :=
 Definition AFalse :=
   fun (pm : (state * state)) => False.
 
-
-Definition eta : R := 0.00001%R.
+Definition eta : R := 0.00001%coq_R.
 
 
 Definition assn_sub X1 X2 e1 e2 (P: Assertion) : Assertion :=
@@ -129,15 +119,16 @@ Open Scope prob_scope.
 
 Local Open Scope ring_scope.
 
+Local Open Scope order_scope.
 
 Definition DP_divergenceR (T : ordType) (eps : R) (dT1 dT2: {prob T}) (delta : R) :=
   forall x,
-    fle ( (fsub ( Q2F (dT1 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT2 x))))) (F64 delta) /\
-    fle ( (fsub ( Q2F (dT2 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT1 x))))) (F64 delta).
+    fsub ( Q2F (dT1 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT2 x))) <= F64 delta /\
+    fsub ( Q2F (dT2 x)) ( fmult (f64exp (R2F64 eps)) (Q2F (dT1 x))) <= F64 delta.
 
 
 Lemma DP_divergenceR_implies T eps1 eps2 d1 d2:
-  DP_divergenceR T eps1 d1 d2 0-> rle eps1 eps2 ->
+  DP_divergenceR T eps1 d1 d2 0-> eps1 <= eps2 ->
   DP_divergenceR T eps2 d1 d2 0.
 Proof.
   move => HI HE.
@@ -184,7 +175,7 @@ Variant prob_lifting {T : ordType}  d1  (P : (T * T) -> Prop) (eps: R) d2 : Type
 Lemma lifting_imply (T : ordType) (P P' : (T * T) -> Prop ) (eps1 eps2: R) d1 d2 :
   prob_lifting d1 P' eps1 d2 ->
   P' ->> P ->
-  rle eps1 eps2 -> prob_lifting d1 P eps2 d2.
+  eps1 <= eps2 -> prob_lifting d1 P eps2 d2.
 Proof.
   move => Hc Hp Heps.
   inversion Hc.
@@ -532,7 +523,7 @@ Theorem aprHoare_conseq : forall (P Q P' Q' : Assertion) c1 c2 r r',
     aprHoare_judgement P' c1 r' c2 Q' ->
     P ->> P' ->
     Q' ->> Q ->
-    rle r' r ->
+    r' <= r ->
     aprHoare_judgement P c1 r c2 Q.
 Proof.
   unfold aprHoare_judgement.
@@ -754,7 +745,7 @@ Theorem aprHoare_conseqE : forall (P Q P' Q' R : Assertion) c1 c2 r r',
     aprHoare_judgement P' c1 r' c2 Q' ->
     P ->> P' ->
     (fun x => (Q' x) /\ (P x) /\ (R x)) ->> Q ->
-    rle r' r ->
+    r' <= r ->
     aprHoare_judgement P c1 r c2 Q.
 Proof.
 Admitted.

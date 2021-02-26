@@ -1,11 +1,11 @@
+Require Import Coq.Reals.Reals Coq.Strings.String.
+
 From mathcomp Require Import ssreflect ssrfun ssrbool ssrnat eqtype.
-From mathcomp Require Import seq choice.
+From mathcomp Require Import seq choice Rstruct reals.
 From deriving Require Import deriving.
 From extructures Require Import ord fset fmap ffun.
-Require Import Coq.Reals.Reals.
-Require Import Coq.Strings.String.
+
 From Snapv.lib Require Import MachineType.
-Require Import Coq.micromega.Lra Coq.micromega.Lia.
 
 (** With all these definitions in place, we can define states as finite
     functions, and Coq will be able to figure out that they form an ordered type
@@ -17,4 +17,7 @@ Require Import Coq.micromega.Lra Coq.micromega.Lia.
 
  *)
 
-Notation state := (ffun (fun v : string => ((F64 0%R), (0%R, 0%R)))).
+Definition state := (ffun (fun v : string => (F64 0, (0, 0))))%coq_R.
+Canonical state_eqType := [eqType of state].
+Canonical state_choiceType := [choiceType of state].
+Canonical state_ordType := [ordType of state].
