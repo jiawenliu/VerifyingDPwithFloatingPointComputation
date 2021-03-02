@@ -7,3 +7,8 @@ CoqMakefile
 .CoqMakefile.d
 CoqMakefile.conf
 .lia.cache
+*.log
+*.aux
+*.out
+*.bbl
+*.blg

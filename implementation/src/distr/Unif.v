@@ -1,5 +1,5 @@
 From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq
-  ssrint rat ssralg ssrnum bigop path fintype.
+  ssrint rat ssralg ssrnum Rstruct reals bigop path fintype order.
 
 From Gappa Require Import Gappa_tactic.
 
@@ -11,9 +11,6 @@ From Snapv Require Import Environments.
 From Snapv.distr Require Import Extra Prob.
 
 From Flocq Require Import Core Bracket Round Operations Div Sqrt.
-
-From extructures Require Import ord fset fmap ffun.
-
 
 From deriving Require Import deriving.
 From extructures Require Import ord fset fmap ffun.
@@ -40,10 +37,10 @@ Definition floats_pair_01_eps (eps : R) : {fset (float64 * float64)} :=
   fset (map (fun x => (R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)), R2F64 (Rmult (Rmult (Rpower 2 ( Ropp 53)) (INR x)) (exp (eps))))) (iota 0 (2^53))).
 
 Definition floats_pair_01_R (eps : R) : {fset (float64 * float64)} :=
-  fset_filter (fun xy => (rle (F2R xy.2) 1)) (floats_pair_01_eps eps).
+  fset_filter (fun xy => F2R xy.2 <= 1) (floats_pair_01_eps eps).
 
 Definition floats_pair_01_L (eps : R) : {fset  (float64 * float64)} :=
-  fset_filter (fun xy => (rle (exp (Ropp eps))  (F2R xy.1)) )
+  fset_filter (fun xy => exp (Ropp eps) <= F2R xy.1)
               (fset (map (fun x => (R2F64 (Rmult (Rpower 2 ( Ropp 53)) (INR x)), R2F64 1%R )) (iota 0 (2^53)))).
 
 Definition floats_pair_01_eps01 (eps :R) : {fset  (float64 * float64)} :=
@@ -63,9 +60,9 @@ apply/fset0Pn; rewrite /floats_pair_01_R /floats_pair_01_eps.
 set f := fun n : nat => _; exists (f 0%N).
 rewrite in_fset_filter; apply/andP; split.
   rewrite /f /= Rmult_0_r Rmult_0_l; apply/RleP.
-  by rewrite /rnd round_0; lra.
+  rewrite /rnd round_0. admit.
 by rewrite in_fset map_f.
-Qed.
+Admitted.
 
 Lemma floats_pair_01_L_n0 eps : floats_pair_01_L eps != fset0.
 Proof. Admitted. (* AAA: Not sure if this holds... *)
@@ -101,15 +98,17 @@ Lemma unif_epsL_supp eps : forall xy,
 Proof.
 Admitted.
 
+Local Open Scope order_scope.
+
 Lemma unif_epsL_div eps epsD: forall xy,
-    fle (fsub (Q2F ( (unif_epsL eps) xy)) (fmult (f64exp (R2F64 epsD)) (Q2F ( (unif_epsR eps) xy)))) {| MachineType.Num := 0 |}.
+    fsub (Q2F ( (unif_epsL eps) xy)) (fmult (f64exp (R2F64 epsD)) (Q2F ( (unif_epsR eps) xy))) <= {| MachineType.Num := 0 |}.
 
 Proof.
 Admitted.
 
 
 Lemma unif_epsR_div eps epsD: forall xy,
-    fle (fsub (Q2F ( (unif_epsR eps) xy)) (fmult (f64exp (R2F64 epsD)) (Q2F ( (unif_epsL eps) xy)))) {| MachineType.Num := 0 |}.
+    fsub (Q2F ( (unif_epsR eps) xy)) (fmult (f64exp (R2F64 epsD)) (Q2F ( (unif_epsL eps) xy))) <= {| MachineType.Num := 0 |}.
 
 Proof.
 Admitted.
@@ -119,9 +118,11 @@ Admitted.
 
 Definition signs : {fset float64} := fset ([:: (R2F64 (-1)%R); (R2F64 1%R) ]).
 
+Close Scope order_scope.
+
 Definition unif_sign_mass x: rat :=
   if ((F2R x) == 1%R)
-  then (fracq (1, (Posz 2)))
+  then (fracq (1 : int, (Posz 2)))
   else if ( (F2R x) == (-1)%R)
        then  (fracq (1, (Posz 2)))
        else 0     

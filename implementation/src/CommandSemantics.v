@@ -18,7 +18,7 @@ From Coq
 
 From mathcomp Require Import
      ssreflect ssrfun ssrbool eqtype ssrnat choice seq
-     bigop path   .
+     bigop path Rstruct reals.
 
 From Snapv
      Require Import Command ExpressionTransitions Environments.
@@ -34,16 +34,14 @@ Open Scope R_scope.
 
 Definition F2R f := Num f.
 
-Definition env := state.
-
 Definition err : Type :=  (R * R).
 
-Definition distr_m := { prob env }.
+Definition distr_m := { prob state }.
 
-Definition unit_E  (E : env) := dirac E.
+Definition unit_E  (E : state) := dirac E.
 
 
-Inductive trans_com (eta : R) (E : env) 
+Inductive trans_com (eta : R) (E : state)
   :(command) -> distr_m  -> Prop :=
 | Asgn_trans x e v er1 er2:
     trans_expr eta E e (v, (er1, er2)) -> 
@@ -64,15 +62,15 @@ Inductive trans_com (eta : R) (E : env)
     
 .
 
-Definition semantics_sound (st: env) x : Prop :=
+Definition semantics_sound (st: state) x : Prop :=
   match (st x) with
-  | (v, (er1, er2)) => (rle er1 (F2R v)) /\ (Rle (F2R v) er2)
+  | (v, (er1, er2)) => (er1 <= F2R v) /\ (F2R v <= er2)
   end.
  
 (*The semantics defined for commands as functions*)
 
 
-Fixpoint com_eval (E : env) (c : command) : (distr_m):=
+Fixpoint com_eval (E : state) (c : command) : (distr_m):=
   match c with
   | SKIP => dirac E
   | (ASGN (Var x) e) =>
