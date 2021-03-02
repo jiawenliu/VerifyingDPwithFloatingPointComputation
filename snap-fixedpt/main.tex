@@ -1,0 +1,1367 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\input{prelude}
+\input{ldef}
+\usepackage{eucal}
+\usepackage{url}
+\usepackage{tikz}
+\usepackage{amsfonts,amsmath}
+\begin{document}
+
+\title{Verifying Snapping Mechanism - Fixed Point Implementation Version}
+\author{Jiawen Liu}
+
+\date{\today}
+
+\maketitle
+In order to verify an implementation of the snapping mechanism
+\cite{mironov2012significance} differentially private, we will extend
+the logic proposed in~\cite{barthe2016proving} and we will take
+inspiration from the fixed
+point error semantics from
+\cite{Ramananandro2016unified,Martel2006higher,Becker2018verified,Moscato2017Automatic}.
+
+\section{Preliminary Definitions}
+\begin{defn}
+[Laplace mechanism \cite{dwork2006calibrating}]
+Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distribution $\laplace(\frac{1}{\epsilon})$.
+\end{defn}
+%
+%
+%
+
+\section{Syntax}
+\[\begin{array}{llll}
+\mbox{Programs} & \prog & ::= &
+	%
+    \varx = \expr ~|~ \varx \samplel \edistr
+	%
+	~|~ \prog ; \prog  
+	\\
+%
+\mbox{Expr} & \expr & ::= & \rval
+	%
+	~|~ \varx  ~|~ \expr \bop \expr
+	%
+	~|~ \ln (\expr) ~|~ - \expr ~|~ \clamp_{\rval}(\expr)
+	%
+	~|~ \round{\expr}_{\rval}  \\
+%
+\mbox{Binary Operation} & \bop & ::= & + ~|~ - ~|~ \times ~|~ \div \\
+%
+%
+%
+\mbox{Value} & \valv & ::= & \fval_{(\rval, \rval)}\\
+%
+\mbox{Distr} & \edistr & ::= & \uniform(0, 1]
+%
+	~|~ \uniform\{-1, 1\}\\ 
+%
+\mbox{Error} & \err & ::= & (\rval, \rval) \\
+%
+\mbox{Env} & \trsmem & ::= & \cdot ~|~ \trsmem[x \mapsto (\fval_{(\rval, \rval)})]\\
+%
+\mbox{Type} & \tau & ::= & \float ~|~ \real ~|~ \float_{\real \times \real}
+\end{array}
+\]
+
+% \mg{Jiawen, please write down a description of the grammar, otherwise
+%   it is difficult ot imagine the different components. Especially for expressions.}
+
+We consider a simple imperative language $\prog$ with assignments, random sampling and sequencing, and simple arithmetic expressions $\expr$ with real number $\rval$, fixed point number $\fval$, variable $\varx$, binary operations and unary operations.
+The errors $\err$ are represented by a pair of real number. The environment maps variable to a fixed point number and an error.
+%
+%
+%
+\section{Operational Semantics}
+%
+The semantics for expressions with relative
+fixed point computation error are shown in
+Figure~\ref{fig_semantics_prog}. 
+$\floaten (x)$ represents round the number to its nearset $ulp$ when the number overflowed.
+%\mg{I changed the reference because it
+% was pointing to the rules for expressions} 
+% These rules prove judgment
+% of the form $\trsenv, \prog \trsto \trsenv'$, which can be read as:
+% the
+% programs $\prog$ with environment $\trsenv$ results in the environment
+% $\trsenv'$  which contains error bound for all variables \mg{the
+%   previous sentence reads funny.}. in
+% $\trsenv'$. 
+In all the rules, $\eta$ is the machine epsilon.
+\begin{figure}
+\boxed{\trsmem, \expr \trsto \fval_{(\rval, \rval)}
+: Env \times Expr \trsto Value}
+\begin{mathpar}
+\inferrule*[right = var]
+{
+	\trsmem(\varx) 
+	= (\fval_{( \ubar{\rval}, \bar{\rval} )})
+}
+{
+	\trsmem, \varx
+	\trsto
+	(\fval_{( \ubar{\rval}, \bar{\rval} )})
+}
+\and
+%
+\inferrule*[right = val]
+{
+	\fval = \floaten(\rval)
+	~~
+	\fval \neq \rval
+	\and
+	\rval \geq 0
+}
+{
+	\trsmem, \rval
+	\trsto
+	\big(\fval_{(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta))} 
+	\big)
+}
+%
+\and
+%
+\inferrule*[right = val-eq]
+{
+	\fval = \floaten(\rval)
+	~~~~
+	\fval = \rval
+}
+{
+	\trsmem, \rval
+	\trsto
+	(\fval_{(\rval, \rval)} )
+}
+%
+\and
+%
+\extend{
+\inferrule*[right = bop]
+{
+	\trsmem, \expr_1 \trsto 
+	(\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    (\ubar{\rval_1} * \ubar{\rval_2}) - \eta, 
+    (\bar{\rval_1} * \bar{\rval_2} ) + \eta
+    \big)
+}
+}
+%
+\and
+%
+\extend{
+\inferrule*[right = uop]
+{
+	\trsmem, \expr \trsto 
+	(\fval_{1(\ubar{\rval}, \bar{\rval})})
+	~~~~
+	\fval = \floaten(\uop (\fval_1)) 
+}
+{
+    \trsmem, \uop(\expr)
+    \trsto
+    \Big(\fval_
+    {\big(
+     \uop(\ubar{\rval}) - \eta, 
+        (\uop(\bar{\rval}) + \eta)
+        \big)}
+    \Big)
+}
+}
+%
+\end{mathpar}
+\caption{Semantics of Transition for Expressions with Relative Fixed Point Error}
+\label{fig:op_semantics}
+\end{figure}
+%
+%
+%
+\begin{figure}
+\boxed{\trsenv, \prog \trsto \trsenv}
+\begin{mathpar}
+\inferrule*[right = asg]
+{
+	\trsenv, \expr \trsto (\fval, \err )
+}
+{
+	\trsenv, \varx = \expr
+	\trsto
+	\trsenv[\varx \mapsto (\fval, \err )]
+}
+%
+~~
+%
+\inferrule*[right = consq]
+{
+	\trsenv, \prog_1  \trsto \trsenv_1
+	\and
+	\trsenv_1, \prog_2  \trsto \trsenv_2
+}
+{
+	\trsenv, \prog_1; \prog_2
+	\trsto
+	\trsenv_2
+}
+%
+~~
+%
+\inferrule*[right = sample]
+{
+	 \fval \leftarrow \edistr^{\diamond}
+	 % \and
+	 % \rval_1 \leq \fval \leq \rval_2
+	 ~~~~
+	 \rval = \fval
+}
+{
+	\trsenv, \varx \samplel \edistr
+	\trsto
+	\trsenv[\varx \mapsto (\fval, (\rval, \rval))]
+}
+\end{mathpar}
+\caption{Semantics of Transition with Relative Fixed Point Error Propagation for Programs}
+\label{fig_semantics_prog}
+\end{figure}
+
+
+\begin{figure}
+\boxed{\expr \fbigstep \fval }
+\begin{mathpar}
+\inferrule*[right = rval]
+{
+	\floaten(\rval) = \fval
+}
+{
+	\rval
+	\fbigstep
+	\fval
+}
+%
+~~
+%
+\inferrule*[right = fval]
+{
+	\empty
+}
+{
+	\fval
+	\fbigstep
+	\fval
+}
+%
+~~
+%
+\inferrule*[right = fbop]
+{
+	\expr^1 \fbigstep \fval_1
+	~~~
+	\expr^2 \fbigstep \fval_2
+	~~~
+	\floaten(\fval_1 \bop \fval_2) = \fval
+}
+{
+    \expr^1 \bop \expr^2 \fbigstep \fval
+}
+%
+~~
+%
+\inferrule*[right = fuop]
+{
+	\expr \fbigstep \fval_1,
+	~~~
+	\floaten(\uop (\fval_1)) = \fval
+}
+{
+    \uop(\expr) \fbigstep \fval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation in Fixed Point Computation}
+\label{fig_imp_real_semantics_exp}
+\end{figure}
+
+\begin{figure}
+\boxed{\expr \rbigstep \rval }
+\begin{mathpar}
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\rval
+	\rbigstep
+	\rval
+}
+%
+~~
+%
+\inferrule*[right = rval]
+{
+	\empty
+}
+{
+	\fval
+	\rbigstep
+	\fval
+}
+%
+~~
+%
+\inferrule*[right = rbop]
+{
+	\expr^1 \rbigstep \rval_1
+	~~~
+	\expr^2 \rbigstep \rval_2
+	~~~
+	\rval_1 \bop \rval_2 = \rval
+}
+{
+    \expr^1 \bop \expr^2 \rbigstep \rval
+}
+%
+~~
+%
+\inferrule*[right = ruop]
+{
+	\expr \rbigstep \rval_1,
+	~~~
+	\uop (\rval_1) = \rval
+}
+{
+    \uop(\expr) \rbigstep \rval
+}
+\end{mathpar}
+\caption{Semantics of Evaluation in Real Computation}
+\label{fig_real_semantics_exp}
+\end{figure}
+
+\clearpage
+% \mg{I suggest to split the theorem proof by adding a lemma that states
+% what you want about expressions. This will be used in the case of
+% assignment in the theorem.}
+\begin{defn}[Bounded Environment]
+An environment $\trsenv$ is bounded if and only if that:
+$\forall x \in dom(\trsenv)$ s.t. $\trsenv(x) =(\fval, (\ubar{\rval}, \bar{\rval}))$,
+ then 
+$\ubar{\rval} \leq \fval \leq \bar{\rval}$) 
+\end{defn}
+%
+%
+\begin{thm}[Expression Soundness]
+\label{thm:expsound}
+For any $\expr$, if there exists a transition 
+$\trsenv, \expr \trsto (\fval, (\ubar{\rval}, \bar{\rval}))$ 
+and $\trsenv$ is a bounded transaction environment
+%
+then:
+%
+$$\ubar{\rval} \leq \fval \leq \bar{\rval}.$$
+%
+\end{thm}
+%
+%
+%
+\begin{thm}[Program Soundness]
+\label{thm:progsound}
+For any $\prog$, if there exists a transition 
+$\trsenv, \prog \trsto \trsenv'$ and $\trsenv$ is a bounded transaction environment 
+then 
+$\trsenv'$ is also a bounded environment.
+\end{thm}
+%
+\begin{proof} of \textbf{Theorem \ref{thm:progsound}}.
+%
+\\
+%
+Induction on transition rule of $\prog$, by assumption, we know $\trsenv$ is a bounded environment $(\star)$.
+\begin{itemize}
+	\caseL{
+	\[
+	\inferrule*[right = consq]
+	{
+	\trsenv, \prog_1  \trsto \trsenv_1
+	\and
+	\trsenv_1, \prog_2  \trsto \trsenv_2
+	}
+	{
+	\trsenv, \prog_1; \prog_2
+	\trsto
+	\trsenv_2
+	}
+	\]
+	}
+	We need to show $\trsenv_2$ is a bounded environment.\\
+	%
+	Since we know $\trsenv$ is a bounded environment by assumption $(\star)$, by induction hypothesis, we have:
+	%
+	\\
+	$\trsenv_1$ and $\trsenv_2$ are all bounded environment. This case is proved.
+%
+	\caseL{\[
+	\inferrule*[right = sample]
+	{
+		 \fval \leftarrow \edistr^{\diamond}
+		 \and
+	 	\rval_1 = \fval = \rval_2 ~ (\square)
+	}
+	{
+		\trsenv, \varx \samplel \edistr
+		\trsto
+		\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]
+	}
+	\]}
+	We need to show $\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]$ is a bounded environment.\\
+	%
+	Since we know $\trsenv$ is a bounded environment and $\rval_1 = \fval =\rval_2$ by assumption $(\star)$ and $(\square)$ .
+	%
+	\\
+	%
+	So we know $\trsenv[\varx \mapsto (\fval, (\rval_1, \rval_2))]$ is also a bounded environment.
+%
+	\caseL{\[
+	\inferrule*[right = asg]
+	{
+		\trsenv, \expr \trsto (\fval, (\ubar{\rval}, \bar{\rval}) )
+	}
+	{
+		\trsenv, \varx = \expr
+		\trsto
+		\trsenv[\varx \mapsto (\fval, (\ubar{\rval}, \bar{\rval}) )]
+	}
+	\]}
+	We need to show: $\trsenv[\varx \mapsto (\expr, \err )]$ is a bounded environment.\\
+	%
+	By assumption $(\star)$ we know: $\trsenv$ is already a bounded environment. It is sufficient to show:\\
+	%
+	$\ubar{\rval} \leq \fval \leq \bar{\rval}$.\\
+	%
+	This is proved by the \textbf{Theorem \ref{thm:expsound}} (expression soundness).
+\end{itemize}
+\end{proof}
+%
+%
+\begin{proof} of \textbf{Theorem \ref{thm:expsound}}.
+%
+\\
+%
+Induction on the transition rule of $\expr$, by assumption, we know $\trsenv$ is a bounded environment $(\star)$.
+%
+	\begin{itemize}
+%
+	\caseL{
+	\[\inferrule*[right = var]
+		{
+			\trsenv(\varx) 
+			= (\fval, ( \ubar{\rval}, \bar{\rval} ))
+		}
+		{
+			\trsenv, \varx
+			\trsto
+			(\fval, ( \ubar{\rval}, \bar{\rval} ))
+		}\]
+		}
+	By the assumption, we have $\forall \varx \in dom(\trsenv)$ s.t. $\trsenv(\varx) = (\fval, (\ubar{\rval}, \bar{\rval}))$, 
+	$\ubar{\rval} \leq \fval \leq \bar{\rval}$.
+	This case is proved.
+	%
+	%
+	\caseL{
+	\[\inferrule*[right = val]
+		{
+			\fval = \floaten(\rval)
+			\and
+			\fval \neq \rval
+			\and
+			\rval \geq 0
+		}
+		{
+			\trsenv, \rval
+			\trsto
+			\big(\fval, 
+			(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta)) 
+			\big)
+		}
+		\]
+	}
+	%
+	By the definition of fixed point rounding error and $\rval \geq 0$, we have:
+	%
+	$\frac{\rval}{(1 + \eta)}
+	\leq \fval \leq
+	\rval(1 + \eta)$
+	%
+	%
+	%
+	\caseL{\[
+		\inferrule*[right = val-eq]
+		{
+			\fval = \floaten(\rval)
+			~~~~
+			\fval = \rval
+		}
+		{
+			\trsenv, \rval
+			\trsto
+			(\fval, (\rval, \rval) )
+		}
+	\]}
+	%
+	It is trivial that $\rval \leq \fval = \floaten(\rval) = \rval \leq \rval$
+	%
+	\caseL{\[
+\extend{
+	\inferrule*[right = bop]
+{
+	\trsmem, \expr_1 \trsto 
+	(\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	~~~~
+	\fval = \floaten(\fval_1 * \fval_2)
+}
+{
+    \trsmem, \expr_1 * \expr_2
+    \trsto
+    \big(
+    (\ubar{\rval_1} * \ubar{\rval_2}) - \eta, 
+    (\bar{\rval_1} * \bar{\rval_2} ) + \eta
+    \big)
+}
+}
+	\]}
+	%
+	It is needed to show $\frac{\ubar{\rval_1} * \ubar{\rval_2}}{(1 + \eta)}
+	\leq \fval \leq 
+	(\bar{\rval_1} * \bar{\rval_2})(1 + \eta)$.\\
+	%
+	By induction hypothesis on $(\diamond)$ and $(\triangle)$, we have:\\
+	%
+	(1) $\ubar{\rval_1} \leq \fval_1 \leq \bar{\rval_1}$ holds. 
+	%
+	(2) $\ubar{\rval_2} \leq \fval_2 \leq \bar{\rval_2}$ holds.\\
+	%
+	Let $\bar{\rval{'}} = 
+	\bar{\rval_1} * \bar{\rval_2}$ and 
+	%
+	$\ubar{\rval{'}} = \ubar{\rval_1} * \ubar{\rval_2}$.
+	%
+	\\
+	%
+	By (1), (2), we have:
+	%
+	$\fval \geq 0
+	\land
+	\ubar{\rval{'}}
+	\leq \fval_2 \bop \fval_1
+	\leq \bar{\rval{'}}$.\\
+	%
+	Then by absolute error of fixed point rounding, we have:\\
+	%
+	$\ubar{\rval{'}} -  \eta
+	\leq \floaten(\fval_2 \bop \fval_1) = \fval
+	\leq (\bar{\rval{'}
+	}  + \eta)$.
+	%
+	%
+    %
+	\caseL
+	{
+	\[
+	%
+\extend{
+	\inferrule*[right = uop]
+	{
+		\trsmem, \expr \trsto 
+		(\fval_{1(\ubar{\rval}, \bar{\rval})})
+		~~~~
+		\fval = \floaten(\uop (\fval_1)) 
+	}
+	{
+	    \trsmem, \uop(\expr)
+	    \trsto
+	    \Big(\fval_
+	    {\big(
+	     \uop(\ubar{\rval}) - \eta, 
+	        (\uop(\bar{\rval}) + \eta)
+	        \big)}
+	    \Big)
+	}
+}
+	\]
+	}
+	%
+ 	It is sufficient to show 
+	$\frac{\uop(\ubar{\rval})}{1 + \eta}
+	\leq \fval \leq 
+	(\uop(\bar{\rval}))(1 + \eta)$.\\
+	%
+	By induction hypothesis on $(\diamond)$, we have:\\
+	%
+	(1) $\ubar{\rval} \leq \fval{'} \leq \bar{\rval}$ holds.
+	%
+	\\
+	%
+	By (1) and monotone of unary operators, we have:
+	%
+	$\uop(\ubar{\rval})
+	\leq \uop(\fval{'})
+	\leq \uop(\bar{\rval})$.\\
+	%
+	Then by absolute error of fixed point rounding, we have:\\
+	%
+	$\uop(\ubar{\rval}) -  \eta
+	\leq \floaten(\uop(\fval{'})) = \fval
+	\leq \uop(\bar{\rval} + \eta)$.
+	%
+	This case is proved.
+	%
+	%
+\end{itemize}
+%
+\end{proof}
+
+\newpage
+\section{Snapping Mechanism}
+
+\begin{defn}
+[$\snap(a) : A \to \distr(\real)$]
+Given privacy parameter $\epsilon$, the Snapping mechanism $\snap(a)$ is defined as:
+\[
+	U \samplel \uniform(0,1); S \samplel \uniform\{-1, 1\};
+	x = \clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times S \times \ln (U)}_{\Lambda}
+	\big)
+\]
+where $f(a)$ represents a value that the query function $f$ be evaluted over input database $a \in A$, $\epsilon$ is the privacy parameter, $B$ is the clamping argument and $\Lambda$ is the rounding argument satisfying $\lambda = 2^k$ where $2^k$ is the smallest power of 2 greater or equal to the $\frac{1}{\epsilon}$.
+%
+% \\
+% %
+% Given $U = u, S = s$, let $\expr_{\snap'} = f(a) + s \times \ln (u) \div \epsilon$,
+% $\expr_{\snap''} = \clamp_B \big( \round{\rval_{\snap'} }_{\Lambda} \big)$
+% %
+% \\
+% %
+% Let $\snap'(a)$ be the same as $\snap(a)$ given $U = u, S = s$ without rounding and clamping steps, i.e., $\snap'(a): y = \expr_{\snap'}$,
+% and $\snap''(a): z = \expr_{\snap''}$.
+\end{defn}
+%
+%
+%
+\begin{lem}[sign]
+\label{lem:sign}
+For any input $a$ some $s$ and output $\valv$ s.t.
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep \valv$ 
+or $\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep \valv$,
+%
+\begin{enumerate}  
+	\item if $\valv < f(a)$, then $s = 1$;
+	\item if $\valv = f(a)$, then $s = 1$ or $ -1$;
+	\item if $\valv > f(a)$, then $s = -1$.
+\end{enumerate}
+\end{lem}
+%
+%
+%
+\begin{lem}
+[clampL]
+\label{lem:clampl}
+For any input $a$:
+\begin{enumerate}
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep -B$ or $B$, then $u \in (0, \fvalR)$ for some $\fvalR$.
+	%
+\item
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep -B$ or $B$, then $u \in (0, \rvalR)$ for some $\rvalR$.
+\end{enumerate}
+\end{lem}
+
+
+\begin{lem}[clampR]
+\label{lem:clampr}
+Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, for any input $a$, and some $s$:
+\begin{enumerate}
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep -B$ and $u \in (\fvalL, \fvalR)$ for some $\fvalL, \fvalR$.
+	%
+	%
+	 then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\fvalR) \fbigstep -b - \frac{\Lambda}{2}$.
+%
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep B$ and $u \in (\fvalL, \fvalR)$ for some $\fvalL, \fvalR$.
+	%
+	%
+	 then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\fvalR) \fbigstep b + \frac{\Lambda}{2}$.
+%
+\item
+	%
+	%
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep -B$ and $u \in (\rvalL, \rvalR)$ for some $\rvalL, \rvalR$, then:
+	%
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\rvalR) \rbigstep -b - \frac{\Lambda}{2}$.
+%
+\item
+	%
+	%
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep B$ and $u \in (\rvalL, \rvalR)$ for some $\rvalL, \rvalR$, then:
+	 %
+	 \\
+	 %
+	$f(a) + \frac{1}{\epsilon} \times s \times \ln (\rvalR) \rbigstep b + \frac{\Lambda}{2}$.
+%
+\end{enumerate}
+\end{lem}
+
+
+\begin{lem}[clampId]
+\label{lem:clampid}
+For any input $a$:
+\begin{enumerate}
+\item 
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep \valv$ and $\valv \in (-B, B)$, then:
+	%
+	$\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\fbigstep \valv$
+%
+\item
+	%
+	%
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (U)}_{\Lambda}
+	\big)
+	\rbigstep \valv$ and $\valv \in (-B, B)$, then:
+	%
+	$\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\rbigstep \valv$
+\end{enumerate}
+\end{lem}
+
+
+\begin{lem}[roundRL]
+\label{lem:roundrl}
+For any input $a$ and output $\valv \in (-B, B)$,
+let $(\fvalL, \fvalR)$ be the largest range s.t. 
+$\forall u \in (\fvalL, \fvalR)$ and some $s$:
+%
+$$
+\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep \valv,$$
+then:
+$$
+f(a) + \frac{1}{\epsilon} \times s \times 
+\ln (\fvalL)
+\fbigstep \valv - \frac{\Lambda}{2}
+~~~~~~~~~~~~~~~~
+f(a) + \frac{1}{\epsilon} \times s \times 
+\ln (\fvalR)
+\fbigstep \valv + \frac{\Lambda}{2}
+$$
+\end{lem}
+%%
+%%
+%%
+\begin{lem}[roundId]
+\label{lem:roundid}
+if 
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep \round{f(a)}_{\Lambda}$, then $u \in (\fvalL, 1]$ for some $\fvalL$.
+	%
+\item
+if
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\rbigstep \round{f(a)}_{\Lambda}$, then $u \in (\rvalL, 1]$ for some $\rvalL$.
+\end{lem}
+% \begin{defn}
+% [$\snap(a) : A \to \distr(\real)$]
+% Given privacy parameter $\epsilon$, the fixed point implemented
+% Snapping mechanism $\snap(a)$ is defined as (where all parameters are defined the same as above):
+% \[
+% 	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
+% 	s_{\mathbb{F}} \samplel \{-1, 1\};
+% 	z = \clamp_B \big(
+% 	\round{f(a) \oplus s \otimes \oln (u) \odiv \epsilon}_{\Lambda}
+% 	\big)
+% \]
+% Let $\snap'(a)$ be the same as $\snap(a)$ without rounding and clamping steps given $u, s$.
+% \end{defn}
+\begin{lem}[idealRL]
+\label{lem:idealrl}
+For any input $a$ and output $\valv \in (-B, B)$,
+let $(\rvalL, \rvalR)$ be the largest range where 
+$\forall u \in (\rvalL, \rvalR)$ and some $s$ s.t.:
+%
+$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+\rbigstep \valv
+$, then:
+%
+$$
+\rvalL = e^{\epsilon(\valv - \Lambda/2 - f(a))/s}
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+\rvalR = e^{\epsilon(\valv + \Lambda/2 - f(a))/s}
+$$
+and 
+$\Pr[\snap(a) = \valv] = 1/2(\rvalR - \rvalL)$.
+\end{lem}
+
+\begin{lem}[idealDP]
+\label{lem:idealdp}
+The $\snap$ mechanism in real computation is differentially private.
+\end{lem}
+
+\newpage
+\section{Main Theorem}
+
+\begin{thm}
+[The $\snap$ mechanism is $(\epsilon 
++ \ln(\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta}), 0)-$differentially private]
+%
+Consider the $\snap$ mechanism defined as before. For any privacy parameter $\epsilon$ representable in fixed point computation, for all possible outputs $\valv$ in fixed point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
+\end{thm}
+
+\begin{proof}
+%
+%
+We consider following setting:
+\\
+1. $\valv$ is a possible output of $\snap(a)$ in fixed point computation,
+%
+\\
+2. any pair of adjacent database $a'$ and $a$ where $|f(a) - f(a')| \leq 1$
+%
+\\
+3. and any parameter $\epsilon$ representable in fixed point computation.
+%
+\\
+Without loss of generality, we assume $f(a) + 1 = f(a') ~ (\diamond)$.
+%
+\\
+%
+%
+Let $(\rvalL, \rvalR)$, $(\rvalL{'}, \rvalR{'})$ be the range where 
+$\forall u \in (\rvalL, \rvalR)$ and some $s$, 
+$\forall u' \in (\rvalL{'}, \rvalR{'})$ and some $s'$, s.t.:
+%
+$$\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	 \rbigstep \valv; 
+~~~~~~~~~~~~~~~~~~
+\clamp_B \big(
+	\round{f(a') + \frac{1}{\epsilon} \times s' \times \ln (u')}_{\Lambda}
+	\big)
+	 \rbigstep \valv.$$
+%
+By \textbf{Lemma \ref{lem:idealrl}}, we have:
+$\Pr[\snap(a) = \valv] = \frac{1}{2} (\rvalR - \rvalL)$ 
+and $\Pr[\snap(a') = \valv] = \frac{1}{2} (\rvalR{'} - \rvalL{'})$.
+%
+\\
+%
+By \textbf{Lemma \ref{lem:idealdp}}, we can get:
+\[
+	e^{-\epsilon} \leq \frac{\Pr[\snap(a)]}{\Pr[\snap(a')]}
+	= \frac{\rvalR - \rvalL}{\rvalR{'} - \rvalL{'}} \leq e^{\epsilon}
+\]
+%
+\\
+%
+Let $(\fvalL, \fvalR)$, $(\fvalL{'}, \fvalR{'})$ be the largest range where 
+$\forall u \in (\fvalL, \fvalR)$ and some $s$, 
+$\forall u' \in (\fvalL{'}, \fvalR{'})$ and some $s'$, s.t.:
+%
+$$
+\clamp_B \big(
+	\round{f(a) + \frac{1}{\epsilon} \times s \times \ln (u)}_{\Lambda}
+	\big)
+	\fbigstep \valv; 
+~~~~~~~~~~~~~~~~~~
+\clamp_B \big(
+	\round{f(a') + \frac{1}{\epsilon} \times s' \times \ln (u')}_{\Lambda}
+	\big)
+	\fbigstep \valv.$$
+%
+To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficient to show:
+%
+%
+$h(|{\rvalR} - {\rvalL}|) \leq |\fvalR - \fvalL| \leq g(|{\rvalR} - {\rvalL}|)$ and 
+$h(|{\rvalR{'}} - {\rvalL{'}}|) \leq |\fvalR{'} - \fvalL{'}|
+\leq g(|{\rvalR{'}} - {\rvalL{'}}|) $,
+%
+s.t.:
+%
+\[
+\extend{
+	-\epsilon - \ln\left(
+	\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta} 
+	\right)
+	\leq \ln\left(
+	 \frac{h(|{\rvalR} - {\rvalL}|)}{g(|{\rvalR{'}} - {\rvalL{'}}|)} 
+	 \right) 
+	\leq
+	\ln\left( 
+	\frac{g(|{\rvalR} - {\rvalL}|)}{h(|{\rvalR{'}} - {\rvalL{'}}|)} 
+	\right)
+	\leq \epsilon + \ln \left(
+	\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta} 
+	\right).
+	}
+\]
+
+%
+Since all the errors are accumulate on the same direction, 
+		Without loss of generality, we prove the following case:
+	%
+	\begin{itemize}
+		%
+		%
+		%
+		%
+		%
+		\caseL{
+		$\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
+		}
+		%
+		\subcaseL{
+		$\boldsymbol{
+		\round{f(a)}_{\Lambda} \leq 0 
+		%
+		\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1) $
+		}
+		%
+		Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
+		$\valv_2 = \valv + (\frac{\Lambda}{2})$.
+		By $(\star_1)$, 
+		we know $\valv_1 < 0$, $\valv_2 < 0$.
+		%
+		\\
+		%
+		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(y_1 - f(a))}$ and 
+		$\rvalR = e^{\epsilon(y_2 - f(a))}$.
+		%
+		\\
+		%
+		By \textbf{Lemma \ref{lem:roundrl}}, we know:
+		%
+		$$f(a) + \frac{1}{\epsilon} \times \ln(\fvalL) \fbigstep \valv_1 ~~ (1)
+		~~~~~~~~~~~~~~~~~
+		f(a) + \frac{1}{\epsilon} \times \ln(\fvalR) \fbigstep \valv_2 ~~ (2).$$
+		%
+	In order to bound $\fvalL$ in terms of $\rvalL$, we have the following derivation where $P$ be the real representation of $\fvalL ~~ (\diamond)$:
+		%
+{\scriptsize
+\begin{mathpar}
+	\inferrule*[right=bop]
+	{
+	\inferrule*[right=bop]
+	{
+		\inferrule*[right = uop]
+		{
+			\inferrule*[right = val-eq]
+			{
+				P ~~~ \text{representable}
+			}
+			{
+				\trsenv, P 
+				\trsto
+				(\fvalL,
+				(P, P))
+			}
+		}
+		{
+				\trsenv,
+				\ln(P) 
+				\trsto
+				(\ln(\fvalL), \ln(P) - \eta,
+				\ln(P) + \eta)
+			}
+			\and
+			\inferrule*[right = val-eq]
+			{
+			\frac{1}{\epsilon}~ \text{representable}
+			}
+			{
+				\frac{1}{\epsilon} \trsto
+				(\frac{1}{\epsilon},
+				(\frac{1}{\epsilon},
+			\frac{1}{\epsilon}))	
+			}
+		}
+			{
+					\trsenv,
+					\frac{1}{\epsilon} \times \ln(P) 
+					\trsto
+				\extend{
+				(\frac{1}{\epsilon} \times \ln(\fvalL),
+				(\frac{1}{\epsilon} \times (\ln(P) - \eta) - \eta,
+					%
+				\frac{1}{\epsilon} \times (\ln(P) + \eta) + \eta)
+				}
+				}
+				\and
+				\inferrule*[right=val-eq]
+				{f(a) ~~ \text{representable}}
+				{	[],
+				f(a) \trsto
+				(f(a),(f(a),f(a)))
+				}
+			}
+				{
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\extend{
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalL),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times (\ln(P) - \eta ) - 2 \eta)
+				,
+				%
+				(f(a) + 
+				(\frac{1}{\epsilon} \times (\ln(P) + \eta ) + 2 \eta)
+				 \big)}
+				\bigg)
+				}
+		\end{mathpar}	
+}	
+%
+%
+		By soundness theorem and (1), we have:
+		%
+		\[
+		(f(a) + (\frac{1}{\epsilon} \times (\ln(P) - \eta ) - 2 \eta)
+		\leq \valv_1 \leq
+		(f(a) + 
+		(\frac{1}{\epsilon} \times (\ln(P) + \eta ) + 2 \eta)
+		\]
+		%
+		%
+		Then we have:
+		$$
+		e^{\epsilon 
+		 (\valv_1 - f(a) - 2\eta) - \eta}
+		\leq P \leq
+		e^{\epsilon 
+		(\valv_1 - f(a) + 2\eta) + \eta}.
+		$$
+		%
+		%
+		By $(\diamond)$, we have:
+		$$
+		e^{\epsilon 
+		 (\valv_1 - f(a) - 2\eta) - \eta}
+		\leq \fvalL \leq
+		e^{\epsilon 
+		(\valv_1 - f(a) + 2\eta) + \eta}.
+		.$$
+		%
+		%
+		\\
+		%
+	In order to bound $\fvalR$ in terms of $\rvalR$, we have the following derivation where $P$ be the real representation of $\fvalR ~~ (\diamond)$:
+		%
+{\scriptsize
+\begin{mathpar}
+	\inferrule*[right=bop]
+	{
+	\inferrule*[right=bop]
+	{
+		\inferrule*[right = uop]
+		{
+			\inferrule*[right = val-eq]
+			{
+				P ~~~ \text{representable}
+			}
+			{
+				\trsenv, P 
+				\trsto
+				(\fvalR,
+				(P, P))
+			}
+		}
+		{
+				\trsenv,
+				\ln(P) 
+				\trsto
+				(\ln(\fvalR), \ln(P) - \eta,
+				\ln(P) + \eta)
+			}
+			\and
+			\inferrule*[right = val-eq]
+			{
+			\frac{1}{\epsilon}~ \text{representable}
+			}
+			{
+				\frac{1}{\epsilon} \trsto
+				(\frac{1}{\epsilon},
+				(\frac{1}{\epsilon},
+			\frac{1}{\epsilon}))	
+			}
+		}
+			{
+					\trsenv,
+					\frac{1}{\epsilon} \times \ln(P) 
+					\trsto
+				\extend{
+				(\frac{1}{\epsilon} \times \ln(\fvalR),
+				(\frac{1}{\epsilon} \times (\ln(P) - \eta) - \eta,
+					%
+				\frac{1}{\epsilon} \times (\ln(P) + \eta) + \eta)
+				}
+				}
+				\and
+				\inferrule*[right=val-eq]
+				{f(a) ~~ \text{representable}}
+				{	[],
+				f(a) \trsto
+				(f(a),(f(a),f(a)))
+				}
+			}
+				{
+				\trsenv,
+				f(a) + \frac{1}{\epsilon} \times \ln(P)
+				\trsto
+				\extend{
+				\bigg(
+				f(a) + \frac{1}{\epsilon} \times \ln(\fvalR),
+						%
+				\big( (f(a) + 
+				(\frac{1}{\epsilon} \times (\ln(P) - \eta ) - 2 \eta)
+				,
+				%
+				(f(a) + 
+				(\frac{1}{\epsilon} \times (\ln(P) + \eta ) + 2 \eta)
+				 \big)}
+				\bigg)
+				}
+		\end{mathpar}	
+}
+%
+%
+		By soundness theorem and (2), we have:
+		\[
+		(f(a) + (\frac{1}{\epsilon} \times (\ln(P) - \eta ) - 2 \eta)
+		\leq \valv_2 \leq
+		(f(a) + 
+		(\frac{1}{\epsilon} \times (\ln(P) + \eta ) + 2 \eta)
+		\]
+		%
+		%
+		Then we have:
+\extend{
+		$$
+		e^{\epsilon 
+		 (\valv_2 - f(a) - 2\eta) - \eta}
+		\leq P \leq
+		e^{\epsilon 
+		(\valv_2 - f(a) + 2\eta) + \eta}.
+$$
+				}		
+		%
+		%
+		By $(\diamond)$, we have:
+		$$
+		e^{\epsilon 
+		 (\valv_2 - f(a) - 2\eta) - \eta}
+		\leq \fvalR \leq
+		e^{\epsilon 
+		(\valv_2 - f(a) + 2\eta) + \eta}.
+		.$$	
+
+		In the same way, we have the bounds for $\fvarL{'}, \fvarR{'}$ for input $a'$ as:
+
+		$$e^{\epsilon 
+		 (\valv_1 - f(a') - 2\eta) - \eta}
+		\leq \fvarL{'} \leq
+		e^{\epsilon 
+		(\valv_1 - f(a') + 2\eta) + \eta}.$$
+		%
+		%
+		$$ 
+		e^{\epsilon 
+		 (\valv_2 - f(a') - 2\eta) - \eta}
+		\leq \fvarR{'} \leq
+		e^{\epsilon 
+		(\valv_2 - f(a') + 2\eta) + \eta}$$
+
+		Let  
+		$h{(\fvalL) } = e^{\epsilon 
+		 (\valv_1 - f(a) - 2\eta) - \eta}$ 
+		 be the lower bound for $\fvalL$
+		and $g(\fvalR) = e^{\epsilon 
+		(\valv_2 - f(a) + 2\eta) + \eta}$ 
+		be the upper bound for $\fvalR$
+		%
+		We can have:
+		\[
+		\begin{array}{ll}
+		\frac{g(\fvalR)}{\rvarR} 
+		& = e^{\epsilon 
+		(\valv_2 - f(a) + 2\eta) + \eta}/e^{\epsilon(\valv_2 - f(a))}
+		 =
+		e^{ 
+		(2\eta)\epsilon + \eta}
+		\\
+%
+		\frac{h(\fvalL )}{\rvarR} 
+		& = e^{\epsilon 
+		(\valv_2 - f(a) - 2\eta) - \eta}/e^{\epsilon(\valv_2 - f(a))}
+		 =
+		e^{ 
+		-(2\eta\epsilon + \eta)}
+		\end{array}
+		\]
+		%
+		Then, we can derive:
+		%
+		\[
+		\extend{
+		\begin{array}{ll}
+		|\fvarR - \fvalL|
+		& \leq |g(\fvalR ) - h(\fvalL )| \\
+		& \leq e^{ 
+		(2\eta \epsilon + \eta)}R - 
+		e^{-(2\eta\epsilon + \eta)} L \\
+		& = L \big(  e^{ \Lambda\epsilon + (2\eta \epsilon + \eta)} 
+		- e^{-(2\eta \epsilon + \eta)} \big)\\
+		& \leq L \cdot
+		\frac{e^{(2\eta \epsilon + \eta + 2)}}
+		{e - 1}
+		(e^{ \Lambda\epsilon} + 1) \\
+		& = (\rvalR - \rvalL)
+		\frac{e^{(2\eta \epsilon + \eta + 2)}}
+		{e - 1}
+		\end{array}
+		}
+		\]
+		In the same way, we can derive:
+		%
+		\[
+		\extend{
+		|\fvarR{'} - \fvalL{'}|
+		\geq 
+		|h(\fvalR{'} ) - g(\fvalL{'} )|
+		 > e^{-(2\eta \epsilon + \eta)} R 
+		 - e^{(2\eta \epsilon + \eta)} L
+		> (\rvalR{'} - \rvalL{'})
+		\frac{e^{1 - (2\eta \epsilon + \eta)} - e^{(2\eta \epsilon + \eta)}}
+		{e^2 - 1}
+		}
+		\]
+		%
+		Then we have:
+		%
+		\[
+		\extend{
+		e^0 \leq 
+		\frac{|\fvalR - \fvalL |}
+		{|\fvalR{'} - \fvalL{'}|}
+		\leq
+		\frac{|g(\fvalR ) - h(\fvalL )|}
+		{|h(\fvalR{'} ) - g(\fvalL{'} )|}
+		\leq 
+		\frac{\frac{e^{(2\eta \epsilon + \eta + 2)}}
+		{e - 1}}
+		{\frac{e^{1 - (2\eta \epsilon + \eta)} - e^{(2\eta \epsilon + \eta)}}
+		{e^2 - 1}}
+		=
+		\left(e^{\epsilon} \cdot
+		\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta} 
+		\right).
+		}		
+		\]
+%
+	\end{itemize}
+	%
+	%
+\end{proof}
+
+
+% \begin{proof}
+% Induction on $\expr$, we have following cases:
+
+% \end{proof}
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{verifysnap.bib}
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
