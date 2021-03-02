@@ -64,10 +64,7 @@ Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \di
 \mbox{Type} & \tau & ::= & \float ~|~ \real ~|~ \float_{\real \times \real}
 \end{array}
 \]
-
-% \mg{Jiawen, please write down a description of the grammar, otherwise
-%   it is difficult ot imagine the different components. Especially for expressions.}
-
+%
 We consider a simple imperative language $\prog$ with assignments, random sampling and sequencing, and simple arithmetic expressions $\expr$ with real number $\rval$, fixed point number $\fval$, variable $\varx$, binary operations and unary operations.
 The errors $\err$ are represented by a pair of real number. The environment maps variable to a fixed point number and an error.
 %
@@ -79,16 +76,10 @@ The semantics for expressions with relative
 fixed point computation error are shown in
 Figure~\ref{fig_semantics_prog}. 
 $\floaten (x)$ represents round the number to its nearset $ulp$ when the number overflowed.
-%\mg{I changed the reference because it
-% was pointing to the rules for expressions} 
-% These rules prove judgment
-% of the form $\trsenv, \prog \trsto \trsenv'$, which can be read as:
-% the
-% programs $\prog$ with environment $\trsenv$ results in the environment
-% $\trsenv'$  which contains error bound for all variables \mg{the
-%   previous sentence reads funny.}. in
-% $\trsenv'$. 
-In all the rules, $\eta$ is the machine epsilon.
+%
+In all the rules, $\eta$ is the scale of the fixed point arithmetic.
+%
+%
 \begin{figure}
 \boxed{\trsmem, \expr \trsto \fval_{(\rval, \rval)}
 : Env \times Expr \trsto Value}
@@ -759,8 +750,8 @@ $\clamp_B \big(
 %
 \end{enumerate}
 \end{lem}
-
-
+%
+%
 \begin{lem}[clampId]
 \label{lem:clampid}
 For any input $a$:
@@ -830,19 +821,11 @@ $\clamp_B \big(
 	\big)
 	\rbigstep \round{f(a)}_{\Lambda}$, then $u \in (\rvalL, 1]$ for some $\rvalL$.
 \end{lem}
-% \begin{defn}
-% [$\snap(a) : A \to \distr(\real)$]
-% Given privacy parameter $\epsilon$, the fixed point implemented
-% Snapping mechanism $\snap(a)$ is defined as (where all parameters are defined the same as above):
-% \[
-% 	u_{\mathbb{F}} \xleftarrow{\$} \edistr;
-% 	s_{\mathbb{F}} \samplel \{-1, 1\};
-% 	z = \clamp_B \big(
-% 	\round{f(a) \oplus s \otimes \oln (u) \odiv \epsilon}_{\Lambda}
-% 	\big)
-% \]
-% Let $\snap'(a)$ be the same as $\snap(a)$ without rounding and clamping steps given $u, s$.
-% \end{defn}
+%
+%%%
+%
+%
+%
 \begin{lem}[idealRL]
 \label{lem:idealrl}
 For any input $a$ and output $\valv \in (-B, B)$,
@@ -967,37 +950,29 @@ s.t.:
 	\right).
 	}
 \]
-
-%
-Since all the errors are accumulate on the same direction, 
-		Without loss of generality, we prove the following case:
-	%
-	\begin{itemize}
 		%
 		%
 		%
 		%
 		%
-		\caseL{
-		$\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
-		}
-		%
-		\subcaseL{
-		$\boldsymbol{
-		\round{f(a)}_{\Lambda} \leq 0 
-		%
-		\lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1) $
-		}
+		% \caseL{
+		% $\boldsymbol{\valv \in (-B, \round{f(a)}_{\Lambda})} ~ (\star) $
+		% }
+		% %
+		% \subcaseL{
+		% $\boldsymbol{
+		% \round{f(a)}_{\Lambda} \leq 0 
+		% %
+		% \lor \bigg( \round{f(a)}_{\Lambda} > 0 \land \valv \in (-B, 0) \bigg) } ~ (\star_1) $
+		% }
 		%
 		Let $\valv_1 = \valv - (\frac{\Lambda}{2})$,
 		$\valv_2 = \valv + (\frac{\Lambda}{2})$.
-		By $(\star_1)$, 
-		we know $\valv_1 < 0$, $\valv_2 < 0$.
 		%
 		\\
 		%
-		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(y_1 - f(a))}$ and 
-		$\rvalR = e^{\epsilon(y_2 - f(a))}$.
+		By \textbf{Lemma \ref{lem:idealrl}} and $(\star) $, we know: $\rvalL = e^{\epsilon(\valv_1 - f(a))}$ and 
+		$\rvalR = e^{\epsilon(\valv_2 - f(a))}$.
 		%
 		\\
 		%
@@ -1087,6 +1062,7 @@ Since all the errors are accumulate on the same direction,
 }	
 %
 %
+\extend{
 		By soundness theorem and (1), we have:
 		%
 		\[
@@ -1115,9 +1091,8 @@ Since all the errors are accumulate on the same direction,
 		e^{\epsilon 
 		(\valv_1 - f(a) + 2\eta) + \eta}.
 		.$$
+}		%
 		%
-		%
-		\\
 		%
 	In order to bound $\fvalR$ in terms of $\rvalR$, we have the following derivation where $P$ be the real representation of $\fvalR ~~ (\diamond)$:
 		%
@@ -1199,6 +1174,7 @@ Since all the errors are accumulate on the same direction,
 }
 %
 %
+\extend{
 		By soundness theorem and (2), we have:
 		\[
 		(f(a) + (\frac{1}{\epsilon} \times (\ln(P) - \eta ) - 2 \eta)
@@ -1209,7 +1185,6 @@ Since all the errors are accumulate on the same direction,
 		%
 		%
 		Then we have:
-\extend{
 		$$
 		e^{\epsilon 
 		 (\valv_2 - f(a) - 2\eta) - \eta}
@@ -1217,7 +1192,6 @@ Since all the errors are accumulate on the same direction,
 		e^{\epsilon 
 		(\valv_2 - f(a) + 2\eta) + \eta}.
 $$
-				}		
 		%
 		%
 		By $(\diamond)$, we have:
@@ -1228,9 +1202,9 @@ $$
 		e^{\epsilon 
 		(\valv_2 - f(a) + 2\eta) + \eta}.
 		.$$	
-
+%
 		In the same way, we have the bounds for $\fvarL{'}, \fvarR{'}$ for input $a'$ as:
-
+%
 		$$e^{\epsilon 
 		 (\valv_1 - f(a') - 2\eta) - \eta}
 		\leq \fvarL{'} \leq
@@ -1244,7 +1218,7 @@ $$
 		\leq \fvarR{'} \leq
 		e^{\epsilon 
 		(\valv_2 - f(a') + 2\eta) + \eta}$$
-
+%
 		Let  
 		$h{(\fvalL) } = e^{\epsilon 
 		 (\valv_1 - f(a) - 2\eta) - \eta}$ 
@@ -1276,7 +1250,6 @@ $$
 		Then, we can derive:
 		%
 		\[
-		\extend{
 		\begin{array}{ll}
 		|\fvarR - \fvalL|
 		& \leq |g(\fvalR ) - h(\fvalL )| \\
@@ -1293,7 +1266,6 @@ $$
 		\frac{e^{(2\eta \epsilon + \eta + 2)}}
 		{e - 1}
 		\end{array}
-		}
 		\]
 		In the same way, we can derive:
 		%
@@ -1331,8 +1303,8 @@ $$
 		\right).
 		}		
 		\]
+		}
 %
-	\end{itemize}
 	%
 	%
 \end{proof}
