@@ -131,19 +131,53 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 \inferrule*[right = bop]
 {
 	\trsmem, \expr_1 \trsto 
-	(\fval_{1(\ubar{\rval_1}, \bar{\rval_1})})
+	(\fval_{1(l_1, r_1)})
 	~~~~
-	\trsmem, \expr_2 \trsto (\fval_{2(\ubar{\rval_2}, \bar{\rval_2})})
+	\trsmem, \expr_2 \trsto (\fval_{2(l_2, r_2)})
 	~~~~
-	\fval = \floaten(\fval_1 * \fval_2)
+	\fval = \floaten(\fval_1 \bop \fval_2)
+	\and
+	\bop \in \{+, - \} 
+	\lor 
+	\big(
+	\bop \in \{\times , \div \} \land
+	 \fval_1 \geq 0 \land \fval_2 \geq 0
+	 \big)
 }
 {
-    \trsmem, \expr_1 * \expr_2
+    \trsmem, \expr_1 \bop \expr_2
     \trsto
+    \fval_{
     \big(
-    (\ubar{\rval_1} * \ubar{\rval_2}) - \eta, 
-    (\bar{\rval_1} * \bar{\rval_2} ) + \eta
-    \big)
+        (l_1 \bop l_2) - \eta, 
+        (r_1 \bop r_2 ) + \eta
+        \big)}
+}
+}
+%
+\and
+%
+\extend{
+\inferrule*[right = bop-n]
+{
+	\trsmem, \expr_1 \trsto 
+	(\fval_{1(l_1, r_1)})
+	~~~~
+	\trsmem, \expr_2 \trsto (\fval_{2(l_2, r_2)})
+	~~~~
+	\fval = \floaten(\fval_1 \bop \fval_2)
+	\and
+	\bop \in \{\times, \div\}
+	\and
+	\fval_1 < 0 \lor \fval_2 < 0
+}
+{
+    \trsmem, \expr_1 \bop \expr_2
+    \trsto
+    \fval_{\big(
+        \min{(\{l,r\}_1 \bop \{l,r\}_2)} - \eta, 
+        \max{(\{l,r\}_1 \bop \{l,r\}_2)} + \eta
+        \big)}
 }
 }
 %
@@ -153,7 +187,31 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 \inferrule*[right = uop]
 {
 	\trsmem, \expr \trsto 
-	(\fval_{1(\ubar{\rval}, \bar{\rval})})
+	(\fval_{1(l, r)})
+	~~~~
+	\fval = \floaten(\uop (\fval_1))
+	\and 
+	\uop \in \{\ln, \clamp, \round{}\} 
+}
+{
+    \trsmem, \uop(\expr)
+    \trsto
+    \Big(\fval_
+    {\big(
+     \uop(l) - \eta, 
+        (\uop(r) + \eta)
+        \big)}
+    \Big)
+}
+}
+%
+\and
+%
+\extend{
+\inferrule*[right = neg]
+{
+	\trsmem, \expr \trsto 
+	(\fval_{1(l, r)})
 	~~~~
 	\fval = \floaten(\uop (\fval_1)) 
 }
@@ -162,8 +220,8 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
     \trsto
     \Big(\fval_
     {\big(
-     \uop(\ubar{\rval}) - \eta, 
-        (\uop(\bar{\rval}) + \eta)
+     -r - \eta, 
+        -l + \eta)
         \big)}
     \Big)
 }
