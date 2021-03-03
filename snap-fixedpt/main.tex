@@ -228,7 +228,7 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 }
 %
 \end{mathpar}
-\caption{Semantics of Transition for Expressions with Relative Fixed Point Error}
+\caption{Semantics of Transition for Expressions with Absolute Fixed Point Error}
 \label{fig:op_semantics}
 \end{figure}
 %
@@ -914,8 +914,7 @@ The $\snap$ mechanism in real computation is differentially private.
 \section{Main Theorem}
 
 \begin{thm}
-[The $\snap$ mechanism is $(\epsilon 
-+ \ln(\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta}), 0)-$differentially private]
+[The $\snap$ mechanism is $((6 \epsilon + 4) \eta + \epsilon, 0)-$differentially private]
 %
 Consider the $\snap$ mechanism defined as before. For any privacy parameter $\epsilon$ representable in fixed point computation, for all possible outputs $\valv$ in fixed point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
 \end{thm}
@@ -993,9 +992,7 @@ s.t.:
 %
 \[
 \extend{
-	-\epsilon - \ln\left(
-	\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta} 
-	\right)
+	-(6 \epsilon + 4) \eta - \epsilon
 	\leq \ln\left(
 	 \frac{h(|{\rvalR} - {\rvalL}|)}{g(|{\rvalR{'}} - {\rvalL{'}}|)} 
 	 \right) 
@@ -1003,9 +1000,7 @@ s.t.:
 	\ln\left( 
 	\frac{g(|{\rvalR} - {\rvalL}|)}{h(|{\rvalR{'}} - {\rvalL{'}}|)} 
 	\right)
-	\leq \epsilon + \ln \left(
-	\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta} 
-	\right).
+	\leq (6 \epsilon + 4) \eta + \epsilon.
 	}
 \]
 		%
@@ -1316,13 +1311,8 @@ $$
 		e^{-(2\eta\epsilon + \eta)} L \\
 		& = L \big(  e^{ \Lambda\epsilon + (2\eta \epsilon + \eta)} 
 		- e^{-(2\eta \epsilon + \eta)} \big)\\
-		& \leq L \cdot
-		\frac{e^{(2\eta \epsilon + \eta + 2)}}
-		{e - 1}
-		(e^{ \Lambda\epsilon} + 1) \\
-		& = (\rvalR - \rvalL)
-		\frac{e^{(2\eta \epsilon + \eta + 2)}}
-		{e - 1}
+		& < (\rvalR - \rvalL)
+		e^{((\epsilon + 1) \eta + (2 \epsilon + 1) \eta)},
 		\end{array}
 		\]
 		In the same way, we can derive:
@@ -1335,10 +1325,11 @@ $$
 		 > e^{-(2\eta \epsilon + \eta)} R 
 		 - e^{(2\eta \epsilon + \eta)} L
 		> (\rvalR{'} - \rvalL{'})
-		\frac{e^{1 - (2\eta \epsilon + \eta)} - e^{(2\eta \epsilon + \eta)}}
-		{e^2 - 1}
+		e^{(-(\epsilon + 1) \eta - (2 \epsilon + 1) \eta)}
 		}
 		\]
+		%
+		Both of the bound are derived under the restriction that: $(\epsilon + 1) \eta \leq 1$.
 		%
 		Then we have:
 		%
@@ -1351,13 +1342,11 @@ $$
 		\frac{|g(\fvalR ) - h(\fvalL )|}
 		{|h(\fvalR{'} ) - g(\fvalL{'} )|}
 		\leq 
-		\frac{\frac{e^{(2\eta \epsilon + \eta + 2)}}
-		{e - 1}}
-		{\frac{e^{1 - (2\eta \epsilon + \eta)} - e^{(2\eta \epsilon + \eta)}}
-		{e^2 - 1}}
+		\frac{e^{((\epsilon + 1) \eta + (2 \epsilon + 1) \eta)}}
+		{e^{(-(\epsilon + 1) \eta - (2 \epsilon + 1) \eta)}}
 		=
-		\left(e^{\epsilon} \cdot
-		\frac{e^2(e + 1)}{e^{1 - 4\eta \epsilon} + \eta} 
+		\left(
+		e^{(6 \epsilon + 4) \eta + \epsilon}
 		\right).
 		}		
 		\]
