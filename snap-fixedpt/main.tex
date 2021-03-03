@@ -914,7 +914,7 @@ The $\snap$ mechanism in real computation is differentially private.
 \section{Main Theorem}
 
 \begin{thm}
-[The $\snap$ mechanism is $((6 \epsilon + 4) \eta + \epsilon, 0)-$differentially private]
+[The $\snap$ mechanism is $(6.9( \epsilon + 1) \eta + \epsilon, 0)-$differentially private]
 %
 Consider the $\snap$ mechanism defined as before. For any privacy parameter $\epsilon$ representable in fixed point computation, for all possible outputs $\valv$ in fixed point computation and pairs of adjacent input $a$ and $a'$ satisfying $|f(a) - f(a')| \leq 1$, the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$.
 \end{thm}
@@ -992,7 +992,7 @@ s.t.:
 %
 \[
 \extend{
-	-(6 \epsilon + 4) \eta - \epsilon
+	-6.9( \epsilon + 1) \eta - \epsilon
 	\leq \ln\left(
 	 \frac{h(|{\rvalR} - {\rvalL}|)}{g(|{\rvalR{'}} - {\rvalL{'}}|)} 
 	 \right) 
@@ -1000,7 +1000,7 @@ s.t.:
 	\ln\left( 
 	\frac{g(|{\rvalR} - {\rvalL}|)}{h(|{\rvalR{'}} - {\rvalL{'}}|)} 
 	\right)
-	\leq (6 \epsilon + 4) \eta + \epsilon.
+	\leq 6.9( \epsilon + 1) \eta + \epsilon.
 	}
 \]
 		%
@@ -1312,7 +1312,7 @@ $$
 		& = L \big(  e^{ \Lambda\epsilon + (2\eta \epsilon + \eta)} 
 		- e^{-(2\eta \epsilon + \eta)} \big)\\
 		& < (\rvalR - \rvalL)
-		e^{((\epsilon + 1) \eta + (2 \epsilon + 1) \eta)},
+		e^{(3.45(\epsilon + 1) \eta )},
 		\end{array}
 		\]
 		In the same way, we can derive:
@@ -1325,11 +1325,11 @@ $$
 		 > e^{-(2\eta \epsilon + \eta)} R 
 		 - e^{(2\eta \epsilon + \eta)} L
 		> (\rvalR{'} - \rvalL{'})
-		e^{(-(\epsilon + 1) \eta - (2 \epsilon + 1) \eta)}
+		e^{(-3.45(\epsilon + 1) \eta)}
 		}
 		\]
 		%
-		Both of the bound are derived under the restriction that: $(\epsilon + 1) \eta \leq 1$.
+		Both of the bound are derived under the restriction that: $(\epsilon + 1) \eta \leq 1$ and $\epsilon \geq 1$.
 		%
 		Then we have:
 		%
@@ -1342,11 +1342,11 @@ $$
 		\frac{|g(\fvalR ) - h(\fvalL )|}
 		{|h(\fvalR{'} ) - g(\fvalL{'} )|}
 		\leq 
-		\frac{e^{((\epsilon + 1) \eta + (2 \epsilon + 1) \eta)}}
-		{e^{(-(\epsilon + 1) \eta - (2 \epsilon + 1) \eta)}}
+		\frac{e^{(3.45(\epsilon + 1) \eta )}(\rvalR - \rvalL) }
+		{e^{(-3.45(\epsilon + 1) \eta)} (\rvalR{'} - \rvalL{'})}
 		=
 		\left(
-		e^{(6 \epsilon + 4) \eta + \epsilon}
+		e^{6.9( \epsilon + 1) \eta + \epsilon}
 		\right).
 		}		
 		\]
