@@ -3554,6 +3554,61 @@ Then, we have the rest derivation exactly the same as previous cases.
 
 \end{proof}
 
+\section{Application Examples}
+
+\subsection{Partial Sum Algorithm}
+%
+\begin{algorithm}
+\footnotesize
+\caption{Partial Sum Algorithm}
+\label{alg:partialsum}
+\begin{algorithmic}
+\REQUIRE Database
+\STATE Define control dataset $C = \{0,1, \cdots, c - 1\}$
+\STATE 
+\STATE  {\bf for}\ $j\in [k]$\ {\bf do} 
+\STATE \qquad {\bf let} $p=\uniform(0,1)$ 
+\STATE \qquad {\bf define} $q (x) = \bernoulli ( p )$ .
+\STATE \qquad {\bf define} $qc (x) = \bernoulli ( p )$ .
+\STATE \qquad {\bf let} $a = \mathcal{M}(q)$ 
+\STATE \qquad {\bf for}\ $i \in [N]$\ {\bf do}
+\STATE \qquad \qquad $Nscore(i) = Nscore(i) + (a - p)*(q (i) - p)$ if $i \notin I$
+\STATE \qquad {\bf for}\ $i \in [c]$\ {\bf do}
+\STATE \qquad \qquad $Cscore(C(i)) = Cscore(C(i)) + (a - p)*(qc (i) - p)$
+\STATE \qquad {\bf let} $I = \{i | i\in [N] \land Nscore(i) > \max(Cscore)\}$
+\STATE \qquad {\bf let} $X = X \setminus I$ 
+\RETURN $X$.
+% \ENSURE 
+\end{algorithmic}
+\end{algorithm}
+%
+\subsection{Above Threshold Algorithm}
+%
+\begin{algorithm}
+\footnotesize
+\caption{Above Threshold Algorithm}
+\label{alg:abovethd}
+\begin{algorithmic}
+\REQUIRE Database
+\STATE Define control dataset $C = \{0,1, \cdots, c - 1\}$
+\STATE 
+\STATE  {\bf for}\ $j\in [k]$\ {\bf do} 
+\STATE \qquad {\bf let} $p=\uniform(0,1)$ 
+\STATE \qquad {\bf define} $q (x) = \bernoulli ( p )$ .
+\STATE \qquad {\bf define} $qc (x) = \bernoulli ( p )$ .
+\STATE \qquad {\bf let} $a = \mathcal{M}(q)$ 
+\STATE \qquad {\bf for}\ $i \in [N]$\ {\bf do}
+\STATE \qquad \qquad $Nscore(i) = Nscore(i) + (a - p)*(q (i) - p)$ if $i \notin I$
+\STATE \qquad {\bf for}\ $i \in [c]$\ {\bf do}
+\STATE \qquad \qquad $Cscore(C(i)) = Cscore(C(i)) + (a - p)*(qc (i) - p)$
+\STATE \qquad {\bf let} $I = \{i | i\in [N] \land Nscore(i) > \max(Cscore)\}$
+\STATE \qquad {\bf let} $X = X \setminus I$ 
+\RETURN $X$.
+% \ENSURE 
+\end{algorithmic}
+\end{algorithm}
+%
+
 \newpage
 \bibliographystyle{plain}
 \bibliography{verifysnap.bib}

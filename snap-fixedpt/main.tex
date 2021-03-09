@@ -87,12 +87,12 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 \inferrule*[right = var]
 {
 	\trsmem(\varx) 
-	= (\fval_{( \ubar{\rval}, \bar{\rval} )})
+	= \fval_{( \ubar{\rval}, \bar{\rval} )}
 }
 {
 	\trsmem, \varx
 	\trsto
-	(\fval_{( \ubar{\rval}, \bar{\rval} )})
+	\fval_{( \ubar{\rval}, \bar{\rval} )}
 }
 \and
 %
@@ -107,8 +107,7 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 {
 	\trsmem, \rval
 	\trsto
-	\big(\fval_{(\frac{\rval}{(1 + \eta)}, \rval(1 + \eta))} 
-	\big)
+	\fval_{(\rval - \eta, \rval + \eta)} 
 }
 %
 \and
@@ -122,7 +121,7 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 {
 	\trsmem, \rval
 	\trsto
-	(\fval_{(\rval, \rval)} )
+	\fval_{(\rval, \rval)}
 }
 %
 \and
@@ -196,12 +195,11 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 {
     \trsmem, \uop(\expr)
     \trsto
-    \Big(\fval_
+    \fval_
     {\big(
      \uop(l) - \eta, 
         (\uop(r) + \eta)
         \big)}
-    \Big)
 }
 }
 %
@@ -218,12 +216,11 @@ In all the rules, $\eta$ is the scale of the fixed point arithmetic.
 {
     \trsmem, \uop(\expr)
     \trsto
-    \Big(\fval_
+    \fval_
     {\big(
      -r - \eta, 
         -l + \eta)
         \big)}
-    \Big)
 }
 }
 %
@@ -749,7 +746,7 @@ $\clamp_B \big(
 
 \begin{lem}[clampR]
 \label{lem:clampr}
-Let $b$ be the largest number rounded by $\Lambda$ that is smaller than $B$, for any input $a$, and some $s$:
+Let $b$ be the largest multiple of $\Lambda$ s.t. $ b \leq B$, for any input $a$, and some $s$:
 \begin{enumerate}
 \item 
 if 
@@ -896,15 +893,31 @@ $\clamp_B \big(
 \rbigstep \valv
 $, then:
 %
+\begin{itemize}
+	\item[(1)] if $s = 1$:
 $$
-\rvalL = e^{\epsilon(\valv - \Lambda/2 - f(a))/s}
+\rvalL = e^{\epsilon(\valv - \Lambda/2 - f(a))}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-\rvalR = e^{\epsilon(\valv + \Lambda/2 - f(a))/s}
+\rvalR = e^{\epsilon(\valv + \Lambda/2 - f(a))}
 $$
+%
+%
+	\item[(2)] if $s = -1$:
+	$$
+\rvalL = e^{-\epsilon(\valv + \Lambda/2 - f(a))}
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+\rvalR = e^{-\epsilon(\valv - \Lambda/2 - f(a))}
+$$
+%
+\end{itemize}
 and 
-$\Pr[\snap(a) = \valv] = 1/2(\rvalR - \rvalL)$.
+$\Pr[\snap(a) = \valv] = \frac{1}{2}
+\left\vert\rvalR - \rvalL\right \vert$.
+%
 \end{lem}
-
+%
+%
+%
 \begin{lem}[idealDP]
 \label{lem:idealdp}
 The $\snap$ mechanism in real computation is differentially private.
