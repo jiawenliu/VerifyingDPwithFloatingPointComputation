@@ -746,7 +746,7 @@ $\clamp_B \big(
 
 \begin{lem}[clampR]
 \label{lem:clampr}
-Let $b$ be the largest multiple of $\Lambda$ s.t. $ b \leq B$, for any input $a$, and some $s$:
+Let $b$ be the largest multiple of $\Lambda$ s.t. $ b \leq B$, then for any input $a$, and some $s$:
 \begin{enumerate}
 \item 
 if 
@@ -994,7 +994,10 @@ $$
 	\big)
 	\fbigstep \valv.$$
 %
-To show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 23 B \epsilon \eta}$, it’s sufficient to show:
+Let $h{(\cdot) }$ and $g(\cdot)$
+be the lower and upper bound for $\cdot$,
+%
+to show the privacy loss between $\snap(a)$ and $\snap(a')$ is bounded by $e^{\epsilon + 8.25 (\epsilon + 1) \eta}$, it’s sufficient to show:
 %
 %
 $h(|{\rvalR} - {\rvalL}|) \leq |\fvalR - \fvalL| \leq g(|{\rvalR} - {\rvalL}|)$ and 
@@ -1291,7 +1294,7 @@ $$
 		 be the lower bound for $\fvalL$
 		and $g(\fvalR) = e^{\epsilon 
 		(\valv_2 - f(a) + 2\eta) + \eta}$ 
-		be the upper bound for $\fvalR$
+		be the upper bound for $\fvalR$.
 		%
 		We can have:
 		\[
