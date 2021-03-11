@@ -103,7 +103,7 @@ $\boxed{\evlenv, \edistr \trsto \rval}$
 \section{Extended Programming Logic\cite{barthe2016proving}}
 \begin{defn}
 [Laplce mechanism \cite{dwork2006calibrating}]
-Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distri bution $\laplace(\frac{1}{\epsilon})$.
+Let $\epsilon > 0$. The Laplace mechanism  $\lapmech_{\epsilon}$: $\real \to \distr(\real)$ is defined by $\lapmech(t) = t + v$, where $v \in \real$ is drawn from the Laplace distribution $\laplace(\frac{1}{\epsilon})$.
 \end{defn}
 
 \begin{defn}
@@ -116,7 +116,11 @@ Let $\epsilon \leq 0$. The $\epsilon${\text -DP divergence} $\Delta_{\epsilon}(\
 
 \begin{defn}
 [$(\epsilon, \delta)$ - lifting \cite{barthe2016proving}]
-Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1 \times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in \distr(U_1, U_2)$ s.t.:
+Two sub-distributions $\mu_1 \in \distr(U_1)$, $\mu_2 \in \distr(U_2)$are
+related by the $(\epsilon, \delta)$ - dilation lifting of $\Psi \subseteq U_1
+\times U_2$, written $\mu_1 \Psi^{\#(\epsilon, \delta)} \mu_2$, if there exist
+two witness sub-distributions $\mu_L \in \distr(U_1 \times U_2)$ and $\mu_R \in
+\distr(U_1 \times U_2)$ s.t.:
 \begin{enumerate}
 	\item $\projl(\mu_L) = \mu_1$ and $\projr(\mu_R) = \mu_2$;
 	\item $\supp(\mu_L) \subseteq \Psi$ and $\supp(\mu_R) \subseteq \Psi$; and
@@ -264,7 +268,8 @@ Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
 
 
 \begin{defn}[Span on measurable spaces]
-  Let $A,B$ and $R$ be measurable spaces, a \emph{span} from is a 5-places relation $(A,B,R,\rho_1,\rho_2)$ such that  $\rho_1:R\to A$ and $\rho_2: R\to B$.   
+  A \emph{span} from is a 5-tuple $(A,B,R,\rho_1,\rho_2)$, where $\rho_1:R\to A$
+  and $\rho_2: R \to B$ are morphisms of measurable spaces.
 \end{defn}
 
 \begin{defn}[Approximate span-lifting]
@@ -275,7 +280,7 @@ Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
   $$
   where
   $$
-  W(\epsilon, \delta)=\{(\mu_L,\mu_R)\in \distr(R)\times\distr(R)\|\ \Delta_\epsilon(\mu_L,\mu_R)\leq \delta\}
+  W(\epsilon, \delta)=\{(\mu_L,\mu_R)\in \distr(R)\times\distr(R)\mid \Delta_\epsilon(\mu_L,\mu_R)\leq \delta\}
   $$
   We will call pairs $(\mu_L,\mu_R)$ elements of $W(\epsilon, \delta)$
   \emph{witnesses} of the span-lifting.
