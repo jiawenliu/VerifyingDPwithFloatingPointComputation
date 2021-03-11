@@ -252,13 +252,184 @@ Then, $\mu_1 \Psi^{\#(\epsilon, 0)} \mu_2$, where
 \]
 \end{thm}
 
-\begin{thm}
-\label{corr_axnull}
-For any distributions $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$, $\mu_1 \Psi^{\#(0, 0)} \mu_2$, where
-\[
-	\Psi = \{(x,y) \in \real \times \real | x = y \}
-\]
+\section{Continuous distributions}
+\mg{we need a recap of measure theory.}
+
+\begin{definition}
+  Let $f:A \to B$ be a measurable function over measurable spaces $A$ and $B$.
+  Its \emph{probabilistic image}, denoted $f^*:\distr(A)\to\distr(B)$ is
+  defined as $f^*(\mu)=\mu\circ f^{-1}$.   
+\end{definition}
+\mg{the name here is non standard}
+
+
+\begin{definition}[Span on measurable spaces]
+  Let $A,B$ and $R$ be measurable spaces, a \emph{span} from is a 5-places relation $(A,B,R,\rho_1,\rho_2)$ such that  $\rho_1:R\to A$ and $\rho_2: R\to B$.   
+\end{definition}
+
+\begin{definition}[Approximate span-lifting]
+  Given a span $(A,B,R,\rho_1,\rho_2)$, its
+  $(\epsilon,\delta)$-span-lifting is defined as
+  $$
+  (A,B,R,\rho_1,\rho_2)^{\#(\epsilon,\delta)}=(\distr(A),\distr(B),W(\epsilon,\delta), \rho_1^\#\circ \pi_1, \rho_2^\#\circ \pi_2)
+  $$
+  where
+  $$
+  W(\epsilon, \delta)=\{(\mu_L,\mu_R)\in \distr(R)\times\distr(R)\|\ \Delta_\epsilon(\mu_L,\mu_R)\leq \delta\}
+  $$
+  We will call pairs $(\mu_L,\mu_R)$ elements of $W(\epsilon, \delta)$
+  \emph{witnesses} of the span-lifting.
+
+  Given two distributions $\mu_1\in \distr(A)$ and $\mu_2\in\distr(B)$
+  we say that they are in the $(\epsilon,\delta)$-span-lifting of the span
+  $(A,B,R,\rho_1,\rho_2)$ if there are witnesses $(\mu_L,\mu_R)\in  W(\epsilon, \delta)$ such that $\rho_1^*(\mu_L)=\mu_1$ and $\rho_2^*(\mu_R)=\mu_2$.
+If that is the case, we will write $\mu_1 (R,\rho_1,\rho_2)^{\#(\epsilon, \delta)} \mu_2$.  
+\end{definition}
+
+
+\begin{thm}[Coupling for Uniform distributions]
+\label{coup_unif}
+Let $\epsilon>0$ and $\Psi = \{(x,y) \in \real \times \real | x \cdot e^{-\epsilon} \leq y \land  y \leq x \cdot e^{\epsilon} \}$.  Then, $ \uniform(0,1) (\Psi,\pi_1,\pi_2)^{\#(\epsilon, 0)}  \uniform(0,1)$.
+\mg{I am not sure this is the span we want. Probably it is but we need to check it.}
 \end{thm}
+\begin{proof}
+\mg{we need to rewrite this in the continuous case.}
+  We will show that the distributions $\mu_L, \mu_R \in \distr(\real \times \real)$, defined by the  following densities, witness the required approximate coupling:
+\[
+	{\mu_L}(x, y) = 
+	\begin{cases}
+	1 & x \cdot e^{-\epsilon} = y \land x \in [0, 1)\\
+	0       & o.w.
+	\end{cases}
+	\\
+	{\mu_R}(x, y) = 
+	\begin{cases}
+	1 & x \cdot e^{-\epsilon} = y \land y \in [0, 1)\\
+	0       & o.w.
+	\end{cases}.
+\]
+We show that these two joint distributions satisfy the three
+requirements needed to have an approximate coupling.
+\begin{enumerate}
+	\item $\supp(\mu_L) \subseteq \Psi \land \supp(\mu_R) \subseteq \Psi$
+
+	\begin{itemize}
+        \item By
+          definition $\supp(\mu_L) = \{(x,y)\ |\ x\cdot
+          e^{-\epsilon}=y\land x\in [0,1)\}$. But clearly
+          $$\{(x,y)\in \real\times \real \ |\ x\cdot e^{-\epsilon}=y\land x\in [0,1)\}
+          \subseteq
+           \{(x,y)\ \real \times \real |\ x\cdot e^{-\epsilon}\leq y\land  y\leq x\cdot e^{\epsilon}\}=\Psi
+$$          
+
+		\item By
+          definition $\supp(\mu_R) = \{(x,y)\ |\ x\cdot
+          e^{-\epsilon}=y\land y\in [0,1)\}$. But clearly
+          $$\{(x,y)\in \real\times \real \ |\ x\cdot e^{-\epsilon}=y\land y\in [0,1)\}
+          \subseteq
+           \{(x,y)\ \real \times \real |\ x\cdot e^{-\epsilon}\leq y\land  y\leq x\cdot e^{\epsilon}\}=\Psi
+$$          
+	\end{itemize}		
+
+
+	\item $\projl(\mu_L) = \mu_1 \land \pi_2(\mu_R) = \mu_2$
+	
+	\begin{itemize}
+        \item $\projl(\mu_L) = \int \mu_L(x,y) dy= $
+
+
+          $\projl(\mu_L) = \mu_1$ 
+
+		% Equivalent to show $\pdf_{\projl(\mu_L)}  = \pdf_{\mu_1}$.
+
+		By definition of the $\projl$ and $\pdf$ of $\mu_L$, we have $\forall x \in \real$:
+		\[
+			\pdf_{\projl(\mu_L)}(x) = 
+			\begin{cases}
+			\int_{y}\pdf_{\uniform}(x) & (x,y) \in \Psi \land x \in [0, 1)\\
+			0       & o.w.
+			\end{cases} 
+			= 
+			\begin{cases}
+			\pdf_{\uniform}(x) & x \in [0, 1)\\
+			0       & o.w.
+			\end{cases}
+			=
+			\pdf_{\mu_1}(x)
+		\]
+
+		\item $\projl(\mu_R) = \mu_2$ 
+
+		Equivalent to show$\pdf_{\projr(\mu_R)}  = \pdf_{\mu_2}$.
+
+		By definition of the $\projr$ and $\pdf$ of $\mu_R$, we have $\forall y \in \real$:
+		\[
+			\pdf_{\projr(\mu_R)}(y) = 
+			\begin{cases}
+			\int_{x}\pdf_{\uniform}(y) & (x,y) \in \Psi \land y \in [0, 1)\\
+			0       & o.w.
+			\end{cases} 
+			= 
+			\begin{cases}
+			\pdf_{\uniform}(y) & y \in [0, 1)\\
+			0       & o.w.
+			\end{cases}
+			=
+			\pdf_{\mu_2}(y)
+		\]
+	\end{itemize}	
+
+	\item $\Delta_{\epsilon}(\mu_L, \mu_R) \leq 0$
+
+	By definition of $\epsilon-$DP divergence, we have:
+	 \[
+	 \begin{array}{ll}
+	 \Delta_{\epsilon}(\mu_L, \mu_R) 
+	 & = \underset{S}{\psup}
+	 \Big(
+	 \pr{(x,y) \samplel \mu_L}{(x,y) \in S} - e^{\epsilon} \pr{(x,y) \samplel \mu_R}{(x,y) \in S}
+	 \Big) \\
+	 & =\underset{S}{\psup}
+	 \Big(
+	 \int_{(x,y) \in S} \pdf_{\mu_L}(x, y) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\mu_R}(x, y)
+	 \Big)	 
+	 \end{array}
+	 \]
+	 \begin{itemize}
+	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [0, 1) \land x \cdot e^{-\epsilon} = y\}$:\\
+		 \[
+		 \begin{array}{ll}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 & = 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
+		 & = 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x * e^{-\epsilon})\\ 
+		 & = 
+		 \int_{(x,y) \in S} \pdf_{\uniform}(x) - e^{\epsilon}* e^{-\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(x )\\
+		 & = 0 
+		 \end{array}
+		 \]
+	 	\item[{\bf case}] $S \subseteq \{(x, y) | x \in [1, e^{\epsilon}) \land x \cdot e^{-\epsilon} = y\}$:\\
+		 \[
+		 \begin{array}{ll}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 & = 
+		 0 - e^{\epsilon} \int_{(x,y) \in S} \pdf_{\uniform}(y)\\
+		 & <  0 
+		 \end{array}
+		 \]
+	 	\item[{\bf case}] o.w.\\
+		 \[
+		 \begin{array}{ll}
+		 \Delta_{\epsilon}(\mu_L, \mu_R) 
+		 & = 0 - 0 =  0 
+		 \end{array}
+		 \]	 	
+	 \end{itemize}
+
+\end{enumerate}
+\end{proof}
+
 
 
 \begin{proof}[Proof of Theorem \ref{corr_axunif}]
@@ -407,6 +578,15 @@ Their $\pdf.$ are defined:
 
 \end{itemize}
 \end{proof}
+\mg{The next Theorem doesn't make sense to me.}
+\begin{thm}
+\label{corr_axnull}
+For any distributions $\mu_1 \in \distr(\real)$, $\mu_2 \in \distr(\real)$, $\mu_1 \Psi^{\#(0, 0)} \mu_2$, where
+\[
+	\Psi = \{(x,y) \in \real \times \real | x = y \}
+\]
+\end{thm}
+
 
 \section{Formalization of $\snap$ Mechanism in Probabilistic Logic}
 \begin{defn}
